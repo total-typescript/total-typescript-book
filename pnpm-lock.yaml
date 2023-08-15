@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@tanstack/react-query': ^4.29.12
-  '@total-typescript/exercise-cli': ^0.2.2
+  '@total-typescript/exercise-cli': ^0.3.0
   '@types/express': ^4.17.13
   '@types/react': ^18.2.8
   '@types/react-dom': ^18.2.4
@@ -32,7 +32,7 @@ dependencies:
   zod: 3.22.0
 
 devDependencies:
-  '@total-typescript/exercise-cli': 0.2.2
+  '@total-typescript/exercise-cli': 0.3.0
   cross-fetch: 3.1.8
   jsdom: 21.1.2
   prettier: 2.8.8
@@ -448,8 +448,8 @@ packages:
     engines: {node: '>= 10'}
     dev: true
 
-  /@total-typescript/exercise-cli/0.2.2:
-    resolution: {integrity: sha512-0DYEpYQThv+kzj3Pqi1lN08XB22YgHTXnAnnQqO5/7jQ6yQtty4rEu0FoSm+xwzO8nn8NAwjotpYrEq5Lf6jBg==}
+  /@total-typescript/exercise-cli/0.3.0:
+    resolution: {integrity: sha512-y//Ty2M51WPaO/B/brSlE7G4GCemK/m4e/QwMq5UV4KGh4hsxQ276NZtCk2k0oEieDiil+QDD4wQWblZDwDzsQ==}
     hasBin: true
     dependencies:
       chokidar: 3.5.3
