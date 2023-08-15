@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "jsx": "react-jsx",
     "module": "ES2022",
     "moduleResolution": "node",
     "noEmit": true,
