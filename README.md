@@ -2,7 +2,7 @@
 
 ## Quickstart
 
-Clone this repo or [open in Gitpod](https://gitpod.io/#https://github.com/total-typescript/react-typescript-tutorial).
+Clone this repo or [open in Gitpod](https://gitpod.io/#https://github.com/total-typescript/total-typescript-book).
 
 ```sh
 # Installs all dependencies
