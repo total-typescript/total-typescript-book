@@ -1,0 +1,38 @@
+name: CI
+on:
+  # Runs against all pushes
+  push:
+    branches:
+      - "**"
+
+  # Runs against all pull requests
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  ci:
+    # Runs on the latest version of Ubuntu, a linux distro
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out the current branch using git checkout
+      - uses: actions/checkout@v3
+
+      # Sets up pnpm with version 7
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      # Sets up node
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          # Sets up pnpm's cache
+          cache: "pnpm"
+
+      # Install with frozen lockfile to ensure packages
+      # are not accidentally updated
+      - run: pnpm install --frozen-lockfile
+
+      # Run the 'ci' script defined in package.json
+      - run: pnpm run ci
