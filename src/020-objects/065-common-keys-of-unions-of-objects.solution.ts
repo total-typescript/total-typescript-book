@@ -14,7 +14,14 @@ type Organisation = {
   imageId: string;
 };
 
-const getAvatarImage = (entity: User | Organisation) => {
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  imageId: string;
+};
+
+const getAvatarImage = (entity: User | Organisation | Product) => {
   {
     // Should not be able to access properties that are
     // not common to both types
@@ -24,6 +31,9 @@ const getAvatarImage = (entity: User | Organisation) => {
 
     // @ts-expect-error
     entity.address;
+
+    // @ts-expect-error
+    entity.price;
   }
 
   return {
@@ -57,5 +67,19 @@ it("Should work for an organisation", () => {
   expect(result).toEqual({
     url: "https://via.placeholder.com/abc123",
     alt: "Total TypeScript Avatar",
+  });
+});
+
+it("Should work for a product", () => {
+  const result = getAvatarImage({
+    id: "1",
+    name: "TypeScript Mug",
+    price: 10,
+    imageId: "abc123",
+  });
+
+  expect(result).toEqual({
+    url: "https://via.placeholder.com/abc123",
+    alt: "TypeScript Mug Avatar",
   });
 });
