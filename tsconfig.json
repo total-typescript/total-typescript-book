@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "module": "ES2022",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "noEmit": true,
     "isolatedModules": true,
     "moduleDetection": "force",
+    "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
