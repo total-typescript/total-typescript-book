@@ -1,0 +1,1 @@
+// Explain the VSCode extension
