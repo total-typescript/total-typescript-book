@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
 type Circle = {
-  kind: "circle";
+  kind?: "circle";
   radius: number;
 };
 
@@ -13,10 +13,10 @@ type Square = {
 type Shape = Circle | Square;
 
 function calculateArea(shape: Shape) {
-  if (shape.kind === "circle") {
-    return Math.PI * shape.radius * shape.radius;
-  } else {
+  if (shape.kind === "square") {
     return shape.sideLength * shape.sideLength;
+  } else {
+    return Math.PI * shape.radius * shape.radius;
   }
 }
 
@@ -38,6 +38,16 @@ it("Should calculate the area of a square", () => {
   });
 
   expect(result).toBe(25);
+
+  type test = Expect<Equal<typeof result, number>>;
+});
+
+it("Should calculate the area of a circle when no kind is passed", () => {
+  const result = calculateArea({
+    radius: 5,
+  });
+
+  expect(result).toBe(78.53981633974483);
 
   type test = Expect<Equal<typeof result, number>>;
 });
