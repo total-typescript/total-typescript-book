@@ -10,7 +10,7 @@ async function fetchData(): Promise<ApiResponse> {
     if (!response.ok) {
       return [
         false,
-        // TODO - more detailed error handling here
+        // Imagine more detailed error handling here
         "An error occurred",
       ];
     }
