@@ -1,24 +1,24 @@
 import { expect, it } from "vitest";
 
 class CanvasNode {
-  x;
-  y;
+  #x;
+  #y;
 
   constructor(position?: { x: number; y: number }) {
-    this.x = position?.x ?? 0;
-    this.y = position?.y ?? 0;
+    this.#x = position?.x ?? 0;
+    this.#y = position?.y ?? 0;
   }
 
   get position() {
     return {
-      x: this.x,
-      y: this.y,
+      x: this.#x,
+      y: this.#y,
     };
   }
 
   move(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    this.#x = x;
+    this.#y = y;
   }
 }
 
@@ -46,10 +46,10 @@ it("Should not be able to access x and y from the outside", () => {
 
   expect(
     // @ts-expect-error
-    canvasNode.x,
+    canvasNode.#x,
   ).toEqual(undefined);
   expect(
     // @ts-expect-error
-    canvasNode.y,
+    canvasNode.#y,
   ).toEqual(undefined);
 });
