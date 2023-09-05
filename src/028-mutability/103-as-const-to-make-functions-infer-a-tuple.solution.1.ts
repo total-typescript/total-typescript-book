@@ -1,4 +1,4 @@
-const fetchData = async () => {
+const fetchData = async (): Promise<[Error | undefined, any?]> => {
   const result = await fetch("/");
 
   if (!result.ok) {

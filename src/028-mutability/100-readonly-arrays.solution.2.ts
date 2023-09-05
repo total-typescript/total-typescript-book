@@ -1,4 +1,4 @@
-function printNames(names: string[]) {
+function printNames(names: ReadonlyArray<string>) {
   for (const name of names) {
     console.log(name);
   }
