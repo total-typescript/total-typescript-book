@@ -1,8 +1,11 @@
 import { expect, it } from "vitest";
 
-class CanvasNode {}
+class CanvasNode {
+  readonly x = 0;
+  readonly y = 0;
+}
 
-it("Should store some basic properties", () => {
+it("Should work", () => {
   const canvasNode = new CanvasNode();
 
   expect(canvasNode.x).toEqual(0);
