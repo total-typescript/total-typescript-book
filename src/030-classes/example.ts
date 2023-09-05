@@ -1,5 +1,21 @@
 import { expect, it } from "vitest";
 
+function logXAndY(
+  originalMethod: (...args: any[]) => any,
+  context: ClassMethodDecoratorContext<Shape>,
+) {
+  const methodName = String(context.name);
+
+  function replacementMethod(this: Shape, ...args: any[]) {
+    console.log(`Calling ${methodName} with`, ...args);
+    console.log(`x: ${this.x}, y: ${this.y}`);
+    const result = originalMethod.call(this, ...args);
+    return result;
+  }
+
+  return replacementMethod;
+}
+
 type ViewMode = "hidden" | "visible" | "selected";
 
 type InitialOptions = { x: number; y: number; viewMode?: ViewMode };
@@ -10,21 +26,22 @@ interface IShape {
 }
 
 class Shape implements IShape {
-  #x: number;
-  #y: number;
+  x: number;
+  y: number;
 
   constructor(initial?: InitialOptions) {
-    this.#x = initial?.x ?? 0;
-    this.#y = initial?.y ?? 0;
+    this.x = initial?.x ?? 0;
+    this.y = initial?.y ?? 0;
   }
 
   get position() {
-    return { x: this.#x, y: this.#y };
+    return { x: this.x, y: this.y };
   }
 
+  @logXAndY
   move(deltaX: number, deltaY: number) {
-    this.#x += deltaX;
-    this.#y += deltaY;
+    this.x += deltaX;
+    this.y += deltaY;
   }
 }
 
@@ -36,9 +53,10 @@ class CanvasNode extends Shape {
     this.#viewMode = initial?.viewMode ?? "visible";
   }
 
-  hide = () => {
+  @logXAndY
+  hide() {
     this.#viewMode = "hidden";
-  };
+  }
 
   get isHidden() {
     return this.#viewMode === "hidden";
