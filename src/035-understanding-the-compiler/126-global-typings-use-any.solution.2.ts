@@ -1,16 +1,15 @@
-import { expect, it } from "vitest";
+// import '@total-typescript/ts-reset'
+import { it } from "vitest";
 
 const getObj = () => {
   const obj: {
     a: number;
     b: number;
-  } = JSON.parse('{ "a": 123, "c": 456 }');
+  } = JSON.parse('{ "a": 123, "b": 456 }');
 
   return obj;
 };
 
 it("Should return an obj", () => {
   const obj = getObj();
-
-  expect(obj.b).toEqual(456);
 });
