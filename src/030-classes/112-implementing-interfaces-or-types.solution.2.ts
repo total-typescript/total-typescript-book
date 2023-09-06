@@ -9,8 +9,8 @@ interface IShape {
 }
 
 class Shape implements IShape {
-  #x;
-  #y;
+  #x: number;
+  #y: number;
 
   constructor(initial?: ShapeOptions) {
     this.#x = initial?.x ?? 0;

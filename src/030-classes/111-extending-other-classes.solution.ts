@@ -8,8 +8,8 @@ interface ShapeOptions {
 }
 
 class Shape {
-  #x;
-  #y;
+  #x: number;
+  #y: number;
 
   constructor(initial?: ShapeOptions) {
     this.#x = initial?.x ?? 0;

@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
 
 class CanvasNode {
-  private x;
-  private y;
+  private x: number;
+  private y: number;
 
   constructor(position?: { x: number; y: number }) {
     this.x = position?.x ?? 0;

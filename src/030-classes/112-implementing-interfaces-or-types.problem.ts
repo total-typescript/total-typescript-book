@@ -5,8 +5,8 @@ interface ShapeOptions {
 
 // How do we ensure our Shape class matches a certain type?
 class Shape {
-  #x;
-  #y;
+  #x: number;
+  #y: number;
 
   constructor(initial?: ShapeOptions) {
     this.#x = initial?.x ?? 0;

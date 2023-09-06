@@ -3,8 +3,8 @@ import { expect, it } from "vitest";
 type ViewMode = "hidden" | "visible" | "selected";
 
 class CanvasNode {
-  #x;
-  #y;
+  #x: number;
+  #y: number;
   #viewMode: ViewMode;
 
   constructor(options?: { x: number; y: number; viewMode?: ViewMode }) {
