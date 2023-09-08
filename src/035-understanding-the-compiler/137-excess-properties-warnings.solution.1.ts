@@ -5,7 +5,7 @@ interface FetchOptions {
   body?: string;
 }
 
-const options = {
+const options: FetchOptions = {
   url: "/",
   method: "GET",
   headers: {

@@ -11,11 +11,10 @@ const options = {
   headers: {
     "Content-Type": "application/json",
   },
-  // @ts-expect-error
   search: new URLSearchParams({
     limit: "10",
   }),
-};
+} satisfies FetchOptions;
 
 const myFetch = async (options: FetchOptions) => {};
 
