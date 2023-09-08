@@ -6,8 +6,12 @@ never disappearing in unions
 
 `Exclude<string, 'hello'>` doesn't work.
 
+Add Exclude/Extract to deriving types from values
+
 JSDoc section?
 Setters in classes?
 Add decorators when they're supported in vite
 
 Non null assertion
+
+Add 'any' diagram
