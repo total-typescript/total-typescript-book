@@ -7,7 +7,7 @@ const func2 = (obj: { name: string }) => {
   console.log(obj.name);
 };
 
-const logAll = (obj) => {
+const logAll = (obj: { id: string; name: string }) => {
   func1(obj);
   func2(obj);
 };
