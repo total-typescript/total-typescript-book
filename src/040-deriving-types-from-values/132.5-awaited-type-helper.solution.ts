@@ -1,4 +1,4 @@
-const createUser = (id: string) => {
+const fetchUser = async (id: string) => {
   return {
     id,
     name: "John Doe",
@@ -6,7 +6,7 @@ const createUser = (id: string) => {
   };
 };
 
-type User = unknown;
+type User = Awaited<ReturnType<typeof fetchUser>>;
 
 type test = Expect<
   Equal<
