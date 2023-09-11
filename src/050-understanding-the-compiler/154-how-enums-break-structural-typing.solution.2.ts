@@ -10,6 +10,6 @@ enum LogLevel2 {
   ERROR = "ERROR",
 }
 
-function printImportant(key: LogLevel) {}
+function printImportant(key: "DEBUG" | "WARN" | "ERROR") {}
 
 printImportant(LogLevel2.DEBUG);
