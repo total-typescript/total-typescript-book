@@ -7,12 +7,16 @@ export const programModeEnumMap = {
   PLANNED_SELF_DIRECTED: "plannedSelfDirected",
 } as const;
 
-type ProgramModeMap = typeof programModeEnumMap;
-
-type PlannedPrograms = ProgramModeMap[
-  | "PLANNED_ONE_ON_ONE"
-  | "PLANNED_SELF_DIRECTED"];
+type AllPrograms = (typeof programModeEnumMap)[keyof typeof programModeEnumMap];
 
 type test = Expect<
-  Equal<PlannedPrograms, "planned1on1" | "plannedSelfDirected">
+  Equal<
+    AllPrograms,
+    | "group"
+    | "announcement"
+    | "1on1"
+    | "selfDirected"
+    | "planned1on1"
+    | "plannedSelfDirected"
+  >
 >;
