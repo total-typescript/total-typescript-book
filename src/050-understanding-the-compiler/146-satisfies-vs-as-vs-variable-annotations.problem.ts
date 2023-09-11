@@ -59,3 +59,5 @@ type tests = [
 // 3
 
 const element = document.getElementById("app") satisfies HTMLElement;
+
+type test3 = Expect<Equal<typeof element, HTMLElement>>;
