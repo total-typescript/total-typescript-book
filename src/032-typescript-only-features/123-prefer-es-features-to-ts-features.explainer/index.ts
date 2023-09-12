@@ -1,4 +1,4 @@
-// Each of these has a predictable output,
+// Each of these has a relatively predictable output,
 // but it's not as predictable as just using
 // ES features directly.
 enum Direction {
