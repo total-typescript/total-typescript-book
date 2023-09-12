@@ -1,0 +1,2 @@
+// skipLibCheck: true
+// Accidental globals
