@@ -11,7 +11,8 @@
     "prettier": "^2.8.7",
     "typescript": "^5.1.3",
     "vite-tsconfig-paths": "^4.0.7",
-    "vitest": "^0.34.3"
+    "vitest": "^0.34.3",
+    "nodemon": "^3.0.1"
   },
   "scripts": {
     "exercise": "tt-cli run",
@@ -488,7 +489,21 @@
     "e-237": "tt-cli run 237",
     "s-237": "tt-cli run 237 --solution",
     "e-238": "tt-cli run 238",
-    "s-238": "tt-cli run 238 --solution"
+    "s-238": "tt-cli run 238 --solution",
+    "e-093": "tt-cli run 093",
+    "s-093": "tt-cli run 093 --solution",
+    "e-101": "tt-cli run 101",
+    "s-101": "tt-cli run 101 --solution",
+    "e-102": "tt-cli run 102",
+    "s-102": "tt-cli run 102 --solution",
+    "e-222": "tt-cli run 222",
+    "s-222": "tt-cli run 222 --solution",
+    "e-239": "tt-cli run 239",
+    "s-239": "tt-cli run 239 --solution",
+    "e-240": "tt-cli run 240",
+    "s-240": "tt-cli run 240 --solution",
+    "e-241": "tt-cli run 241",
+    "s-241": "tt-cli run 241 --solution"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.29.12",
