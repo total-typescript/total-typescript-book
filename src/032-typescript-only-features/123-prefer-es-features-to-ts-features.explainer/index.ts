@@ -16,3 +16,7 @@ namespace MathUtils {
 class MyClass {
   constructor(private myPrivateProp: number) {}
 }
+
+// Open enum bugs:
+
+// https://github.com/Microsoft/TypeScript/issues?q=is%3Aissue+is%3Aopen+enum+label%3Abug
