@@ -1,0 +1,10 @@
+{
+  "name": "117-const-enums.explainer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "Matt Pocock",
+  "devDependencies": {}
+}

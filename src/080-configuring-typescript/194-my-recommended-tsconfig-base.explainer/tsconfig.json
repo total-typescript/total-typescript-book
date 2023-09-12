@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    /* Module options: */
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    /* Recommended: */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+  },
+}
