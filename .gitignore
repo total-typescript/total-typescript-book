@@ -3,3 +3,4 @@ node_modules
 tsconfig.temp.json
 *.prompt.*
 dist
+*.tsbuildinfo
