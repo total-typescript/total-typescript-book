@@ -12,7 +12,6 @@
     // "module": "ESNext",
     // "moduleResolution": "Bundler",
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
