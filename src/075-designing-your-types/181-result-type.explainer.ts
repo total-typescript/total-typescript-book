@@ -8,7 +8,7 @@ type Result<TResult, TError> =
       error: TError;
     };
 
-const createRandomNumber = (): Result<number> => {
+const createRandomNumber = (): Result<number, Error> => {
   const num = Math.random();
 
   if (num > 0.5) {
