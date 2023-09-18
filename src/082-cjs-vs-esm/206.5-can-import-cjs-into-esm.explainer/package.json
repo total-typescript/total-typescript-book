@@ -1,0 +1,12 @@
+{
+  "name": "117-const-enums.explainer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./src/index.mjs"
+  },
+  "keywords": [],
+  "author": "Matt Pocock",
+  "devDependencies": {}
+}
