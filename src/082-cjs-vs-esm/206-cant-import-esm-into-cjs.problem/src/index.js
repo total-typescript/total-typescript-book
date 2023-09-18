@@ -1,7 +1,7 @@
-const esmModule = require("./esm-module.js"); // cjs require
+const esModule = require("./esm-module.js"); // cjs require
 
 const main = async () => {
-  esmModule.default();
+  esModule.default();
 };
 
 main();
