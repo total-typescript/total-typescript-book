@@ -1,0 +1,11 @@
+{
+  "name": "exercise",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec \"tsc && node dist/index.js || exit 1\" -e ts,tsx,json --watch src"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.2"
+  }
+}
