@@ -1,8 +1,8 @@
 // @ts-expect-error
-import esModule from "./esm-module.js";
+import otherModule from "./other-module.js";
 
 const main = async () => {
-  esModule();
+  otherModule();
 };
 
 main();

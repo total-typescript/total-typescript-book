@@ -21,11 +21,10 @@ Import/export type
 `__dirname` not usable in ESM
 
 incremental
-composite
-lib: dom, lib: es2022
 
 useDefineForClassFields (https://twitter.com/heyImMapleLeaf/status/1701623837756993900)
 
 Use suggestions here: https://twitter.com/mattpocockuk/status/1701619240686485799
 
 noUnusedLocals/Parameters
+include/exclude/paths
