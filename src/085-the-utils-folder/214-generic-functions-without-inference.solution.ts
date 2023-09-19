@@ -20,3 +20,7 @@ objMap.set(
   // @ts-expect-error
   { b: 123 },
 );
+
+const unknownMap = createStringMap();
+
+type test = Expect<Equal<typeof unknownMap, Map<string, unknown>>>;
