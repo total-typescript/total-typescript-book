@@ -1,0 +1,26 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  diff:
+    specifier: ^5.1.0
+    version: 5.1.0
+
+devDependencies:
+  '@types/diff':
+    specifier: ^5.0.4
+    version: 5.0.4
+
+packages:
+
+  /@types/diff@5.0.4:
+    resolution: {integrity: sha512-d7489/WO4B65k0SIqxXtviR9+MrPDipWQF6w+5D7YPrqgu6Qb87JsTdWQaNZo7itcdbViQSev3Jaz7dtKO0+Dg==}
+    dev: true
+
+  /diff@5.1.0:
+    resolution: {integrity: sha512-D+mk+qE8VC/PAUrlAU34N+VfXev0ghe5ywmpqrawphmVZc1bEfn56uo9qpyGp1p4xpzOHkSW4ztBd6L7Xx4ACw==}
+    engines: {node: '>=0.3.1'}
+    dev: false
