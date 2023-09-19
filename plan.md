@@ -17,6 +17,7 @@ Non null assertion
 Add 'any' diagram
 
 Import/export type
+import type with verbatim module syntax
 
 `__dirname` not usable in ESM
 
