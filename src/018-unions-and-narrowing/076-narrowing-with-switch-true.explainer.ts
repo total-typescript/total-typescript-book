@@ -1,3 +1,4 @@
+// This will work in TypeScript 5.3!
 import { expect, it } from "vitest";
 
 type Circle = {
