@@ -1,5 +1,4 @@
 import { Expect, Equal } from "@total-typescript/helpers";
-
 import { expect, it } from "vitest";
 
 const getRectangleArea = (rectangle: { width: number; height: number }) => {
