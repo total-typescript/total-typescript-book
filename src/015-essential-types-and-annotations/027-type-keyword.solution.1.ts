@@ -1,11 +1,7 @@
 import { Expect, Equal } from "@total-typescript/helpers";
-
 import { expect, it } from "vitest";
 
-type Rectangle = {
-  width: number;
-  height: number;
-};
+type Rectangle = { width: number; height: number };
 
 const getRectangleArea = (rectangle: Rectangle) => {
   return rectangle.width * rectangle.height;
