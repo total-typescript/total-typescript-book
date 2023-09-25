@@ -43,6 +43,9 @@ devDependencies:
   '@total-typescript/exercise-cli':
     specifier: ^0.3.2
     version: 0.3.2
+  '@total-typescript/helpers':
+    specifier: ^0.0.1
+    version: 0.0.1
   cross-fetch:
     specifier: ^3.1.5
     version: 3.1.8
@@ -495,6 +498,10 @@ packages:
       commander: 10.0.1
       fast-glob: 3.3.1
       jsonc-parser: 3.2.0
+    dev: true
+
+  /@total-typescript/helpers@0.0.1:
+    resolution: {integrity: sha512-90WHVlI4zDtfS9te1zZbvc69JFDv1SwsQqyc++7IP9HKhpRd/psMt6EhT0gxDqGgI0P+4z8tnjvCrUZCjn97gg==}
     dev: true
 
   /@total-typescript/ts-reset@0.5.1:

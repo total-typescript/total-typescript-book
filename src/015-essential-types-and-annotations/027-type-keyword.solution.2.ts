@@ -1,5 +1,6 @@
+import { Expect, Equal } from "@total-typescript/helpers";
 import { expect, it } from "vitest";
-import { Rectangle } from "./028-type-keyword.solution.3";
+import { Rectangle } from "./027-type-keyword.solution.3";
 
 const getRectangleArea = (rectangle: Rectangle) => {
   return rectangle.width * rectangle.height;
