@@ -14,7 +14,7 @@ hiThere();
 
 // As well as on types:
 
-type Example = Expect<true>;
+type Example = PropertyKey;
 
 // It can also take you to mysterious places:
 
