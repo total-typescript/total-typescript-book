@@ -1,4 +1,5 @@
 // This will work in TypeScript 5.3!
+import { Equal, Expect } from "@total-typescript/helpers";
 import { expect, it } from "vitest";
 
 type Circle = {

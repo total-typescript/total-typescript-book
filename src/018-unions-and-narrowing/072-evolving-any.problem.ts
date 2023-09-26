@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 let selectedId = 123;
 
 type test = Expect<Equal<typeof selectedId, number>>;

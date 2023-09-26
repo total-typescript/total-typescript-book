@@ -1,3 +1,4 @@
+import { Equal, Expect } from "@total-typescript/helpers";
 import { expect, it } from "vitest";
 
 type Shape = {
