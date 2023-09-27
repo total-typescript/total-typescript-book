@@ -16,9 +16,9 @@ it("Should handle a { data: { id: string } }", () => {
     },
   });
 
-  expect(result).toBe("123");
-
   type test = Expect<Equal<typeof result, string>>;
+
+  expect(result).toBe("123");
 });
 
 it("Should error when anything else is passed in", () => {

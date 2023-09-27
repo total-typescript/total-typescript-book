@@ -3,11 +3,11 @@ import { expect, it } from "vitest";
 
 const parseValue = (value: unknown) => {
   if (
-    value &&
     typeof value === "object" &&
+    value !== null &&
     "data" in value &&
     typeof value.data === "object" &&
-    value.data &&
+    value.data !== null &&
     "id" in value.data &&
     typeof value.data.id === "string"
   ) {
@@ -24,9 +24,9 @@ it("Should handle a { data: { id: string } }", () => {
     },
   });
 
-  expect(result).toBe("123");
-
   type test = Expect<Equal<typeof result, string>>;
+
+  expect(result).toBe("123");
 });
 
 it("Should error when anything else is passed in", () => {
