@@ -41,7 +41,7 @@ dependencies:
 
 devDependencies:
   '@total-typescript/exercise-cli':
-    specifier: ^0.3.2
+    specifier: 0.3.2
     version: 0.3.2
   '@total-typescript/helpers':
     specifier: ^0.0.1
