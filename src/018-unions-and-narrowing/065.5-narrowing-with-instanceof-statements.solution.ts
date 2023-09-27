@@ -11,5 +11,7 @@ try {
 } catch (error) {
   if (error instanceof Error) {
     console.error(error.message);
+  } else {
+    throw error;
   }
 }
