@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 const createStringMap = <T>() => {
   return new Map<string, T>();
 };
