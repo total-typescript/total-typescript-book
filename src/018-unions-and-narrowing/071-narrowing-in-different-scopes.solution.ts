@@ -8,9 +8,11 @@ const findUsersByName = (
     name: string;
   }[],
 ) => {
-  let name = searchParams.name;
-  if (name) {
-    return users.filter((user) => user.name.includes(name));
+  const searchParamsName = searchParams.name;
+  if (searchParamsName) {
+    return users.filter((user) => {
+      return user.name.includes(searchParamsName);
+    });
   }
 
   return users;
