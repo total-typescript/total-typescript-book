@@ -18,24 +18,24 @@ interface Product extends BaseEntity {
 type tests = [
   Expect<
     Extends<
-      User,
       {
         id: string;
         createdAt: Date;
         name: string;
         email: string;
-      }
+      },
+      User
     >
   >,
   Expect<
     Extends<
-      Product,
       {
         id: string;
         createdAt: Date;
         name: string;
         price: number;
-      }
+      },
+      Product
     >
   >,
 ];
