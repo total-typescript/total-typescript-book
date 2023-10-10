@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 import pngUrl1 from "./example1.png";
 import pngUrl2 from "./example2.png";
 import pngUrl3 from "./example3.png";

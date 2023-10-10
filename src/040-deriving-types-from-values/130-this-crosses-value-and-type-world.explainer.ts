@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 class CanvasNode {
   x: number;
   y: number;

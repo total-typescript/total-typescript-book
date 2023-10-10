@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 type StrictOmit<T, K extends keyof T> = Omit<T, K>;
 
 type ShouldFail = StrictOmit<

@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 interface Attributes {
   firstName: string;
   lastName: string;

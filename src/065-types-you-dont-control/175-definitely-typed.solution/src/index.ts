@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 import Diff from "diff";
 
 const message = "Hello, world!";

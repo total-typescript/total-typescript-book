@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 // From type-transformations
 
 type BreadType = "rye" | "brown" | "white";

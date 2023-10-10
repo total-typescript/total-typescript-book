@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 // 1
 
 const obj: Record<string, number> = {};

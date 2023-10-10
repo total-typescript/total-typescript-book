@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 const routes = {
   "/": {
     component: "Home",

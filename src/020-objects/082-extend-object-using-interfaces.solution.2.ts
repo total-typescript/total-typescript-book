@@ -1,3 +1,5 @@
+import { Extends, Expect } from "@total-typescript/helpers";
+
 interface WithId {
   id: string;
 }

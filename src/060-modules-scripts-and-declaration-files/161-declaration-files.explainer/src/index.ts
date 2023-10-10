@@ -1,3 +1,5 @@
+import { Equal, Expect } from "@total-typescript/helpers";
+
 import { MyInterface, MyType } from "./can-export-types";
 
 type test = Expect<Equal<MyType, string>>;
