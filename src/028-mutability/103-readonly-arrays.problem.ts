@@ -9,6 +9,3 @@ function printNames(names: string[]) {
   // @ts-expect-error
   names[0] = "Billy";
 }
-
-const names = ["John", "Jane", "Mike"];
-printNames(names);
