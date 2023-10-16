@@ -1,12 +1,12 @@
 import { expect, it } from "vitest";
 
 class CanvasNode {
-  x: number;
-  y: number;
+  x;
+  y;
 
-  constructor(position?: { x: number; y: number }) {
-    this.x = position?.x ?? 0;
-    this.y = position?.y ?? 0;
+  constructor(opts?: { x: number; y: number }) {
+    this.x = opts?.x || 0;
+    this.y = opts?.y || 0;
   }
 
   move(x: number, y: number) {

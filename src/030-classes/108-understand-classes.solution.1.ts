@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
 
 class CanvasNode {
-  readonly x = 0;
-  readonly y = 0;
+  readonly x: number = 0;
+  readonly y: number = 0;
 }
 
 it("Should store some basic properties", () => {
