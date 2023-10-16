@@ -3,7 +3,12 @@ interface ShapeOptions {
   y: number;
 }
 
-// How do we ensure our Shape class matches a certain type?
+type IShape = {
+  position: { x: number; y: number };
+  move: (deltaX: number, deltaY: number) => void;
+};
+
+// How do we ensure our Shape class matches IShape?
 class Shape {
   #x: number;
   #y: number;
