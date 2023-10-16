@@ -2,18 +2,13 @@ import { expect, it } from "vitest";
 
 type ViewMode = "hidden" | "visible" | "selected";
 
-interface ShapeOptions {
-  x: number;
-  y: number;
-}
-
 class Shape {
   #x: number;
   #y: number;
 
-  constructor(initial?: ShapeOptions) {
-    this.#x = initial?.x ?? 0;
-    this.#y = initial?.y ?? 0;
+  constructor(options?: { x: number; y: number }) {
+    this.#x = options?.x ?? 0;
+    this.#y = options?.y ?? 0;
   }
 
   get position() {
@@ -29,14 +24,10 @@ class Shape {
   }
 }
 
-interface CanvasNodeOptions extends ShapeOptions {
-  viewMode?: ViewMode;
-}
-
 class CanvasNode extends Shape {
   #viewMode: ViewMode;
 
-  constructor(options?: CanvasNodeOptions) {
+  constructor(options?: { x: number; y: number; viewMode?: ViewMode }) {
     super(options);
     this.#viewMode = options?.viewMode ?? "visible";
   }
@@ -82,11 +73,11 @@ it("Should not be able to access x and y from the outside", () => {
 
   expect(
     // @ts-expect-error
-    canvasNode.#x,
+    canvasNode.x,
   ).toEqual(undefined);
   expect(
     // @ts-expect-error
-    canvasNode.#y,
+    canvasNode.y,
   ).toEqual(undefined);
 });
 

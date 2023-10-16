@@ -46,10 +46,10 @@ it("Should not be able to access x and y from the outside", () => {
 
   expect(
     // @ts-expect-error
-    canvasNode.#x,
+    canvasNode.x,
   ).toEqual(undefined);
   expect(
     // @ts-expect-error
-    canvasNode.#y,
+    canvasNode.y,
   ).toEqual(undefined);
 });
