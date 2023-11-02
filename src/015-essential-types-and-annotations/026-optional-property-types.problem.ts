@@ -1,12 +1,16 @@
 import { Expect, Equal } from "@total-typescript/helpers";
 import { expect, it } from "vitest";
 
+// CODE
+
 const concatName = (user: { first: string; last: string }) => {
   if (!user.last) {
     return user.first;
   }
   return `${user.first} ${user.last}`;
 };
+
+// TESTS
 
 it("should return the full name", () => {
   const result = concatName({

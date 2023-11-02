@@ -1,7 +1,11 @@
+// CODE
+
 // How do we type 'items' in the ShoppingCart?
 type ShoppingCart = {
   userId: string;
 };
+
+// TESTS
 
 const processCart = (cart: ShoppingCart) => {
   // Do something with the cart in here

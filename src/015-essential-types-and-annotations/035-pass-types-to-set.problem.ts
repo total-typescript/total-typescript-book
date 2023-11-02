@@ -1,4 +1,8 @@
+// CODE
+
 const userIds = new Set();
+
+// TESTS
 
 userIds.add(1);
 userIds.add(2);
