@@ -9,8 +9,6 @@ const funcs = [idToUppercase, idToInt];
 
 const resolveAll = (obj: { id: string }) => {
   return funcs.map((func) => {
-    //              ^?
     return func(obj);
-    //     ^?
   });
 };

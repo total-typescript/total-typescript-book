@@ -47,3 +47,27 @@ The `config` object is being annotated using a variable annotation (`:`).
 Investigate why the errors are happening. Then,see if you can fix them by using `satisfies` on the value instead of `:` on the variable.
 
 https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html#the-satisfies-operator
+
+### 146.5 - `keyof typeof` and the `satisfies` keyword
+
+In `configurations`, we've added a key to `staging` that we don't want to be there - but we're not getting a type error on it.
+
+See if you can find a way to annotate `configurations` so that we get an error on `staging.notAllowed`, but that also doesn't break the `Environment` type.
+
+### 147 - Satisfies vs `as` vs Variable Annotations
+
+There are three annotations in this file. The first is using 'as'. The second uses a variable annotation. The third uses `satisfies`.
+
+But actually, each annotation is incorrect! The `as` is too unsafe, and the other two have type errors.
+
+Refactor them to make the type errors go away. At the end, one of them should use `satisfies`, one should use `as`, and one should use a variable annotation (`:`).
+
+### 148 - `satisfies` and `as const`
+
+We're expecting `routes['/']['component']` to be a literal string of `Home`, and `routes['/about']['component']` to be the literal string of `About`. But they're not working.
+
+We're also expecting an error when we specify an incorrect property on `routes`. In this case, `search`.
+
+Remember what we learned about `as const`, and see if you can combine it with `satisfies`.
+
+Also - consider why this wouldn't work if we used a `:` annotation.
