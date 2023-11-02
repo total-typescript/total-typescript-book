@@ -1,5 +1,7 @@
 import { Equal, Expect } from "@total-typescript/helpers";
 
+// CODE
+
 const isProblemOrSolution = (filename: string): boolean => {
   const splitFilename: string[] = filename.split(".");
 
@@ -14,9 +16,13 @@ const isProblemOrSolution = (filename: string): boolean => {
   return isProblem || isSolution;
 };
 
+// TESTS
+
 type test1 = Expect<
   Equal<typeof isProblemOrSolution, (filename: string) => boolean>
 >;
+
+// CODE
 
 const users: {
   name: string;
@@ -43,6 +49,8 @@ const usersWithIds: {
     id: index,
   }),
 );
+
+// TESTS
 
 type test2 = Expect<
   Equal<

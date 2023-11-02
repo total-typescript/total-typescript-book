@@ -1,5 +1,7 @@
+// Uncomment this line to see a stricter JSON.parse!
 // import '@total-typescript/ts-reset'
-import { it } from "vitest";
+
+import { expect, it } from "vitest";
 
 const getObj = () => {
   const obj: {
@@ -12,4 +14,11 @@ const getObj = () => {
 
 it("Should return an obj", () => {
   const obj = getObj();
+
+  expect(obj.b).toEqual(456);
+
+  expect(
+    // @ts-expect-error c doesn't exist on obj
+    obj.c,
+  ).toEqual(undefined);
 });
