@@ -4,25 +4,25 @@
 
 ### 021 - Annotating Empty Parameters
 
-Make the TypeScript errors go away.
+Give the parameters of the `concatTwoStrings` function a type annotation to make the errors go away.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#parameter-type-annotations
 
 ### 023 - Optional Function Parameters
 
-Make the TypeScript errors go away.
+Work out how to make the `last` parameter optional in `concatName`.
 
 https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters
 
 ### 025 - Object Literal Types
 
-Make the TypeScript errors go away.
+Figure out the correct type for `user` in `concatName`.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#object-types
 
 ### 026 - Optional Properties
 
-Make the TypeScript errors go away.
+Figure out how to make the `last` property optional in the `user` parameter of `concatName`.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#optional-properties
 
@@ -36,7 +36,7 @@ https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases
 
 ### 028 - Arrays
 
-Make the TypeScript errors go away.
+Add a type for `items` in the `ShoppingCart` type.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays
 
@@ -50,18 +50,20 @@ https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#any
 
 ### 033 - Function Types
 
-Make the TypeScript errors go away.
+Add a type definition to the `makeChange` function.
 
 https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions
 
 ### 035 - Pass Types To Set
 
-Make the TypeScript errors go away.
+Find a way to tell `userIds` that it's supposed to be a set of numbers, but nothing else. Do this by passing a type argument to the `Set` function.
 
 https://www.totaltypescript.com/no-such-thing-as-a-generic#type-arguments
 
 ### 038 - Type Async Functions
 
-Make the TypeScript errors go away.
+Add a return type annotation to the `fetchData` function to make it return a `Promise` of a `number`.
+
+Because it's `async`, you'll probably need the `Promise` helper type.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#functions-which-return-promises
