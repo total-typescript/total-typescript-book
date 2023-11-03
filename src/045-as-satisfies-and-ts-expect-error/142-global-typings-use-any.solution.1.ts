@@ -4,7 +4,7 @@ const getObj = () => {
   const obj: {
     a: number;
     b: number;
-  } = JSON.parse('{ "a": 123, "c": 456 }');
+  } = JSON.parse('{ "a": 123, "b": 456 }');
 
   return obj;
 };

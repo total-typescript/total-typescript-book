@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 
 const getObj = () => {
-  const obj = JSON.parse('{ "a": 123, "c": 456 }');
+  const obj = JSON.parse('{ "a": 123, "b": 456 }');
 
   return obj;
 };
