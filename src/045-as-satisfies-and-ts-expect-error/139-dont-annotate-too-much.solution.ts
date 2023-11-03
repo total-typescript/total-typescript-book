@@ -1,5 +1,7 @@
 import { Equal, Expect } from "@total-typescript/helpers";
 
+// CODE
+
 const isProblemOrSolution = (filename: string) => {
   const splitFilename = filename.split(".");
 
@@ -14,9 +16,13 @@ const isProblemOrSolution = (filename: string) => {
   return isProblem || isSolution;
 };
 
+// TESTS
+
 type test1 = Expect<
   Equal<typeof isProblemOrSolution, (filename: string) => boolean>
 >;
+
+// CODE
 
 const users = [
   {
@@ -27,17 +33,12 @@ const users = [
   },
 ];
 
-const usersWithIds = users.map(
-  (
-    user: {
-      name: string;
-    },
-    index: number,
-  ) => ({
-    ...user,
-    id: index,
-  }),
-);
+const usersWithIds = users.map((user, index) => ({
+  ...user,
+  id: index,
+}));
+
+// TESTS
 
 type test2 = Expect<
   Equal<
