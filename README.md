@@ -1,4 +1,4 @@
-<!-- <a href="https://totaltypescript.com/tutorials/react-with-typescript"><img src="https://res.cloudinary.com/total-typescript/image/upload/v1683647787/react-with-typescript_p2dgf5.png" alt="React with TypeScript, tutorial by Matt Pocock" /></a> -->
+<a href="https://totaltypescript.com/"><img src="https://res.cloudinary.com/total-typescript/image/upload/v1699022610/book-github-banner_2x_z1ahit.png" alt="Total TypeScript by Matt Pocock" /></a>
 
 ## Quickstart
 
