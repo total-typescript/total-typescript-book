@@ -3,7 +3,7 @@ interface User {
   name: string;
 }
 
-function printUser(user: User) {
+function printUser(user: Record<string, any>) {
   Object.keys(user).forEach((key) => {
     console.log(user[key]);
   });
