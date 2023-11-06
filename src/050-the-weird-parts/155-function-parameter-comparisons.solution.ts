@@ -9,7 +9,9 @@ type CallbackType = (
   screenId: number,
 ) => void;
 
-const listenToEvent = (callback: CallbackType) => {};
+const listenToEvent = (callback: CallbackType) => {
+  callback("click", 0, 0, 1);
+};
 
 listenToEvent(() => {});
 
