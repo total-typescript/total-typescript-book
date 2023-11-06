@@ -12,3 +12,7 @@ const resolveAll = (obj: { id: string }) => {
     return func(obj);
   });
 };
+
+const result = resolveAll({
+  id: "123",
+});
