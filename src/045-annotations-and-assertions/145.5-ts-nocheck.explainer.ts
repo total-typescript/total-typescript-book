@@ -1,1 +1,3 @@
-// TODO - explain ts-nocheck
+// @ts-nocheck
+
+const ohDear: string = 123;
