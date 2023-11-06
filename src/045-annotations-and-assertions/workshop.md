@@ -24,6 +24,14 @@ Notice how `JSON.parse` returns `any`!
 
 Notice how `as` has certain limits - it can't convert strings to numbers. But notice how you can also chain `as` together.
 
+### 143.5 - Non-null Assertion Operator
+
+It feels like TypeScript _should_ know that `searchParams.name` is never `undefined`. But it doesn't, because the `.filter` function is in a different scope from the `searchParams.name` check.
+
+See if you can use the non-null assertion operator to tell TypeScript that `searchParams.name` is never `undefined`.
+
+https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#non-null-assertion-operator-postfix-
+
 ### 144 - `@ts-ignore`
 
 `@ts-ignore` can be used to ignore errors. But notice how it ignores _all_ errors on the following line.
