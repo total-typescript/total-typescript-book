@@ -1,10 +1,12 @@
-const acceptOnlyEmptyObject = (input: Record<PropertyKey, never>) => {};
+type EmptyObject = Record<PropertyKey, never>;
+
+const acceptOnlyEmptyObject = (input: EmptyObject) => {};
 
 acceptOnlyEmptyObject({});
 
 acceptOnlyEmptyObject({
   // @ts-expect-error
-  a: 1,
+  a: "abc",
 });
 acceptOnlyEmptyObject(
   // @ts-expect-error
