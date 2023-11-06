@@ -36,7 +36,7 @@ We know that the keys are `id` and `name`, but TypeScript thinks that the result
 
 ### 156 - Unions of Functions With Object Params
 
-In our `funcs` array, we have two functions. One takes in an object with an `id` property, and the other takes in an object with a `name` property.
+In our `loggers` array, we have two functions. One takes in an object with an `id` property, and the other takes in an object with a `name` property.
 
 Figure out the correct type for the `obj` parameter in `logAll`.
 

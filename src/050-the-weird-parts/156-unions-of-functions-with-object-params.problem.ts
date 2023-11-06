@@ -1,16 +1,16 @@
 import { expect, it, vitest } from "vitest";
 
-const func1 = (obj: { id: string }) => {
+const logId = (obj: { id: string }) => {
   console.log(obj.id);
 };
-const func2 = (obj: { name: string }) => {
+const logName = (obj: { name: string }) => {
   console.log(obj.name);
 };
 
-const funcs = [func1, func2];
+const loggers = [logId, logName];
 
 const logAll = (obj) => {
-  funcs.forEach((func) => func(obj));
+  loggers.forEach((func) => func(obj));
 };
 
 it("should log id and name of an object", () => {
