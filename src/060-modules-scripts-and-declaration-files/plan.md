@@ -4,22 +4,13 @@ Title here!
 
 ## Exercises
 
-- Global Scope vs Isolated Modules
-
-- Namespaces: TypeScript’s solution to modules
-
-  - Namespaces are a way to organize code into named objects that can span multiple files
-    - How namespaces compile in JavaScript
-
-- Should I use namespaces?
-
-  - Namespaces are not recommended for modern code because they have drawbacks:
-    - Harder dependency management
-    - Not compatible with some module loaders and bundlers
-  - Modules are the native and standard way to organize code
-    - Better reuse, isolation, and tooling support
-
-- Ambient Context in TypeScript
-  - Term for the situation where TS declarations are used to describe the types and values of libraries or environments that are not written in TypeScript.
-  - Use the `declare` keyword to indicate they don’t provide an implementation
-  - Typically written in `.d.ts` files
+- `declare` keyword
+  - _Used for declaring functions in the module scope that don’t actually exist (useful for third-party packages etc)_
+- `declare global`
+  - Can be used inside a module declaration file to modify the global scope
+    - `declare global { interface String { startsWithHello(): boolean; } }` adds a new method to the String interface in the global scope
+  - Namespaces can be used in `declare global` to group related declarations or avoid name conflicts
+- `declare module '*'`
+  - Syntax used inside a module declaration to declare a module that matches any string
+    - `declare module '*' { export var x: number; }` declares a module that exports a variable `x` for any import path
+  - Differences inside `.d.ts` files and `.ts` files

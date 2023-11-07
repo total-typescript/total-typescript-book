@@ -9,5 +9,5 @@
     "noEmit": true,
     "strict": true,
     "moduleDetection": "force"
-  },
+  }
 }
