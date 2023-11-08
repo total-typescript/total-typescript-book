@@ -6,9 +6,12 @@ type ErrorShape = {
   };
 };
 
-type DataShape<T> =
+/**
+ * The data shape we get back from the API
+ */
+type DataShape<TData> =
   | {
-      data: T;
+      data: TData;
     }
   | ErrorShape;
 
@@ -23,6 +26,8 @@ type PostDataShape = DataShape<{
   title: string;
   body: string;
 }>;
+
+// TESTS
 
 type tests = [
   Expect<
