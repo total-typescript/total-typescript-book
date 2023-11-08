@@ -1,6 +1,10 @@
 import { Equal, Expect } from "@total-typescript/helpers";
 
-type PromiseFunc<Input, Output> = (input: Input) => Promise<Output>;
+// CODE
+
+type PromiseFunc<TInput, TOutput> = (input: TInput) => Promise<TOutput>;
+
+// TESTS
 
 type Example1 = PromiseFunc<string, string>;
 
