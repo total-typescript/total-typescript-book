@@ -34,6 +34,24 @@ Now, we're taking our users from `usersWithIds` and mapping over them again. Thi
 
 We know that the keys are `id` and `name`, but TypeScript thinks that the result of `Object.keys` is `string[]`. Why?
 
+## Section 2
+
+### 154.6 - Iterating Over Objects
+
+Inside our `printUser` function, see if you can iterate over all of the keys in the `user` object and log them to the console.
+
+You might need to change some of the types, or use a type assertion. `keyof` may also come in handy.
+
+Also - there are 4 solutions to this problem!
+
+### 155 - Comparing Function Parameters
+
+Our `listenToEvent` function takes in a `callback`, which is typed as `CallbackType`.
+
+It seems that the function passed to `listenToEvent` is able to take in no parameters, one parameter (`event`), or up to four parameters (`event`, `x`, `y` and `screenId`).
+
+See if you can figure out the correct way to type `CallbackType` to make the TypeScript errors go away.
+
 ### 156 - Unions of Functions With Object Params
 
 In our `loggers` array, we have two functions. One takes in an object with an `id` property, and the other takes in an object with a `name` property.
