@@ -4,35 +4,35 @@
 
 ### 021 - Annotating Empty Parameters
 
-Give the parameters of the `concatTwoStrings` function a type annotation to make the errors go away.
+Give the parameters of the `concatTwoStrings` function some type annotations to make the errors go away.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#parameter-type-annotations
 
 ### 023 - Optional Function Parameters
 
-Work out how to make the `last` parameter optional in `concatName`.
+Work out how to make the `last` parameter optional in the `concatName` function.
 
 https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters
 
 ### 025 - Object Literal Types
 
-Figure out the correct type for `user` in `concatName`.
+Figure out the correct type for `user` in the `concatName` function.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#object-types
 
 ### 026 - Optional Properties
 
-Figure out how to make the `last` property optional in the `user` parameter of `concatName`.
+Figure out how to make the `last` property optional in the `user` parameter of the `concatName` function.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#optional-properties
 
+## Section 2
+
 ### 027 - Type Keyword
 
-We've got a bit of duplication between getRectangleArea and getRectanglePerimeter. See if you can use the `type` keyword to remove this duplication.
+We've got a bit of duplication between the types of `getRectangleArea` and `getRectanglePerimeter`. See if you can use the `type` keyword to remove this duplication.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases
-
-## Section 2
 
 ### 028 - Arrays
 
@@ -42,11 +42,13 @@ https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays
 
 ### 032.5 - Any
 
-This code appears to be working fine in the IDE, but it's broken at runtime. See if you can figure out why, and fix the bug.
+This code appears to be working fine in the IDE, but the tests are broken (run `pnpm run exercise 032.5` to check). See if you can figure out why, and fix the bug.
 
 Once you've figured out the bug, try to work out WHY TypeScript isn't yelling at you.
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#any
+
+## Section 4
 
 ### 033 - Function Types
 
