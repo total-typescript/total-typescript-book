@@ -52,7 +52,9 @@ https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#any
 
 ### 033 - Function Types
 
-Add a type definition to the `makeChange` function.
+`modifyUser` takes in an array of `users` and a function called `makeChange`. The `makeChange` function takes in a `user` and returns a modified version of that user.
+
+Add a type definition to the `makeChange` parameter in the `modifyUser` function.
 
 https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions
 
