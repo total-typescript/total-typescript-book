@@ -18,6 +18,8 @@ See if you can use `typeof` and `keyof` to derive `Environment` from `configurat
 
 https://www.typescriptlang.org/docs/handbook/2/typeof-types.html
 
+## Section 2
+
 ### 132 - Parameters Type Helper
 
 Imagine you don't control the `makeQuery` function, but you want to extract the type of its parameters to `MakeQueryParameters`.
@@ -40,7 +42,7 @@ We want to extract the return value of `fetchUser`, but it's wrapped in a `Promi
 
 https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype
 
-## Section 2
+## Section 3
 
 ### 135 - Indexed Access Types
 
