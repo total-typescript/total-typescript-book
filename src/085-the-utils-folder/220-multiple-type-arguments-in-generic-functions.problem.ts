@@ -7,9 +7,9 @@ type PromiseFunc<TOutput> = () => Promise<TOutput>;
 
 const safeFunction =
   <TOutput>(func: PromiseFunc<TOutput>) =>
-  async (): Promise<Result<TOutput>> => {
+  async (...args: any[]): Promise<Result<TOutput>> => {
     try {
-      const result = await func();
+      const result = await func(...args);
       return [null, result];
     } catch (e) {
       if (e instanceof Error) {
