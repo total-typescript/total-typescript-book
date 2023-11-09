@@ -26,6 +26,8 @@ Rewrite the function to make the error go away.
 
 https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing
 
+## Section 2
+
 ### 060 - Narrowing with Boolean
 
 Why doesn't narrowing with a `Boolean` expression work?
@@ -34,13 +36,15 @@ Why doesn't narrowing with a `Boolean` expression work?
 
 Try adding some runtime code after `appElement` (but before the type test) to throw an error if `appElement` is not defined.
 
+See what happens to the errors!
+
 ### 064 - Narrowing with `in` Statements
 
 Change the `if (true)` line to check if there is a `data` key on `response`.
 
 https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-in-operator-narrowing
 
-## Section 2
+## Section 3
 
 ### 065 - Introduction to Unknown (led by Matt)
 
@@ -55,6 +59,8 @@ https://www.typescriptlang.org/docs/handbook/2/narrowing.html#instanceof-narrowi
 Change the `if (true)` line to check if `value.data.id` is a string. Don't change `value: unknown`.
 
 (you'll need to write a lot of code to get this to work!)
+
+## Section 4
 
 ### 067 - Introduction to Never
 
@@ -78,7 +84,7 @@ Change the way `selectedId` is declared to turn it into an 'evolving any'.
 
 https://effectivetypescript.com/2020/03/09/evolving-any/
 
-## Section 3
+## Section 5
 
 ### 074 - Intro to Discriminated Unions
 

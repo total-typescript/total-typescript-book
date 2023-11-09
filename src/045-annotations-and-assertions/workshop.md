@@ -20,6 +20,8 @@ Change the way `getObj` is typed so that it returns an object with a `a` and `b`
 
 Notice how `JSON.parse` returns `any`!
 
+## Section 2
+
 ### 143 - Limits of `as`
 
 Notice how `as` has certain limits - it can't convert strings to numbers. But notice how you can also chain `as` together.
@@ -46,7 +48,7 @@ Consider whether this is better than `as any`, or worse?
 
 Which is better - `@ts-ignore` or `@ts-expect-error`?
 
-## Section 2
+## Section 3
 
 ### 146 - `satisfies`
 

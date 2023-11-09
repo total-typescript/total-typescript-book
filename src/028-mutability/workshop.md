@@ -18,6 +18,8 @@ Change the type of `User` so that `id` cannot be assigned to.
 
 https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties
 
+## Section 2
+
 ### 101 - Intro to `as const`
 
 Use the `as const` annotation on `buttonAttributes` to make the TypeScript errors go away.
@@ -31,6 +33,8 @@ https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#c
 Investigate why `buttonAttributes` is not assignable to `modifyButtons`. Try replacing `Object.freeze` with `as const`.
 
 Why does this work?
+
+## Section 3
 
 ### 103 - Readonly Arrays
 

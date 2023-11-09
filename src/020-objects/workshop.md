@@ -14,6 +14,8 @@ Instead of using `&`, try redefining `BaseEntity`, `User` and `Product` as inter
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces
 
+## Section 2
+
 ### 084 - Index Signatures
 
 Find a way to annotate the type of the `scores` object to make the TypeScript errors go away. You can either use an index signature or a Record type.
@@ -31,6 +33,8 @@ Find a way to type the `configurations` object. It should have `Environment` as 
 Try to understand why the `myLogger.log` call is erroring. Then, try to fix it.
 
 https://www.typescriptlang.org/docs/handbook/declaration-merging.html#merging-interfaces
+
+## Section 3
 
 ### 089 - Pick Type Helper
 

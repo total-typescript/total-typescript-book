@@ -40,6 +40,8 @@ We want to extract the return value of `fetchUser`, but it's wrapped in a `Promi
 
 https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype
 
+## Section 2
+
 ### 135 - Indexed Access Types
 
 We want `Group` to be of type `"group"`. But we also want to make sure it stays in sync with `programModeEnumMap`.

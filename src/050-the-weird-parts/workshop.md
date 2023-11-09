@@ -8,12 +8,6 @@ See if you can find a type annotation for `input` that accepts any type except `
 
 https://www.totaltypescript.com/the-empty-object-type-in-typescript
 
-### 151 - Truly Empty Object
-
-See if you can make it so that `acceptOnlyEmptyObject` can only receive an empty object as its input.
-
-Remember the use of `never`.
-
 ### 152 - Excess Properties Warnings
 
 Inside our `options` object, we're specifying a `search` property. We then pass it to `myFetch`, which doesn't accept a `search` property (on the `FetchOptions` interface).
@@ -28,13 +22,13 @@ But inside the map, we're able to pass an extra `age` property without TypeScrip
 
 See if you can fix this by adding some annotations/changing the code.
 
+## Section 2
+
 ### 154 - Object.keys and Object.entries
 
 Now, we're taking our users from `usersWithIds` and mapping over them again. This time, for each user we're calling `Object.keys` on each user.
 
 We know that the keys are `id` and `name`, but TypeScript thinks that the result of `Object.keys` is `string[]`. Why?
-
-## Section 2
 
 ### 154.6 - Iterating Over Objects
 
@@ -43,6 +37,8 @@ Inside our `printUser` function, see if you can iterate over all of the keys in 
 You might need to change some of the types, or use a type assertion. `keyof` may also come in handy.
 
 Also - there are 4 solutions to this problem!
+
+## Section 3
 
 ### 155 - Comparing Function Parameters
 

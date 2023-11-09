@@ -30,6 +30,8 @@ The `PromiseFunc` type is currently not very useful. We want to be able to pass 
 
 Add two type parameters to `PromiseFunc` to make the errors go away.
 
+## Section 2
+
 ### 206 - Result Type
 
 One way to avoid throwing errors in TypeScript is to use a `Result` type. Take a look at the `createRandomNumber` function, and debate whether you think this code is more readable/maintainable than a `try/catch` would be.
@@ -39,6 +41,8 @@ One way to avoid throwing errors in TypeScript is to use a `Result` type. Take a
 We've got a `Result` type, but we want to use it without passing in a type argument. See if you can add a default type argument to `Result` to make the errors go away.
 
 https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-parameter-defaults
+
+## Section 3
 
 ### 208 - Type Parameter Constraints
 
@@ -50,8 +54,6 @@ See if you can add a constraint to the `TError` type parameter to make the error
 
 https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints
 
-## Section 2
-
 ### 209 - Stricter Version of Omit
 
 By default, TypeScript's `Omit` type will allow you to omit properties that _don't exist_ from the object.
@@ -59,6 +61,8 @@ By default, TypeScript's `Omit` type will allow you to omit properties that _don
 See if you can create a stricter version of `Omit` which will only allow you to omit properties that _do exist_ on the object.
 
 To do that, you'll need to add some constraints to one of the type parameters inside `StrictOmit` - possibly involving `keyof`.
+
+## Section 4
 
 ### 210 - Template Literal Types
 
@@ -73,6 +77,8 @@ https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html
 Change the `Sandwich` type so that it matches the list of sandwiches in the test below.
 
 Hint - the result is easier than you think!
+
+## Section 5
 
 ### 212 - Mapped Types
 
