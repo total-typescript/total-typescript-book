@@ -38,6 +38,8 @@ request("https://example.com", "GET");
 
 Make `Method` a string enum and change the definition of `method` in the `request` function to make it work.
 
+Search terms: string enum
+
 ### 124 - ES Features vs TS Features
 
 In the `index.ts` file, we have an `enum`, a `namespace` and a `class` with a special `constructor` property (`private`).
