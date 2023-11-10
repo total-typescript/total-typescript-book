@@ -57,11 +57,3 @@ Now we've got the result of our `safeFunction` typed, we also need to make sure 
 Notice how we've added `...args` to the `safeFunction` function.
 
 See if you can add a second type parameter to `safeFunction` and `PromiseFunc` to make the errors go away. You'll also need to use a constraint.
-
-## Section 3
-
-### 221 - Type Predicates
-
-### 222 - Assertion Functions
-
-### 223 - Function Overloads
