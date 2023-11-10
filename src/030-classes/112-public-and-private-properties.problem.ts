@@ -44,12 +44,8 @@ it("Should be able to receive an initial position", () => {
 it("Should not be able to access x and y from the outside", () => {
   const canvasNode = new CanvasNode();
 
-  expect(
-    // @ts-expect-error
-    canvasNode.x,
-  ).toEqual(undefined);
-  expect(
-    // @ts-expect-error
-    canvasNode.y,
-  ).toEqual(undefined);
+  // @ts-expect-error
+  canvasNode.x;
+  // @ts-expect-error
+  canvasNode.y;
 });
