@@ -1,39 +1,35 @@
 import { Equal, Expect } from "@total-typescript/helpers";
 import { expect, it } from "vitest";
 
-type Result<TOutput> = [Error, null] | [null, TOutput];
-
-type PromiseFunc<TOutput> = () => Promise<TOutput>;
+type PromiseFunc<TResult> = (...args: any[]) => Promise<TResult>;
 
 const safeFunction =
-  <TOutput>(func: PromiseFunc<TOutput>) =>
-  async (...args: any[]): Promise<Result<TOutput>> => {
+  <TResult>(func: PromiseFunc<TResult>) =>
+  async (...args: any[]) => {
     try {
       const result = await func(...args);
-      return [null, result];
+      return result;
     } catch (e) {
       if (e instanceof Error) {
-        return [e, null];
+        return e;
       }
       throw e;
     }
   };
 
 it("should return an error if the function throws", async () => {
-  const func = safeFunction(() => {
-    throw new Error("Something went wrong");
+  const func = safeFunction(async () => {
+    if (Math.random() > 0.5) {
+      throw new Error("Something went wrong");
+    }
+    return 123;
   });
 
-  type test1 = Expect<
-    Equal<typeof func, () => Promise<[Error, null] | [null, unknown]>>
-  >;
+  type test1 = Expect<Equal<typeof func, () => Promise<Error | number>>>;
 
-  const [err, result] = await func();
+  const result = await func();
 
-  type test2 = Expect<Equal<typeof err, Error | null>>;
-
-  expect(err).toBeInstanceOf(Error);
-  expect(result).toBeNull();
+  type test2 = Expect<Equal<typeof result, Error | number>>;
 });
 
 it("should return the result if the function succeeds", async () => {
@@ -42,16 +38,12 @@ it("should return the result if the function succeeds", async () => {
   });
 
   type test1 = Expect<
-    Equal<
-      typeof func,
-      (name: string) => Promise<[Error, null] | [null, string]>
-    >
+    Equal<typeof func, (name: string) => Promise<Error | string>>
   >;
 
-  const [err, result] = await func("world");
+  const result = await func("world");
 
-  type test2 = Expect<Equal<typeof result, string | null>>;
+  type test2 = Expect<Equal<typeof result, string | Error>>;
 
-  expect(err).toBeNull();
   expect(result).toEqual("hello world");
 });
