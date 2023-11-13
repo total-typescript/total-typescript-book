@@ -1,3 +1,5 @@
+Explain global Object, Function, Boolean, String types and why you shouldn't use them
+
 `Exclude<string, 'hello'>` doesn't work.
 
 Talk about intersecting with unions. `('a' | 'b' | 2) & string`.
