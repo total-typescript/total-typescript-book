@@ -18,19 +18,7 @@ See if you can add a default type argument to `createStringMap` to make this hap
 
 https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-parameter-defaults
 
-### 217 - Type Parameter Constraints in Generic Functions
-
-In our `addCodeToError` function, we want to make sure that any error passed in has a `code` property.
-
-We also want to ensure that all errors passed have a `message` property.
-
-See if you can add a constraint to the `TError` type parameter to make the errors go away.
-
-https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints
-
-## Section 2
-
-### 218 - Generic Functions with Inference
+### 217 - Generic Functions with Inference
 
 Our `uniqueArray` function turns an array into a set, and then back into an array.
 
@@ -41,6 +29,18 @@ See if you can add a type parameter to `uniqueArray` to make the errors go away.
 Notice how you _don't need to add a type argument_ to `uniqueArray([1, 2, 3])` get the inference working!
 
 https://www.typescriptlang.org/docs/handbook/2/generics.html#hello-world-of-generics
+
+## Section 2
+
+### 218 - Type Parameter Constraints in Generic Functions
+
+In our `addCodeToError` function, we want to make sure that any error passed in has a `code` property.
+
+We also want to ensure that all errors passed have a `message` property.
+
+See if you can add a constraint to the `TError` type parameter to make the errors go away.
+
+https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints
 
 ### 219 - Generic Types and Generic Functions
 
