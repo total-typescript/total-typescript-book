@@ -6,5 +6,8 @@
     "dev": "tsc --watch"
   },
   "keywords": [],
-  "author": "Matt Pocock"
+  "author": "Matt Pocock",
+  "devDependencies": {
+    "@types/node": "^20.9.0"
+  }
 }
