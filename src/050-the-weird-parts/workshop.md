@@ -32,7 +32,7 @@ We know that the keys are `id` and `name`, but TypeScript thinks that the result
 
 ### 154.6 - Iterating Over Objects
 
-Inside our `printUser` function, see if you can iterate over all of the keys in the `user` object and log them to the console.
+Inside our `printUser` function, see if you can iterate over all of the values in the `user` object and log them to the console.
 
 You might need to change some of the types, or use a type assertion. `keyof` may also come in handy.
 
@@ -48,13 +48,13 @@ It seems that the function passed to `listenToEvent` is able to take in no param
 
 See if you can figure out the correct way to type `CallbackType` to make the TypeScript errors go away.
 
-### 156 - Unions of Functions With Object Params
+### 156 - Unions of Functions With Object Parameters
 
 In our `loggers` array, we have two functions. One takes in an object with an `id` property, and the other takes in an object with a `name` property.
 
 Figure out the correct type for the `obj` parameter in `logAll`.
 
-### 157 - Unions of Functions With Primitive Keys
+### 157 - Unions of Functions With Incompatible Parameters
 
 We now have an object of functions - each which handle different primitive types.
 

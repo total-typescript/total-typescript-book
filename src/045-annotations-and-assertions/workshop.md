@@ -4,7 +4,7 @@
 
 ### 139 - Don't Annotate Too Much
 
-In the sections marked `CODE`, see how many annotations you can remove without causing TypeScript errors.
+In the two sections marked `CODE`, see how many annotations you can remove without causing TypeScript errors.
 
 ### 141 - `as` and `as any`
 
@@ -54,7 +54,7 @@ Which is better - `@ts-ignore` or `@ts-expect-error`?
 
 The `config` object is being annotated using a variable annotation (`:`).
 
-Investigate why the errors are happening. Then,see if you can fix them by using `satisfies` on the value instead of `:` on the variable.
+Investigate why the errors are happening. Then, see if you can fix them by using `satisfies` on the value instead of `:` on the variable.
 
 https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html#the-satisfies-operator
 

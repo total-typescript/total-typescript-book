@@ -1,13 +1,10 @@
-never disappearing in unions
-
 `Exclude<string, 'hello'>` doesn't work.
+
+Talk about intersecting with unions. `('a' | 'b' | 2) & string`.
 
 Add Exclude/Extract to deriving types from values
 
-JSDoc section?
 Add decorators when they're supported in vite
-
-Add 'any' diagram
 
 Import/export type
 import type with verbatim module syntax
