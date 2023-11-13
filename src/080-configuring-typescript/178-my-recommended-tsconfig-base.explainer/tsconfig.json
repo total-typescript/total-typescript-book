@@ -10,7 +10,6 @@
     "moduleDetection": "force",
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "verbatimModuleSyntax": true,
     "allowJs": true,
     "resolveJsonModule": true,
   },

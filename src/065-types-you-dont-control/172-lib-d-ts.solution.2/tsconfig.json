@@ -13,6 +13,5 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "verbatimModuleSyntax": true
   },
 }

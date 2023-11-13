@@ -10,7 +10,6 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "verbatimModuleSyntax": true,
     "jsx": "react-jsx"
   },
 }
