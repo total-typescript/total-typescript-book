@@ -1,8 +1,12 @@
 import { Equal, Expect } from "@total-typescript/helpers";
 
+// CODE
+
 const createStringMap = <T>() => {
   return new Map<string, T>();
 };
+
+// TESTS
 
 const numberMap = createStringMap<number>();
 
