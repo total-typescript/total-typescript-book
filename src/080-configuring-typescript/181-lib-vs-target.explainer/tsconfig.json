@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES5",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,

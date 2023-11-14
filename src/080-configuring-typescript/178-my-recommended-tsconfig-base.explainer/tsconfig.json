@@ -1,16 +1,18 @@
 {
   "compilerOptions": {
     /* Module options: */
-    "moduleResolution": "Bundler",
-    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     /* Recommended: */
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "es2022",
     "moduleDetection": "force",
     "strict": true,
-    "noUncheckedIndexedAccess": true,
     "allowJs": true,
     "resolveJsonModule": true,
+    // Covered in a future explainer:
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
   },
 }
