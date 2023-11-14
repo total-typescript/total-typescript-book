@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     /* Base Options: */
-
     "skipLibCheck": true,
     "target": "es2022",
     "esModuleInterop": true, // Makes working with CommonJS easier
