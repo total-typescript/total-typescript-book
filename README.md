@@ -14,11 +14,8 @@ Because this course is _so big_ we're using `pnpm` as the package manager. It's 
 # Installs all dependencies
 pnpm install
 
-# Starts the first exercise
-pnpm run exercise 001
-
-# Runs linting and tests on the solution
-pnpm run solution 001
+# Asks you which exercise you'd like to run, and runs it
+pnpm run exercise
 ```
 
 ## How to take the course
@@ -27,10 +24,8 @@ You'll notice that the course is split into exercises. Each exercise is split in
 
 To take an exercise:
 
-1. Go into `*.problem`
-2. Run `pnpm run exercise 001`, where `001` is the number of the exercise you're on.
-
-The `exercise` script will run TypeScript typechecks and a test suite on the exercise.
+1. Run `pnpm exercise`
+2. Choose which exercise you'd like to run.
 
 This course encourages **active, exploratory learning**. In the video, I'll explain a problem, and **you'll be asked to try to find a solution**. To attempt a solution, you'll need to:
 
@@ -50,14 +45,8 @@ Say thanks to Matt on [Twitter](https://twitter.com/mattpocockuk) or by joining 
 
 ## Reference
 
-### `pnpm run exercise 001`
+### `pnpm run exercise`
 
-Alias: `pnpm run e 001`
+Alias: `pnpm run e`
 
-Run the corresponding `*.problem`.
-
-### `pnpm run solution 001`
-
-Alias: `pnpm run s 001`
-
-Run the corresponding `*.solution`. If there are multiple, it runs only the first one.
+Open a prompt for choosing which exercise you'd like to run.
