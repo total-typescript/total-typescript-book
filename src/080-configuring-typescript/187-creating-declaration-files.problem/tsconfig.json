@@ -9,9 +9,7 @@
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "moduleDetection": "force",
+    "moduleDetection": "force"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
