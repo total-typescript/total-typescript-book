@@ -7,7 +7,6 @@
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "outDir": "./dist",
     "noEmit": true
-  },
+  }
 }
