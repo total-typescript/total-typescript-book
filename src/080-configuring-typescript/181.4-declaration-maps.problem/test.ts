@@ -1,4 +1,4 @@
-import { myFunc } from "../dist/index.js";
+import { myFunc } from "./dist/index.js";
 
 myFunc("Hello world");
 
