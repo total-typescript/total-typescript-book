@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     /* Base Options: */
-    "esModuleInterop": true,
+
     "skipLibCheck": true,
     "target": "es2022",
-    "allowJs": true,
-    "resolveJsonModule": true,
+    "esModuleInterop": true, // Makes working with CommonJS easier
+    "allowJs": true, // Lets you import .js files
+    "resolveJsonModule": true, // Lets you import .json files
     "moduleDetection": "force",
     "isolatedModules": true,
-    
+
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -21,6 +22,7 @@
 
     /* AND if you're building for a library: */
     "declaration": true,
+
     /* AND if you're building for a library in a monorepo: */
     "composite": true,
     "declarationMap": true,
@@ -31,15 +33,9 @@
     "noEmit": true,
 
     /* If your code runs in the DOM: */
-    "lib": [
-      "es2022",
-      "dom",
-      "dom.iterable"
-    ],
-    
+    "lib": ["es2022", "dom", "dom.iterable"],
+
     /* If your code doesn't run in the DOM: */
-    "lib": [
-      "es2022"
-    ]
+    "lib": ["es2022"]
   }
 }
