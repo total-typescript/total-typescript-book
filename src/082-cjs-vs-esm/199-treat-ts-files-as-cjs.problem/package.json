@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "nodemon --exec \"tsc && node dist/index.mjs\" ./src/index.mts"
+    "dev": "nodemon --exec \"tsc && node dist/index.js\" ./src/index.ts"
   },
   "keywords": [],
   "author": "Matt Pocock",
