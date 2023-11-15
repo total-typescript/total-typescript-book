@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "dev": "tsc --watch",
+    "serve": "serve index.html"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
