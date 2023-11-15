@@ -1,0 +1,13 @@
+{
+  "name": "117-const-enums.explainer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --exec \"tsc && node dist/index.js\" ./src/index.ts"
+  },
+  "keywords": [],
+  "author": "Matt Pocock",
+  "devDependencies": {}
+}

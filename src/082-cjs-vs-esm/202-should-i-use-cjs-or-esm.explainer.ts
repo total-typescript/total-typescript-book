@@ -1,1 +1,1 @@
-// Should I use CJS or ESM?
+// Should you use CJS or ESM?
