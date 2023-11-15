@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "dev": "tsc --watch",
-    "serve": "serve index.html"
+    "dev": "nodemon --exec \"tsc && serve . && echo \"Serving...\"\" ./src/example.ts"
   },
   "devDependencies": {
     "serve": "^14.2.1"
