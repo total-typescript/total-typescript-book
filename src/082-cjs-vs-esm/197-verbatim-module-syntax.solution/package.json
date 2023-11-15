@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec \"tsc && node dist/index.js\" ./src/index.ts"
+    "dev": "nodemon --exec \"tsc && node dist/index.js\" ./src/cjs-module.ts"
   },
   "keywords": [],
   "author": "Matt Pocock",
