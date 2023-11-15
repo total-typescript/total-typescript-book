@@ -1,4 +1,4 @@
-import otherModule from "./other-module.cjs";
+import otherModule from "./other-module.js";
 
 const main = async () => {
   otherModule();
