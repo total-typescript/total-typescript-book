@@ -12,6 +12,8 @@ https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types
 
 Try to find a better type definition for `direction` inside the `move` function.
 
+You should only be able to pass `up`, `down`, `left` or `right`.
+
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types
 
 ### 058 - Narrowing Unions With typeof
@@ -31,6 +33,8 @@ https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowi
 ### 060 - Narrowing with Boolean
 
 Why doesn't narrowing with a `Boolean` expression work?
+
+Try changing the code to use a `!!` instead. Why does this work?
 
 ### 062 - Throwing Errors to Narrow
 
@@ -77,12 +81,6 @@ Change the type definitions of `throwError` to make the type error inside `handl
 Change the code inside `findUsersByName` so that the type error goes away.
 
 Also - why is the type error happening in the first place?
-
-### 072 - The 'Evolving Any'
-
-Change the way `selectedId` is declared to turn it into an 'evolving any'.
-
-https://effectivetypescript.com/2020/03/09/evolving-any/
 
 ## Section 5
 
