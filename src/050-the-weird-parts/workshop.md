@@ -28,15 +28,15 @@ See if you can fix this by adding some annotations/changing the code.
 
 Now, we're taking our users from `usersWithIds` and mapping over them again. This time, for each user we're calling `Object.keys` on each user.
 
-We know that the keys are `id` and `name`, but TypeScript thinks that the result of `Object.keys` is `string[]`. Why?
+We know that the keys are `id` and `name`, but TypeScript thinks that the result of `Object.keys` is `string[]`. Why not `Array<"id" | "name">`?
 
 ### 154.6 - Iterating Over Objects
 
-Inside our `printUser` function, see if you can iterate over all of the values in the `user` object and log them to the console.
+Inside our `printUser` function, see if you can iterate over all of the keys in the `user` object and log their corresponding values to the console.
+
+Some ground rules - you can't use `Object.values`, or `Object.entries`. Try using a `for` loop, or `Object.keys`.
 
 You might need to change some of the types, or use a type assertion. `keyof` may also come in handy.
-
-Also - there are 4 solutions to this problem!
 
 ## Section 3
 
@@ -63,11 +63,3 @@ In our `format` function, we get the `typeof` `input`, which can either be `stri
 We then grab our `formatter` from the object of functions.
 
 But TypeScript is erroring on the `formatter(input)` line. Why? See if you can add an annotation which fixes this.
-
-### 158.5 - Annotating the Errors a Function Throws
-
-How do we annotate our `getUserFromLocalStorage` function to show what errors it might throw?
-
-Then, how do we make the `e` inside our `catch` block have the correct type?
-
-Spoiler - we can't. But why?
