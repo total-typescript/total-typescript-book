@@ -6,7 +6,7 @@
 
 Our `createStringMap` function creates a map with a certain type as its values.
 
-See if you can add a type parameter to the `createStringMap` function so that the `Map` it creates will be typed with by the type argument passed in.
+See if you can add a type parameter to the `createStringMap` function so that the `Map` it creates will be the type of the type argument passed in.
 
 https://www.typescriptlang.org/docs/handbook/2/generics.html
 
