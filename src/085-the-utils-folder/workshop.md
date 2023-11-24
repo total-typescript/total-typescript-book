@@ -34,7 +34,7 @@ https://www.typescriptlang.org/docs/handbook/2/generics.html#hello-world-of-gene
 
 ### 218 - Type Parameter Constraints in Generic Functions
 
-In our `addCodeToError` function, we want to make sure that any error passed in has a `code` property.
+In our `addCodeToError` function, we want to make sure that any error passed in has an optional `code` property.
 
 We also want to ensure that all errors passed have a `message` property.
 
