@@ -37,8 +37,6 @@ You'll know if you've succeeded because the tests will pass.
 
 **If you succeed**, or **if you get stuck**, unpause the video and check out the `*.solution`. You can see if your solution is better or worse than mine!
 
-You can run `pnpm run solution 001` to run the tests and typechecking on the solution.
-
 ## Acknowledgements
 
 Say thanks to Matt on [Twitter](https://twitter.com/mattpocockuk) or by joining his [Discord](https://discord.gg/8S5ujhfTB3). Consider signing up to his [Total TypeScript course](https://totaltypescript.com).
