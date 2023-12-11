@@ -94,6 +94,8 @@ https://www.totaltypescript.com/discriminated-unions-are-a-devs-best-friend
 
 Investigate why the type errors are happening inside the `calculateArea` function. Fix them by changing the `calculateArea` function.
 
+## Section 6
+
 ### 076 - Narrowing Discriminated Unions With Switch Statements
 
 Refactor the `calculateArea` function to use a `switch` statement instead of an `if` statement.
