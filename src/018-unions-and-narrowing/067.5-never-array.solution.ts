@@ -1,6 +1,6 @@
-interface ShoppingCart {
+type ShoppingCart = {
   items: string[];
-}
+};
 
 const shoppingCart: ShoppingCart = {
   items: [],
