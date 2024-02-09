@@ -1274,9 +1274,7 @@ But over-using `any` defeats the purpose of using TypeScript, so it's best to av
 
 #### Exercise 1: Basic Types with Function Parameters
 
-<!-- CONTINUE -->
-
-We start with this `add` function which takes two boolean parameters `a` and `b` and returns `a + b`:
+Let's start with an `add` function which takes two boolean parameters `a` and `b` and returns `a + b`:
 
 ```tsx
 export const add = (a: boolean, b: boolean) => {
@@ -1291,6 +1289,8 @@ const result = add(1, 2); // red squiggly line under `1``
 
 type test = Expect<Equal<typeof result, number>>; // red squiggly line under `Equal` through `number`
 ```
+
+<!-- TODO - explain the Expect<Equal<>> syntax -->
 
 Currently, there are a few errors in the code that are marked by red squiggly lines.
 
@@ -1308,7 +1308,7 @@ Argument of type 'number' is not assignable to parameter of type 'boolean'
 
 Finally, we can see that our `test` result has an error because the `result` is currently typed as `any`, which is not equal to `number`.
 
-Your challenge is to consider how we can change the types to make the errors go away, and to ensure that `result` is a `number`.
+Your challenge is to consider how we can change the types to make the errors go away, and to ensure that `result` is a `number`. You can hover over `result` to check it.
 
 #### Exercise 2: Annotating Empty Parameters
 
@@ -1325,13 +1325,9 @@ const concatTwoStrings = (a, b) => {
 There are currently errors on the `a` and `b` parameters, which have not been annotated with types:
 
 ```
-
-Error messages under `a` and `b`:
-
 Parameter 'a' implicitly has an 'any' type.
 
 Parameter 'b' implicitly has an 'any' type.
-
 ```
 
 The `result` of calling `concatTwoStrings` with `"Hello"` and `"World"` and checking if it is a `string` does not show any errors:
@@ -1342,21 +1338,20 @@ const result = concatTwoStrings("Hello", "World");
 type test = Expect<Equal<typeof result, string>>;
 ```
 
-Why is this the case?
+Your job is to add some function paramater annotations to the `concatTwoStrings` function to make the errors go away.
 
 #### Exercise 3: The Basic Types
 
 As we've seen, TypeScript will show errors when types don't match.
 
-This set of examples will show you the basic types that TypeScript gives us to describe JavaScript:
+This set of examples shows us the basic types that TypeScript gives us to describe JavaScript:
 
 ```typescript
-let example1: string = "Hello World!";
-
-let example2: string = 42; // red squiggly line under `example2`
-let example3: string = true; // red squiggly line under `example3`
-let example4: string = Symbol(); // red squiggly line under `example4`
-let example5: string = 123n; // red squiggly line under `example5`
+export let example1: string = "Hello World!";
+export let example2: string = 42; // red squiggly line under `example2`
+export let example3: string = true; // red squiggly line under `example3`
+export let example4: string = Symbol(); // red squiggly line under `example4`
+export let example5: string = 123n; // red squiggly line under `example5`
 ```
 
 Note that the colon `:` is used to annotate the type of each variable, just like it was for typing the function parameters.
@@ -1368,30 +1363,22 @@ Hovering over each of the underlined variables will display any associated error
 For example, hovering over `example2` will show:
 
 ```
-
-'example2' is declared but its value is never read.
-
 Type 'number' is not assignable to type 'string'.
-
 ```
-
-In this case it's a nice warning that we have an unused variable, but obviously the type error is the more important one.
 
 The type error for `example3` tells us:
 
 ```
-
 Type 'boolean' is not assignable to type 'string'.
-
 ```
 
-Work through the above examples to correct the type errors.
+Change the types of the annotations on each variable to make the errors go away.
 
 #### Exercise 4: The `any` Type
 
 Here is a function called `handleFormData` that accepts an `e` typed as `any`. The function prevents the default form submission behavior, then creates an object from the form data and returns it:
 
-```tsx
+```typescript
 const handleFormData = (e: any) => {
   e.preventDefault();
 
@@ -1410,9 +1397,7 @@ it("Should handle a form submit", () => {
   const form = document.createElement("form");
 
   form.innerHTML = `
-
 <input name="name" value="John Doe" />
-
 `;
 
   form.onsubmit = (e) => {
@@ -1434,7 +1419,6 @@ In the code's current state, there are no red squiggly lines present.
 However, when running the test with Vitest we get an error similar to the following:
 
 ```
-
 This error originated in "any.problem.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
 
 The latest test that might've caused the error is "Should handle a form submit". It might mean one of the following:
@@ -1442,10 +1426,11 @@ The latest test that might've caused the error is "Should handle a form submit".
 - The error was thrown, while Vitest was running this test.
 
 - This was the last recorded test before the error was thrown, if error originated after test finished its execution.
-
 ```
 
-Why is this error happening? What is the `any` type doing in the `handleFormData` function?
+Why is this error happening? Why isn't TypeScript giving us an error here?
+
+I'll give you a clue. I've hidden a nasty typo in there. Can you fix it?
 
 #### Solution 1: Basic Types with Function Parameters
 
@@ -1459,25 +1444,7 @@ function add(a: number, b: number) {
 }
 ```
 
-Making this change resolves the errors, but there are a few things to talk about here before moving forward.
-
-If we were to remove the type annotations from the function, we would end up with a different error message:
-
-```typescript
-function add(a, b) {
-  // red squiggly lines under `a` and `b`
-
-  return a + b;
-}
-```
-
-```
-
-Error message:
-
-Parameter 'a' implicitly has an 'any' type.
-
-```
+Making this change resolves the errors, and also gives us some other bonuses.
 
 If we try calling the `add` function with a string instead of a number, we'd get an error that type `string` is not assignable to type `number`:
 
@@ -1485,13 +1452,19 @@ If we try calling the `add` function with a string instead of a number, we'd get
 add("something", 2); // red squiggly line under `"something"`
 ```
 
-The big takeaway here is that the `add` function enforces that two numbers are passed in as arguments, and we know that the result will also be a number.
+Not only that, but the result of our function is now inferred for us:
+
+```typescript
+const result = add(1, 2); // result is a number!
+```
+
+So TypeScript can not only infer variables, but also the return types of functions.
 
 #### Solution 2: Annotating Empty Parameters
 
-The error message about the `implicit 'any' type` is similar to what we saw with the `add` function.
+As we know, function parameters always need annotations in TypeScript.
 
-This time, we will update the function declaration parameters so that `a` and `b` are both specified as `string`:
+So, let's update the function declaration parameters so that `a` and `b` are both specified as `string`:
 
 ```typescript
 const concatTwoStrings = (a: string, b: string) => {
@@ -1499,11 +1472,13 @@ const concatTwoStrings = (a: string, b: string) => {
 };
 ```
 
-The colon syntax (`:`) tells TypeScript what types the parameters should be.
+This change fixes the errors.
 
-When a parameter does not have a type annotation, TypeScript doesn't know what it is supposed to be, so it defaults to `any`. This behavior is configurable in the `tsconfig.json` file, but it is suggested to leave it as the default.
+For a bonus point, what type will the return type be inferred as?
 
-As a general rule, whenever you write a function, you should always annotate the parameters with their respective types.
+```typescript
+const result = concatTwoStrings("Hello", "World"); // result is a string!
+```
 
 #### Solution 3: Updating Basic Types
 
@@ -1511,21 +1486,15 @@ Each of the examples represents the TypeScript's basic types, and would be annot
 
 ```typescript
 let example1: string = "Hello World!";
-
 let example2: number = 42;
-
 let example3: boolean = true;
-
 let example4: symbol = Symbol();
-
 let example5: bigint = 123n;
 ```
 
 We've already seen `string`, `number`, and `boolean`. The `symbol` type is used for `Symbol`s which are used to ensure property keys are unique. The `bigint` type is used for numbers that are too large for the `number` type.
 
-However, it isn't always necessary for you to explicitly assign them to your variables. This is because TypeScript is smart enough to infer the types of variables just from their assignments.
-
-If we remove the explicit type annotations, there won't be any errors at all:
+However, in practice you mostly won't annotate variables like this. If we remove the explicit type annotations, there won't be any errors at all:
 
 ```typescript
 let example1 = "Hello World!";
@@ -1552,22 +1521,24 @@ Using `any` also disables useful features like autocompletion, which can help yo
 That's right-- the error in the above code was caused by a typo of `e.terget` instead of `e.target` when creating the `FormData`!
 
 ```typescript
-
 const handleFormData = (e: any) => {
+  e.preventDefault();
 
-e.preventDefault();
+  const data = new FormData(e.terget); // e.terget! Whoops!
 
-const data = new FormData(e.target); // there was a typo on 'target'!
+  const value = Object.fromEntries(data.entries());
 
-...
-
+  return value;
+};
 ```
 
-If `e` had been properly typed, this error would have been caught by TypeScript right away.
+If `e` had been properly typed, this error would have been caught by TypeScript right away. We'll come back to this example in the future to see the proper typing.
 
 Using `any` may seem like a quick fix when you have trouble figuring out how to properly type something, but it can come back to bite you later.
 
 ## Basic Function Annotations
+
+In the previous section, we saw a simple method for annotating function parameters. Let's add a few more tools to our toolbox.
 
 ### Optional Parameters
 
@@ -1576,21 +1547,14 @@ For cases where a function parameter is optional, we can add the `?` operator be
 Say we wanted to add an optional `releaseDate` parameter to the `logAlbumInfo` function. We could do so like this:
 
 ```typescript
-
 const logAlbumInfo = (
-
-title: string,
-
-trackCount: number,
-
-isReleased: boolean,
-
-releaseDate?: string
-
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+  releaseDate?: string,
 ) => {
-
-// rest of function body
-
+  // rest of function body
+};
 ```
 
 Now we can call `logAlbumInfo` and include a release date string, or leave it out:
@@ -1603,9 +1567,11 @@ logAlbumInfo("American Beauty", 10, true);
 
 Hovering over the optional `releaseDate` parameter in VS Code will show us that it is now typed as `string | undefined`.
 
-We'll discuss the `|` symbol more later, but essentially this means that the parameter could either be a `string` or `undefined`. It would be acceptable to literally pass `undefined` as a second argument, or it can be omitted all together.
+We'll discuss the `|` symbol more later, but this means that the parameter could either be a `string` or `undefined`. It would be acceptable to literally pass `undefined` as a second argument, or it can be omitted all together.
 
 ### Default Parameters
+
+<!-- CONTINUE -->
 
 In addition to marking parameters as optional, you can set default values for parameters by using the `=` operator.
 
