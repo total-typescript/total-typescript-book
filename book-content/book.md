@@ -1607,7 +1607,7 @@ Since it can infer the type of the `format` parameter from the value provided. T
 
 In addition to setting parameter types, we can also set the return type of a function.
 
-The return type of a function can be annotated by placing a `:` and the type after the closing parenthesis of the parameter list. For the `logAlbumInfo` function, we can specify that the function will return a string:
+The return type of a function can be annotated by placing a `:` and the type after the closing parentheses of the parameter list. For the `logAlbumInfo` function, we can specify that the function will return a string:
 
 ```typescript
 const logAlbumInfo = (
@@ -1631,73 +1631,9 @@ const logAlbumInfo = (
 };
 ```
 
-This makes return types useful for when you want to ensure that a function returns a specific type of value.
-
-When writing TypeScript, it can be useful to hover over function calls to get an idea of their signature. For example, if we hover over the call to `logAlbumInfo`, we can see which parameters are required and which are optional:
-
-```typescript
-// hovering over `logAlbumInfo`
-
-const logAlbumInfo: (
-  title: string,
-  trackCount: number,
-  isReleased: boolean,
-  releaseDate?: string | undefined,
-  format?: string | undefined,
-) => string;
-```
-
-There's another interesting thing taking place here.
-
-Notice that the `format` parameter that we provided a default value for is showing with the same `string | undefined` type signature as the optional `releaseDate` parameter.
-
-This is because TypeScript is able to infer that the `format` parameter is optional based on the default value that we provided.
-
-Because we've added a default value, we could remove its explicit type annotation:
-
-```typescript
-
-const logAlbumInfo = (
-
-title: string,
-
-trackCount: number,
-
-isReleased: boolean,
-
-releaseDate?: string,
-
-format = "CD"
-
-): string => {
-
-// rest of function body
-
-```
-
-And hovering will now show:
-
-```typescript
-// hovering over `logAlbumInfo`
-
-const logAlbumInfo: (
-  title: string,
-
-  trackCount: number,
-
-  isReleased: boolean,
-
-  releaseDate?: string | undefined,
-
-  format?: string,
-) => string;
-```
-
-TypeScript recognizes that `format` will be a string, and the `| undefined` part of the type is no longer applicable because of the default value.
+Return types useful for when you want to ensure that a function returns a specific type of value.
 
 ### Exercises
-
-Now that we've covered the basics of TypeScript's type system, let's put what you've learned into practice.
 
 #### Exercise 1: Optional Function Parameters
 
@@ -1733,14 +1669,14 @@ type test2 = Expect<Equal<typeof result2, string>>;
 The error message reads:
 
 ```
-
 Expected 2 arguments, but got 1.
-
 ```
 
-Update the `last` parameter to make it optional.
+Try to use an optional parameter annotation to fix the error.
 
 #### Exercise 2: Default Function Parameters
+
+<!-- CONTINUE -->
 
 Here we have the same `concatName` function as before, where the `last` name is optional:
 
