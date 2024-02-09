@@ -5380,3 +5380,273 @@ interface Product extends WithId, WithCreatedAt {
 ```
 
 Here, `User` represents an object with an `id`, `createdAt`, `name`, and `email` while `Product` represents an object with an `id`, `createdAt`, `name`, and `price`.
+
+## Handling Dynamic Object Keys
+  
+When using objects, it's common that we won't always know the exact keys that will be used.
+
+In JavaScript, we can start with an empty object and add keys and values to it as we go:
+
+```tsx
+// JavaScript Example
+const albumAwards = {};
+
+albumAwards.Grammy = true;
+albumAwards.MercuryPrize = false;
+albumAwards.Billboard = true;
+```
+
+However, when we try to add keys to an empty prototype object in TypeScript, we'll get errors:
+
+```tsx
+// TypeScript Example
+const albumAwards = {};
+
+albumAwards.Grammy = true; // red squiggly line under Grammy
+albumAwards.MercuryPrize = false; // red squiggly line under MercuryPrize
+albumAwards.Billboard = true; // red squiggly line under Billboard
+
+// hovering over Grammy shows:
+Property 'Grammy' does not exist on type '{}'.
+```
+
+TypeScript is protecting us from adding keys to an object that doesn't have them defined.
+
+We need to tell TypeScript that we want to be able to dynamically add keys. Let's look at some ways to do this.
+
+### Index Signatures for Dynamic Keys
+
+Index signatures are one way to specify we want to be able to add any key and value to an object. The syntax uses square brackets, just like we would if we were adding a dynamic key to an object literal.
+
+Here's how we would specify an inline index signature for the `albumAwards` object literal. We'll call the key `award` as a string, and specify it should have a boolean value to match the example above:
+
+```tsx
+const albumAwards: {
+  [award: string]: boolean;
+} = {};
+```
+
+Note that with the inline index signature above, the values must always be a boolean. The `award` keys we add can't use a string or any other type.
+
+The same syntax can also be used with types and interfaces:
+
+```tsx
+interface AlbumAwards {
+  [award: string]: boolean;
+};
+
+const beyonceAwards: AlbumAwards = {
+  Grammy: true,
+  Billboard: true,
+};
+```
+
+Index signatures are one way to handle dynamic keys, but there's a more readable way to do this with a type we've seen before.
+
+### Using a Record Type for Dynamic Keys
+
+The `Record` utility type is the preferred option for supporting dynamic keys. This type allows us to use any string, number, or symbol as a key, and supports any type for the value.
+
+Here's how we would use `Record` for the `albumAwards` object, where the key will be a string and the value will be a boolean:
+
+```tsx
+const albumAwards: Record<string, boolean> = {};
+
+albumAwards.Grammy = true;
+```
+
+The `Record` type helper is a repeatable pattern that's easy to read and understand. It's also an abstraction, which is generally preferred over using the lower-level index signature syntax. However, both options are valid and can even be used together.
+
+### Combining Known and Dynamic Keys
+
+In many cases there will be a base set of keys we know we want to include, but we also want to allow for additional keys to be added dynamically.
+
+For example, say we are working with a base set of awards we know were nominations, but we don't know what other awards are in play. We can use the `Record` type to define a base set of awards and then use an intersection to extend it with an index signature for additional awards:
+
+```typescript
+type BaseAwards = "Grammy" | "MercuryPrize" | "Billboard";
+
+type ExtendedAlbumAwards = Record<BaseAwards, boolean> & {
+  [award: string]: boolean;
+};
+
+const extendedNominations: ExtendedAlbumAwards = {
+  Grammy: true,
+  MercuryPrize: false,
+  Billboard: true,
+  // Additional awards can be dynamically added
+  "American Music Awards": true,
+};
+```
+
+This technique would also work when using an interface and the `extends` keyword.
+
+Being able to support both default and dynamic keys in our data structures allows us quite a bit of flexibility to adapt to changing requirements in your applications.
+
+### Exercises
+
+#### Exercise 1: Use an Index Signature for Dynamic Keys
+
+Here we have an object called `scores`, and we are trying to assign several different properties to it: 
+
+```tsx
+const scores = {};
+
+scores.math = 95; // red squiggly line under math
+scores.english = 90; // red squiggly line under english
+scores.science = 85; // red squiggly line under science
+```
+
+Your task is to update `scores` to support the dynamic subject keys three ways: an inline index signature, a type, an interface, and a `Record`.
+
+#### Exercise 2: Default Properties with Dynamic Keys
+
+Here we have a `scores` object with default properties for `math` and `english`:
+
+```tsx
+interface Scores {}
+
+// @ts-expect-error science is missing! // red squiggly line under @ts-expect-error
+const scores: Scores = {
+  math: 95,
+  english: 90,
+};
+```
+
+Here the `@ts-expect-error` directive is saying that we expect there to be an error because `science` is missing. However, there isn't actually an error with `scores` so instead TypeScript gives us an error below the directive.
+
+Your task is to update the `Scores` interface to specify default keys for `math`, `english`, and `science` while allowing for any other subject to be added. Once you've updated the type correctly, the red squiggly line below `@ts-expect-error` will go away because `science` will be required but missing. For extra practice, create a `RequiredScores` interface that can be extended.
+
+#### Exercise 3: Restricting Object Keys
+
+Here we have a `configurations` object, typed as `Configurations` which is currently unknown.
+
+The object holds keys for `development`, `production`, and `staging`, and each respective key is associated with configuration details such as `apiBaseUrl` and `timeout`.
+
+There is also a `notAllowed` key, which is decorated with a `@ts-expect-error` comment. This is because, like the name says, the `notAllowed` key should not be allowed. However, there is an error below the directive because `notAllowed` is currently being allowed because of `Configuration`'s `unknown` type.
+
+```typescript
+type Environment = "development" | "production" | "staging";
+
+type Configurations = unknown;
+
+const configurations: Configurations = {
+  development: {
+    apiBaseUrl: "http://localhost:8080",
+    timeout: 5000,
+  },
+  production: {
+    apiBaseUrl: "https://api.example.com",
+    timeout: 10000,
+  },
+  staging: {
+    apiBaseUrl: "https://staging.example.com",
+    timeout: 8000,
+  },
+  // @ts-expect-error   // red squiggly line under @ts-expect-error
+  notAllowed: {
+    apiBaseUrl: "https://staging.example.com",
+    timeout: 8000,
+  },
+};
+```
+
+Update the `Configurations` type to be a Record that specifies the keys from `Environment`, while ensuring the `notAllowed` key is still not be allowed.
+
+#### Solution 1: Use an Index Signature for Dynamic Keys
+
+Inline index signature:
+
+```typescript
+const scores: {
+  [key: string]: number;
+} = {};
+```
+
+Interface:
+
+```typescript
+interface Scores {
+  [key: string]: number;
+}
+```
+
+Record:
+
+```typescript
+const scores: Record<string, number> = {};
+```
+
+#### Solution 2: Default Properties with Dynamic Keys
+
+Here's how to add an index signature to the `Scores` interface to support dynamic keys along with the required keys:
+
+```typescript
+interface Scores {
+  [subject: string]: number;
+  math: number;
+  english: number;
+  science: number;
+}
+```
+
+Creating a `RequiredScores` interface and extending it looks like this:
+
+```typescript
+interface RequiredScores {
+  math: number;
+  english: number;
+  science: number;
+}
+
+interface Scores extends RequiredScores {
+  [key: string]: number;
+}
+```
+
+#### Solution 3: Restricting Object Keys
+
+We know that the values of the `Configurations` object will be `apiBaseUrl`, which is a string, and `timeout`, which is a number.
+These key-value pairs are added to the `Configurations` type like so:
+
+```typescript
+type Environment = "development" | "production" | "staging";
+
+type Configurations = {
+  apiBaseUrl: string;
+  timeout: number;
+};
+```
+
+##### A Failed First Attempt at Using Record
+
+It may be tempting to use a Record to set the key as a string and the value an object with the properties `apiBaseUrl` and `timeout`:
+
+```typescript
+type Configurations = Record<
+  string,
+  {
+    apiBaseUrl: string;
+    timeout: number
+  }
+>;
+```
+
+However, having the key as `string` still allows for the `notAllowed` key to be added to the object. We need to make the keys dependent on the `Environment` type.
+
+##### The Correct Approach
+
+Instead, we can specify the `key` as `Environment` inside the Record:
+
+```typescript
+type Configurations = Record<
+  Environment,
+  {
+    apiBaseUrl: string;
+    timeout: number
+  }
+>;
+```
+
+Now the TypeScript compiler will throw an error when the object includes a key that doesn't exist in `Environment`, like `notAllowed`.
+
