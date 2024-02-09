@@ -3519,7 +3519,11 @@ Return types are useful for specifying what a function should return, since Type
 
 # 05. Create Sets of Types with Unions, Intersections, and Interfaces
 
-## JavaScript's Dynamic Typing
+## Unions and Literals
+
+### JavaScript's Dynamic Typing
+
+<!-- TODO - introduce the union type multiverse -->
 
 In JavaScript, we often need to work with variables that can be different types at different times.
 
@@ -3573,7 +3577,7 @@ We know that the `printPrice` function will work just fine if we pass a string t
 
 Fortunately, TypeScript has a feature that will help us out in this situation.
 
-## Introducing TypeScript's Union Types
+### Union Types
 
 Union types are TypeScript's way of allowing a variable to be one of several types.
 
@@ -3621,7 +3625,7 @@ Type 'string' is not assignable to type 'number'
 
 ```
 
-### The Assignability of Union Types
+#### The Assignability of Union Types
 
 Now that we have a basic understanding of union types, let's take a moment to talk about assignability.
 
@@ -3657,7 +3661,7 @@ Argument of type 'Price' is not assignable to parameter of type 'number'
 
 As we continue through the book, we'll expand the graph with other available types to help you get a better sense of how assignability works in TypeScript.
 
-## Literal Types
+### Literal Types
 
 Just as TypeScript allows us to create union types from multiple types, it also allows us to create single-value types called literal types.
 
@@ -3687,7 +3691,7 @@ Type '"CD"' is not assignable to type '"LP"'
 
 ```
 
-## Combining Union Types and Literal Types
+### Combining Union Types and Literal Types
 
 TypeScript allows us to combine union types and literal types to create complex type definitions.
 
@@ -3721,7 +3725,7 @@ console.log(format); // "LP"
 
 It's great to have a union type representing all of the possible album formats, but it might be useful to have more specific types representing the formats for use in different parts of our application.
 
-### Combining Union Types of Union Types
+#### Combining Union Types of Union Types
 
 Union types can be combined with other union types to create even more complex type definitions.
 
@@ -3743,7 +3747,7 @@ Now, we can use the `DigitalFormat` type for functions that handle digital forma
 
 This way, we can ensure that each function only handles the cases it's supposed to handle, and TypeScript will throw an error if we try to pass an incorrect format to a function.
 
-## How Big Can Union Types Get?
+### How Big Can Union Types Get?
 
 You probably won't ever have an issue with the size of your union types, but it's worth noting that there is an upper limit to how many members there can be.
 
@@ -3773,7 +3777,7 @@ Expression creates a union type that is too complex to represent.
 
 As mentioned before, you probably won't ever have an issue with the size of your unions. However, for situations where there are a large number of possible values, you should consider just using `string` as the type and handling logic and validation elsewhere in your code.
 
-## Resolving Literal Types to Wider Types
+### Resolving Literal Types to Wider Types
 
 Let's look at how a union of literal types is resolved to a wider type.
 
@@ -3803,7 +3807,7 @@ Inside the function, we have a `switch` statement that returns the corresponding
 
 Let's revisit the assignability chart to see what's going on here.
 
-### Assignability of Literal Types with Wider Types
+#### Assignability of Literal Types with Wider Types
 
 We have a union of literal types `"small" | "medium" | "large"` and the `string` type and the wider string type.
 
@@ -3839,7 +3843,7 @@ const getResolvedIconSize: (
 ) => string | 16 | 32 | 48;
 ```
 
-### Autocompletion Trick for Literal Types with Wider Types
+#### Autocompletion Trick for Literal Types with Wider Types
 
 There is a workaround that can be added to the function signature that will work when literal types are in a union with a wider type.
 
@@ -3859,9 +3863,9 @@ While this trick is interesting, it's not something to be applied without proper
 
 For now, the big takeaway here is that you shouldn't think about a union of literals and their wider types together as "this or that". Instead, think of them as just the wider type since that is what TypeScript will resolve to.
 
-## Exercises
+#### Exercises
 
-### Exercise 1: Handle `null` Variables
+##### Exercise 1: `string` or `null`
 
 Here we have a function called `getUsername` that takes in a `username` string. If the `username` is not equal to `null`, we return a new interpolated string. Otherwise, we return `"Guest"`:
 
@@ -3899,7 +3903,7 @@ Normally we wouldn't explicitly call the `getUsername` function with `null`, but
 
 Currently, the `username` parameter only accepts a `string` type, and the check for `null` isn't doing anything. Update the type definition so the errors are resolved and the function can handle `null` values.
 
-### Exercise 2: Restricting Function Parameters
+##### Exercise 2: Restricting Function Parameters
 
 Here we have a `move` function that takes in a `direction` of type string, and a `distance` of type number:
 
@@ -3945,7 +3949,7 @@ move(
 
 Your challenge is to update the `move` function so that it only accepts the strings `"up"`, `"down"`, `"left"`, and `"right"`. This way, TypeScript will throw an error when we try to pass in any other string.
 
-### Solution 1: Handle `null` Variables
+##### Solution 1: `string` or `null`
 
 The solution is to update the `username` parameter to be a union of `string` and `null`:
 
@@ -3959,7 +3963,7 @@ function getUsername(username: string | null) {
 
 With this change, the `getUsername` function will now accept `null` as a valid value for the `username` parameter, and the errors will be resolved.
 
-### Solution 2: Restricting Function Parameters
+##### Solution 2: Restricting Function Parameters
 
 In order to restrict what the `direction` can be, we can use a union type of literal values (in this case strings).
 
@@ -3983,11 +3987,11 @@ function move(direction: Direction, distance: number) {
 }
 ```
 
-## Narrowing Union Types with Type Guards
+## Narrowing
 
-Narrowing in TypeScript allows us to refine a variable that can be more than one type. We do this through conditional statements that use type guards to check the variable's type. The more certain TypeScript is about what it's working with, the more safe our code will be.
+Narrowing in TypeScript allows us to refine a value that can be more than one type. We do this through conditional statements that use type guards to check the variable's type. The more certain TypeScript is about what it's working with, the more safe our code will be.
 
-### Example of Narrowing with `typeof`
+### Narrowing with `typeof`
 
 The `typeof` operator is useful for determining what type a given variable is.
 
@@ -4155,9 +4159,9 @@ This works because TypeScript is really good at understanding operator syntax fo
 
 It's not just functions like `Boolean` that don't narrow as expected. Certain objects like `Map` also can have issues.
 
-## Exercises
+### Exercises
 
-### Exercise 1: Narrowing with `if` Statements
+#### Exercise 1: Narrowing with `if` Statements
 
 Here we have a function called `validateUsername` that takes in either a `string` or `null`, and will always return a `boolean`:
 
@@ -4191,7 +4195,7 @@ it("Should return false for null", () => {
 
 Your task is to rewrite the `validateUsername` function to add narrowing so that the `null` case is handled and the tests all pass.
 
-### Exercise 2: Throwing Errors to Narrow
+#### Exercise 2: Throwing Errors to Narrow
 
 Here we have a line of code that uses `document.getElementById` to fetch an HTML element, which can return either an `HTMLElement` or `null`:
 
@@ -4207,7 +4211,7 @@ type Test = Expect<Equal<typeof appElement, HTMLElement>>; // red squiggly line 
 
 Your task is to refactor the code to throw an `Error` if `appElement` doesn't exist.
 
-### Exercise 3: Narrowing API Responses
+#### Exercise 3: Narrowing API Responses
 
 Here we have a `HandleResponse` function that takes in a type of `APIResponse`, which is a union of two types of objects.
 
@@ -4273,11 +4277,11 @@ Your challenge is to find the correct syntax for narrowing down the types within
 
 The changes should happen inside of the function without modifying any other parts of the code.
 
-### Solution 1: Narrowing with `if` Statements
+#### Solution 1: Narrowing with `if` Statements
 
 There are several different ways to validate the username length.
 
-#### Option 1: Check for `username`
+##### Option 1: Check for `username`
 
 We could use an `if` statement to check if `username` exists. If it does, we can return `username.length > 5`, otherwise we can return `false`:
 
@@ -4295,7 +4299,7 @@ function validateUsername(username: string | null): boolean {
 
 This implementation corresponds to the logic we wanted in the exercise, but it doesn't account for other behavior we would want in the real world like checking for empty strings.
 
-#### Option 2: Check if `typeof username` is `"string"`
+##### Option 2: Check if `typeof username` is `"string"`
 
 We could use `typeof` to check if the username is a string:
 
@@ -4309,7 +4313,7 @@ function validateUsername(username: string | null): boolean {
 }
 ```
 
-#### Option 3: Check if `typeof username` is not `"string"`
+##### Option 3: Check if `typeof username` is not `"string"`
 
 Similar to the above, we could check if `typeof username !== "string"`.
 
@@ -4327,7 +4331,7 @@ function validateUsername(username: string | null | undefined): boolean {
 
 This approach has the unconventional implementation of this exercise, but it is nice to know how to properly check for a `null`, so you should be aware of this method as well.
 
-#### Option 4: Check if `typeof username` is `"object"`
+##### Option 4: Check if `typeof username` is `"object"`
 
 An unconventional approach to checking for `null` is by exploiting a JavaScript quirk where the type of `null` is equal to `"object"`.
 
@@ -4343,7 +4347,7 @@ function validateUsername(username: string | null): boolean {
 }
 ```
 
-#### Option 5: Extract the check into its own variable
+##### Option 5: Extract the check into its own variable
 
 Finally, for readability and reusability purposes you could store the check in its own variable `isUsernameNotNull` and negate the boolean. Since we don't care about the return value or the naming in the guard clause, we can also negate the value and use the double-bang to ensure we have just a boolean.
 
@@ -4365,7 +4369,7 @@ All of the above options use `if` statements to perform checks by narrowing type
 
 No matter which option you go with, remember that you can always use an `if` statement to narrow your type and add code to the case that the condition passes.
 
-### Solution 2: Throwing Errors to Narrow
+#### Solution 2: Throwing Errors to Narrow
 
 In order to crash the app if `appElement` does not exist, we can add an `if` statement that checks if `appElement` is `null` or does not exist, then throws an error:
 
@@ -4393,7 +4397,7 @@ Throwing errors like this can help you identify issues at runtime. In this speci
 
 In general, this technique is useful any time you need to manage logical flow in your applications.
 
-### Solution 3: Narrowing API Responses
+#### Solution 3: Narrowing API Responses
 
 It may be tempting to change the `APIReponse` type to make it a little bit different. For example, we could add an `error` as a string on one side and `data` as undefined on the other branch:
 
@@ -4437,7 +4441,7 @@ If the `response` isn't the one with `data` on it, then it must be the one with 
 
 Using `in` here gives us a great way to narrow down objects that might have different keys from one another.
 
-## The unknown and never Types
+## `unknown` and `never`
 
 Let's pause for a moment to introduce a couple more types that play an important role in TypeScript, particularly when it comes to narrowing.
 
@@ -4559,9 +4563,9 @@ As shown in the diagram, `never` truly is the bottom type in TypeScript. Nothing
 
 It might be confusing initially, but keeping this hierarchy in mind and understanding the relationship between `unknown` and `never` will help you grasp the concept more smoothly as you progress through the exercises.
 
-## Exercises
+### Exercises
 
-### Exercise 1: Dealing with Unknown Errors
+#### Exercise 1: Dealing with Unknown Errors
 
 In TypeScript, one of the most common places you'll encounter the `unknown` type is when using a `try...catch` statement to handle potentially dangerous code. Let's consider an example:
 
@@ -4597,7 +4601,7 @@ console.log(error.message);
 
 Your task is to update the `if` statement to have the proper condition to check if the `error` has a message attribute before logging it. Remember, `error` is a class!
 
-### Exercise 2: Narrowing `unknown` to a Value
+#### Exercise 2: Narrowing `unknown` to a Value
 
 Here we have a `parseValue` function that takes in an `unknown` value:
 
@@ -4637,7 +4641,7 @@ it("Should error when anything else is passed in", () => {
 
 Your challenge is to modify the `parseValue` function so that the tests pass and the errors go away. As a head's up, the solution requires a large conditional statement!
 
-### Solution 1: Dealing with Unknown Errors
+#### Solution 1: Dealing with Unknown Errors
 
 The way to solve this challenge is to narrow types using the `instanceof` operator.
 
@@ -4663,7 +4667,7 @@ if (error instanceof Error) {
 
 Now `unknown` has been narrowed down into a known class.
 
-### Solution 2: Narrowing `unknown` to a Value
+#### Solution 2: Narrowing `unknown` to a Value
 
 Here's our starting point:
 
@@ -4760,6 +4764,8 @@ Thanks to this huge conditional, our tests pass, and our error messages are gone
 As a side note, the Zod library would allow us to do this in a single line of code, but knowing how to do this manually is a great exercise to understand how narrowing works in TypeScript.
 
 ## Working With “Unique but Related” Types
+
+<!-- TODO - figure out a better title for this -->
 
 We've seen how unions can be used to combine different types into a single type. However, there are situations where working with unions can get a bit cumbersome.
 
@@ -4885,9 +4891,9 @@ However, the type of the discriminator doesn't have to be a string literal. It c
 
 Similarly, you don't have to use types as the members of a discriminated union. You could use interfaces, tuples, or even classes– the only requirement is to have a discriminator property that is common to all members of the discriminated union. This ensures TypeScript will be able to narrow properly.
 
-## Exercises
+### Exercises
 
-### Exercise 1: Destructuring a Discriminated Union
+#### Exercise 1: Destructuring a Discriminated Union
 
 Consider a discriminated union called `Shape` that is made up of two types: `Circle` and `Square`. Both types have a `kind` property that acts as the discriminator.
 
@@ -4939,7 +4945,7 @@ We get this error because TypeScript cannot guarantee that `radius` and `sideLen
 
 Your task is to update the implementation of the `calculateArea` function so that destructuring properties from the passed in `Shape` works without errors. Hint: this may involve changing the location where the destructuring takes place.
 
-### Exercise 2: Narrowing a Discriminated Union with a Switch Statement
+#### Exercise 2: Narrowing a Discriminated Union with a Switch Statement
 
 Here we have a version of the `calcuateArea` function that uses an `if-else` statement to calculate the area of a circle or square without doing any destructuring:
 
@@ -4959,7 +4965,7 @@ The reason behind this refactor is that `switch` statements make it easier to ex
 
 As you refactor, ensure that all the behavior is preserved. The area should be calculated accurately, regardless of the shape.
 
-### Exercise 3: Destructuring a Discriminated Union of Tuples
+#### Exercise 3: Destructuring a Discriminated Union of Tuples
 
 Here we have a `fetchData` function that returns a promise that resolves to an `ApiResponse` tuple that consists of two elements.
 
@@ -5025,7 +5031,7 @@ Otherwise, if the first element is `"success"` the tuple carries the successful 
 
 Your challenge is to redefine the `ApiResponse` type to be a discriminated unions of tuples that only allows for the specific combinations for the `success` and `error` states defined above.
 
-### Exercise 4: Handling Defaults with a Discriminated Union
+#### Exercise 4: Handling Defaults with a Discriminated Union
 
 We're back to the `calculateArea` function example:
 
@@ -5069,11 +5075,11 @@ The test expects that if a `kind` isn't passed in, the shape should be treated a
 
 Your challenge is to make updates to the `Shape` discriminated union that will allow for a missing value. Next, you'll need to make adjustments to the `calculateArea` function to ensure that TypeScript's type narrowing works properly within the function.
 
-### Solution 1: Destructuring a Discriminated Union
+#### Solution 1: Destructuring a Discriminated Union
 
 Before we look at the working solution, let's look at an attempt that doesn't work out.
 
-#### A Non-Working Attempt at Destructuring Parameters
+##### A Non-Working Attempt at Destructuring Parameters
 
 Since we know that `kind` is present in all branches of the discriminated union, we can try using the rest parameter syntax to bring along the other properties:
 
@@ -5121,7 +5127,7 @@ Property 'sideLength' does not exist on type '{ radius: number; } | { sideLength
 
 TypeScript gives us these errors because it still cannot guarantee properties in the function parameters since it doesn't know yet whether it's dealing with a `Circle` or a `Square`.
 
-#### The Working Destructuring Solution
+##### The Working Destructuring Solution
 
 Instead of doing the destructuring at the function parameter level, we instead will revert the function parameter back to `shape` and move the destructuring to take place inside of the conditional branches:
 
@@ -5143,7 +5149,7 @@ Now within the `if` condition, TypeScript can recognize that `shape` is indeed a
 
 Destructuring is best used closer to where it's needed, especially when dealing with discriminated unions. Also note that TypeScript's auto-completion feature makes it convenient to work with properties directly, which don't require destructuring at all.
 
-### Solution 2: Narrowing a Discriminated Union with a Switch Statement
+#### Solution 2: Narrowing a Discriminated Union with a Switch Statement
 
 The first step is to clear out the `calcuateArea` function and add the `switch` keyword and specify `shape.kind` as our switch condition. TypeScript's intelligence kicks in and suggests autocompletion for `circle` and `square`, based on the discriminated union.
 
@@ -5165,7 +5171,7 @@ function calculateArea(shape: Shape) {
 }
 ```
 
-#### Not Accounting for All Cases
+##### Not Accounting for All Cases
 
 As an experiment, comment out the case where the `kind` is `square`:
 
@@ -5197,7 +5203,7 @@ function calculateArea(shape: Shape): number | undefined;
 
 Switch statements work great with discriminated unions!
 
-### Solution 3: Destructuring a Discriminated Union of Tuples
+#### Solution 3: Destructuring a Discriminated Union of Tuples
 
 At the start of this exercise, the `ApiResponse` type was too wide:
 
@@ -5209,7 +5215,7 @@ We need to update the type to handle both the error and success states separatel
 
 Let's start by handling the error state of our API response.
 
-#### Handling the Error State
+##### Handling the Error State
 
 In this state, the first element of the tuple is `"error"` and the second element is a string that contains the error message:
 
@@ -5217,7 +5223,7 @@ In this state, the first element of the tuple is `"error"` and the second elemen
 type ApiResponse = ["error", string];
 ```
 
-#### Handling the Success State
+##### Handling the Success State
 
 Next, we need to add another option to our discriminated union with `"success"` as the first member and an array of users (`User[]`) as the second:
 
@@ -5227,7 +5233,7 @@ type ApiResponse = ["error", string] | ["success", User[]];
 
 With this update to the `ApiResponse` type, the errors have gone away!
 
-#### Understanding Tuple Relationships
+##### Understanding Tuple Relationships
 
 Inside of the `exampleFunc` function, we use array destructuring to pull out the `status` and `value` from the `ApiResponse` tuple:
 
@@ -5247,15 +5253,15 @@ const status: "error" | "success";
 
 Note that this intelligent behavior is specific to discriminated tuples, and won't work with discriminated objects.
 
-#### Error Handling with Discriminated Unions
+##### Error Handling with Discriminated Unions
 
 If you were to change the function to try to return a value that doesn't match the defined tuple structure, TypeScript would raise an error. For example, an empty object or an array where a string is expected would not be assignable. The type system checks that the pair of values in the tuple align with either the `["error", string]` or `["success", User[]]` format defined by the `ApiResponse` discriminated union.
 
-### Solution 4: Handling Defaults with a Discriminated Union
+#### Solution 4: Handling Defaults with a Discriminated Union
 
 Before we look at the working solution, let's take a look at a couple of approaches that don't quite work out.
 
-#### Attempt 1: Creating an `OptionalCircle` Type
+##### Attempt 1: Creating an `OptionalCircle` Type
 
 One possible first step is to create an `OptionalCircle` type by discarding the `kind` property:
 
@@ -5275,7 +5281,7 @@ This solution appears to work initially since it resolves the error in the radiu
 
 However, this approach brings back errors inside of the `calculateArea` function because the discriminated union is broken since not every member has a `kind` property.
 
-#### Attempt 2: Updating the `Circle` Type
+##### Attempt 2: Updating the `Circle` Type
 
 Rather than developing a new type, we could modify the `Circle` type to make the `kind` property optional:
 
@@ -5311,7 +5317,7 @@ if (shape.kind === "circle") {
 
 The error tells us that TypeScript is no longer able to narrow down the type of `shape` to a `Square` because we're not checking to see if `shape.kind` is `undefined`.
 
-#### Fixing the New Error
+##### Fixing the New Error
 
 It would be possible to fix this error by adding additional checks for the `kind`, but instead we could just swap how our conditional checks work.
 
@@ -5327,11 +5333,7 @@ if (shape.kind === "square") {
 
 By inspecting `square` first, all shape cases that aren't squares default to circles. The circle is treated as optional, which preserves our discriminated union and keeps the function flexible.
 
-# Working with Objects
-
-In a previous section we looked at some basic examples of the TypeScript's object types. Here we will take this a step further and explore more advanced concepts in object manipulation, including extending objects, handling dynamic keys, and transforming objects with utility types.
-
-## Extending Objects in TypeScript
+## Extending Objects
 
 Creating new objects based on objects that already exist is a great way to promote modularity and reusability in your code. There are two primary methods for extending objects in TypeScript: using intersections and extending interfaces.
 
@@ -5387,7 +5389,9 @@ revenue: 65000000,
 
 If the contract of the `AlbumSales` type isn't fulfilled when creating a new object, TypeScript will raise an error.
 
-### Extending Interfaces
+### Interfaces
+
+<!-- TODO - introduce interfaces -->
 
 Another option for creating new objects is to use TypeScript interfaces and the `extends` keyword. This approach is particularly useful when building hierarchies or when multiple extensions are needed.
 
@@ -5451,7 +5455,7 @@ interface BoxSet extends StudioAlbum, LiveAlbum {
 }
 ```
 
-### Choosing an Object Extension Method
+### Intersections vs Interfaces
 
 We've now seen two ways of extending objects in TypeScript: one using `type` and one using `interface`.
 
@@ -5517,9 +5521,9 @@ This might give you pause about using `interface` instead of `type` by default.
 
 There will be more advanced examples of interface declaration merging in the future, but for now, it's important to know that TypeScript automatically merges interfaces when they're declared multiple times.
 
-## Exercises
+### Exercises
 
-### Exercise 1: Create an Intersection Type
+#### Exercise 1: Create an Intersection Type
 
 Here we have a `User` type and a `Product` type, both with some common properties like `id` and `createdAt`:
 
@@ -5547,13 +5551,13 @@ type Product = {
 
 Your task is to create an intersection by refactoring the `User` and `Product` types such that they rely on the same `BaseEntity` type with properties `id` and `createdAt`.
 
-### Exercise 2: Extending Interfaces
+#### Exercise 2: Extending Interfaces
 
 After the previous exercise, you'll have a `BaseEntity` type along with `User` and `Product` types that intersect with it.
 
 This time, your task is to refactor the types to be interfaces, and use the `extends` keyword to extend the `BaseEntity` type. For extra credit, try creating and extending multiple smaller interfaces.
 
-### Solution 1: Create an Intersection Type
+#### Solution 1: Create an Intersection Type
 
 To solve this challenge, we'll create a new `BaseEntity` type with the common properties:
 
@@ -5583,7 +5587,7 @@ type Product = {
 
 Now `User` and `Product` have exactly the same behavior that they did before, but with less duplication.
 
-### Solution 2: Extend Interfaces
+#### Solution 2: Extending Interfaces
 
 Instead of using the `type` keyword, the `BaseEntity`, `User`, and `Product`, can be declared as interfaces. Remember, interfaces do not use an equals sign like `type` does:
 
