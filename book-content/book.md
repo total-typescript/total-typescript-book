@@ -3108,6 +3108,8 @@ Note that this is different behavior than in JavaScript!
 
 In JavaScript, the type of a function that doesn't return anything is `undefined`, which is a value that can be assigned to a variable.
 
+<!-- TODO - add an example -->
+
 ### Typing Async Functions
 
 <!-- TODO -->
