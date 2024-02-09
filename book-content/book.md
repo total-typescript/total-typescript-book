@@ -5382,7 +5382,7 @@ interface Product extends WithId, WithCreatedAt {
 Here, `User` represents an object with an `id`, `createdAt`, `name`, and `email` while `Product` represents an object with an `id`, `createdAt`, `name`, and `price`.
 
 ## Handling Dynamic Object Keys
-  
+
 When using objects, it's common that we won't always know the exact keys that will be used.
 
 In JavaScript, we can start with an empty object and add keys and values to it as we go:
@@ -5433,7 +5433,7 @@ The same syntax can also be used with types and interfaces:
 ```tsx
 interface AlbumAwards {
   [award: string]: boolean;
-};
+}
 
 const beyonceAwards: AlbumAwards = {
   Grammy: true,
@@ -5464,18 +5464,17 @@ In many cases there will be a base set of keys we know we want to include, but w
 For example, say we are working with a base set of awards we know were nominations, but we don't know what other awards are in play. We can use the `Record` type to define a base set of awards and then use an intersection to extend it with an index signature for additional awards:
 
 ```typescript
-type BaseAwards = "Grammy" | "MercuryPrize" | "Billboard";
+type BaseAwards = "Grammy" | "MercuryPrize" | "Billboard";
 
-type ExtendedAlbumAwards = Record<BaseAwards, boolean> & {
-  [award: string]: boolean;
+type ExtendedAlbumAwards = Record<BaseAwards, boolean> & {
+  [award: string]: boolean;
 };
 
-const extendedNominations: ExtendedAlbumAwards = {
-  Grammy: true,
-  MercuryPrize: false,
-  Billboard: true,
-  // Additional awards can be dynamically added
-  "American Music Awards": true,
+const extendedNominations: ExtendedAlbumAwards = {
+  Grammy: true,
+  MercuryPrize: false,
+  Billboard: true, // Additional awards can be dynamically added
+  "American Music Awards": true,
 };
 ```
 
@@ -5487,7 +5486,7 @@ Being able to support both default and dynamic keys in our data structures allow
 
 #### Exercise 1: Use an Index Signature for Dynamic Keys
 
-Here we have an object called `scores`, and we are trying to assign several different properties to it: 
+Here we have an object called `scores`, and we are trying to assign several different properties to it:
 
 ```tsx
 const scores = {};
@@ -5627,7 +5626,7 @@ type Configurations = Record<
   string,
   {
     apiBaseUrl: string;
-    timeout: number
+    timeout: number;
   }
 >;
 ```
@@ -5643,7 +5642,7 @@ type Configurations = Record<
   Environment,
   {
     apiBaseUrl: string;
-    timeout: number
+    timeout: number;
   }
 >;
 ```
@@ -5657,29 +5656,29 @@ TypeScript offers a variety of built-in types for you to use when working with o
 ### Make Properties Optional with Partial
 
 We've seen how to use the question mark operator `?` to make properties optional in TypeScript. However, when dealing with an object type where every key is optional it gets a bit annoying to have to write (and read) the `?` over and over again.
-  
+
 The Partial utility type allows you to quickly transform all of the properties of a given type into optional properties.
 
-Consider an Album interface that contains detailed information about an album:  
+Consider an Album interface that contains detailed information about an album:
 
 ```typescript
-interface Album {
-  id: number;
-  title: string;
-  artist: string;
-  releaseYear: number;
-  genre: string;
+interface Album {
+  id: number;
+  title: string;
+  artist: string;
+  releaseYear: number;
+  genre: string;
 }
 ```
 
 When we want to update an album's information, we might not have all the information at once. For example, it can be difficult to decide what genre to assign to an album before it's released.
 
-Using the `Partial` utility type and passing in `Album`, we can create a type that allows us to update any subset of an album's properties:  
+Using the `Partial` utility type and passing in `Album`, we can create a type that allows us to update any subset of an album's properties:
 
 ```typescript
-type PartialAlbum = Partial<Album>;
+type PartialAlbum = Partial<Album>;
 ```
-  
+
 Now we have a `PartialAlbum` type where `id`, `title`, `artist`, `releaseYear`, and `genre` are all optional.
 
 This means we can create an album with only some of the properties of `Album`:
@@ -5719,7 +5718,7 @@ const doubleCup: RequiredAlbum = {
   title: "Double Cup",
   artist: "DJ Rashad",
   releaseYear: 2013,
-  genre: "Juke"
+  genre: "Juke",
 };
 ```
 
@@ -5748,7 +5747,7 @@ type RequiredAlbum = {
     parentGenre?: string;
     subGenre?: string;
   };
-}
+};
 ```
 
 If you find yourself in a situation where you need a deeply Required type, check out the type-fest library by Sindre Sorhus.
@@ -5764,7 +5763,7 @@ declare type PropertyKey = string | number | symbol;
 
 Because `PropertyKey` works with all possible keys, it's great for working with dynamic keys where you aren't sure what the type of the key will be.
 
-For example, when using an index signature you could set the key type to  `PropertyKey` in order to allow for any valid key type:
+For example, when using an index signature you could set the key type to `PropertyKey` in order to allow for any valid key type:
 
 ```tsx
 type Album = {
@@ -5773,6 +5772,7 @@ type Album = {
 ```
 
 The `PropertyKey` type is used behind the scenes of several TypeScript features
+
 ### Select Properties with Pick
 
 The Pick utility type allows you to create a new type by selecting a subset of properties from an existing type. This type helper allows you to keep a main type as the source of truth while creating subtypes that contain only what you need.
@@ -5801,7 +5801,7 @@ On the surface, using Omit is straightforward, but there are a couple of quirks 
 
 #### Omit is Loose
 
-When using Omit, you are able to exclude properties that don't exist on an object. 
+When using Omit, you are able to exclude properties that don't exist on an object.
 
 For example, creating an `AlbumWithoutProducer` type with our `Album` type would not result in an error, even though `producer` doesn't exist on `Album`:
 
@@ -5864,9 +5864,9 @@ These types share common properties such as `id`, `title`, and `coverImageId`, b
 After creating a `MusicProduct` type that is a union of these three types, say we want to create a `MusicProductWithoutId` type, mirroring the structure of `MusicProduct` but excluding the `id` field:
 
 ```tsx
-type MusicProduct = Album | CollectorEdition | DigitalRelease
+type MusicProduct = Album | CollectorEdition | DigitalRelease;
 
-type MusicProductWithoutId = Omit<MusicProduct, "id">
+type MusicProductWithoutId = Omit<MusicProduct, "id">;
 ```
 
 You might assume that `MusicProductWithoutId` would be a union of the three types minus the `id` field. However, what we get instead is a simplified object type containing only the `title` and `coverImageId`– the other properties that were shared across all types, without `id`.
@@ -5876,7 +5876,7 @@ You might assume that `MusicProductWithoutId` would be a union of the three type
 type MusicProductWithoutId = {
   title: string;
   coverImageId: string;
-}
+};
 ```
 
 This unexpected outcome stems from how Omit processes union types. Rather than iterating over each union member, it amalgamates them into a single structure it can understand.
@@ -5897,25 +5897,31 @@ When we apply `DistributiveOmit` to our `MusicProduct` type, we get the anticipa
 type MusicProductWithoutId = DistributiveOmit<MusicProduct, "id">;
 
 // Hovering over MusicProductWithoutId shows:
-type MusicProductWithoutId = Omit<Album, "id"> | Omit<CollectorEdition, "id"> | Omit<DigitalRelease, "id">
+type MusicProductWithoutId =
+  | Omit<Album, "id">
+  | Omit<CollectorEdition, "id">
+  | Omit<DigitalRelease, "id">;
 ```
 
 Structurally, this is the same as:
 
 ```tsx
-type MusicProductWithoutId = {
-  title: string;
-  genre: string;
-  coverImageId: string;
-} | {
-  title: string;
-  limitedEditionFeatures: string[];
-  coverImageId: string;
-} | {
-  title: string;
-  digitalFormat: string;
-  coverImageId: string;
-}
+type MusicProductWithoutId =
+  | {
+      title: string;
+      genre: string;
+      coverImageId: string;
+    }
+  | {
+      title: string;
+      limitedEditionFeatures: string[];
+      coverImageId: string;
+    }
+  | {
+      title: string;
+      digitalFormat: string;
+      coverImageId: string;
+    };
 ```
 
 In situations where you need to use Omit with union types, using a distributive version will give you a much more predictable result.
@@ -5964,7 +5970,7 @@ Consider this `hasKey` function that accepts an object and a key, then calls `ob
 ```typescript
 const hasKey = (obj: object, key: string) => {
   return obj.hasOwnProperty(key);
-}
+};
 ```
 
 There are several test cases for this function:
@@ -6013,7 +6019,6 @@ it("Should work on symbol keys", () => {
 
 Your task is to update the `hasKey` function so that all of these tests pass. Try to be as concise as possible!
 
-
 ### Exercise 3: Updating a Product
 
 Here we have a function `updateProduct` that takes two arguments: an `id`, and a `productInfo` object derived from the `Product` type, excluding the `id` field.
@@ -6031,35 +6036,40 @@ const updateProduct = (id: number, productInfo: Omit<Product, "id">) => {
 };
 ```
 
-The twist here is that during a product update, we might not want to modify all of its properties at the same time. Because of this, not all properties have to be passed into the function. 
+The twist here is that during a product update, we might not want to modify all of its properties at the same time. Because of this, not all properties have to be passed into the function.
 
 This means we have several different test scenarios. For example, update just the name, just the price, or just the description. Combinations like updating the name and the price or the name and the description are also tested.
 
 ```tsx
-updateProduct(1, { // red squiggly line under the entire object
+updateProduct(1, {
+  // red squiggly line under the entire object
   name: "Book",
 });
 
-updateProduct(1, { // red squiggly line under the entire object
+updateProduct(1, {
+  // red squiggly line under the entire object
   price: 12.99,
 });
 
-updateProduct(1, { // red squiggly line under the entire object
+updateProduct(1, {
+  // red squiggly line under the entire object
   description: "A book about Dragons",
 });
 
-updateProduct(1, { // red squiggly line under the entire object
+updateProduct(1, {
+  // red squiggly line under the entire object
   name: "Book",
   price: 12.99,
 });
 
-updateProduct(1, { // red squiggly line under the entire object
+updateProduct(1, {
+  // red squiggly line under the entire object
   name: "Book",
   description: "A book about Dragons",
 });
 ```
 
-Your challenge is to modify the `ProductInfo` type to reflect these requirements. The `id` should remain absent from `ProductInfo`, but we also want all other properties in `ProductInfo` to be optional. 
+Your challenge is to modify the `ProductInfo` type to reflect these requirements. The `id` should remain absent from `ProductInfo`, but we also want all other properties in `ProductInfo` to be optional.
 
 ### Solution 1: Expecting Certain Properties
 
