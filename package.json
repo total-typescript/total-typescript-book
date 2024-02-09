@@ -17,6 +17,7 @@
     "vitest": "^0.34.4"
   },
   "scripts": {
+    "format-book": "tsx book-content/formatter/format.ts",
     "exercise": "tt-cli run",
     "e": "npm run exercise",
     "solution": "tt-cli run --solution",
@@ -580,6 +581,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.44.3",
     "react-select": "^5.7.3",
+    "tsx": "^4.7.0",
     "zod": "^3.21.4"
   }
 }

@@ -230,9 +230,9 @@ dragleave
 
 Autocomplete is an essential tool for writing TypeScript code, and it's available right out of the box in VSCode.
 
-## Exercises
+### Exercises
 
-### Exercise: Autocomplete
+#### Exercise 1: Autocomplete
 
 Here's an example of some code where autocomplete can be triggered:
 
@@ -254,7 +254,7 @@ acceptsObj({
 
 Practice using the autocomplete shortcut to fill in the object in the call to `acceptsObj`.
 
-### Solution: Autocomplete
+#### Solution 1: Autocomplete
 
 When you hit `Ctrl + Space` inside the object, you'll see a list of the possible properties based on the `MyObj` type:
 
@@ -450,9 +450,9 @@ otherObject.thing
 
 Get used to the ability to float around your codebase introspecting variables and declarations, because it's a great way to understand what the code is doing.
 
-## Exercises
+### Exercises
 
-### Exercise: Hovering a Function Call
+#### Exercise: Hovering a Function Call
 
 In this code snippet we're trying to grab an element using `document.getElementById` with an ID of `12`. However, TypeScript is complaining.
 
@@ -462,7 +462,7 @@ let element = document.getElementById(12); // red squiggly line under 12
 
 How can hovering help to determine what argument `document.getElementById` actually requires? And for a bonus point, what type is `element`?
 
-### Solution: Hovering a Function Call
+#### Solution: Hovering a Function Call
 
 First of all, we can hover over the red squiggly error itself. In this case, hovering over `12`, we get the following error message:
 
@@ -474,7 +474,7 @@ Argument of type 'number' is not assignable to parameter of type 'string'.
 
 We'll also get a readout of the `getElementById` function:
 
-```typescript
+```
 
 (method) Document.getElementById(elementId: string): HTMLElement | null
 
@@ -694,7 +694,7 @@ But the upshot is that moving to TypeScript should feel extremely familiar for J
 
 ## Exercises
 
-### Exercise 4: Quick Fix Refactoring
+### Exercise 1: Quick Fix Refactoring
 
 Let's revisit VS Code's Quick Fixes menu we looked at earlier.
 
@@ -715,7 +715,7 @@ Highlight a variable, line, or entire code block then hit `Command + .` to open 
 
 Experiment with different options to see how they affect the example function.
 
-### Solution 4: Quick Fix Refactoring
+### Solution 1: Quick Fix Refactoring
 
 The Quick Fix menu will show different refactoring options depending on where your cursor is when you open it.
 
@@ -998,7 +998,6 @@ run("Hello world!"); // red squiggly line under "Hello world!"
 Inside the terminal, `tsc` will display an error message:
 
 ```
-
 // inside the terminal
 
 Argument of type 'string' is not assignable to parameter of type 'number'.
@@ -1040,40 +1039,6 @@ When using tools like Vite, Next.js, Remix, or Astro, `noEmit` is set to `true` 
 In this way, it's often the case that TypeScript acts more like a linter than part of the build process. It helps us ensure that our code is type safe, but it is not responsible for building our actual JavaScript code.
 
 Later in the book, we'll look closer at more advanced TypeScript configurations for application development.
-
-## Exercises
-
-### Exercise 1: Set an Output Directory for Transpiled Files
-
-When we run `tsc` to transpile our TypeScript code to JavaScript, the output JavaScript file is placed in the same directory as the TypeScript file. This is because our `tsconfig.json` configuration file is using the default settings.
-
-Having transpiled files saved alongside the original TypeScript files will get messy as the project size increases, so it would be better to have the generated `.js` files moved to their own directory. Commonly, this directory is named `dist` for "distribution".
-
-After you create the `dist` directory, your task is to read through the `tsconfig.json` file to find the option that allows you to specify the output directory for transpiled files. Once you've found the option and made the necessary changes, update the `index.html` file to reference the `example.js` file in the `dist` directory.
-
-### Solution 1: Set an Output Directory for Transpiled Files
-
-The `outDir` setting inside of `tsconfig.json` is the one that allows you to set the output directory for transpiled files. By default, it's commented out, but you can uncomment it and set it to `dist`:
-
-```json
-
-// inside of tsconfig.json
-
-{
-
-"compilerOptions": {
-
-/* ... */
-
-"outDir": "./dist", /* Specify an output folder for all emitted files */
-
-/* ... */
-
-```
-
-After making this change, running `tsc` will ensure the `dist` directory exists, and will place the transpiled JavaScript files inside of it.
-
-If you compare the `example.ts` and `example.js` files side by side, you'll see that changes to the TypeScript file will still automatically update the JavaScript file in its new directory.
 
 ---
 
@@ -1905,7 +1870,7 @@ This feature can save you a lot of time, and also helps to avoid typos in a situ
 
 ### Exercises
 
-#### Exercise 7: Object Literal Types
+#### Exercise 1: Object Literal Types
 
 Here we have a `concatName` function that accepts a `user` object with `first` and `last` keys:
 
@@ -1945,7 +1910,7 @@ We can tell from the `concatName` function body that it expects `user.first` and
 
 How could we type the `user` parameter to ensure that it has these properties and that they are of the correct type?
 
-#### Exercise 8: Optional Property Types
+#### Exercise 2: Optional Property Types
 
 Here's a version of the `concatName` function that has been updated to return just the first name if a last name wasn't provided:
 
@@ -1987,7 +1952,7 @@ The error tells us that we are missing a property, but we want to support object
 
 How would you update this function to fix the errors?
 
-#### Solution 7: Object Literal Types
+#### Solution 1: Object Literal Types
 
 In order to annotate the `user` parameter as an object, we can use the curly brace syntax `{}`.
 
@@ -2023,7 +1988,7 @@ const concatName = (user: {
 
 Now TypeScript knows that both the `first` and `last` properties of `user` are strings, and the test passes.
 
-#### Solution 8: Optional Property Types
+#### Solution 2: Optional Property Types
 
 Similar to when we set a function parameter as optional, we can use the `?` to specify that an object's property is optional.
 
@@ -2121,7 +2086,7 @@ You'll be using type aliases a lot in your TypeScript projects, so it's good to 
 
 ### Exercises
 
-#### Exercise 9: The `type` Keyword
+#### Exercise 1: The `type` Keyword
 
 Here's some code that uses the same type in multiple places:
 
@@ -2175,7 +2140,7 @@ How could you use the `type` keyword to make this code more readable?
 
 ---
 
-#### Solution 9: The `type` Keyword
+#### Solution 1: The `type` Keyword
 
 You could use the `type` keyword to create a `Rectangle` type with `width` and `height` properties:
 
@@ -2289,7 +2254,7 @@ Argument of type '{ name: string; type: string; }' is not assignable to paramete
 
 ### Exercises
 
-#### Exercise 10: Array Type
+#### Exercise 1: Array Type
 
 Consider the following shopping cart code:
 
@@ -2329,9 +2294,7 @@ As the error message points out, there is not currently a property called `items
 
 How would you fix this error?
 
-#### Exercise 11: Arrays of Objects
-
-# Arrays of Objects in TypeScript
+#### Exercise 2: Arrays of Objects
 
 Consider this `processRecipe` function which takes in a `Recipe` type:
 
@@ -2371,7 +2334,7 @@ Object literal may only specify known properties, and 'ingredients' does not exi
 
 By combining what you've seen with typing object properties and working with arrays, how would you specify ingredients for the `Recipe` type?
 
-#### Solution 10: Array Type
+#### Solution 1: Array Type
 
 For the `ShoppingCart` example, defining an array of `item` strings would looks like this when using the square bracket syntax:
 
@@ -2395,7 +2358,7 @@ type ShoppingCart = {
 };
 ```
 
-#### Solution 11: Arrays of Objects
+#### Solution 2: Arrays of Objects
 
 As it happens, there are a few different ways to express an array of objects. Some of these solutions are nicer than others, but all of them work.
 
@@ -2547,7 +2510,7 @@ This is a really nice way to express arrays of fixed length in TypeScript, and i
 
 ### Exercises
 
-#### Exercise 12: Tuples
+#### Exercise 1: Tuples
 
 Here we have a `setRange` function that takes in an array of numbers:
 
@@ -2589,7 +2552,7 @@ setRange([0, 10, 20]);
 
 The code for the `setRange` function needs an updated type annotation to specify that it only accepts a tuple of two numbers.
 
-#### Exercise 13: Optional Members of Tuples
+#### Exercise 2: Optional Members of Tuples
 
 This `goToLocation` function takes in an array of coordinates. Each coordinate has a `latitude` and `longitude`, which are both numbers, as well as an optional `elevation` which is also a number:
 
@@ -2615,7 +2578,7 @@ const goToLocation = (coordinates: Array<number>) => {
 
 Your challenge is to update the type annotation for the `coordinates` parameter to specify that it should be a tuple of three numbers, where the third number is optional.
 
-#### Solution 12: Tuples
+#### Solution 1: Tuples
 
 In this case, we would update the `setRange` function to use this syntax instead of the array syntax:
 
@@ -2635,7 +2598,7 @@ const setRange = (range: [x: number, y: number]) => {
 };
 ```
 
-#### Solution 13: Optional Members of Tuples
+#### Solution 2: Optional Members of Tuples
 
 A good start would be to change the `coordinates` parameter to a tuple of `[number, number, number | undefined]`:
 
@@ -2778,7 +2741,7 @@ const format = musicCollection.get(rubberSoul); // "Vinyl"
 
 ### Exercises
 
-#### Exercise 14: Passing Types to Set
+#### Exercise 1: Passing Types to Set
 
 Here's an interesting problem in TypeScript where we want to restrict the types of elements that can be added to a `Set`.
 
@@ -2818,7 +2781,7 @@ We'll discuss what `unknown` does in more depth later, but for now you can think
 
 How would we type the `Set` so it only accepts numbers?
 
-#### Exercise 15: Passing Types to Map
+#### Exercise 2: Passing Types to Map
 
 Here we are creating a `Map`, which is essentially a dictionary.
 
@@ -2854,7 +2817,7 @@ new () => Map<any, any> (+3 overloads)
 
 How would we type the `userMap` so the key must be a number and the value is an object with `name` and `age` properties?
 
-#### Exercise 19: `JSON.parse()` Can't Receive Type Arguments
+#### Exercise 3: `JSON.parse()` Can't Receive Type Arguments
 
 Consider the following code, which uses `JSON.parse` to parse some JSON:
 
@@ -2905,7 +2868,7 @@ The test errors tell us that the type of `parsed` is incorrect, and the properti
 
 Why this is happening? What would be an alternative way to express this to correct these type errors?
 
-#### Solution 14: Passing Types to Set
+#### Solution 1: Passing Types to Set
 
 Hovering over `Set` when it is created shows us a clue:
 
@@ -2949,7 +2912,7 @@ For example, the following would result in an error because TypeScript sees only
 const userIds: Set<number> = new Set(["a", "b", "c"]); // red squiggly line under `userIds`
 ```
 
-#### Solution 15: Passing Types to Map
+#### Solution 2: Passing Types to Map
 
 There are a few different ways to solve this problem, but we'll start with the most straightforward one.
 
@@ -2989,7 +2952,7 @@ Finally, to bring things full circle, we could replace the inline type with a `U
 const userMap: Map<number, User> = new Map();
 ```
 
-#### Solution 19: `JSON.parse()` Can't Receive Type Arguments
+#### Solution 3: `JSON.parse()` Can't Receive Type Arguments
 
 Let's look a bit closer at the error message we got when calling `JSON.parse`:
 
@@ -3060,6 +3023,17 @@ getAlbumFormats(
 );
 ```
 
+Or even by spreading in an array of strings:
+
+```typescript
+const albumFormats = ["CD", "LP", "Cassette"];
+
+getAlbumFormats(
+  { artist: "Radiohead", title: "OK Computer", year: 1997 },
+  ...albumFormats,
+);
+```
+
 If this function was written with only a single `format` parameter, we would have to pass in an array of strings and manually join them together in order to create a single string:
 
 ```typescript
@@ -3120,9 +3094,11 @@ In JavaScript, the type of a function that doesn't return anything is `undefined
 
 ### Typing Async Functions
 
+<!-- TODO -->
+
 ### Exercises
 
-#### Exercise 16: Rest Parameters
+#### Exercise 1: Rest Parameters
 
 Here we have a `concatenate` function that takes in a variable number of strings:
 
@@ -3152,7 +3128,7 @@ Rest parameter 'strings' implicitly has an 'any[]' type.
 
 How would you update the rest parameter to specify that it should be an array of strings?
 
-#### Exercise 17: Function Types
+#### Exercise 2: Function Types
 
 Here we have a `modifyUser` function that takes in an array of `users`, an `id` of the user that we want to change, and a `makeChange` function that makes that change:
 
@@ -3220,7 +3196,7 @@ modifyUser(
 
 How would you type `makeChange` as a function takes in a `User` and returns a `User`?
 
-#### Exercise 18: Functions Returning `void`
+#### Exercise 3: Functions Returning `void`
 
 Here we explore a classic web development example.
 
@@ -3248,7 +3224,7 @@ Currently there is an error under `listener` because it is implicitly typed as `
 
 How should `addClickEventListener` be typed so that the errors are resolved?
 
-#### Exercise 20: Typing Async Functions
+#### Exercise 4: Typing Async Functions
 
 This `fetchData` function awaits the `response` from a call to `fetch`, then gets the `data` by calling `response.json()`:
 
@@ -3308,7 +3284,7 @@ How can we type `data` as a number without changing the calls to `fetch` or `res
 
 One way involves adding a type to `fetchData` itself. Another way involves typing `data` itself. Since we're dealing with `any`, there is some flexibility in the types that you can add.
 
-#### Solution 16: Rest Parameters
+#### Solution 1: Rest Parameters
 
 As we've seen with previous errors involving an `implicit any` type, the solution here is relatively straight forward.
 
@@ -3320,7 +3296,7 @@ export function concatenate(...strings: string[]) {
 }
 ```
 
-#### Solution 17: Function Types
+#### Solution 2: Function Types
 
 The starting point for annotating the `makeChange` function will look like an arrow function. For now, we'll say it doesn't take in a parameter and returns `any`:
 
@@ -3394,7 +3370,7 @@ makeChange: MakeChangeFunc,
 
 This is a great technique for expressing function types for functions as well as callbacks.
 
-#### Solution 18: Functions Returning `void`
+#### Solution 3: Functions Returning `void`
 
 Like before, we can start by annotating the `listener` parameter to be a function. For now, we'll specify that it returns a string:
 
@@ -3434,7 +3410,7 @@ const addClickEventListener = (listener: () => void) => {
 };
 ```
 
-#### Solution 20: Typing Async Functions
+#### Solution 4: Typing Async Functions
 
 You might be tempted to try passing a type argument to `fetch`, similar to how you would with `Map` or `Set`.
 
@@ -4567,7 +4543,7 @@ It might be confusing initially, but keeping this hierarchy in mind and understa
 
 ## Exercises
 
-### Exercise 4: Dealing with Unknown Errors
+### Exercise 1: Dealing with Unknown Errors
 
 In TypeScript, one of the most common places you'll encounter the `unknown` type is when using a `try...catch` statement to handle potentially dangerous code. Let's consider an example:
 
@@ -4603,7 +4579,7 @@ console.log(error.message);
 
 Your task is to update the `if` statement to have the proper condition to check if the `error` has a message attribute before logging it. Remember, `error` is a class!
 
-### Exercise 5: Narrowing `unknown` to a Value
+### Exercise 2: Narrowing `unknown` to a Value
 
 Here we have a `parseValue` function that takes in an `unknown` value:
 
@@ -4643,7 +4619,7 @@ it("Should error when anything else is passed in", () => {
 
 Your challenge is to modify the `parseValue` function so that the tests pass and the errors go away. As a head's up, the solution requires a large conditional statement!
 
-### Solution 4: Dealing with Unknown Errors
+### Solution 1: Dealing with Unknown Errors
 
 The way to solve this challenge is to narrow types using the `instanceof` operator.
 
@@ -4669,7 +4645,7 @@ if (error instanceof Error) {
 
 Now `unknown` has been narrowed down into a known class.
 
-### Solution 5: Narrowing `unknown` to a Value
+### Solution 2: Narrowing `unknown` to a Value
 
 Here's our starting point:
 
