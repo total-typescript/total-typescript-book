@@ -1056,9 +1056,11 @@ It’s important to build a solid foundation, as everything you’ll learn later
 
 One of the most common things you’ll need to do as a TypeScript developer is to annotate your code. Annotations tell TypeScript what type something is supposed to be.
 
-Annotations will pretty much always use a `:` - this is used to tell TypeScript that a variable or function parameter is of a certain type.
+Annotations will often use a `:` - this is used to tell TypeScript that a variable or function parameter is of a certain type.
 
 ### Function Parameter Annotations
+
+One of the most important annotations you’ll use is for function parameters.
 
 For example, here is a `logAlbumInfo` function that takes in a `title` string, a `trackCount` number, and an `isReleased` boolean:
 
@@ -1076,11 +1078,17 @@ const logAlbumInfo = (
 
 Each parameter’s type annotation enables TypeScript to check that the arguments passed to the function are of the correct type. If the type doesn’t match up, TypeScript will show a squiggly red line under the offending argument.
 
-When calling `logAlbumInfo` with parameters in the wrong order, we would first get an error under `false` because a boolean isn't assignable to a number. After fixing that parameter, we would have an error under `15` because a number isn't assignable to a boolean:
-
 ```typescript
 logAlbumInfo("Black Gold", false, 15); // red squiggly lines first under `false`, then under `15`
 ```
+
+In the example above, we would first get an error under `false` because a boolean isn't assignable to a number.
+
+```typescript
+logAlbumInfo("Black Gold", 20, 15);
+```
+
+After fixing that, we would have an error under `15` because a number isn't assignable to a boolean.
 
 ### Variable Annotations
 
@@ -1098,17 +1106,21 @@ Notice how each variable name is followed by a `:` and its primitive type before
 
 Variable annotations are used to explicitly tell TypeScript what we expect the types of our variables to be.
 
-Once a variable has been declared with a specific type annotation, TypeScript won’t let you change the variable to be something that isn’t compatible with the type you specified.
+Once a variable has been declared with a specific type annotation, TypeScript will ensure the variable remains compatible with the type you specified.
 
 For example, this reassignment would work:
 
 ```typescript
+let albumTitle: string = "Midnights";
+
 albumTitle = "1989";
 ```
 
 But this one would show an error:
 
 ```typescript
+let isReleased: boolean = true;
+
 isReleased = "yes"; // red squiggly line under `isReleased`
 ```
 
@@ -1120,15 +1132,13 @@ In the case of the `isReleased` example above, the error message reads:
 Type 'string' is not assignable to type 'boolean'.
 ```
 
-In other words, TypeScript is telling us that it expected `isReleased` to be a boolean, but instead it was a string.
+In other words, TypeScript is telling us that it expects `isReleased` to be a boolean, but instead received a `string`.
 
-It's really nice to be warned about these kinds of errors before we even run our code!
+It's nice to be warned about these kinds of errors before we even run our code!
 
 ### The Basic Types
 
-<!-- TODO -->
-
-Let's take a look at a few of the
+TypeScript has a number of basic types that you can use to annotate your code. Here are a few of the most common ones:
 
 ```typescript
 let example1: string = "Hello World!";
@@ -1139,6 +1149,10 @@ let example5: bigint = 123n;
 let example6: null = null;
 let example7: undefined = undefined;
 ```
+
+Each of these types is used to tell TypeScript what type a variable or function parameter is supposed to be.
+
+You can express much more complex types in TypeScript: arrays, objects, functions and much more. We’ll cover these in later chapters.
 
 ### Type Inference
 
@@ -1152,13 +1166,11 @@ Let’s look again at our variable annotation example, but drop the annotations:
 
 ```typescript
 let albumTitle = "Midnights";
-
 let isReleased = true;
-
 let trackCount = 13;
 ```
 
-We didn’t add the annotations, but there’s no error. What’s going on?
+We didn’t add the annotations, but TypeScript isn't complaining. What’s going on?
 
 Try hovering your cursor over each variable.
 
@@ -1166,13 +1178,11 @@ Try hovering your cursor over each variable.
 // hovering over each variable name
 
 let albumTitle: string;
-
 let isReleased: boolean;
-
 let trackCount: number;
 ```
 
-Even though they aren’t annotated, TypeScript is still picking up the type that they’re each supposed to be. This is TypeScript inferring the type of the variable from usage - type inference.
+Even though they aren’t annotated, TypeScript is still picking up the type that they’re each supposed to be. This is TypeScript inferring the type of the variable from usage.
 
 It behaves as if we’d annotated it, warning us if we try to assign it a different type from what it was assigned originally:
 
@@ -1184,23 +1194,29 @@ let isReleased = true;
 isReleased = "yes"; // red line under isReleased
 ```
 
-So, variables don’t always need annotations. This can save a lot of code.
+And also giving us autocomplete on the variable:
+
+```typescript
+albumTitle.toUpper; // shows `toUpperCase` in autocomplete
+```
+
+This is an extremely powerful part of TypeScript. It means that you can mostly _not_ annotate variables and still have your IDE know what type things are.
 
 #### Function Parameters Always Need Annotations
 
-Let's see what happens if we remove the type annotations from the `logAlbumInfo` function's parameters:
+But type inference can't work everywhere. Let's see what happens if we remove the type annotations from the `logAlbumInfo` function's parameters:
 
 ```typescript
 const logAlbumInfo = (
-  title, // warning: Parameter 'title' implicitly has an 'any' type.
-  trackCount, // warning: Parameter 'trackCount' implicitly has an 'any' type.
-  isReleased, // warning: Parameter 'isReleased' implicitly has an 'any' type.
+  title, // error: Parameter 'title' implicitly has an 'any' type.
+  trackCount, // error: Parameter 'trackCount' implicitly has an 'any' type.
+  isReleased, // error: Parameter 'isReleased' implicitly has an 'any' type.
 ) => {
   // rest of function body
 };
 ```
 
-On its own, TypeScript isn't able to infer the types of the parameters, so it shows a warning under each parameter name:
+On its own, TypeScript isn't able to infer the types of the parameters, so it shows an error under each parameter name:
 
 ```txt
 // hovering over `title`
@@ -1210,21 +1226,35 @@ Parameter 'title' implicitly has an 'any' type.
 
 This is because functions are very different to variables. TypeScript can see what value is assigned to which variable, so it can make a good guess about the type.
 
-But TypeScript can’t tell from a function parameter alone what type it’s supposed to be. When you don’t annotate it, it defaults the type to `any` - a scary, unsafe type that we’ll look at later.
+But TypeScript can’t tell from a function parameter alone what type it’s supposed to be. When you don’t annotate it, it defaults the type to `any` - a scary, unsafe type.
 
-So, function parameters always need annotations in TypeScript.
+It also can't detect it from usage. If we had an 'add' function that took two parameters, TypeScript wouldn't be able to tell that they were supposed to be numbers:
+
+```typescript
+function add(a, b) {
+  return a + b;
+}
+```
+
+`a` and `b` could be strings, booleans, or anything else. TypeScript can't know from the function body what type they're supposed to be.
+
+So, when you're declaring a named function, their parameters always need annotations in TypeScript.
+
+<!-- TODO - maybe add a caveat to talk about anonymous functions -->
 
 ### The `any` Type
 
-The error we encountered above was pretty scary.
+The error we encountered in the 'Function Parameters Always Need Annotations' section was pretty scary:
 
 ```
 Parameter 'title' implicitly has an 'any' type.
 ```
 
-What is the `any` type?
+When TypeScript doesn't know what type something is, it assigns it the `any` type.
 
-When TypeScript doesn't know what type something is, it assigns it the `any` type. This type essentially turns off type safety on the thing it’s assigned to. This means that anything can be assigned to it, any property on it can be accessed/assigned to, and it can be called like a function.
+This type breaks TypeScript's type system. It turns off type safety on the thing it’s assigned to.
+
+This means that anything can be assigned to it, any property on it can be accessed/assigned to, and it can be called like a function.
 
 ```typescript
 let anyVariable: any = "This can be anything!";
@@ -1236,11 +1266,15 @@ anyVariable.deep.property.access; // no error
 
 The code above will error at runtime, but TypeScript isn’t giving us a warning!
 
-This kind of defeats the purpose of using TypeScript, so it's best to avoid using the `any` type whenever possible– whether implicitly or explicitly.
+So, using `any` can be used to turn off errors in TypeScript. It can be a useful escape hatch for when a type is too complex to describe.
+
+But over-using `any` defeats the purpose of using TypeScript, so it's best to avoid using it whenever possible– whether implicitly or explicitly.
 
 ### Exercises
 
 #### Exercise 1: Basic Types with Function Parameters
+
+<!-- CONTINUE -->
 
 We start with this `add` function which takes two boolean parameters `a` and `b` and returns `a + b`:
 
