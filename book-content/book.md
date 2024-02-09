@@ -5455,7 +5455,7 @@ interface BoxSet extends StudioAlbum, LiveAlbum {
 }
 ```
 
-### Intersections vs Interfaces
+### Types vs Interfaces
 
 We've now seen two ways of extending objects in TypeScript: one using `type` and one using `interface`.
 
@@ -5466,6 +5466,8 @@ A `type` can represent anything– union types, objects, intersection types, and
 On the other hand, an `interface` primarily represents object types, though it can also be used to define function types. Interfaces are particularly important given the significance of object types in TypeScript and the broader context of JavaScript.
 
 Generally speaking, it doesn't matter too much if you use `type` or `interface` in your code, though you will learn benefits and drawbacks of each as you continue to work with TypeScript.
+
+### Intersections vs Interfaces
 
 For the topic at hand, when it comes to extending objects you'll get better performance from using `interface extends`.
 
