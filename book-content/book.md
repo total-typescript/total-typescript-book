@@ -1571,63 +1571,67 @@ We'll discuss the `|` symbol more later, but this means that the parameter could
 
 ### Default Parameters
 
-<!-- CONTINUE -->
-
 In addition to marking parameters as optional, you can set default values for parameters by using the `=` operator.
 
 For example, we could set the `format` to default to `"CD"` if no format is provided:
 
 ```typescript
-
 const logAlbumInfo = (
-
-title: string,
-
-trackCount: number,
-
-isReleased: boolean,
-
-releaseDate?: string,
-
-format: string = "CD"
-
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+  format: string = "CD",
 ) => {
-
-// rest of function body
-
+  // rest of function body
+};
 ```
 
-Adding optional and default parameter support to functions is a great way to make them more flexible.
+The annotation of `: string` can also be omitted:
+
+```typescript
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+  format = "CD",
+) => {
+  // rest of function body
+};
+```
+
+Since it can infer the type of the `format` parameter from the value provided. This is another nice example of type inference.
 
 ### Function Return Types
+
+<!-- CONTINUE -->
 
 In addition to setting parameter types, we can also set the return type of a function.
 
 The return type of a function can be annotated by placing a `:` and the type after the closing parenthesis of the parameter list. For the `logAlbumInfo` function, we can specify that the function will return a string:
 
 ```typescript
-
 const logAlbumInfo = (
-
-title: string,
-
-trackCount: number,
-
-isReleased: boolean,
-
-releaseDate?: string,
-
-format: string = "CD"
-
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
 ): string => {
-
-// rest of function body
-
+  // rest of function body
+};
 ```
 
-If the value returned from a function doesn't match the type that was specified, TypeScript will show an error under the return type annotation.
+If the value returned from a function doesn't match the type that was specified, TypeScript will show an error.
 
-Return type annotations are optional, but they are useful for documenting behavior– especially for functions being exported for use in other files.
+```typescript
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+): string => {
+  return 123; // red squiggly line under `123`
+};
+```
+
+This makes return types useful for when you want to ensure that a function returns a specific type of value.
 
 When writing TypeScript, it can be useful to hover over function calls to get an idea of their signature. For example, if we hover over the call to `logAlbumInfo`, we can see which parameters are required and which are optional:
 
@@ -1636,13 +1640,9 @@ When writing TypeScript, it can be useful to hover over function calls to get an
 
 const logAlbumInfo: (
   title: string,
-
   trackCount: number,
-
   isReleased: boolean,
-
   releaseDate?: string | undefined,
-
   format?: string | undefined,
 ) => string;
 ```
