@@ -2736,7 +2736,7 @@ const parsedData: {
 
 Now we have `parsedData` typed as we want it to be.
 
-## Advanced Function Typings
+## More Function Typings
 
 Let's expand upon what we've learned about functions and their type annotations so far.
 
