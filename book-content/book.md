@@ -890,25 +890,17 @@ Inside of the newly created `tsconfig.json` file, you will find a number of usef
 For now, we'll just stick with the defaults:
 
 ```json
-
 // excerpt from tsconfig.json
-
-"compilerOptions": {
-
-"target": "es2016",
-
-"module": "commonjs",
-
-"strict": true,
-
-"esModuleInterop": true,
-
-"skipLibCheck": true,
-
-"forceConsistentCasingInFileNames": true
-
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
 }
-
 ```
 
 With our `tsconfig.json` file in place, we can begin transpilation.
@@ -918,9 +910,7 @@ With our `tsconfig.json` file in place, we can begin transpilation.
 Running the `tsc` command in the terminal without any arguments will take advantage of the defaults in `tsconfig.json` and transpile all TypeScript files in the project to JavaScript.
 
 ```bash
-
 tsc
-
 ```
 
 In this case, this means that our TypeScript code in `example.ts` file will become JavaScript code inside of `example.js`.
@@ -928,11 +918,9 @@ In this case, this means that our TypeScript code in `example.ts` file will beco
 Running `ls` in the terminal will show us that `example.js` has been created:
 
 ```
-
 ls
 
 // output: example.js  example.ts  index.html  tsconfig.json
-
 ```
 
 Inside of `example.js`, we can see that the TypeScript syntax has been transpiled into JavaScript:
@@ -958,6 +946,10 @@ Now that we have our JavaScript file, we can update the `index.html` file to ref
 ```
 
 Opening the `index.html` file in the browser will now show the expected "Hello!" output in the console without any errors!
+
+### Does TypeScript Change My JavaScript?
+
+<!-- TODO - write about how TypeScript literally just strips away types -->
 
 ### A Note on Version Control
 
@@ -1603,8 +1595,6 @@ Since it can infer the type of the `format` parameter from the value provided. T
 
 ### Function Return Types
 
-<!-- CONTINUE -->
-
 In addition to setting parameter types, we can also set the return type of a function.
 
 The return type of a function can be annotated by placing a `:` and the type after the closing parentheses of the parameter list. For the `logAlbumInfo` function, we can specify that the function will return a string:
@@ -1655,15 +1645,12 @@ When calling `concatName` with a first and last name, the function works as expe
 
 ```typescript
 const result = concatName("John", "Doe");
-
-type test = Expect<Equal<typeof result, string>>;
 ```
 
 However, when calling `concatName` with just a first name, we get an error:
 
 ```typescript
 const result2 = concatName("John"); // red squiggly line under `concatName("John")`
-type test2 = Expect<Equal<typeof result2, string>>;
 ```
 
 The error message reads:
@@ -1675,8 +1662,6 @@ Expected 2 arguments, but got 1.
 Try to use an optional parameter annotation to fix the error.
 
 #### Exercise 2: Default Function Parameters
-
-<!-- CONTINUE -->
 
 Here we have the same `concatName` function as before, where the `last` name is optional:
 
@@ -1741,14 +1726,10 @@ Update the `concatName` function to use `Pocock` as the default last name if one
 By adding a question mark `?` to the end of a parameter, it will be marked as optional:
 
 ```typescript
-
 function concatName(first: string, last?: string) {
-
-...
-
+  // ...implementation
+}
 ```
-
-With this change, the errors go away and we get nice autocomplete features.
 
 #### Solution 2: Default Function Parameters
 
@@ -1762,59 +1743,53 @@ export const concatName = (first: string, last?: string = "Pocock") => {
 };
 ```
 
-This change will have our test passing, and TypeScript will be able to infer the return type correctly.
+##### "Parameter cannot have question mark and initializer."
 
-## Object Types
+While this passes our runtime tests, it actually fails in TypeScript:
+
+```
+Parameter cannot have question mark and initializer.
+```
+
+This is because TypeScript doesn't allow us to have both an optional parameter and a default value. The optionality is already implied by the default value.
+
+To fix the error, we can remove the question mark from the `last` parameter:
+
+```typescript
+export const concatName = (first: string, last = "Pocock") => {
+  return `${first} ${last}`;
+};
+```
+
+## Object Literal Types
 
 Now that we've done some exploration with basic types, let's move on to object types.
 
-As you can probably guess, object types are used to describe the shape of objects. Each property of an object can have its own type annotation.
+Object types are used to describe the shape of objects. Each property of an object can have its own type annotation.
 
 When defining an object type, we use curly braces to contain the properties and their types:
 
 ```typescript
-let animal: {
-  name: string;
-
-  type: string;
-
-  age: number;
+const talkToAnimal = (animal: { name: string; type: string; age: number }) => {
+  // rest of function body
 };
 ```
+
+This curly braces syntax is called an object literal type.
+
+### Optional Object Properties
 
 We can use `?` operator to mark the `age` property as optional:
 
 ```typescript
-let animal: {
-  name: string;
-
-  type: string;
-
-  age?: number;
-};
-```
-
-When using an optional property we need to check if it exists before using it to avoid a runtime error:
-
-```typescript
-const getAnimalDescription = (animal: {
-  name: string;
-
-  type: string;
-
-  age?: number;
-}): string => {
-  if (animal.age) {
-    return `${animal.name} is a ${animal.type} that is ${animal.age} years old`;
-  }
-
-  return `${animal.name} is a ${animal.type}`;
+const talkToAnimal = (animal: { name: string; type: string; age?: number }) => {
+  // rest of function body
 };
 ```
 
 One cool thing about type annotations with object literals is that they provide auto-completion for the property names while you're typing.
 
-For instance, typing `animal.`, will provide you with an auto-complete dropdown with suggestions for the `name`, `type`, and `age` properties.
+For instance, when calling `talkToAnimal`, it will provide you with an auto-complete dropdown with suggestions for the `name`, `type`, and `age` properties.
 
 This feature can save you a lot of time, and also helps to avoid typos in a situation when you have several properties with similar names.
 
@@ -1838,7 +1813,6 @@ The test expects that the full name should be returned, and it is passing:
 it("should return the full name", () => {
   const result = concatName({
     first: "John",
-
     last: "Doe",
   });
 
@@ -1851,9 +1825,7 @@ it("should return the full name", () => {
 However, there is a familiar error on the `user` parameter in the `concatName` function:
 
 ```
-
 Parameter 'user' implicitly has an 'any' type.
-
 ```
 
 We can tell from the `concatName` function body that it expects `user.first` and `user.last` to be strings.
@@ -1891,14 +1863,11 @@ it("should only return the first name if last name not provided", () => {
 This time the entire `{first: "John"}` object is underlined in red, and the error message reads:
 
 ```
-
 Argument of type '{ first: string; }' is not assignable to parameter of type '{ first: string; last: string; }'.
-
 Property 'last' is missing in type '{ first: string; }' but required in type '{ first: string; last: string; }'.
-
 ```
 
-The error tells us that we are missing a property, but we want to support objects that only include a `first` property.
+The error tells us that we are missing a property, but the error is incorrect. We _do_ want to support objects that only include a `first` property. In other words, `last` needs to be optional.
 
 How would you update this function to fix the errors?
 
@@ -1914,24 +1883,17 @@ const concatName = (user: {}) => {
 };
 ```
 
-This change results in errors showing up under `.first` and `.last` in the function return.
+The errors change. This is progress, of a kind. The errors now show up under `.first` and `.last` in the function return.
 
 ```
-
 Property 'first' does not exist on type '{}'.
-
 Property 'last' does not exist on type '{}'.
-
 ```
 
-In order to fix these errors, we need to add the `first` and `last` properties to the type annotation just like we would when creating an object. However this time instead of specifying values, we will specify types:
+In order to fix these errors, we need to add the `first` and `last` properties to the type annotation.
 
 ```typescript
-const concatName = (user: {
-  first: string;
-
-  last: string;
-}) => {
+const concatName = (user: { first: string; last: string }) => {
   return `${user.first} ${user.last}`;
 };
 ```
@@ -1945,43 +1907,35 @@ Similar to when we set a function parameter as optional, we can use the `?` to s
 As seen in a previous exercise, we can add a question mark to function parameters to make them optional:
 
 ```typescript
-
-function concatName(user: { first: string, last?: string }) {
-
-if (!user.last) {
-
-return user.first;
-
+function concatName(user: { first: string; last?: string }) {
+  // implementation
 }
-
-...
-
 ```
 
-Putting the `?` just before the colon in `last?:` indicates to TypeScript that the string doesn't need to be present.
+Adding `?:` indicates to TypeScript that the property doesn't need to be present.
 
 If we hover over the `last` property inside of the function body, we'll see that the `last` property is `string | undefined`:
 
-```typescript
-
+```
 // hovering over `user.last`
 
 (property) last?: string | undefined
-
 ```
+
+This means it's `string` OR `undefined`. This is a useful feature of TypeScript that we'll see more of in the future.
 
 ## The `type` Keyword
 
-Speaking of saving time, you may have noticed that the type annotation for the `animal` object is used once on its own, then again as a parameter type for the `getAnimalDescription` function.
+So far, we've been declaring all of our types inline. This is fine for these simple examples, but in a real application we're going to have types which repeat a lot across our app.
 
-To avoid repeating ourselves, we can use the `type` keyword to create a custom type alias. Here's what an `Animal` type alias would look like:
+These might be users, products, or other domain-specific types. We don't want to have to repeat the same type definition in every file that needs it.
+
+This is where the `type` keyword comes in. It allows us to define a type once and use it in multiple places.
 
 ```typescript
 type Animal = {
   name: string;
-
   type: string;
-
   age?: number;
 };
 ```
@@ -1991,30 +1945,25 @@ To create a new variable with the `Animal` type, we'll add it as a type annotati
 ```typescript
 let pet: Animal = {
   name: "Karma",
-
   type: "cat",
 };
 ```
 
-We can also use the `Animal` type alias in place of the object type annotation in the `getAnimalDescription` function:
+We can also use the `Animal` type alias in place of the object type annotation in a function:
 
 ```typescript
-const getAnimalDescription = (animal: Animal): string => {
-  if (animal.age) {
-    return `${animal.name} is a ${animal.type} that is ${animal.age} years old`;
-  }
-
-  return `${animal.name} is a ${animal.type}`;
-};
+const getAnimalDescription = (animal: Animal) => {};
 ```
 
 And call the function with our `pet` variable:
 
 ```typescript
-const desc = getAnimalDescription(pet); // "Karma is a cat"
+const desc = getAnimalDescription(pet);
 ```
 
 Using a type alias is a great way to ensure there's a single source of truth for a type definition, which makes it easier to make changes in the future.
+
+### Sharing Types Across Modules
 
 Type aliases can be created in their own `.ts` files and imported into the files where you need them. This is useful when sharing types in multiple places, or when a type definition gets too large:
 
@@ -2023,7 +1972,6 @@ Type aliases can be created in their own `.ts` files and imported into the files
 
 export type Animal = {
   width: number;
-
   height: number;
 };
 
@@ -2032,7 +1980,7 @@ export type Animal = {
 import { Animal } from "./shared-types";
 ```
 
-You'll be using type aliases a lot in your TypeScript projects, so it's good to get familiar with them early on!
+As a convention, you can even create your own `.types.ts` files. This can help to keep your type definitions separate from your other code.
 
 ### Exercises
 
@@ -2047,7 +1995,6 @@ const getRectangleArea = (rectangle: { width: number; height: number }) => {
 
 const getRectanglePerimeter = (rectangle: {
   width: number;
-
   height: number;
 }) => {
   return 2 * (rectangle.width + rectangle.height);
@@ -2062,7 +2009,6 @@ Tests for each function pass as expected:
 it("should return the area of a rectangle", () => {
   const result = getRectangleArea({
     width: 10,
-
     height: 20,
   });
 
@@ -2074,7 +2020,6 @@ it("should return the area of a rectangle", () => {
 it("should return the perimeter of a rectangle", () => {
   const result = getRectanglePerimeter({
     width: 10,
-
     height: 20,
   });
 
@@ -2088,16 +2033,13 @@ Even though everything is working as expected, there's an opportunity for refact
 
 How could you use the `type` keyword to make this code more readable?
 
----
-
 #### Solution 1: The `type` Keyword
 
-You could use the `type` keyword to create a `Rectangle` type with `width` and `height` properties:
+You can use the `type` keyword to create a `Rectangle` type with `width` and `height` properties:
 
 ```typescript
 type Rectangle = {
   width: number;
-
   height: number;
 };
 ```
@@ -2114,13 +2056,15 @@ const getRectanglePerimeter = (rectangle: Rectangle) => {
 };
 ```
 
+This makes the code a lot more concise, and gives us a single source of truth for the `Rectangle` type.
+
 ## Arrays and Tuples
 
 ### Arrays
 
-As well as objects, you can also describe the types of arrays in TypeScript. There are two different syntaxes for doing this.
+You can also describe the types of arrays in TypeScript. There are two different syntaxes for doing this.
 
-The first option is the square bracket syntax. This syntax is similar to the type annotations we've made so far, but with the addition of the square brackets to indicate an array.
+The first option is the square bracket syntax. This syntax is similar to the type annotations we've made so far, but with the addition of two square brackets at the end to indicate an array.
 
 ```typescript
 let albums: string[] = [
@@ -2128,6 +2072,8 @@ let albums: string[] = [
   "Revolver",
   "Sgt. Pepper's Lonely Hearts Club Band",
 ];
+
+let dates: number[] = [1965, 1966, 1967];
 ```
 
 The second option is to explicitly use the `Array` type with angle brackets containing the type of data the array will hold:
@@ -2142,73 +2088,56 @@ let albums: Array<string> = [
 
 Both of these syntaxes are equivalent, but the square bracket syntax is a bit more concise when creating arrays. It's also the way that TypeScript presents error messages. Keep the angle bracket syntax in mind, though– we'll see more examples of it later on.
 
+### Arrays Of Objects
+
 When specifying an array's type, you can use any built-in types, inline types, or type aliases:
 
 ```typescript
 type Album = {
   artist: string;
-
   title: string;
-
   year: number;
 };
 
 let selectedDiscography: Album[] = [
   {
     artist: "The Beatles",
-
     title: "Rubber Soul",
-
     year: 1965,
   },
-
   {
     artist: "The Beatles",
-
     title: "Revolver",
-
     year: 1966,
   },
 ];
 ```
 
-Accessing and modifying array items is the same as in JavaScript, and you'll also be able to use array methods like `push`, `map` and `filter` just like you're used to:
+And if you try to update the array with an item that doesn't match the type, TypeScript will give you an error:
 
 ```typescript
-selectedDiscography[0] = {
-  artist: "The Beatles",
-
-  title: "Sgt. Pepper's Lonely Hearts Club Band",
-
-  year: 1967,
-};
-
-selectedDiscography.push({
-  artist: "The Beatles",
-
-  title: "Abbey Road",
-
-  year: 1969,
-});
-```
-
-However, if you try to update the array with an item that doesn't match the type, TypeScript will give you an error:
-
-```typescript
-
 selectedDiscography.push({name: "Karma", type: "cat"};) // red squiggly line under `name`
-
 // error message:
-
-Argument of type '{ name: string; type: string; }' is not assignable to parameter of type 'Album'.
-
+// Argument of type '{ name: string; type: string; }' is not assignable to parameter of type 'Album'.
 ```
 
 ### Tuples
 
-Tuples allow you to be more precise than with an array. They have a fixed length, and allow for different types to be mixed together in the same array.
+Tuples let you specify an array with a fixed number of elements, where each element has its own type.
 
-Creating a tuple is similar to an array– use the square bracket syntax, but instead of specifying a single type, you specify multiple types separated by commas.
+Creating a tuple is similar to an array's square bracket syntax - except the square brackets contain the types instead of abutting the variable name:
+
+```typescript
+// Tuple
+let album: [string, number] = ["Rubber Soul", 1965];
+
+// Array
+let albums: string[] = [
+  "Rubber Soul",
+  "Revolver",
+  "Sgt. Pepper's Lonely Hearts Club Band",
+];
+```
 
 Tuples are useful for grouping related information together without having to create a new type.
 
@@ -2218,67 +2147,22 @@ For example, if we wanted to group an album with its play count, we could do som
 let albumWithPlayCount: [Album, number] = [
   {
     artist: "The Beatles",
-
     title: "Revolver",
-
     year: 1965,
   },
-
   10000,
 ];
 ```
 
+#### Named Tuples
+
 To add more clarity to the tuple, names for each of the types can be added inside of the square brackets:
 
 ```typescript
-
-[album: Album, playCount: number]
-
+type MyTuple = [album: Album, playCount: number];
 ```
 
-To access items in a tuple, you can use the same square bracket syntax as an array:
-
-```typescript
-
-let playCount = albumWithPlayCount[1];
-
-// hovering over `playCount` shows the type as `number` with the name we specified
-
-(property) 1: number (playCount)
-
-```
-
-You could even create an array of tuples by adding an extra set of square brackets:
-
-```typescript
-let albumsWithPlayCounts: [album: Album, playCount: number][] = [
-  [
-    {
-      artist: "The Beatles",
-
-      title: "Rubber Soul",
-
-      year: 1965,
-    },
-
-    10000,
-  ],
-
-  [
-    {
-      artist: "The Beatles",
-
-      title: "Revolver",
-
-      year: 1966,
-    },
-
-    12000,
-  ],
-];
-```
-
-This is a really nice way to express arrays of fixed length in TypeScript, and it's great to have this as a first-class feature in TypeScript.
+This can be helpful when you have a tuple with a lot of elements, or when you want to make the code more readable.
 
 ### Exercises
 
@@ -2301,6 +2185,8 @@ processCart({
   items: ["item1", "item2", "item3"], // squiggly line under `items`
 });
 ```
+
+<!-- CONTINUE -->
 
 We have a type alias for `ShoppingCart` that currently has a `userId` property of type `string`.
 
