@@ -1041,7 +1041,7 @@ In this way, it's often the case that TypeScript acts more like a linter than pa
 
 Later in the book, we'll look closer at more advanced TypeScript configurations for application development.
 
-## Exercise
+## Exercises
 
 ### Exercise 1: Set an Output Directory for Transpiled Files
 
