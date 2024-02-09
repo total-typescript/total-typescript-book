@@ -93,9 +93,7 @@ Click the LTS button to download the installer and follow the installation instr
 After running the installer, you can verify it installed correctly by opening a terminal and running the following command:
 
 ```
-
 node -v
-
 ```
 
 If Node.js is installed correctly, this command will display the version number. If you see an error message like "node command not found," it means the installation was not successful, and you should try again.
@@ -109,26 +107,18 @@ If you've worked with JavaScript repositories, you're likely familiar with `npm`
 For example, in the repository for this material, we have a special CLI for running exercises along with helper packages and various other dependencies like `cross-fetch` and `nodemon`:
 
 ```json
-// inside of package.json
+// package.json
 
 {
   "devDependencies": {
     "@total-typescript/exercise-cli": "0.4.0",
-
     "@total-typescript/helpers": "~0.0.1",
-
     "cross-fetch": "~3.1.5",
-
     "nodemon": "~3.0.1",
-
     "npm-run-all": "~4.1.5",
-
     "prettier": "~2.8.7",
-
     "typescript": "~5.2.2",
-
     "vite-tsconfig-paths": "~4.0.7",
-
     "vitest": "0.34.4"
   }
 }
@@ -149,17 +139,13 @@ TypeScript and its dependencies are contained within a single package, called ty
 You can install it globally with either pnpm or npm:
 
 ```
-
 pnpm add -g typescript
-
 ```
 
 or
 
 ```
-
-npm install –global typescript
-
+npm install –-global typescript
 ```
 
 TypeScript is usually also installed in your `package.json` to make sure that all developers using the project are using the same version. For the purposes of this book, a global installation will do just fine.
@@ -191,41 +177,28 @@ You’ll often want to manually trigger autocomplete. In VS Code, the `Ctrl + Sp
 For example, if you were adding an event listener to an element, you would see a list of available events:
 
 ```typescript
-
 document.addEventListener(
 
-“”// autocomplete here
-
+""// autocomplete here
 ```
 
 Hitting the `Ctrl + Space` shortcut with the cursor inside the quotes will show you a list of events that can be listened for:
 
-```typescript
-
+```
 DOMContentLoaded
-
 abort
-
 animationcancel
-
 ...
-
 ```
 
 If you wanted to narrow down the list to the events you were interested in, you could type "drag" before hitting `Ctrl + Space` and only the appropriate events would display:
 
-```typescript
-
+```
 drag
-
 dragend
-
 dragenter
-
 dragleave
-
 ...
-
 ```
 
 Autocomplete is an essential tool for writing TypeScript code, and it's available right out of the box in VSCode.
@@ -237,15 +210,7 @@ Autocomplete is an essential tool for writing TypeScript code, and it's availabl
 Here's an example of some code where autocomplete can be triggered:
 
 ```typescript
-type MyObj = {
-  foo: string;
-
-  bar: number;
-
-  baz: boolean;
-};
-
-const acceptsObj = (obj: MyObj) => {};
+const acceptsObj = (obj: { foo: string; bar: number; baz: boolean }) => {};
 
 acceptsObj({
   // Autocomplete in here!
@@ -260,9 +225,7 @@ When you hit `Ctrl + Space` inside the object, you'll see a list of the possible
 
 ```typescript
 bar;
-
 baz;
-
 foo;
 ```
 
@@ -295,17 +258,13 @@ a.toString(); // red squiggly line under `a`
 TypeScript tells us that there is a problem with `a`. Hovering over it shows the following error message:
 
 ```
-
 'a' is possibly 'null'.
-
 ```
 
 This tells us where the problem is, but it doesn't necessarily tell us what the problem is. In this case, we need to stop and think about why we can't call `toString()` on `null`. If we do, it will throw an error at runtime.
 
 ```
-
 Uncaught TypeError: Cannot read properties of null (reading 'toString').
-
 ```
 
 Here, TypeScript is telling us that an error might happen even without us needing to check it. Very handy.
@@ -347,17 +306,13 @@ Let’s take a look at an example.
 ```typescript
 type Album = {
   artist: string;
-
   title: string;
-
   year: number;
 };
 
 const album: Album = {
   artsist: "Television", // red squiggly line under `artsist`
-
   title: "Marquee Moon",
-
   year: 1977,
 };
 ```
@@ -367,11 +322,9 @@ We define an ‘Album’ type - an object with three properties. Then, we say th
 Can you see the problem? There's a typo of the `artist` property when creating an album. Hovering over `artsist` shows the following error message:
 
 ```
-
 Type '{ artsist: string; title: string; year: number; }' is not assignable to type 'Album'.
 
 Object literal may only specify known properties, but 'artsist' does not exist in type 'Album'. Did you mean to write 'artist'?
-
 ```
 
 In this case, TypeScript has given us a great error for this situation, and even a suggestion on what we should write.
@@ -387,6 +340,8 @@ type FunctionThatReturnsString = () => string;
 
 const exampleFunction: FunctionThatReturnsString = () => {
   // red squiggly line under `exampleFunction`
+
+  // Imagine lots more code here...
 
   return 123;
 };
@@ -419,7 +374,6 @@ let otherThing = {
 
 const otherObject = {
   ...otherThing,
-
   thing,
 };
 ```
@@ -431,21 +385,16 @@ Hovering over `otherObject` will give us a computed readout of all of the items 
 
 const otherObject: {
   thing: number;
-
   name: string;
 };
 ```
 
 Depending on what you hover over, VS Code will show you different information. For example, hovering over `otherObject.thing` will show you the type of `thing`:
 
-```typescript
-
-otherObject.thing
-
+```
 // hovering over `otherObject.thing` shows:
 
 (property) thing: number
-
 ```
 
 Get used to the ability to float around your codebase introspecting variables and declarations, because it's a great way to understand what the code is doing.
@@ -466,18 +415,14 @@ How can hovering help to determine what argument `document.getElementById` actua
 
 First of all, we can hover over the red squiggly error itself. In this case, hovering over `12`, we get the following error message:
 
-```typescript
-
+```
 Argument of type 'number' is not assignable to parameter of type 'string'.
-
 ```
 
 We'll also get a readout of the `getElementById` function:
 
 ```
-
 (method) Document.getElementById(elementId: string): HTMLElement | null
-
 ```
 
 In the case of `getElementById`, we can see that it requires a string as an argument, and it returns an `HTMLElement | null`. We’ll look at this syntax later, but it basically means either a `HTMLElement` or `null`.
@@ -501,13 +446,9 @@ Hovering for information like this is a great way to understand what's going on,
 If we hover over `document`, we can see that it is of type `Document`. We also get a handy link to the MDN reference:
 
 ```typescript
-
 // hovering over document shows:
 
-var document: Document
-
-MDN reference
-
+var document: Document;
 ```
 
 So, hovering in different places reveals different information. When I’m working in TypeScript, I hover constantly to get a better sense of what my code is doing.
@@ -522,30 +463,18 @@ Here's an example of how a `logValues` function could be documented:
 
 ````typescript
 /**
-
-* Logs the values of an object to the console.
-
-*
-
-* @param obj - The object to log.
-
-*
-
-* @example
-
-* ```ts
-
-* logValues({ a: 1, b: 2 });
-
-* // Output:
-
-* // a: 1
-
-* // b: 2
-
-* ```
-
-*/
+ * Logs the values of an object to the console.
+ *
+ * @param obj - The object to log.
+ *
+ * @example
+ * ```ts
+ * logValues({ a: 1, b: 2 });
+ * // Output:
+ * // a: 1
+ * // b: 2
+ * ```
+ */
 
 const logValues = (obj: any) => {
   for (const key in obj) {
@@ -582,16 +511,11 @@ In this case, we'll specify that the function "Adds two numbers together". We ca
 
 ```typescript
 /**
-
-* Adds two numbers together.
-
-* @example
-
-* myFunction(1, 2);
-
-* // Will return 3
-
-*/
+ * Adds two numbers together.
+ * @example
+ * myFunction(1, 2);
+ * // Will return 3
+ */
 
 const add = (a: number, b: number) => {
   return a + b;
@@ -600,10 +524,7 @@ const add = (a: number, b: number) => {
 
 Now whenever you hover over this function, the signature of the function along with the comment and full syntax highlighting for anything below the `@example` tag:
 
-```typescript
-
-add(3, 4);
-
+```
 // hovering over add shows:
 
 const add: (a: number, b: number) => number
@@ -615,7 +536,6 @@ Adds two numbers together.
 myFunction(1, 2);
 
 // Will return 3
-
 ```
 
 While this example is trivial, this can be an extremely important tool for documenting your code.
@@ -656,11 +576,13 @@ When you start typing the name of a variable you want to import, TypeScript will
 
 You do need to be a little bit careful when using autocompletion in the middle of a name since the rest of the line could be unintentionally altered. To avoid this issue, make sure your cursor is at the end of the name before hitting `Ctrl + Space`.
 
-VS Code also offers a "Quick Fix" feature that can import multiple missing imports at the same time.
+### Quick Fixes
+
+VS Code also offers a "Quick Fix" feature that can be used to run quick refactor scripts. For now, let's use it to import multiple missing imports at the same time.
 
 To use this feature, hit `Command + .` when the cursor is on a line with a missing import warning. A popup will appear with a list of possible imports, and provide you the option for importing a specific import as well as all that are missing in the file.
 
-Automatically importing is a great way to save time, but it is still a good idea to double check that the imports are coming from the place you expect.
+We'll look at the Quick Fixes menu again in the exercises. It provides a lot of options for refactoring your code, and it's a great way to learn about TypeScript's capabilities.
 
 ## Organizing Imports in Large Files
 
@@ -766,21 +688,15 @@ Selecting the entire random percentage logic enables some other extraction optio
 The "Extract to function in module scope" option will act similarly to the constant option, but create a function instead:
 
 ```typescript
-
 const func = () => {
+  const randomPercentage = getRandomPercentage();
 
-const randomPercentage = getRandomPercentage()
-
-console.log(randomPercentage);
-
+  console.log(randomPercentage);
 };
 
 function getRandomPercentage() {
-
-return `${Math.random() * 100).toFixed(2)}%`;
-
+  return `${(Math.random() * 100).toFixed(2)}%`;
 }
-
 ```
 
 These are just some of the options provided by the Quick Fix menu. There's so much you can achieve with them, and we're only scratching the surface. Keep exploring and experimenting to discover their full potential!
@@ -824,9 +740,7 @@ Alongside the `example.ts` file, we have a basic `index.html` file that referenc
 However, when we try to open the `index.html` file in a browser, you'll see an error in the console:
 
 ```
-
 Unexpected token ':'
-
 ```
 
 There aren't any red lines in the TypeScript file, so why is this happening?
@@ -846,9 +760,7 @@ const run = (message: string) => {
 Removing `: string` gives us something that looks a bit more like JavaScript, but now TypeScript displays an error underneath `message`:
 
 ```typescript
-
-const run = (message) => { // red squiggly line under message
-
+const run = (message) => {}; // red squiggly line under message
 ```
 
 Hovering over the red squiggly line in VS Code, we can see that TypeScript's error message is telling us that `message` implicitly has an `any` type.
@@ -1924,7 +1836,7 @@ If we hover over the `last` property inside of the function body, we'll see that
 
 This means it's `string` OR `undefined`. This is a useful feature of TypeScript that we'll see more of in the future.
 
-## The `type` Keyword
+## Type Aliases
 
 So far, we've been declaring all of our types inline. This is fine for these simple examples, but in a real application we're going to have types which repeat a lot across our app.
 
@@ -1939,6 +1851,8 @@ type Animal = {
   age?: number;
 };
 ```
+
+This is what's called a type alias. It's a way to give a name to a type, and then use that name wherever we need to use that type.
 
 To create a new variable with the `Animal` type, we'll add it as a type annotation after the variable name:
 
@@ -1960,6 +1874,14 @@ And call the function with our `pet` variable:
 ```typescript
 const desc = getAnimalDescription(pet);
 ```
+
+Type aliases can be objects, but they can also use basic types:
+
+```typescript
+type Id = string | number;
+```
+
+We'll look at this syntax later, but it's basically saying that an `Id` can be either a `string` or a `number`.
 
 Using a type alias is a great way to ensure there's a single source of truth for a type definition, which makes it easier to make changes in the future.
 
@@ -2088,7 +2010,7 @@ let albums: Array<string> = [
 
 Both of these syntaxes are equivalent, but the square bracket syntax is a bit more concise when creating arrays. It's also the way that TypeScript presents error messages. Keep the angle bracket syntax in mind, though– we'll see more examples of it later on.
 
-### Arrays Of Objects
+#### Arrays Of Objects
 
 When specifying an array's type, you can use any built-in types, inline types, or type aliases:
 
@@ -2181,12 +2103,9 @@ const processCart = (cart: ShoppingCart) => {
 
 processCart({
   userId: "user123",
-
   items: ["item1", "item2", "item3"], // squiggly line under `items`
 });
 ```
-
-<!-- CONTINUE -->
 
 We have a type alias for `ShoppingCart` that currently has a `userId` property of type `string`.
 
@@ -2197,11 +2116,9 @@ What does matter is that when we call `processCart`, we are passing in an object
 There is an error underneath `items` that reads:
 
 ```
-
 Argument of type '{ userId: string; items: string[]; }' is not assignable to parameter of type 'ShoppingCart'.
 
 Object literal may only specify known properties, and 'items' does not exist in type 'ShoppingCart'.
-
 ```
 
 As the error message points out, there is not currently a property called `items` on the `ShoppingCart` type.
@@ -2215,7 +2132,6 @@ Consider this `processRecipe` function which takes in a `Recipe` type:
 ```typescript
 type Recipe = {
   title: string;
-
   instructions: string;
 };
 
@@ -2225,13 +2141,10 @@ const processRecipe = (recipe: Recipe) => {
 
 processRecipe({
   title: "Chocolate Chip Cookies",
-
   ingredients: [
     { name: "Flour", quantity: "2 cups" },
-
     { name: "Sugar", quantity: "1 cup" },
   ],
-
   instructions: "...",
 });
 ```
@@ -2239,11 +2152,9 @@ processRecipe({
 The function is called with an object containing `title`, `instructions`, and `ingredients` properties, but there are currently errors because the `Recipe` type doesn't currently have an `ingredients` property:
 
 ```
-
 Argument of type '{title: string; ingredients: { name: string; quantity: string; }[]; instructions: string; }' is not assignable to parameter of type 'Recipe'.
 
 Object literal may only specify known properties, and 'ingredients' does not exist in type 'Recipe'.
-
 ```
 
 By combining what you've seen with typing object properties and working with arrays, how would you specify ingredients for the `Recipe` type?
@@ -2255,16 +2166,13 @@ Here we have a `setRange` function that takes in an array of numbers:
 ```typescript
 const setRange = (range: Array<number>) => {
   const x = range[0];
-
   const y = range[1];
 
   // Do something with x and y in here
-
   // x and y should both be numbers!
 
   type tests = [
     Expect<Equal<typeof x, number>>, // red squiggly line under Equal<> statement
-
     Expect<Equal<typeof y, number>>, // red squiggly line under Equal<> statement
   ];
 };
@@ -2274,17 +2182,15 @@ Inside the function, we grab the first element of the array and assign it to `x`
 
 There are two tests inside the `setRange` function that are currently failing.
 
-Using the `//@ts-expect-error` directive, we find there are a couple more errors that need fixed. Recall that this directive tells TypeScript we know there will be an error on the next line, so ignore it. However, if we say we expect an error but there isn't one, we will get the red squiggly lines on the actual `//@ts-expect-error` line.
+Using the `// @ts-expect-error` directive, we find there are a couple more errors that need fixing. Recall that this directive tells TypeScript we know there will be an error on the next line, so ignore it. However, if we say we expect an error but there isn't one, we will get the red squiggly lines on the actual `//@ts-expect-error` line.
 
 ```typescript
 // both of these show red squiggly lines under the ts-expect-error directive
 
 // @ts-expect-error too few arguments
-
 setRange([0]);
 
 // @ts-expect-error too many arguments
-
 setRange([0, 10, 20]);
 ```
 
@@ -2297,18 +2203,14 @@ This `goToLocation` function takes in an array of coordinates. Each coordinate h
 ```typescript
 const goToLocation = (coordinates: Array<number>) => {
   const latitude = coordinates[0];
-
   const longitude = coordinates[1];
-
   const elevation = coordinates[2];
 
   // Do something with latitude, longitude, and elevation in here
 
   type tests = [
     Expect<Equal<typeof latitude, number>>, // red squiggly line under Equal<> statement
-
     Expect<Equal<typeof longitude, number>>, // red squiggly line under Equal<> statement
-
     Expect<Equal<typeof elevation, number | undefined>>,
   ];
 };
@@ -2317,6 +2219,8 @@ const goToLocation = (coordinates: Array<number>) => {
 Your challenge is to update the type annotation for the `coordinates` parameter to specify that it should be a tuple of three numbers, where the third number is optional.
 
 #### Solution 1: Array Type
+
+<!-- CONTINUE -->
 
 For the `ShoppingCart` example, defining an array of `item` strings would looks like this when using the square bracket syntax:
 
