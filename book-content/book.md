@@ -16,7 +16,7 @@ If you were building JavaScript apps in the 2000’s, you were often having a ba
 
 This was especially true for refactoring code. If you had to change a function signature, you had to manually find and update every place that function was called throughout your entire codebase. This could take hours, and with no guarantee that you’d fixed everything before you pushed to production.
 
-## TypeScript’s Genesis
+## TypeScript’s Beginnings
 
 As limitations like these became more apparent, developers started looking for a better way to write JavaScript.
 
@@ -32,7 +32,7 @@ In the decade or so since its introduction, TypeScript has grown to become a sta
 
 In this book, you'll learn why it has become so popular, and how it can help you develop better applications while making your life as a developer easier.
 
-## A High-Level View of How TypeScript Works
+## How TypeScript Works
 
 With a JavaScript-only project, you would typically write your code in files with a `.js` or `.jsx` file extension. These files are then able to be directly executed in the browser or a runtime environment like Node.js (which is used to run JavaScript on servers, or on your laptop). The JavaScript you write is the JavaScript that gets executed.
 
@@ -452,7 +452,7 @@ Get used to the ability to float around your codebase introspecting variables an
 
 ### Exercises
 
-#### Exercise: Hovering a Function Call
+#### Exercise 1: Hovering a Function Call
 
 In this code snippet we're trying to grab an element using `document.getElementById` with an ID of `12`. However, TypeScript is complaining.
 
@@ -462,7 +462,7 @@ let element = document.getElementById(12); // red squiggly line under 12
 
 How can hovering help to determine what argument `document.getElementById` actually requires? And for a bonus point, what type is `element`?
 
-#### Solution: Hovering a Function Call
+#### Solution 1: Hovering a Function Call
 
 First of all, we can hover over the red squiggly error itself. In this case, hovering over `12`, we get the following error message:
 
@@ -562,7 +562,7 @@ Adding JSDoc comments is a useful way to communicate the purpose and usage of yo
 
 ### Exercises
 
-#### Exercise: Adding Documentation for Hovers
+#### Exercise 1: Adding Documentation for Hovers
 
 Here's a simple function that adds two numbers together:
 
@@ -576,7 +576,7 @@ In order to understand what this function does, you'd have to read the code.
 
 Add some documentation to the function so that when you hover over it, you can read a description of what it does.
 
-#### Solution: Adding Documentation for Hovers
+#### Solution 1: Adding Documentation for Hovers
 
 In this case, we'll specify that the function "Adds two numbers together". We can also use an `@example` tag to show an example of how the function is used:
 
@@ -1052,7 +1052,7 @@ Now we’ve covered most of the why of TypeScript, it’s time to start with th
 
 It’s important to build a solid foundation, as everything you’ll learn later builds upon what you’ll learn in this chapter.
 
-## Annotations
+## Basic Annotations
 
 One of the most common things you’ll need to do as a TypeScript developer is to annotate your code. Annotations tell TypeScript what type something is supposed to be.
 
@@ -1082,7 +1082,7 @@ When calling `logAlbumInfo` with parameters in the wrong order, we would first g
 logAlbumInfo("Black Gold", false, 15); // red squiggly lines first under `false`, then under `15`
 ```
 
-### Variable annotations
+### Variable Annotations
 
 As well as function parameters, you can also annotate variables.
 
@@ -1090,9 +1090,7 @@ Here’s an example of some variables, with their associated types.
 
 ```typescript
 let albumTitle: string = "Midnights";
-
 let isReleased: boolean = true;
-
 let trackCount: number = 13;
 ```
 
@@ -1126,13 +1124,29 @@ In other words, TypeScript is telling us that it expected `isReleased` to be a b
 
 It's really nice to be warned about these kinds of errors before we even run our code!
 
-## Type Inference
+### The Basic Types
+
+<!-- TODO -->
+
+Let's take a look at a few of the
+
+```typescript
+let example1: string = "Hello World!";
+let example2: number = 42;
+let example3: boolean = true;
+let example4: symbol = Symbol();
+let example5: bigint = 123n;
+let example6: null = null;
+let example7: undefined = undefined;
+```
+
+### Type Inference
 
 TypeScript gives you the ability to annotate almost any value, variable or function in your code. You might be thinking “wait, do I need to annotate everything? That’s a lot of extra code.”
 
 As it turns out, TypeScript can infer a lot from the context that your code is run.
 
-### Variables Don’t Always Need Annotations
+#### Variables Don’t Always Need Annotations
 
 Let’s look again at our variable annotation example, but drop the annotations:
 
@@ -1172,7 +1186,7 @@ isReleased = "yes"; // red line under isReleased
 
 So, variables don’t always need annotations. This can save a lot of code.
 
-### Function Parameters Always Need Annotations
+#### Function Parameters Always Need Annotations
 
 Let's see what happens if we remove the type annotations from the `logAlbumInfo` function's parameters:
 
@@ -1296,7 +1310,7 @@ type test = Expect<Equal<typeof result, string>>;
 
 Why is this the case?
 
-#### Exercise 3: Updating Basic Types
+#### Exercise 3: The Basic Types
 
 As we've seen, TypeScript will show errors when types don't match.
 
@@ -2164,7 +2178,9 @@ const getRectanglePerimeter = (rectangle: Rectangle) => {
 };
 ```
 
-## Arrays
+## Arrays and Tuples
+
+### Arrays
 
 As well as objects, you can also describe the types of arrays in TypeScript. There are two different syntaxes for doing this.
 
@@ -2252,6 +2268,82 @@ Argument of type '{ name: string; type: string; }' is not assignable to paramete
 
 ```
 
+### Tuples
+
+Tuples allow you to be more precise than with an array. They have a fixed length, and allow for different types to be mixed together in the same array.
+
+Creating a tuple is similar to an array– use the square bracket syntax, but instead of specifying a single type, you specify multiple types separated by commas.
+
+Tuples are useful for grouping related information together without having to create a new type.
+
+For example, if we wanted to group an album with its play count, we could do something like this:
+
+```typescript
+let albumWithPlayCount: [Album, number] = [
+  {
+    artist: "The Beatles",
+
+    title: "Revolver",
+
+    year: 1965,
+  },
+
+  10000,
+];
+```
+
+To add more clarity to the tuple, names for each of the types can be added inside of the square brackets:
+
+```typescript
+
+[album: Album, playCount: number]
+
+```
+
+To access items in a tuple, you can use the same square bracket syntax as an array:
+
+```typescript
+
+let playCount = albumWithPlayCount[1];
+
+// hovering over `playCount` shows the type as `number` with the name we specified
+
+(property) 1: number (playCount)
+
+```
+
+You could even create an array of tuples by adding an extra set of square brackets:
+
+```typescript
+let albumsWithPlayCounts: [album: Album, playCount: number][] = [
+  [
+    {
+      artist: "The Beatles",
+
+      title: "Rubber Soul",
+
+      year: 1965,
+    },
+
+    10000,
+  ],
+
+  [
+    {
+      artist: "The Beatles",
+
+      title: "Revolver",
+
+      year: 1966,
+    },
+
+    12000,
+  ],
+];
+```
+
+This is a really nice way to express arrays of fixed length in TypeScript, and it's great to have this as a first-class feature in TypeScript.
+
 ### Exercises
 
 #### Exercise 1: Array Type
@@ -2333,6 +2425,74 @@ Object literal may only specify known properties, and 'ingredients' does not exi
 ```
 
 By combining what you've seen with typing object properties and working with arrays, how would you specify ingredients for the `Recipe` type?
+
+#### Exercise 3: Tuples
+
+Here we have a `setRange` function that takes in an array of numbers:
+
+```typescript
+const setRange = (range: Array<number>) => {
+  const x = range[0];
+
+  const y = range[1];
+
+  // Do something with x and y in here
+
+  // x and y should both be numbers!
+
+  type tests = [
+    Expect<Equal<typeof x, number>>, // red squiggly line under Equal<> statement
+
+    Expect<Equal<typeof y, number>>, // red squiggly line under Equal<> statement
+  ];
+};
+```
+
+Inside the function, we grab the first element of the array and assign it to `x`, and we grab the second element of the array and assign it to `y`.
+
+There are two tests inside the `setRange` function that are currently failing.
+
+Using the `//@ts-expect-error` directive, we find there are a couple more errors that need fixed. Recall that this directive tells TypeScript we know there will be an error on the next line, so ignore it. However, if we say we expect an error but there isn't one, we will get the red squiggly lines on the actual `//@ts-expect-error` line.
+
+```typescript
+// both of these show red squiggly lines under the ts-expect-error directive
+
+// @ts-expect-error too few arguments
+
+setRange([0]);
+
+// @ts-expect-error too many arguments
+
+setRange([0, 10, 20]);
+```
+
+The code for the `setRange` function needs an updated type annotation to specify that it only accepts a tuple of two numbers.
+
+#### Exercise 4: Optional Members of Tuples
+
+This `goToLocation` function takes in an array of coordinates. Each coordinate has a `latitude` and `longitude`, which are both numbers, as well as an optional `elevation` which is also a number:
+
+```typescript
+const goToLocation = (coordinates: Array<number>) => {
+  const latitude = coordinates[0];
+
+  const longitude = coordinates[1];
+
+  const elevation = coordinates[2];
+
+  // Do something with latitude, longitude, and elevation in here
+
+  type tests = [
+    Expect<Equal<typeof latitude, number>>, // red squiggly line under Equal<> statement
+
+    Expect<Equal<typeof longitude, number>>, // red squiggly line under Equal<> statement
+
+    Expect<Equal<typeof elevation, number | undefined>>,
+  ];
+};
+```
+
+Your challenge is to update the type annotation for the `coordinates` parameter to specify that it should be a tuple of three numbers, where the third number is optional.
 
 #### Solution 1: Array Type
 
@@ -2432,153 +2592,7 @@ type Recipe = {
 
 The inline approaches are a bit messy, but they work and can be a nice approach when prototyping.
 
-## Tuples
-
-Tuples allow you to be more precise than with an array. They have a fixed length, and allow for different types to be mixed together in the same array.
-
-Creating a tuple is similar to an array– use the square bracket syntax, but instead of specifying a single type, you specify multiple types separated by commas.
-
-Tuples are useful for grouping related information together without having to create a new type.
-
-For example, if we wanted to group an album with its play count, we could do something like this:
-
-```typescript
-let albumWithPlayCount: [Album, number] = [
-  {
-    artist: "The Beatles",
-
-    title: "Revolver",
-
-    year: 1965,
-  },
-
-  10000,
-];
-```
-
-To add more clarity to the tuple, names for each of the types can be added inside of the square brackets:
-
-```typescript
-
-[album: Album, playCount: number]
-
-```
-
-To access items in a tuple, you can use the same square bracket syntax as an array:
-
-```typescript
-
-let playCount = albumWithPlayCount[1];
-
-// hovering over `playCount` shows the type as `number` with the name we specified
-
-(property) 1: number (playCount)
-
-```
-
-You could even create an array of tuples by adding an extra set of square brackets:
-
-```typescript
-let albumsWithPlayCounts: [album: Album, playCount: number][] = [
-  [
-    {
-      artist: "The Beatles",
-
-      title: "Rubber Soul",
-
-      year: 1965,
-    },
-
-    10000,
-  ],
-
-  [
-    {
-      artist: "The Beatles",
-
-      title: "Revolver",
-
-      year: 1966,
-    },
-
-    12000,
-  ],
-];
-```
-
-This is a really nice way to express arrays of fixed length in TypeScript, and it's great to have this as a first-class feature in TypeScript.
-
-### Exercises
-
-#### Exercise 1: Tuples
-
-Here we have a `setRange` function that takes in an array of numbers:
-
-```typescript
-const setRange = (range: Array<number>) => {
-  const x = range[0];
-
-  const y = range[1];
-
-  // Do something with x and y in here
-
-  // x and y should both be numbers!
-
-  type tests = [
-    Expect<Equal<typeof x, number>>, // red squiggly line under Equal<> statement
-
-    Expect<Equal<typeof y, number>>, // red squiggly line under Equal<> statement
-  ];
-};
-```
-
-Inside the function, we grab the first element of the array and assign it to `x`, and we grab the second element of the array and assign it to `y`.
-
-There are two tests inside the `setRange` function that are currently failing.
-
-Using the `//@ts-expect-error` directive, we find there are a couple more errors that need fixed. Recall that this directive tells TypeScript we know there will be an error on the next line, so ignore it. However, if we say we expect an error but there isn't one, we will get the red squiggly lines on the actual `//@ts-expect-error` line.
-
-```typescript
-// both of these show red squiggly lines under the ts-expect-error directive
-
-// @ts-expect-error too few arguments
-
-setRange([0]);
-
-// @ts-expect-error too many arguments
-
-setRange([0, 10, 20]);
-```
-
-The code for the `setRange` function needs an updated type annotation to specify that it only accepts a tuple of two numbers.
-
-#### Exercise 2: Optional Members of Tuples
-
-This `goToLocation` function takes in an array of coordinates. Each coordinate has a `latitude` and `longitude`, which are both numbers, as well as an optional `elevation` which is also a number:
-
-```typescript
-const goToLocation = (coordinates: Array<number>) => {
-  const latitude = coordinates[0];
-
-  const longitude = coordinates[1];
-
-  const elevation = coordinates[2];
-
-  // Do something with latitude, longitude, and elevation in here
-
-  type tests = [
-    Expect<Equal<typeof latitude, number>>, // red squiggly line under Equal<> statement
-
-    Expect<Equal<typeof longitude, number>>, // red squiggly line under Equal<> statement
-
-    Expect<Equal<typeof elevation, number | undefined>>,
-  ];
-};
-```
-
-Your challenge is to update the type annotation for the `coordinates` parameter to specify that it should be a tuple of three numbers, where the third number is optional.
-
-#### Solution 1: Tuples
+#### Solution 3: Tuples
 
 In this case, we would update the `setRange` function to use this syntax instead of the array syntax:
 
@@ -2598,7 +2612,7 @@ const setRange = (range: [x: number, y: number]) => {
 };
 ```
 
-#### Solution 2: Optional Members of Tuples
+#### Solution 4: Optional Members of Tuples
 
 A good start would be to change the `coordinates` parameter to a tuple of `[number, number, number | undefined]`:
 
@@ -2689,6 +2703,8 @@ formats.add(8); // red squiggly line under `8`
 ```
 
 ### Strongly Typed Maps
+
+<!-- TODO - rewrite this to focus more on passing the type arguments into the Map -->
 
 A `Map` is to an object as a `Set` is to an array. It is a collection of key-value pairs, where the keys are enforced to be unique.
 
