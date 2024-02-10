@@ -936,19 +936,13 @@ But there's a drawback. While Vite and other tools handle the actual transpilati
 
 So, we still need the TypeScript CLI in order to catch errors. But if Vite is transpiling our code, we don't need TypeScript to do it too.
 
-Fortunately, we can configure TypeScript's CLI to allow for type checking without interfering with our other tools.
-
 ### TypeScript as a Linter
 
-<!-- CONTINUE -->
+Fortunately, we can configure TypeScript's CLI to allow for type checking without interfering with our other tools.
 
-Inside of the `tsconfig.json` file, there's an option called `noEmit` that tells `tsc` whether or not to emit JavaScript files.
+Inside the `tsconfig.json` file, there's an option called `noEmit` that tells `tsc` whether or not to emit JavaScript files.
 
-By setting `noEmit` to `true`, any errors that are detected will be shown to us in the IDE as well as being caught in the terminal. This makes a `tsc` step a great addition to a CI/CD system, since it can prevent merging a pull request with TypeScript errors.
-
-When using tools like Vite, Next.js, Remix, or Astro, `noEmit` is set to `true` in the `tsconfig.json` file that ships with the project.
-
-In this way, it's often the case that TypeScript acts more like a linter than part of the build process. It helps us ensure that our code is type safe, but it is not responsible for building our actual JavaScript code.
+By setting `noEmit` to `true`, no JavaScript files will be created when you run `tsc`. This makes TypeScript act more like a linter than a transpiler. This makes a `tsc` step a great addition to a CI/CD system, since it can prevent merging a pull request with TypeScript errors.
 
 Later in the book, we'll look closer at more advanced TypeScript configurations for application development.
 
