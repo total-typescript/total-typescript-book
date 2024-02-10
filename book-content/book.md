@@ -72,7 +72,7 @@ So, TypeScript aims to provide just enough strong typing to make working with J
 
 Let's break down the tools you need in order to work with TypeScript:
 
-- An IDE: In order to write code, you need an editor or Integrated Development Environment. While you can use any IDE, the assumption in this book is that you are using Microsoft's Visual Studio Code. The TypeScript integration with VSCode is excellent, as you will see shortly. Install it from https://code.visualstudio.com if you haven't already.
+- An IDE: In order to write code, you need an editor or Integrated Development Environment. While you can use any IDE, the assumption in this book is that you are using Microsoft's Visual Studio Code. The TypeScript integration with VS Code is excellent, as you will see shortly. Install it from https://code.visualstudio.com if you haven't already.
 - An Execution Environment: You need somewhere to run your emitted JavaScript. This could be Node.js or a web browser like Chrome.
 - The TypeScript CLI: Node.js is needed in order to run the TypeScript CLI (command line interface). This tool converts your TypeScript to JavaScript, and warns you of any issues in your project.
 
@@ -199,7 +199,7 @@ dragleave
 ...
 ```
 
-Autocomplete is an essential tool for writing TypeScript code, and it's available right out of the box in VSCode.
+Autocomplete is an essential tool for writing TypeScript code, and it's available right out of the box in VS Code.
 
 ### Exercises
 
@@ -608,7 +608,7 @@ Some features aren't available in JavaScript out of the box. The most prominent 
 
 > TIP: There is a system for adding types to `.js` files using JSDoc comments which TypeScript supports, but it isn't enabled by default. We'll touch on that later.
 
-The reason TypeScript does this is, first of all, to support a better experience working in JavaScript for VSCode users. A subset of TypeScript's features is better than nothing at all.
+The reason TypeScript does this is, first of all, to support a better experience working in JavaScript for VS Code users. A subset of TypeScript's features is better than nothing at all.
 
 But the upshot is that moving to TypeScript should feel extremely familiar for JavaScript users. It's the same IDE experience, just better.
 
