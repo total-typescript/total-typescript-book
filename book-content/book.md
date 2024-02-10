@@ -4,19 +4,17 @@ Part 1: Introduction
 
 # 01. Kickstart Your TypeScript Setup
 
-Before diving into TypeScript, let's take a moment to talk about its foundation— JavaScript.
-
-The JavaScript ecosystem is massive, and with good reason. Since its birth in 1995, it has been the language of the internet.
+Before diving into TypeScript, let's take a moment to talk about its foundation — JavaScript.
 
 JavaScript is the language that makes web pages interactive. Any modern website will utilize some amount of it. And the more complex the site, the more complex the JavaScript.
 
 But, unlike other coding languages, JavaScript was not built for building complex systems.
 
-If you were building JavaScript apps in the 2000’s, you were often having a bad time. Your IDE (integrated development environment) was lacking basic features. Autocomplete. Inline errors. There was no way to know if you were passing the right arguments to the right function. As users began demanding more complex experiences online, this made working with JavaScript a nightmare.
+If you were building JavaScript apps in the 2000's, you were often having a bad time. Your IDE (integrated development environment) was lacking basic features. Autocomplete. Inline errors. There was no way to know if you were passing the right arguments to the right function. As users began demanding more complex experiences online, this made working with JavaScript a nightmare.
 
-This was especially true for refactoring code. If you had to change a function signature, you had to manually find and update every place that function was called throughout your entire codebase. This could take hours, and with no guarantee that you’d fixed everything before you pushed to production.
+This was especially true for refactoring code. If you had to change a function signature, you had to manually find and update every place that function was called throughout your entire codebase. This could take hours, and with no guarantee that you'd fixed everything before you pushed to production.
 
-## TypeScript’s Beginnings
+## TypeScript's Beginnings
 
 As limitations like these became more apparent, developers started looking for a better way to write JavaScript.
 
@@ -38,33 +36,33 @@ With a JavaScript-only project, you would typically write your code in files wit
 
 ![](images/image5.png)
 
-If you’re testing whether your code works, you need to test it inside the runtime - the browser or Node.js.
+If you're testing whether your code works, you need to test it inside the runtime - the browser or Node.js.
 
 For a TypeScript project, your code is primarily inside of `.ts` or `.tsx` files.
 
-Inside your IDE, these files are monitored by TypeScript's ‘language server’. This server watches you as you type, and powers IDE features like autocompletion and error checking, among others.
+Inside your IDE, these files are monitored by TypeScript's 'language server'. This server watches you as you type, and powers IDE features like autocompletion and error checking, among others.
 
-Unlike a `.js` file, `.ts` files can’t usually be executed directly by the browser or a runtime. Instead, they require an initial build process.
+Unlike a `.js` file, `.ts` files can't usually be executed directly by the browser or a runtime. Instead, they require an initial build process.
 
 This is where TypeScript's `tsc` CLI comes in, which transforms your `.ts` files into `.js` files. You are able to take advantage of TypeScript's features while writing your code, but the output is still plain JavaScript.
 
 ![](images/image4.png)
 
-The great benefit of this system is that you get in a feedback loop with TypeScript. You write code. The in-IDE server gives you feedback. You adjust based on the feedback. And all of this happens before your code goes into the browser. This loop is much faster than JavaScript’s, so can help you create higher-quality code faster.
+The great benefit of this system is that you get in a feedback loop with TypeScript. You write code. The in-IDE server gives you feedback. You adjust based on the feedback. And all of this happens before your code goes into the browser. This loop is much faster than JavaScript's, so can help you create higher-quality code faster.
 
-> Automated testing can also provide a high-quality feedback loop. While we won’t cover this in this book, automated tests are a great companion to TypeScript for creating extremely high-quality code.
+> Automated testing can also provide a high-quality feedback loop. While we won't cover this in this book, automated tests are a great companion to TypeScript for creating extremely high-quality code.
 
-So, while TypeScript's build process is more complex than JavaScript’s, the benefits are well worth it.
+So, while TypeScript's build process is more complex than JavaScript's, the benefits are well worth it.
 
-## What’s Different About TypeScript?
+## What's Different About TypeScript?
 
 The thing that makes TypeScript from JavaScript different can be summed up in a single word: types.
 
-But there’s a common misconception here. People think that TypeScript’s core mission is to make JavaScript a strongly typed language, like C# or Rust. This is not quite accurate.
+But there's a common misconception here. People think that TypeScript's core mission is to make JavaScript a strongly typed language, like C# or Rust. This is not quite accurate.
 
-TypeScript wasn’t invented to make JavaScript strongly typed. It was built to allow amazing tooling for JavaScript.
+TypeScript wasn't invented to make JavaScript strongly typed. It was built to allow amazing tooling for JavaScript.
 
-Imagine you’re building an IDE, and you want to give people warnings when they mis-type a function name or an object property. If you don’t know the shapes of the variables, parameters and objects in your code, you’d have to resort to guesswork.
+Imagine you're building an IDE, and you want to give people warnings when they mis-type a function name or an object property. If you don't know the shapes of the variables, parameters and objects in your code, you'd have to resort to guesswork.
 
 But if you do know the types of everything in your app, you can begin implementing powerful IDE features like autocomplete, inline errors and automatic refactors.
 
@@ -160,11 +158,11 @@ Let's take a look at some of the awesome VS Code features that are powered by th
 
 ## Autocomplete
 
-If I were to name the single TypeScript feature I couldn’t live without, it would be autocomplete.
+If I were to name the single TypeScript feature I couldn't live without, it would be autocomplete.
 
-TypeScript knows what type everything is inside your app. Because of that, it can give you suggestions when you’re typing - speeding you up enormously.
+TypeScript knows what type everything is inside your app. Because of that, it can give you suggestions when you're typing - speeding you up enormously.
 
-In the example below, just typing ‘p’ after `audioElement` brings up all the properties which start with ‘p’.
+In the example below, just typing 'p' after `audioElement` brings up all the properties which start with 'p'.
 
 ```typescript
 const audioElement = document.createElement("audio");
@@ -172,7 +170,7 @@ const audioElement = document.createElement("audio");
 audioElement.p; // play, pause, part etc
 ```
 
-You’ll often want to manually trigger autocomplete. In VS Code, the `Ctrl + Space` keyboard shortcut will show you a list of suggestions for what you're typing.
+You'll often want to manually trigger autocomplete. In VS Code, the `Ctrl + Space` keyboard shortcut will show you a list of suggestions for what you're typing.
 
 For example, if you were adding an event listener to an element, you would see a list of available events:
 
@@ -233,7 +231,7 @@ As you select each property, the autocomplete list will update to show you the r
 
 ## TypeScript Error Checking
 
-The thing TypeScript is most famous for is its errors. These are a set of rules which TypeScript uses to make sure your code is doing what you think it’s doing.
+The thing TypeScript is most famous for is its errors. These are a set of rules which TypeScript uses to make sure your code is doing what you think it's doing.
 
 For every change you make to a file, the TypeScript server will check your code.
 
@@ -281,11 +279,11 @@ const obj = {};
 const result = obj.foo; // red squiggly line under `foo`
 ```
 
-TypeScript draws a red squiggly line below `foo`. But if we think about it, this code won't actually cause an error at runtime. We’re trying to assign a property that doesn’t exist in this object: `foo`. This won’t error, it will just mean that result is undefined.
+TypeScript draws a red squiggly line below `foo`. But if we think about it, this code won't actually cause an error at runtime. We're trying to assign a property that doesn't exist in this object: `foo`. This won't error, it will just mean that result is undefined.
 
 It may seem strange that TypeScript would warn us about something that won't cause an error, but it's actually a good thing. If TypeScript didn't warn us about this, it would be saying that we can access any property on any object at any time. Over the course of an entire application, this could result in quite a few bugs.
 
-Think of TypeScript’s rules as opinionated. They are a collection of helpful tips that will make your application safer as a whole.
+Think of TypeScript's rules as opinionated. They are a collection of helpful tips that will make your application safer as a whole.
 
 In this case, the correct way to write the `obj` code to avoid having a warning appear would be to specify `foo` as a property on `obj`:
 
@@ -299,9 +297,9 @@ const result = obj.foo;
 
 ### Warnings Close to the Source of the Problem
 
-When it’s choosing where to draw the red squiggly line, TypeScript will try to do it as close to the source of the problem as possible.
+When it's choosing where to draw the red squiggly line, TypeScript will try to do it as close to the source of the problem as possible.
 
-Let’s take a look at an example.
+Let's take a look at an example.
 
 ```typescript
 type Album = {
@@ -317,7 +315,7 @@ const album: Album = {
 };
 ```
 
-We define an ‘Album’ type - an object with three properties. Then, we say that const album needs to be of that type via `const album: Album`. Don’t worry if you don’t understand all the syntax yet - we’ll cover that later.
+We define an 'Album' type - an object with three properties. Then, we say that const album needs to be of that type via `const album: Album`. Don't worry if you don't understand all the syntax yet - we'll cover that later.
 
 Can you see the problem? There's a typo of the `artist` property when creating an album. Hovering over `artsist` shows the following error message:
 
@@ -349,7 +347,7 @@ const exampleFunction: FunctionThatReturnsString = () => {
 
 It might seem like TypeScript should give us an error on the `return` line, but it gives us an error on the line where we define `exampleFunction` instead.
 
-The reason why the error is on the function declaration line instead of the `return` line is because of how TypeScript checks functions. We’ll look at this later. But the important thing is that while TypeScript does its best to locate errors, sometimes they might not be where you expect.
+The reason why the error is on the function declaration line instead of the `return` line is because of how TypeScript checks functions. We'll look at this later. But the important thing is that while TypeScript does its best to locate errors, sometimes they might not be where you expect.
 
 ## Introspecting Variables and Declarations
 
@@ -425,7 +423,7 @@ We'll also get a readout of the `getElementById` function:
 (method) Document.getElementById(elementId: string): HTMLElement | null
 ```
 
-In the case of `getElementById`, we can see that it requires a string as an argument, and it returns an `HTMLElement | null`. We’ll look at this syntax later, but it basically means either a `HTMLElement` or `null`.
+In the case of `getElementById`, we can see that it requires a string as an argument, and it returns an `HTMLElement | null`. We'll look at this syntax later, but it basically means either a `HTMLElement` or `null`.
 
 This tells us that we can fix the error by changing the argument to a string:
 
@@ -451,7 +449,7 @@ If we hover over `document`, we can see that it is of type `Document`. We also g
 var document: Document;
 ```
 
-So, hovering in different places reveals different information. When I’m working in TypeScript, I hover constantly to get a better sense of what my code is doing.
+So, hovering in different places reveals different information. When I'm working in TypeScript, I hover constantly to get a better sense of what my code is doing.
 
 ## JSDoc Comments
 
@@ -602,17 +600,17 @@ After a couple of seconds, the server should kick back into gear and ensure that
 
 ## Working in JavaScript
 
-If you’re a JavaScript user, you might have noticed that lots of these features are already available without using TypeScript. Autocomplete, organizing imports, auto imports and hovering all work in JavaScript. Why is that?
+If you're a JavaScript user, you might have noticed that lots of these features are already available without using TypeScript. Autocomplete, organizing imports, auto imports and hovering all work in JavaScript. Why is that?
 
-It’s because of TypeScript. TypeScript’s IDE server is not just running on TypeScript files, but on JavaScript files too. That means that some of TypeScript’s amazing IDE experience is also available in JavaScript.
+It's because of TypeScript. TypeScript's IDE server is not just running on TypeScript files, but on JavaScript files too. That means that some of TypeScript's amazing IDE experience is also available in JavaScript.
 
-Some features aren’t available in JavaScript out of the box. The most prominent is in-IDE errors. Without type annotations, TypeScript isn’t confident enough about the shape of your code to give you accurate warnings.
+Some features aren't available in JavaScript out of the box. The most prominent is in-IDE errors. Without type annotations, TypeScript isn't confident enough about the shape of your code to give you accurate warnings.
 
-> TIP: There is a system for adding types to `.js` files using JSDoc comments which TypeScript supports, but it isn’t enabled by default. We’ll touch on that later.
+> TIP: There is a system for adding types to `.js` files using JSDoc comments which TypeScript supports, but it isn't enabled by default. We'll touch on that later.
 
-The reason TypeScript does this is, first of all, to support a better experience working in JavaScript for VSCode users. A subset of TypeScript’s features is better than nothing at all.
+The reason TypeScript does this is, first of all, to support a better experience working in JavaScript for VSCode users. A subset of TypeScript's features is better than nothing at all.
 
-But the upshot is that moving to TypeScript should feel extremely familiar for JavaScript users. It’s the same IDE experience, just better.
+But the upshot is that moving to TypeScript should feel extremely familiar for JavaScript users. It's the same IDE experience, just better.
 
 ## Exercises
 
@@ -701,11 +699,11 @@ function getRandomPercentage() {
 
 These are just some of the options provided by the Quick Fix menu. There's so much you can achieve with them, and we're only scratching the surface. Keep exploring and experimenting to discover their full potential!
 
-# 03. TypeScript’s Place in the Build Process
+# 03. TypeScript's Place in the Build Process
 
 We've briefly explored the relationship between JavaScript and TypeScript, but now it's time to go a bit deeper. In this chapter we'll get the TypeScript compiler set up and running, and examine how it fits into the development pipeline.
 
-For this section we’ll be looking at using TypeScript to build a web application. But TypeScript can also be used anywhere JavaScript can - in a Node, Electron, React Native or any other app.
+For this section we'll be looking at using TypeScript to build a web application. But TypeScript can also be used anywhere JavaScript can - in a Node, Electron, React Native or any other app.
 
 ## The Problem with TypeScript in the Browser
 
@@ -771,7 +769,7 @@ So, in order to get the browser to understand our TypeScript code, we need to tu
 
 ## Transpiling TypeScript for the Browser
 
-The process of turning JavaScript to TypeScript (called ‘transpilation’) is handled by the TypeScript CLI `tsc`, which is installed when you install TypeScript. But before we can use `tsc`, we need to set up our TypeScript project.
+The process of turning JavaScript to TypeScript (called 'transpilation') is handled by the TypeScript CLI `tsc`, which is installed when you install TypeScript. But before we can use `tsc`, we need to set up our TypeScript project.
 
 Open a terminal, and navigate to the parent directory of `example.ts` and `index.html`.
 
@@ -871,7 +869,7 @@ This is important, because it communicates to other developers using the repo th
 
 ## Running TypeScript in Watch Mode
 
-Manually running `tsc` every time you make a change to a TypeScript file will get boring fast. You might forget it, and wonder why your changes aren’t yet in the browser.
+Manually running `tsc` every time you make a change to a TypeScript file will get boring fast. You might forget it, and wonder why your changes aren't yet in the browser.
 
 Fortunately, the TypeScript compiler has a `--watch` flag that will automatically recompile your TypeScript files on save:
 
@@ -916,19 +914,19 @@ Reversing the change back to `message: string` will remove the error and the `ex
 
 Running `tsc` in watch mode is extremely useful for automatically compiling TypeScript files and catching errors as you write code.
 
-It can be especially useful on large projects because it checks the entire project, instead of showing the errors of just the file you’re in.
+It can be especially useful on large projects because it checks the entire project, instead of showing the errors of just the file you're in.
 
 ## TypeScript With Modern Frameworks
 
-The setup we have so far is pretty simple. A TypeScript file, a `tsc –watch` command, and a JavaScript file. But in order to build a frontend app, we’re going to need to do a lot more. We’ll need to handle CSS, minification, bundling, and a lot more. TypeScript can’t help us with all of that.
+The setup we have so far is pretty simple. A TypeScript file, a `tsc –watch` command, and a JavaScript file. But in order to build a frontend app, we're going to need to do a lot more. We'll need to handle CSS, minification, bundling, and a lot more. TypeScript can't help us with all of that.
 
 Fortunately, there are many, many frontend frameworks that can help.
 
 Vite is one example of a frontend tooling suite that not only transpiles `.ts` files to `.js` files, but also provides a dev server with Hot Module Replacement. Working with an HMR setup allows you to see changes in your code reflected in the browser without having to manually reload the page.
 
-But there’s a drawback. While Vite and other tools handle the actual transpilation of TypeScript to JavaScript, they don't provide type checking out of the box. This means that you could introduce errors into your code and Vite would continue running the dev server without telling you. It would even allow you to push errors into production, because it doesn't know any better.
+But there's a drawback. While Vite and other tools handle the actual transpilation of TypeScript to JavaScript, they don't provide type checking out of the box. This means that you could introduce errors into your code and Vite would continue running the dev server without telling you. It would even allow you to push errors into production, because it doesn't know any better.
 
-So, we still need the TypeScript CLI in order to catch errors. But if Vite is transpiling our code, we don’t need TypeScript to do it too.
+So, we still need the TypeScript CLI in order to catch errors. But if Vite is transpiling our code, we don't need TypeScript to do it too.
 
 Fortunately, we can configure TypeScript's CLI to allow for type checking without interfering with our other tools.
 
@@ -952,19 +950,19 @@ Part 2: Fundamentals
 
 # 04. Essential Types and Annotations
 
-Now we’ve covered most of the why of TypeScript, it’s time to start with the how. We’ll cover key concepts like type annotations and type inference, as well as how to start writing type-safe functions.
+Now we've covered most of the why of TypeScript, it's time to start with the how. We'll cover key concepts like type annotations and type inference, as well as how to start writing type-safe functions.
 
-It’s important to build a solid foundation, as everything you’ll learn later builds upon what you’ll learn in this chapter.
+It's important to build a solid foundation, as everything you'll learn later builds upon what you'll learn in this chapter.
 
 ## Basic Annotations
 
-One of the most common things you’ll need to do as a TypeScript developer is to annotate your code. Annotations tell TypeScript what type something is supposed to be.
+One of the most common things you'll need to do as a TypeScript developer is to annotate your code. Annotations tell TypeScript what type something is supposed to be.
 
 Annotations will often use a `:` - this is used to tell TypeScript that a variable or function parameter is of a certain type.
 
 ### Function Parameter Annotations
 
-One of the most important annotations you’ll use is for function parameters.
+One of the most important annotations you'll use is for function parameters.
 
 For example, here is a `logAlbumInfo` function that takes in a `title` string, a `trackCount` number, and an `isReleased` boolean:
 
@@ -980,7 +978,7 @@ const logAlbumInfo = (
 };
 ```
 
-Each parameter’s type annotation enables TypeScript to check that the arguments passed to the function are of the correct type. If the type doesn’t match up, TypeScript will show a squiggly red line under the offending argument.
+Each parameter's type annotation enables TypeScript to check that the arguments passed to the function are of the correct type. If the type doesn't match up, TypeScript will show a squiggly red line under the offending argument.
 
 ```typescript
 logAlbumInfo("Black Gold", false, 15); // red squiggly lines first under `false`, then under `15`
@@ -998,7 +996,7 @@ After fixing that, we would have an error under `15` because a number isn't assi
 
 As well as function parameters, you can also annotate variables.
 
-Here’s an example of some variables, with their associated types.
+Here's an example of some variables, with their associated types.
 
 ```typescript
 let albumTitle: string = "Midnights";
@@ -1028,7 +1026,7 @@ let isReleased: boolean = true;
 isReleased = "yes"; // red squiggly line under `isReleased`
 ```
 
-TypeScript’s static type checking is able to spot errors at compile time, which is happening behind the scenes as you write your code.
+TypeScript's static type checking is able to spot errors at compile time, which is happening behind the scenes as you write your code.
 
 In the case of the `isReleased` example above, the error message reads:
 
@@ -1056,17 +1054,17 @@ let example7: undefined = undefined;
 
 Each of these types is used to tell TypeScript what type a variable or function parameter is supposed to be.
 
-You can express much more complex types in TypeScript: arrays, objects, functions and much more. We’ll cover these in later chapters.
+You can express much more complex types in TypeScript: arrays, objects, functions and much more. We'll cover these in later chapters.
 
 ### Type Inference
 
-TypeScript gives you the ability to annotate almost any value, variable or function in your code. You might be thinking “wait, do I need to annotate everything? That’s a lot of extra code.”
+TypeScript gives you the ability to annotate almost any value, variable or function in your code. You might be thinking “wait, do I need to annotate everything? That's a lot of extra code.”
 
 As it turns out, TypeScript can infer a lot from the context that your code is run.
 
-#### Variables Don’t Always Need Annotations
+#### Variables Don't Always Need Annotations
 
-Let’s look again at our variable annotation example, but drop the annotations:
+Let's look again at our variable annotation example, but drop the annotations:
 
 ```typescript
 let albumTitle = "Midnights";
@@ -1074,7 +1072,7 @@ let isReleased = true;
 let trackCount = 13;
 ```
 
-We didn’t add the annotations, but TypeScript isn't complaining. What’s going on?
+We didn't add the annotations, but TypeScript isn't complaining. What's going on?
 
 Try hovering your cursor over each variable.
 
@@ -1086,9 +1084,9 @@ let isReleased: boolean;
 let trackCount: number;
 ```
 
-Even though they aren’t annotated, TypeScript is still picking up the type that they’re each supposed to be. This is TypeScript inferring the type of the variable from usage.
+Even though they aren't annotated, TypeScript is still picking up the type that they're each supposed to be. This is TypeScript inferring the type of the variable from usage.
 
-It behaves as if we’d annotated it, warning us if we try to assign it a different type from what it was assigned originally:
+It behaves as if we'd annotated it, warning us if we try to assign it a different type from what it was assigned originally:
 
 ```typescript
 let isReleased = true;
@@ -1130,7 +1128,7 @@ Parameter 'title' implicitly has an 'any' type.
 
 This is because functions are very different to variables. TypeScript can see what value is assigned to which variable, so it can make a good guess about the type.
 
-But TypeScript can’t tell from a function parameter alone what type it’s supposed to be. When you don’t annotate it, it defaults the type to `any` - a scary, unsafe type.
+But TypeScript can't tell from a function parameter alone what type it's supposed to be. When you don't annotate it, it defaults the type to `any` - a scary, unsafe type.
 
 It also can't detect it from usage. If we had an 'add' function that took two parameters, TypeScript wouldn't be able to tell that they were supposed to be numbers:
 
@@ -1156,7 +1154,7 @@ Parameter 'title' implicitly has an 'any' type.
 
 When TypeScript doesn't know what type something is, it assigns it the `any` type.
 
-This type breaks TypeScript's type system. It turns off type safety on the thing it’s assigned to.
+This type breaks TypeScript's type system. It turns off type safety on the thing it's assigned to.
 
 This means that anything can be assigned to it, any property on it can be accessed/assigned to, and it can be called like a function.
 
@@ -1168,7 +1166,7 @@ anyVariable(); // no error
 anyVariable.deep.property.access; // no error
 ```
 
-The code above will error at runtime, but TypeScript isn’t giving us a warning!
+The code above will error at runtime, but TypeScript isn't giving us a warning!
 
 So, using `any` can be used to turn off errors in TypeScript. It can be a useful escape hatch for when a type is too complex to describe.
 
@@ -2378,13 +2376,13 @@ Optional members of tuples are a funny little quirk of tuples in TypeScript. You
 
 ## Passing Types To Functions
 
-Let’s take a quick look back at the `Array` type we saw earlier.
+Let's take a quick look back at the `Array` type we saw earlier.
 
 ```ts
 Array<string>;
 ```
 
-This type describes an array of strings. To make that happen, we’re passing a type (`string`) as an argument to another type (`Array`).
+This type describes an array of strings. To make that happen, we're passing a type (`string`) as an argument to another type (`Array`).
 
 There are lots of other types that can receive types, like `Promise<string>`, `Record<string, string>`, and others. In each of them, we use the angle brackets to pass a type to another type.
 
@@ -2408,15 +2406,15 @@ If we hover over the `formats` variable, we can see that it is typed as `Set<unk
 var formats: Set<unknown>;
 ```
 
-That’s because the `Set` doesn’t know what type it’s supposed to be! We haven’t passed it any values, and we haven’t passed it any types.
+That's because the `Set` doesn't know what type it's supposed to be! We haven't passed it any values, and we haven't passed it any types.
 
-But take a look at those angle brackets. That means that we can pass `Set` a type to let it know what it’s supposed to contain:
+But take a look at those angle brackets. That means that we can pass `Set` a type to let it know what it's supposed to contain:
 
 ```typescript
 const formats = new Set<string>();
 ```
 
-Now, `formats` understands that it’s a set of strings, and adding anything other than a string will fail:
+Now, `formats` understands that it's a set of strings, and adding anything other than a string will fail:
 
 ```typescript
 formats.add("Digital"); // this works
@@ -5822,7 +5820,7 @@ Why do these two seemingly related utility types behave differently?
 
 When the TypeScript team was originally implementing Omit, they were faced with a decision to create a strict or loose version of Omit. The strict version would only permit the omission of valid keys (`id`, `title`, `artist`, `releaseYear`, `genre`), whereas the loose version wouldn't have this constraint
 
-At the time, it was a more popular idea in the community to implement a loose version, so that's the one they went with. Given that global types in TypeScript are globally available and don’t require an import statement, the looser version is seen as a safer choice, as it is more compatible and less likely to cause unforeseen errors.
+At the time, it was a more popular idea in the community to implement a loose version, so that's the one they went with. Given that global types in TypeScript are globally available and don't require an import statement, the looser version is seen as a safer choice, as it is more compatible and less likely to cause unforeseen errors.
 
 However, having this loose implementation of Omit doesn't allow for autocompletion. You won't get any suggestions when you start typing the properties you want to omit, so anything is fair game.
 
