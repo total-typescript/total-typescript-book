@@ -524,27 +524,37 @@ myFunction(1, 2);
 
 While this example is trivial (we could, of course, just name the function better), this can be an extremely important tool for documenting your code.
 
-## Navigating with Go To Definition
-
-<!-- CONTINUE -->
+## Navigating with Go To Definition and Go To References
 
 The TypeScript server also provides the ability to navigate to the definition of a variable or declaration.
 
 In VS Code, this "Go to Definition" shortcut is used with `Command + Click` on a Mac or `F12` on Windows for the current cursor position. You can also right click and select "Go to Definition" from the context menu on either platform. For the sake of brevity, we'll use the Mac shortcut.
 
-This shortcut will work whether the definition is in the same file or has been imported.
+Once you've arrived at the definition location, repeating the `Command + Click` shortcut will show you everywhere that the variable or declaration is used. This is called "Go To References". This is especially useful for navigating around large codebases.
 
-Once you've arrived at the definition location, repeating the `Command + Click` shortcut will show you everywhere that the variable or declaration is used. This is especially useful for navigating around large codebases.
-
-The shortcut can also be used for finding the type definitions for built-in types and libraries. For example, if you `Command + Click` on `document` when using the `getElementById` method, you'll be taken to the type definition for `document` inside of the `lib.dom.d.ts` file.
+The shortcut can also be used for finding the type definitions for built-in types and libraries. For example, if you `Command + Click` on `document` when using the `getElementById` method, you'll be taken to the type definitions for `document` itself.
 
 This is a great feature for understanding how built-in types and libraries work.
 
 ## Rename Symbol
 
-In this case, a smarter way to rename is to use the rename symbol feature. Right click on the `id` parameter of the `findUsersById` function and select "Rename Symbol".
+In some situations, you might want to rename a variable across your entire codebase. Let's imagine that a database column changes from 'id' to 'entityId'. A simple find and replace won't work, because 'id' is used in many places for different purposes.
 
-A panel will be displayed that prompts for the new name. VS Code is smart enough to realize that we only want to rename the `id` parameter for the function, and not the `user.id` property:
+A TypeScript-enabled feature called 'Rename Symbol' allows you to do that with a single action.
+
+Let's take a look at an example.
+
+<!-- We could convert this to an exercise? -->
+
+```typescript
+const filterUsersById = (id: string) => {
+  return users.filter((user) => user.id === id);
+};
+```
+
+Right click on the `id` parameter of the `findUsersById` function and select "Rename Symbol".
+
+A panel will be displayed that prompts for the new name. Type in `userIdToFilterBy` and hit `enter`. VS Code is smart enough to realize that we only want to rename the `id` parameter for the function, and not the `user.id` property:
 
 ```typescript
 const filterUsersById = (userIdToFilterBy: string) => {
@@ -556,27 +566,31 @@ The rename symbol feature is a great tool for refactoring code, and it works acr
 
 ## Automatic Imports
 
-Manually importing from other files can be tedious. Fortunately, TypeScript supports automatic imports.
+Large JavaScript applications can be composed of many, many modules. Manually importing from other files can be tedious. Fortunately, TypeScript supports automatic imports.
 
 When you start typing the name of a variable you want to import, TypeScript will show a list of suggestions when you use the `Ctrl + Space` shortcut. Select a variable from the list, and TypeScript will automatically add an import statement to the top of the file.
 
 You do need to be a little bit careful when using autocompletion in the middle of a name since the rest of the line could be unintentionally altered. To avoid this issue, make sure your cursor is at the end of the name before hitting `Ctrl + Space`.
 
-### Quick Fixes
+## Quick Fixes
 
 VS Code also offers a "Quick Fix" feature that can be used to run quick refactor scripts. For now, let's use it to import multiple missing imports at the same time.
 
-To use this feature, hit `Command + .` when the cursor is on a line with a missing import warning. A popup will appear with a list of possible imports, and provide you the option for importing a specific import as well as all that are missing in the file.
+To open the Quick Fix menu, hit `Command + .`. If you do this on a line of code which references a value that hasn't been imported yet, a popup will show.
+
+```typescript
+const triangle = new Triangle(); // red squiggly line under `Triangle`
+```
+
+One of the options in the Quick Fix menu will be 'Add All Missing Imports'. Selecting this option will add all the missing imports to the top of the file.
+
+```typescript
+import { Triangle } from "./shapes";
+
+const triangle = new Triangle();
+```
 
 We'll look at the Quick Fixes menu again in the exercises. It provides a lot of options for refactoring your code, and it's a great way to learn about TypeScript's capabilities.
-
-## Organizing Imports in Large Files
-
-It's easy for imports to get out of hand in a large file. They may be out of order, have duplicates, or not even be used. VS Code's "Organize Imports" feature can help with this.
-
-To automatically organize your imports, use the `Shift + Alt + O` shortcut.
-
-Alternatively, you can open VS Code's Command Pallette with `Shift + Command + P`, then searching the popup for "Organize Imports".
 
 ## Restarting the VS Code Server
 
@@ -594,7 +608,7 @@ It's because of TypeScript. TypeScript's IDE server is not just running on TypeS
 
 Some features aren't available in JavaScript out of the box. The most prominent is in-IDE errors. Without type annotations, TypeScript isn't confident enough about the shape of your code to give you accurate warnings.
 
-> TIP: There is a system for adding types to `.js` files using JSDoc comments which TypeScript supports, but it isn't enabled by default. We'll touch on that later.
+> TIP: There is a system for adding types to `.js` files using JSDoc comments which TypeScript supports, but it isn't enabled by default. We'll learn how to configure it later.
 
 The reason TypeScript does this is, first of all, to support a better experience working in JavaScript for VS Code users. A subset of TypeScript's features is better than nothing at all.
 
@@ -687,11 +701,11 @@ function getRandomPercentage() {
 
 These are just some of the options provided by the Quick Fix menu. There's so much you can achieve with them, and we're only scratching the surface. Keep exploring and experimenting to discover their full potential!
 
-# 03. TypeScript's Place in the Build Process
+# 03. TypeScript In The Development Pipeline
 
-We've briefly explored the relationship between JavaScript and TypeScript, but now it's time to go a bit deeper. In this chapter we'll get the TypeScript compiler set up and running, and examine how it fits into the development pipeline.
+We've explored the relationship between JavaScript and TypeScript, and also how TypeScript improves your life as a developer. But let's go a bit deeper. In this chapter we'll get the TypeScript CLI up and running, and see how it fits into the development pipeline.
 
-For this section we'll be looking at using TypeScript to build a web application. But TypeScript can also be used anywhere JavaScript can - in a Node, Electron, React Native or any other app.
+As an example, we'll be looking at using TypeScript to build a web application. But TypeScript can also be used anywhere JavaScript can - in a Node, Electron, React Native or any other app.
 
 ## The Problem with TypeScript in the Browser
 
@@ -731,7 +745,9 @@ Unexpected token ':'
 
 There aren't any red lines in the TypeScript file, so why is this happening?
 
-The problem is that browsers can't understand TypeScript on their own. They only understand JavaScript.
+### Runtimes Can't Run TypeScript
+
+The problem is that browsers (and other runtimes like Node.js) can't understand TypeScript on their own. They only understand JavaScript.
 
 In the case of the `run` function, the `: string` after `message` in the function declaration is not valid JavaScript:
 
@@ -751,22 +767,20 @@ const run = (message) => {}; // red squiggly line under message
 
 Hovering over the red squiggly line in VS Code, we can see that TypeScript's error message is telling us that `message` implicitly has an `any` type.
 
-We'll get into what that particular error means later, but for now the point is that our `example.ts` file contains syntax that the browser can't understand, but the TypeScript compiler isn't happy when we remove it.
+We'll get into what that particular error means later, but for now the point is that our `example.ts` file contains syntax that the browser can't understand, but the TypeScript CLI isn't happy when we remove it.
 
 So, in order to get the browser to understand our TypeScript code, we need to turn it into JavaScript.
 
-## Transpiling TypeScript for the Browser
+## Transpiling TypeScript
 
-The process of turning JavaScript to TypeScript (called 'transpilation') is handled by the TypeScript CLI `tsc`, which is installed when you install TypeScript. But before we can use `tsc`, we need to set up our TypeScript project.
+The process of turning JavaScript to TypeScript (called 'transpilation') can be handled by the TypeScript CLI `tsc`, which is installed when you install TypeScript. But before we can use `tsc`, we need to set up our TypeScript project.
 
 Open a terminal, and navigate to the parent directory of `example.ts` and `index.html`.
 
 To double check that you have TypeScript installed properly, run `tsc --version` in your terminal. If you see a version number, you're good to go. Otherwise, install TypeScript globally with PNPM by running:
 
 ```bash
-
 pnpm add -g typescript
-
 ```
 
 With our terminal open to the correct directory and TypeScript installed, we can initialize our TypeScript project.
@@ -778,9 +792,7 @@ In order for TypeScript to know how to transpile our code, we need to create a `
 Running the following command will generate the `tsconfig.json` file:
 
 ```bash
-
 tsc --init
-
 ```
 
 Inside of the newly created `tsconfig.json` file, you will find a number of useful starter configuration options as well as many other commented out options.
@@ -813,14 +825,6 @@ tsc
 
 In this case, this means that our TypeScript code in `example.ts` file will become JavaScript code inside of `example.js`.
 
-Running `ls` in the terminal will show us that `example.js` has been created:
-
-```
-ls
-
-// output: example.js  example.ts  index.html  tsconfig.json
-```
-
 Inside of `example.js`, we can see that the TypeScript syntax has been transpiled into JavaScript:
 
 ```javascript
@@ -847,7 +851,25 @@ Opening the `index.html` file in the browser will now show the expected "Hello!"
 
 ### Does TypeScript Change My JavaScript?
 
-<!-- TODO - write about how TypeScript literally just strips away types -->
+Looking at our JavaScript file, we can see how little has changed from the TypeScript code.
+
+```javascript
+"use strict";
+
+const run = (message) => {
+  console.log(message);
+};
+
+run("Hello!");
+```
+
+It's removed the `: string` from the `run` function, and added `"use strict";` to the top of the file. But other than that, the code is identical.
+
+This is a key guiding principle for TypeScript - it gives you a thin layer of syntax on top of JavaScript, but it doesn't change the way your code works. It doesn't add runtime validation. It doesn't attempt to optimise your code's performance.
+
+It just adds types (to give you better DX), and then removes them when it's time to turn your code into JavaScript.
+
+> There are some exceptions to this guiding principle, such as enums, namespaces and class parameter properties - but we'll cover those later.
 
 ### A Note on Version Control
 
@@ -857,23 +879,21 @@ This is important, because it communicates to other developers using the repo th
 
 ## Running TypeScript in Watch Mode
 
-Manually running `tsc` every time you make a change to a TypeScript file will get boring fast. You might forget it, and wonder why your changes aren't yet in the browser.
+You might have noticed something. If you make some changes to your TypeScript file, you'll need to run `tsc` again in order to see the changes in the browser.
 
-Fortunately, the TypeScript compiler has a `--watch` flag that will automatically recompile your TypeScript files on save:
+This will get old fast. You might forget it, and wonder why your changes aren't yet in the browser. Fortunately, the TypeScript CLI has a `--watch` flag that will automatically recompile your TypeScript files on save:
 
 ```
-
 tsc --watch
-
 ```
 
 To see it in action, open VS Code with the `example.ts` and `example.js` files side by side.
 
 If you change the `message` being passed to the `run` function in `example.ts` to something else, you'll see the `example.js` file update automatically.
 
-### Seeing Errors in Watch Mode
+## Errors In The TypeScript CLI
 
-If `tsc` encounters an error while watching, it will display the error in the terminal and the file with the error will be marked with a red squiggly line in VS Code.
+If `tsc` encounters an error, it will display the error in the terminal and the file with the error will be marked with a red squiggly line in VS Code.
 
 For example, try changing the `message: string` to `message: number` in the `run` function inside of `example.ts`:
 
@@ -902,13 +922,13 @@ Reversing the change back to `message: string` will remove the error and the `ex
 
 Running `tsc` in watch mode is extremely useful for automatically compiling TypeScript files and catching errors as you write code.
 
-It can be especially useful on large projects because it checks the entire project, instead of showing the errors of just the file you're in.
+It can be especially useful on large projects because it checks the entire project. This is different to your IDE, which only shows the errors of the file that's currently open.
 
 ## TypeScript With Modern Frameworks
 
 The setup we have so far is pretty simple. A TypeScript file, a `tsc –watch` command, and a JavaScript file. But in order to build a frontend app, we're going to need to do a lot more. We'll need to handle CSS, minification, bundling, and a lot more. TypeScript can't help us with all of that.
 
-Fortunately, there are many, many frontend frameworks that can help.
+Fortunately, there are many frontend frameworks that can help.
 
 Vite is one example of a frontend tooling suite that not only transpiles `.ts` files to `.js` files, but also provides a dev server with Hot Module Replacement. Working with an HMR setup allows you to see changes in your code reflected in the browser without having to manually reload the page.
 
@@ -919,6 +939,8 @@ So, we still need the TypeScript CLI in order to catch errors. But if Vite is tr
 Fortunately, we can configure TypeScript's CLI to allow for type checking without interfering with our other tools.
 
 ### TypeScript as a Linter
+
+<!-- CONTINUE -->
 
 Inside of the `tsconfig.json` file, there's an option called `noEmit` that tells `tsc` whether or not to emit JavaScript files.
 
@@ -5633,7 +5655,7 @@ type Configurations = Record<
 >;
 ```
 
-Now the TypeScript compiler will throw an error when the object includes a key that doesn't exist in `Environment`, like `notAllowed`.
+Now TypeScript will throw an error when the object includes a key that doesn't exist in `Environment`, like `notAllowed`.
 
 ## Utility Types for Object Manipulation
 
