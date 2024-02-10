@@ -170,14 +170,18 @@ const audioElement = document.createElement("audio");
 audioElement.p; // play, pause, part etc
 ```
 
+This is really powerful for exploring APIs you might not be familiar with, like the `HTMLAudioElement` API in this case.
+
+### Manually Triggering Autocomplete
+
 You'll often want to manually trigger autocomplete. In VS Code, the `Ctrl + Space` keyboard shortcut will show you a list of suggestions for what you're typing.
 
 For example, if you were adding an event listener to an element, you would see a list of available events:
 
 ```typescript
 document.addEventListener(
-
-""// autocomplete here
+  "", // autocomplete here
+);
 ```
 
 Hitting the `Ctrl + Space` shortcut with the cursor inside the quotes will show you a list of events that can be listened for:
@@ -215,7 +219,7 @@ acceptsObj({
 });
 ```
 
-Practice using the autocomplete shortcut to fill in the object in the call to `acceptsObj`.
+Practice using the autocomplete shortcut to fill in the object when calling `acceptsObj`.
 
 #### Solution 1: Autocomplete
 
@@ -283,21 +287,13 @@ TypeScript draws a red squiggly line below `foo`. But if we think about it, this
 
 It may seem strange that TypeScript would warn us about something that won't cause an error, but it's actually a good thing. If TypeScript didn't warn us about this, it would be saying that we can access any property on any object at any time. Over the course of an entire application, this could result in quite a few bugs.
 
-Think of TypeScript's rules as opinionated. They are a collection of helpful tips that will make your application safer as a whole.
-
-In this case, the correct way to write the `obj` code to avoid having a warning appear would be to specify `foo` as a property on `obj`:
-
-```typescript
-const obj: {
-  foo?: string;
-} = {};
-
-const result = obj.foo;
-```
+It's best to think of TypeScript's rules as opinionated. They are a collection of helpful tips that will make your application safer as a whole.
 
 ### Warnings Close to the Source of the Problem
 
-When it's choosing where to draw the red squiggly line, TypeScript will try to do it as close to the source of the problem as possible.
+<!-- TODO Consider moving this and the next section to later, perhaps the weird parts -->
+
+TypeScript will try to give you warnings as close to the source of the problem as possible.
 
 Let's take a look at an example.
 
@@ -315,7 +311,7 @@ const album: Album = {
 };
 ```
 
-We define an 'Album' type - an object with three properties. Then, we say that const album needs to be of that type via `const album: Album`. Don't worry if you don't understand all the syntax yet - we'll cover that later.
+We define an 'Album' type - an object with three properties. Then, we say that const album needs to be of that type via `const album: Album`. Don't worry if you don't understand all the syntax yet - we'll cover it all later.
 
 Can you see the problem? There's a typo of the `artist` property when creating an album. Hovering over `artsist` shows the following error message:
 
@@ -325,11 +321,11 @@ Type '{ artsist: string; title: string; year: number; }' is not assignable to ty
 Object literal may only specify known properties, but 'artsist' does not exist in type 'Album'. Did you mean to write 'artist'?
 ```
 
-In this case, TypeScript has given us a great error for this situation, and even a suggestion on what we should write.
+That's because we've said that the `album` variable needs to be of type `Album`, but we've misspelled `artist` as `artsist`. TypeScript is telling us that we've made a mistake, and even suggests the correct spelling.
 
 ### Dealing With Far-Away Errors
 
-However, sometimes TypeScript won't give you an error in the exact spot that you need to.
+However, sometimes TypeScript will give you an error in a more unhelpful spot.
 
 In this example, we have a `FunctionThatReturnsString` type that represents a function that returns a string. An `exampleFunction` that is given that type is defined, but it returns a number instead of a string.
 
@@ -374,9 +370,11 @@ const otherObject = {
   ...otherThing,
   thing,
 };
+
+otherObject.thing;
 ```
 
-Hovering over `otherObject` will give us a computed readout of all of the items that are in there:
+Hovering over `otherObject` will give us a computed readout of all of its properties:
 
 ```typescript
 // hovering over `otherObject` shows:
@@ -387,11 +385,9 @@ const otherObject: {
 };
 ```
 
-Depending on what you hover over, VS Code will show you different information. For example, hovering over `otherObject.thing` will show you the type of `thing`:
+Depending on what you hover over, VS Code will show you different information. For example, hovering over `.thing` in `otherObject.thing` will show you the type of `thing`:
 
 ```
-// hovering over `otherObject.thing` shows:
-
 (property) thing: number
 ```
 
@@ -439,16 +435,6 @@ We also know that `element`'s type will be what `document.getElementById` return
 const element: HTMLElement | null;
 ```
 
-Hovering for information like this is a great way to understand what's going on, even if there isn't an error.
-
-If we hover over `document`, we can see that it is of type `Document`. We also get a handy link to the MDN reference:
-
-```typescript
-// hovering over document shows:
-
-var document: Document;
-```
-
 So, hovering in different places reveals different information. When I'm working in TypeScript, I hover constantly to get a better sense of what my code is doing.
 
 ## JSDoc Comments
@@ -481,7 +467,7 @@ const logValues = (obj: any) => {
 };
 ````
 
-The `@param` tag is used to describe the parameters of the function. The `@example` tag is used to provide an example of how the function can be used.
+The `@param` tag is used to describe the parameters of the function. The `@example` tag is used to provide an example of how the function can be used, using markdown syntax.
 
 There are many, many more tags available for use in JSDoc comments. You can find a full list of them in the [JSDoc documentation](https://jsdoc.app/).
 
@@ -515,7 +501,7 @@ In this case, we'll specify that the function "Adds two numbers together". We ca
  * // Will return 3
  */
 
-const add = (a: number, b: number) => {
+const myFunction = (a: number, b: number) => {
   return a + b;
 };
 ```
@@ -523,9 +509,9 @@ const add = (a: number, b: number) => {
 Now whenever you hover over this function, the signature of the function along with the comment and full syntax highlighting for anything below the `@example` tag:
 
 ```
-// hovering over add shows:
+// hovering over myFunction shows:
 
-const add: (a: number, b: number) => number
+const myFunction: (a: number, b: number) => number
 
 Adds two numbers together.
 
@@ -536,9 +522,11 @@ myFunction(1, 2);
 // Will return 3
 ```
 
-While this example is trivial, this can be an extremely important tool for documenting your code.
+While this example is trivial (we could, of course, just name the function better), this can be an extremely important tool for documenting your code.
 
 ## Navigating with Go To Definition
+
+<!-- CONTINUE -->
 
 The TypeScript server also provides the ability to navigate to the definition of a variable or declaration.
 
