@@ -2222,40 +2222,35 @@ Your challenge is to update the type annotation for the `coordinates` parameter 
 
 #### Solution 1: Array Type
 
-<!-- CONTINUE -->
-
 For the `ShoppingCart` example, defining an array of `item` strings would looks like this when using the square bracket syntax:
 
 ```typescript
 type ShoppingCart = {
   userId: string;
-
   items: string[];
 };
 ```
 
 With this in place, we must pass in `items` as an array. A single string or other type would result in a type error.
 
-The second syntax is to explicitly write `Array` with the type inside of angle brackets (`<>`):
+The other syntax is to explicitly write `Array` and pass it a type inside the angle brackets:
 
 ```typescript
 type ShoppingCart = {
   userId: string;
-
   items: Array<string>;
 };
 ```
 
 #### Solution 2: Arrays of Objects
 
-As it happens, there are a few different ways to express an array of objects. Some of these solutions are nicer than others, but all of them work.
+There are a few different ways to express an array of objects.
 
-The best approach would be to to create a new `Ingredient` type that we can use to represent the objects in the array:
+One approach would be to to create a new `Ingredient` type that we can use to represent the objects in the array:
 
 ```typescript
 type Ingredient = {
   name: string;
-
   quantity: string;
 };
 ```
@@ -2265,9 +2260,7 @@ Then the `Recipe` type can be updated to include an `ingredients` property of ty
 ```typescript
 type Recipe = {
   title: string;
-
   instructions: string;
-
   ingredients: Ingredient[];
 };
 ```
@@ -2279,9 +2272,7 @@ As seen previously, using the `Array<Ingredient>` syntax would also work:
 ```typescript
 type Recipe = {
   title: string;
-
   instructions: string;
-
   ingredients: Array<Ingredient>;
 };
 ```
@@ -2291,12 +2282,9 @@ It's also possible to specify the `ingredients` property as an inline object lit
 ```typescript
 type Recipe = {
   title: string;
-
   instructions: string;
-
   ingredients: {
     name: string;
-
     quantity: string;
   }[];
 };
@@ -2307,29 +2295,24 @@ Or using `Array<>`:
 ```typescript
 type Recipe = {
   title: string;
-
   instructions: string;
-
   ingredients: Array<{
     name: string;
-
     quantity: string;
   }>;
 };
 ```
 
-The inline approaches are a bit messy, but they work and can be a nice approach when prototyping.
+The inline approaches are useful, but I prefer extracting them out to a new type. This means that if another part of your application needs to use the `Ingredient` type, it can.
 
 #### Solution 3: Tuples
 
-In this case, we would update the `setRange` function to use this syntax instead of the array syntax:
+In this case, we would update the `setRange` function to use the tuple syntax instead of the array syntax:
 
 ```typescript
-
 const setRange = (range: [number, number]) => {
-
-// rest of function body
-
+  // rest of function body
+};
 ```
 
 If you want to add more clarity to the tuple, you can add names for each of the types:
@@ -2345,11 +2328,7 @@ const setRange = (range: [x: number, y: number]) => {
 A good start would be to change the `coordinates` parameter to a tuple of `[number, number, number | undefined]`:
 
 ```tsx
-
-const goToLocation = (coordinates: [number, number, number | undefined]) {
-
-...
-
+const goToLocation = (coordinates: [number, number, number | undefined]) => {};
 ```
 
 The problem here is that while the third member of the tuple is able to be a number or `undefined`, the function still is expecting something to be passed in. It's not a good solution to have to pass in `undefined` manually.
@@ -2357,11 +2336,9 @@ The problem here is that while the third member of the tuple is able to be a num
 Using a named tuple in combination with the optional operator `?` is a better solution:
 
 ```tsx
-
-const goToLocation = (coordinates: [latitude: number, longitude: number, elevation?: number]) {
-
-...
-
+const goToLocation = (
+  coordinates: [latitude: number, longitude: number, elevation?: number],
+) => {};
 ```
 
 The values are clear, and using the `?` operator specifies the `elevation` is an optional number. It almost looks like an object, but it's still a tuple.
@@ -2369,14 +2346,8 @@ The values are clear, and using the `?` operator specifies the `elevation` is an
 Alternatively, if you don't want to use named tuples, you can use the `?` operator after the definition:
 
 ```tsx
-
-const goToLocation = (coordinates: [number, number, number?]) {
-
-...
-
+const goToLocation = (coordinates: [number, number, number?]) => {};
 ```
-
-Optional members of tuples are a funny little quirk of tuples in TypeScript. You probably won't encounter them often, but they can definitely be useful!
 
 ## Passing Types To Functions
 
@@ -2392,9 +2363,9 @@ There are lots of other types that can receive types, like `Promise<string>`, `R
 
 But we can also use that syntax to pass types to functions.
 
-### Strongly Typed Sets
+### Passing Types To `Set`
 
-A `Set` is a collection of unique values. It's similar to an array, but it can't contain duplicate values.
+A `Set` is JavaScript feature that represents a collection of unique values.
 
 To create a `Set`, use the `new` keyword and call `Set`:
 
@@ -2407,12 +2378,20 @@ If we hover over the `formats` variable, we can see that it is typed as `Set<unk
 ```typescript
 // hovering over `formats` shows:
 
-var formats: Set<unknown>;
+const formats: Set<unknown>;
 ```
 
-That's because the `Set` doesn't know what type it's supposed to be! We haven't passed it any values, and we haven't passed it any types.
+That's because the `Set` doesn't know what type it's supposed to be! We haven't passed it any values, so it defaults to an `unknown` type.
 
-But take a look at those angle brackets. That means that we can pass `Set` a type to let it know what it's supposed to contain:
+One way to fix this would be to pass some values to `Set` so it understands what type it's supposed to be:
+
+```typescript
+const formats = new Set(["CD", "DVD"]);
+```
+
+But, we don't _want_ to pass any values to it initially.
+
+We can get around this by passing a _type_ to `Set` when we call it, using the angle brackets syntax:
 
 ```typescript
 const formats = new Set<string>();
@@ -2430,102 +2409,13 @@ formats.add(8); // red squiggly line under `8`
 // Argument of type 'number' is not assignable to parameter of type 'string'.ts
 ```
 
-### Strongly Typed Maps
-
-<!-- TODO - rewrite this to focus more on passing the type arguments into the Map -->
-
-A `Map` is to an object as a `Set` is to an array. It is a collection of key-value pairs, where the keys are enforced to be unique.
-
-Creating a `Map` is similar to creating a `Set`, except we pass in an array of key-value pairs. Here we'll specify that the keys are of type `Album` and the values are a string:
-
-```typescript
-let musicCollection = new Map([
-  [{ artist: "The Beatles", title: "Rubber Soul", year: 1965 }, "Vinyl"],
-
-  [{ artist: "The Beatles", title: "Abbey Road", year: 1969 }, "CD"],
-]);
-```
-
-In this case, when we hover over `musicCollection`, we can see that the type is inferred as an object with `artist`, `title`, and `year` properties as the key, and a string as the value:
-
-```typescript
-// hovering over `musicCollection` shows:
-
-let musicCollection: Map<
-  {
-    artist: string;
-
-    title: string;
-
-    year: number;
-  },
-  string
->;
-```
-
-However, since we have an `Album` type already created we could specify the types of the key and value in the `Map` by adding the types in angle brackets `<>`:
-
-```typescript
-let musicCollection = new Map<Album, string>();
-
-const rubberSoul: Album = {
-  artist: "The Beatles",
-  title: "Rubber Soul",
-  year: 1965,
-};
-
-musicCollection.set(rubberSoul, "Vinyl");
-```
-
-Then to get the value from the `Map`, we can use the `get` method and pass in the key:
-
-```typescript
-const format = musicCollection.get(rubberSoul); // "Vinyl"
-```
+This is a really important thing to understand in TypeScript. You can pass types, as well as values, to functions.
 
 ### Exercises
 
-#### Exercise 1: Passing Types to Set
+#### Exercise 1: Passing Types to Map
 
-Here's an interesting problem in TypeScript where we want to restrict the types of elements that can be added to a `Set`.
-
-A new `Set` of `userIds` is created, but we want it to only be numbers:
-
-```typescript
-const userIds = new Set();
-
-userIds.add(1);
-
-userIds.add(2);
-
-userIds.add(3);
-
-// @ts-expect-error // red squiggly line under `@ts-expect-error`
-
-userIds.add("123");
-
-// @ts-expect-error // red squiggly line under `@ts-expect-error`
-
-userIds.add({ name: "Max" });
-```
-
-Adding numbers 1, 2, and 3 works as expected. However, the `@ts-expext-error` directives have red squiggly lines, which tells us that strings and objects are being allowed into the Set.
-
-If we hover over a call to `userIds.add()`, we can see that it is currently typed as `unknown`:
-
-```typescript
-
-// hovering over `userIds` shows:
-
-Set<unknown>.add(value: unknown): Set<unknown>
-
-```
-
-We'll discuss what `unknown` does in more depth later, but for now you can think of it as TypeScript's way of saying "I don't know what this is, so it could be anything."
-
-How would we type the `Set` so it only accepts numbers?
-
-#### Exercise 2: Passing Types to Map
+<!-- CONTINUE -->
 
 Here we are creating a `Map`, which is essentially a dictionary.
 
@@ -2561,7 +2451,7 @@ new () => Map<any, any> (+3 overloads)
 
 How would we type the `userMap` so the key must be a number and the value is an object with `name` and `age` properties?
 
-#### Exercise 3: `JSON.parse()` Can't Receive Type Arguments
+#### Exercise 2: `JSON.parse()` Can't Receive Type Arguments
 
 Consider the following code, which uses `JSON.parse` to parse some JSON:
 
@@ -2612,51 +2502,7 @@ The test errors tell us that the type of `parsed` is incorrect, and the properti
 
 Why this is happening? What would be an alternative way to express this to correct these type errors?
 
-#### Solution 1: Passing Types to Set
-
-Hovering over `Set` when it is created shows us a clue:
-
-```typescript
-
-const userIds = new Set();
-
-// hovering over `Set` shows:
-
-var Set: SetConstructor;
-
-new <unknown>(iterable?: Iterable<unknown> | null | undefined) =>
-
-Set<unknown> (+1 overload)
-
-```
-
-We've seen the angle brackets `<>` before when creating an Array. When combined with parentheses, it's like a function call where we pass in a type argument.
-
-Following this pattern, we can specify we want a `Set` of numbers like so:
-
-```typescript
-const userIds = new Set<number>();
-```
-
-With this fix, the errors under the `@ts-expect-error` directives go away. We can also see that the `userIds` variable is now typed as `Set<number>`.
-
-It's important that you become familiar with the syntax of passing type arguments into a function call!
-
-There's also an alternative approach, where we can specify the type of the variable itself:
-
-```typescript
-const userIds: Set<number> = new Set();
-```
-
-This essentially says that whatever we put into the set when creating it must be a number.
-
-For example, the following would result in an error because TypeScript sees only strings instead of numbers:
-
-```typescript
-const userIds: Set<number> = new Set(["a", "b", "c"]); // red squiggly line under `userIds`
-```
-
-#### Solution 2: Passing Types to Map
+#### Solution 1: Passing Types to Map
 
 There are a few different ways to solve this problem, but we'll start with the most straightforward one.
 
@@ -2696,7 +2542,7 @@ Finally, to bring things full circle, we could replace the inline type with a `U
 const userMap: Map<number, User> = new Map();
 ```
 
-#### Solution 3: `JSON.parse()` Can't Receive Type Arguments
+#### Solution 2: `JSON.parse()` Can't Receive Type Arguments
 
 Let's look a bit closer at the error message we got when calling `JSON.parse`:
 
