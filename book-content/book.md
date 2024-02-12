@@ -2411,13 +2411,55 @@ formats.add(8); // red squiggly line under `8`
 
 This is a really important thing to understand in TypeScript. You can pass types, as well as values, to functions.
 
+### Not All Functions Can Receive Types
+
+Most functions in TypeScript _can't_ receive types. A common example where you might want to pass a type is when calling `document.getElementById`.
+
+```typescript
+const audioElement = document.getElementById("player");
+```
+
+We know that `audioElement` is going to be a `HTMLAudioElement`. This type comes from the DOM typings, which we'll talk about later.
+
+So, it makes sense that we should be able to pass it to `document.getElementById`:
+
+```typescript
+// Red line under HTMLAudioElement
+// Expected 0 type arguments, but got 1.
+const audioElement = document.getElementById<HTMLAudioElement>("player");
+```
+
+But unfortunately, we can't. We get an error saying that `.getElementById` expects zero type arguments.
+
+We can see whether a function can receive type arguments by hovering over it. Let's try hovering `.getElementById`:
+
+```
+(method) Document.getElementById(elementId: string): HTMLElement | null
+```
+
+`.getElementById` contains no angle brackets (`<>`) in its hover. Let's contrasting it with a function that _can_ receive type arguments, like `document.querySelector`:
+
+```
+(method) ParentNode.querySelector<Element>(selectors: string): Element | null
+```
+
+`.querySelector` has some angle brackets before the parentheses. It shows the default value inside them - in this case, `Element`.
+
+So, to fix our code above we could replace `.getElementById` with `.querySelector`.
+
+```typescript
+const audioElement = document.querySelector<HTMLAudioElement>("#player");
+```
+
+And everything works.
+
+So, to tell whether a function can receive a type argument, hover it and check whether it has any angle brackets.
+
 ### Exercises
 
 #### Exercise 1: Passing Types to Map
 
-<!-- CONTINUE -->
-
-Here we are creating a `Map`, which is essentially a dictionary.
+Here we are creating a `Map`, a JavaScript feature which represents a dictionary.
 
 In this case we want to pass in a number for the key, and an object for the value:
 
