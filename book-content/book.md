@@ -2459,6 +2459,8 @@ So, to tell whether a function can receive a type argument, hover it and check w
 
 #### Exercise 1: Passing Types to Map
 
+<!-- CONTINUE -->
+
 Here we are creating a `Map`, a JavaScript feature which represents a dictionary.
 
 In this case we want to pass in a number for the key, and an object for the value:
