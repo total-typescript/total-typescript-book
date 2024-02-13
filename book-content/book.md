@@ -2459,8 +2459,6 @@ So, to tell whether a function can receive a type argument, hover it and check w
 
 #### Exercise 1: Passing Types to Map
 
-<!-- CONTINUE -->
-
 Here we are creating a `Map`, a JavaScript feature which represents a dictionary.
 
 In this case we want to pass in a number for the key, and an object for the value:
@@ -2473,20 +2471,17 @@ userMap.set(1, { name: "Max", age: 30 });
 userMap.set(2, { name: "Manuel", age: 31 });
 
 // @ts-expect-error  // red squiggly line under `@ts-expect-error`
-
 userMap.set("3", { name: "Anna", age: 29 });
 
 // @ts-expect-error // red squiggly line under `@ts-expect-error`
-
 userMap.set(3, "123");
 ```
 
-There are errors on the `@ts-expect-error` directives because currently any type of key and value is allowed in the `Map`.
+There are red lines on the `@ts-expect-error` directives because currently any type of key and value is allowed in the `Map`.
 
 ```typescript
 
 // hovering over Map shows:
-
 var Map: MapConstructor
 
 new () => Map<any, any> (+3 overloads)
@@ -2502,7 +2497,6 @@ Consider the following code, which uses `JSON.parse` to parse some JSON:
 ```typescript
 const parsedData = JSON.parse<{
   name: string; // red squiggly lines for the full {} argument
-
   age: number;
 }>('{"name": "Alice", "age": 30}');
 ```
@@ -2510,9 +2504,7 @@ const parsedData = JSON.parse<{
 There is currently an error under the type argument for `JSON.parse`:
 
 ```
-
 Expected 0 type arguments, but got 1.
-
 ```
 
 A test that checks the type of `parsedData` is currently failing, since it is typed as `any` instead of the expected type:
@@ -2521,11 +2513,9 @@ A test that checks the type of `parsedData` is currently failing, since it is ty
 type test = Expect<
   Equal<
     // red squiggly lines for the full Equal<>
-
     typeof parsedData,
     {
       name: string;
-
       age: number;
     }
   >
@@ -2534,17 +2524,16 @@ type test = Expect<
 it("Should be the correct shape", () => {
   expect(parsedData).toEqual({
     name: "Alice",
-
     age: 30,
   });
 });
 ```
 
-TypeScript allows us to add a type argument to the `JSON.parse` function, however, it only kind of works in this case.
+We've tried to pass a type argument to the `JSON.parse` function. But it doesn't appear to be working in this case.
 
-The test errors tell us that the type of `parsed` is incorrect, and the properties `name` and `age` are not being recognized.
+The test errors tell us that the type of `parsed` is not what we expect. The properties `name` and `age` are not being recognized.
 
-Why this is happening? What would be an alternative way to express this to correct these type errors?
+Why this is happening? What would be an different way to correct these type errors?
 
 #### Solution 1: Passing Types to Map
 
@@ -2555,58 +2544,43 @@ The first thing to do is to create a `User` type:
 ```typescript
 type User = {
   name: string;
-
   age: number;
 };
 ```
 
-Following the patterns we've seen so far, it shouldn't take too much guesswork to figure that we need to add `number` and `User` as the types for the `Map`:
+Following the patterns we've seen so far, we can pass `number` and `User` as the types for the `Map`:
 
 ```typescript
 const userMap = new Map<number, User>();
 ```
 
+That's right - some functions can receive _multiple_ type arguments. In this case, the `Map` constructor can receive two types: one for the key, and one for the value.
+
 With this change, the errors go away, and we can no longer pass in incorrect types into the `userMap.set` function.
 
-Of course, you wouldn't have to specify the `User` type outside of the `Map` declaration. You could also do it inline:
+You can also express the `User` type inline:
 
 ```typescript
 const userMap = new Map<number, { name: string; age: number }>();
 ```
 
-Or similar to what we saw with the `Set`, we could add the type to the variable and have TypeScript infer the type of the `Map`:
-
-```typescript
-const userMap: Map<number, { name: string; age: number }> = new Map();
-```
-
-Finally, to bring things full circle, we could replace the inline type with a `User` type:
-
-```typescript
-const userMap: Map<number, User> = new Map();
-```
-
 #### Solution 2: `JSON.parse()` Can't Receive Type Arguments
 
-Let's look a bit closer at the error message we got when calling `JSON.parse`:
+Let's look a bit closer at the error message we get when passing a type argument to `JSON.parse`:
 
 ```
-
 Expected 0 type arguments, but got 1.
-
 ```
 
-This message indicates that TypeScript is not expecting anything inside the angle braces when calling `JSON.parse`. To resolve this error, we simply remove the angle braces:
+This message indicates that TypeScript is not expecting anything inside the angle braces when calling `JSON.parse`. To resolve this error, we can remove the angle braces:
 
 ```typescript
 const parsedData = JSON.parse('{"name": "Alice", "age": 30}');
 ```
 
-Since `JSON.parse` is now being passed an `any` type, TypeScript is happy. Anything is assignable to `any` and `any` is assignable to anything.
+Now that `.parse` is receiving the correct number of type arguments, TypeScript is happy.
 
-However, we want our parsed data to have the correct type.
-
-Hovering over `JSON.parse`, we can see its type definition:
+However, we want our parsed data to have the correct type. Hovering over `JSON.parse`, we can see its type definition:
 
 ```typescript
 
@@ -2621,14 +2595,23 @@ To get around this issue, we can give `parsedData` a variable type annotation wi
 ```typescript
 const parsedData: {
   name: string;
-
   age: number;
 } = JSON.parse('{"name": "Alice", "age": 30}');
 ```
 
 Now we have `parsedData` typed as we want it to be.
 
+The reason this works is because `any` disables type checking. So, we can assign it any type we want to. We could assign it something that doesn't make sense, like `number`, and TypeScript wouldn't complain:
+
+```typescript
+const parsedData: number = JSON.parse('{"name": "Alice", "age": 30}');
+```
+
+So, this is more 'type faith' than 'type safe'. We are hoping that `parsedData` is the type we expect it to be. We'll explore this idea more later in the book.
+
 ## More Function Typings
+
+<!-- CONTINUE -->
 
 Let's expand upon what we've learned about functions and their type annotations so far.
 
