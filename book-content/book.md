@@ -5262,7 +5262,7 @@ interface Product extends WithId, WithCreatedAt {
 
 Here, `User` represents an object with an `id`, `createdAt`, `name`, and `email` while `Product` represents an object with an `id`, `createdAt`, `name`, and `price`.
 
-## Handling Dynamic Object Keys
+## Dynamic Object Keys
 
 When using objects, it's common that we won't always know the exact keys that will be used.
 
@@ -5534,7 +5534,7 @@ Now TypeScript will throw an error when the object includes a key that doesn't e
 
 TypeScript offers a variety of built-in types for you to use when working with objects. Whether you need to transform an existing object type or create a new type based on an existing one, there's likely a utility type that can help with that.
 
-### Make Properties Optional with Partial
+### `Partial`
 
 We've seen how to use the question mark operator `?` to make properties optional in TypeScript. However, when dealing with an object type where every key is optional it gets a bit annoying to have to write (and read) the `?` over and over again.
 
@@ -5571,9 +5571,9 @@ const geogaddi: PartialAlbum = {
 };
 ```
 
-### Making Properties Required
+### `Required`
 
-On the opposite side of Partial is the Required type, which makes sure all of the properties of a given type are required– even those that started as optional.
+On the opposite side of `Partial` is the `Required` type, which makes sure all of the properties of a given type are required– even those that started as optional.
 
 This `Album` interface has the `releaseYear` and `genre` properties marked as optional:
 
@@ -5633,7 +5633,7 @@ type RequiredAlbum = {
 
 If you find yourself in a situation where you need a deeply Required type, check out the type-fest library by Sindre Sorhus.
 
-### The `PropertyKey` Type
+### `PropertyKey`
 
 The `PropertyKey` type is a global type that represents the set of all possible keys that can be used on an object, including string, number, and symbol. You can find its type definition inside of TypeScript's ES5 type definitions file:
 
@@ -5654,7 +5654,7 @@ type Album = {
 
 The `PropertyKey` type is used behind the scenes of several TypeScript features
 
-### Select Properties with Pick
+### `Pick`
 
 The Pick utility type allows you to create a new type by selecting a subset of properties from an existing type. This type helper allows you to keep a main type as the source of truth while creating subtypes that contain only what you need.
 
@@ -5668,7 +5668,7 @@ An important thing to note is that Pick doesn't work well with union types, so i
 
 Despite this limitation, Pick is a great way to ensure you're only working with the data you need.
 
-### Excluding Certain Properties with Omit
+### `Omit`
 
 The Omit helper type is kind of like the opposite of Pick. It allows you to create a new type by excluding a subset of properties from an existing type.
 
@@ -6054,7 +6054,9 @@ const updateProduct = (
 
 The way you declare variables and object properties in TypeScript can significantly affect type inference and mutability. In this chapter, we'll explore the implications of using `let` and `const`, how to ensure proper object property inference, and techniques for enforcing immutability.
 
-## Variable Declaration and Type Inference
+## How Mutability Affects Inference
+
+### Variable Declaration and Type Inference
 
 As with recent versions of JavaScript, TypeScript supports the `let` and `const` keywords for variable declaration.
 
@@ -6169,7 +6171,7 @@ updateStatus({
 
 When inlining the object, TypeScript knows that there is no way that `status` could be changed before it is passed into the function.
 
-##### Adding a Type to the Object
+#### Adding a Type to the Object
 
 Another option is to explicitly declare the type of the `albumAttributes` object to be `AlbumAttributes`:
 
@@ -6185,7 +6187,7 @@ When the object's type is specified, TypeScript can confidently infer that the `
 
 Whether working with a single object or an array of objects, these techniques for ensuring proper object property inference will help you avoid inference errors.
 
-### Read-only Object Properties
+## Readonly Object Properties
 
 For times when you want to ensure that an object's properties cannot be changed after they are set, TypeScript provides the `readonly` modifier.
 
@@ -6202,7 +6204,7 @@ interface Album {
 
 Once an `Album` object is created, its `title` and `artist` properties are locked in and cannot be changed. However, the optional `status` and `genre` properties can still be modified.
 
-#### The `Readonly` Type Helper
+### The `Readonly` Type Helper
 
 If you want to specify that all properties of an object should be read-only, TypeScript provides a type helper called `Readonly`.
 
@@ -6229,7 +6231,7 @@ Cannot assign to 'genre' because it is a read-only property
 
 Note that like many of TypeScript's type helpers, the immutability enforced by `Readonly` only operates on the first level. It won't make properties read-only recursively.
 
-### Read-only Arrays
+## Readonly Arrays
 
 As with object properties, arrays and tuples can be made immutable by using the `readonly` modifier.
 
@@ -6263,7 +6265,7 @@ readOnlyGenres.push("experimental"); // red squiggly line under push
 Property 'push' does not exist on type 'readonly string[]'
 ```
 
-#### Distinguishing Assignability Between Read-Only and Mutable Arrays
+### Distinguishing Assignability Between Read-Only and Mutable Arrays
 
 To help drive the concept home, let's take compare assignability between read-only and mutable arrays.
 
@@ -6314,9 +6316,9 @@ Essentially, read-only arrays can only be assigned to other read-only types. Thi
 
 The big takeaway here is that even though you can assign mutable arrays to read-only arrays, you cannot assign read-only arrays to mutable arrays.
 
-### Exercises
+## Exercises
 
-#### Exercise 1: Inference with an Array of Objects
+### Exercise 1: Inference with an Array of Objects
 
 Here we have a `modifyButtons` function that takes in an array of objects with `type` properties that are either `"button"`, `"submit"`, or `"reset"`.
 
@@ -6343,7 +6345,7 @@ modifyButtons(buttonsToChange); // red squiggly line under buttonsToChange
 
 Your task is to determine why this error shows up, then resolve it.
 
-#### Exercise 2: Avoiding Array Mutation
+### Exercise 2: Avoiding Array Mutation
 
 This `printNames` function accepts an array of `name` strings and logs them to the console. However, there are also non-working `@ts-expect-error` comments that should not allow for names to be added or changed:
 
@@ -6363,7 +6365,7 @@ function printNames(names: string[]) {
 
 Your task is to update the type of the `names` parameter so that the array cannot be mutated. There are two ways to solve this problem.
 
-#### Exercise 3: An Unsafe Tuple
+### Exercise 3: An Unsafe Tuple
 
 Here we have a `dangerousFunction` which accepts an array of numbers as an argument:
 
@@ -6398,7 +6400,7 @@ Your task is to adjust the type of `Coordinate` such that TypeScript triggers an
 
 Note that you should only change `Coordinate`, and leave the function untouched.
 
-#### Solution 1: Inference with an Array of Objects
+### Solution 1: Inference with an Array of Objects
 
 Hovering over the `buttonsToChange` variable shows us that it is being inferred as an array of objects with a `type` property of type `string`:
 
@@ -6438,9 +6440,9 @@ const buttonsToChange: ButtonAttributes[] = [
 modifyButtons(buttonsToChange); // No error
 ```
 
-#### Solution 2: Avoiding Array Mutation
+### Solution 2: Avoiding Array Mutation
 
-##### Option 1: Add the `readonly` Keyword
+#### Option 1: Add the `readonly` Keyword
 
 The first approach solution is to add the `readonly` keyword before the `string[]` array. It applies to the entire `string[]` array, converting it into a read-only array:
 
@@ -6452,7 +6454,7 @@ function printNames(names: readonly string[]) {
 
 With this setup, you can't call `.push()` or modify elements in the array. However, methods like `map()` and `reduce()` remain accessible since these create a copy of the array, and do not mutate the original.
 
-##### Option 2: Use the `ReadonlyArray` Type Helper
+#### Option 2: Use the `ReadonlyArray` Type Helper
 
 Alternatively, you could use the `ReadonlyArray` type helper:
 
@@ -6469,7 +6471,7 @@ Regardless of which of these two methods you use, TypeScript will still display 
 (parameter) names: readonly string[]
 ```
 
-#### Solution 3: An Unsafe Tuple
+### Solution 3: An Unsafe Tuple
 
 The best way to prevent unwanted changes to the `Coordinate` tuple is to make it a `readonly` tuple:
 
@@ -6499,7 +6501,7 @@ We get an error because the function's signature expects a modifiable array of n
 
 It's a good practice to use `readonly` tuples as much as possible to avoid problems like the one in this exercise.
 
-### Deep Immutability with `as const`
+## Deep Immutability with `as const`
 
 Earlier it was mentioned that the `Readonly` type helper only works on the first level of an object. However, TypeScript's `as const` assertion specifies that all of an object's properties should be treated as deeply read-only, no matter how deeply nested they are.
 
@@ -6544,7 +6546,7 @@ As before, TypeScript can see that the `status` property can't be modified, so t
 
 There's no cost to using `as const` since it disappears at runtime. This makes it a very useful tool for your TypeScript applications, especially when configuring objects.
 
-#### Comparing `as const` with `Object.freeze`
+### Comparing `as const` with `Object.freeze`
 
 In JavaScript, the `Object.freeze` method is a common way to create immutable objects. While it is also possible to be used in TypeScript, there are some significant differences between `Object.freeze` and `as const`.
 
@@ -6860,7 +6862,7 @@ Overall, both solutions offer unique benefits. The first technique provides a st
 
 The `as const` assertion can be used to solve this challenge in a couple of ways– one with immutable `type` properties, and one that infers the literal type of the `type` property while allowing for changes.
 
-##### Option 1: Making the `type` Property Immutable
+#### Option 1: Making the `type` Property Immutable
 
 Recall that adding `as const` to an object makes all of its properties read-only. This means that the `type` property of the objects inside of `buttonsToChange` can't be changed, so TypeScript will allow for the call to `modifyButtons`:
 
@@ -6885,7 +6887,7 @@ const buttonsToChange: (
 )[];
 ```
 
-##### Option 2: Infer the Literal Type
+#### Option 2: Infer the Literal Type
 
 By adding `as const` directly to the `type` property of each of the objects, TypeScript will infer the literal type:
 
