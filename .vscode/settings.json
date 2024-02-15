@@ -1,0 +1,9 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "markdownlint.config": {
+    "default": false,
+    "MD001": true,
+    "MD022": true,
+    "MD038": true
+  }
+}

@@ -1,5 +1,5 @@
 node_modules
-.vscode
+.vscode/*.code-snippets
 tsconfig.temp.json
 *.prompt.*
 dist

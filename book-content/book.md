@@ -1,3 +1,12 @@
+<!-- markdownlint-configure-file
+{
+  "hr-style": {
+    "style": "---"
+  },
+  "no-trailing-spaces": false
+}
+-->
+
 Part 1: Introduction
 
 ---
@@ -3176,13 +3185,11 @@ We'll return to this topic later in the book.
 
 ---
 
-# 05. Create Sets of Types with Unions, Intersections, and Interfaces
+# 05. Unions, Literals and Narrowing
 
-<!-- CONTINUE -->
+## Union Types
 
-## Unions and Literals
-
-### JavaScript's Dynamic Typing
+### The Union Type Multiverse
 
 <!-- TODO - introduce the union type multiverse -->
 
@@ -3211,13 +3218,10 @@ But how would we handle this in TypeScript?
 If we specify that `printPrice` accepts a number, TypeScript will throw an error when we try to pass a string to it:
 
 ```tsx
-
 // TypeScript version of printPrice
 
 function printPrice(price: number) {
-
-console.log(`The price is ${price}`);
-
+  console.log(`The price is ${price}`);
 }
 
 let price = 19.99;
@@ -3227,11 +3231,12 @@ printPrice(price); // The price is 19.99
 let stringPrice = "19.99";
 
 printPrice(stringPrice); // red squiggly line under stringPrice
+```
 
-// hovering over stringPrice shows:
+Hovering over `stringPrice` shows:
 
-Error: Argument of type 'string' is not assignable to parameter of type 'number'
-
+```
+Argument of type 'string' is not assignable to parameter of type 'number'
 ```
 
 We know that the `printPrice` function will work just fine if we pass a string to it, but TypeScript won't accept anything else.
@@ -3303,28 +3308,26 @@ However, this doesn't work in reverse. If we have a union type, we won't be able
 For example, if we changed the `printPrice` function to only accept a `number`, TypeScript would throw an error when we try to pass a `Price` to it:
 
 ```tsx
-
 function printPrice(price: number) {
-
-console.log(`The price is ${price}`);
-
+  console.log(`The price is ${price}`);
 }
 
 let price: Price = 19.99;
 
 printPrice(price); // red squiggly line under price
+```
 
-// hovering over price shows:
+Hovering over `price` shows:
 
+```
 Argument of type 'Price' is not assignable to parameter of type 'number'
-
 ```
 
 As we continue through the book, we'll expand the graph with other available types to help you get a better sense of how assignability works in TypeScript.
 
-### Literal Types
+## Literal Types
 
-Just as TypeScript allows us to create union types from multiple types, it also allows us to create single-value types called literal types.
+Just as TypeScript allows us to create union types from multiple types, it also allows us to types which represent a specific primitive value. These are called literal types.
 
 Let's look at an example that compares how a `string` type compares to a literal type that represents a specific string.
 
@@ -3386,7 +3389,7 @@ console.log(format); // "LP"
 
 It's great to have a union type representing all of the possible album formats, but it might be useful to have more specific types representing the formats for use in different parts of our application.
 
-#### Combining Union Types of Union Types
+#### Combining Unions With Unions
 
 Union types can be combined with other union types to create even more complex type definitions.
 
@@ -4994,6 +4997,8 @@ if (shape.kind === "square") {
 
 By inspecting `square` first, all shape cases that aren't squares default to circles. The circle is treated as optional, which preserves our discriminated union and keeps the function flexible.
 
+# 06. Objects
+
 ## Extending Objects
 
 Creating new objects based on objects that already exist is a great way to promote modularity and reusability in your code. There are two primary methods for extending objects in TypeScript: using intersections and extending interfaces.
@@ -6104,11 +6109,11 @@ const updateProduct = (
 };
 ```
 
-## Mutability
+# 07. Mutability
 
 The way you declare variables and object properties in TypeScript can significantly affect type inference and mutability. In this chapter, we'll explore the implications of using `let` and `const`, how to ensure proper object property inference, and techniques for enforcing immutability.
 
-### Variable Declaration and Type Inference
+## Variable Declaration and Type Inference
 
 As with recent versions of JavaScript, TypeScript supports the `let` and `const` keywords for variable declaration.
 
@@ -6211,7 +6216,7 @@ Even though the `albumAttributes` object was declared with `const`, TypeScript t
 
 Let's look at a couple of ways to fix this inference issue.
 
-##### Using an Inline Object
+#### Using an Inline Object
 
 One approach is to inline the object when calling the `updateStatus` function instead of declaring it separately:
 
