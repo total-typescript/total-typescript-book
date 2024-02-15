@@ -2627,7 +2627,7 @@ function getAlbumFormats(album: Album, ...formats: string[]) {
 }
 ```
 
-We can call this function with any number of strings:
+Declaring the parameter with the `...formats` syntax combined with an array of strings lets us pass in any number of strings to the function:
 
 ```typescript
 getAlbumFormats(
@@ -2649,55 +2649,66 @@ getAlbumFormats(
 );
 ```
 
-If this function was written with only a single `format` parameter, we would have to pass in an array of strings and manually join them together in order to create a single string:
+As an alternative, we can use the `Array<>` syntax instead.
 
 ```typescript
-getAlbumFormats(
-  { artist: "Radiohead", title: "OK Computer", year: 1997 },
-  ["CD", "LP", "Cassette"].join(", "),
-);
-```
-
-Using the rest parameter allows for a much nicer experience.
-
-### Function Types
-
-We've used type annotations to specify the types of function parameters, but we can also specify the types of functions themselves.
-
-If we hover over the `getAlbumFormats` function, we'll see the following:
-
-```typescript
-// hovering over `getAlbumFormats` shows:
-
-function getAlbumFormats(album: Album, ...formats: string[]): string;
-```
-
-This tells us that `getAlbumFormats` is a function that takes in an `Album` and any number of strings, and returns a string.
-
-Writing out a function type annotation is a bit cleaner to read in the arrow function style:
-
-```typescript
-getAlbumFormats: (album: Album, ...formats: string[]) => string;
-```
-
-If we wanted to create a new `chooseRandomAlbum` function that takes in an array of `Album`s and the function to get formats, our parameter type annotations would look something like this:
-
-```typescript
-function chooseRandomAlbum(
-  albums: Album[],
-  getAlbumFormatsFn: (album: Album, ...formats: string[]) => string,
-) {
-  const randomIndex = Math.floor(Math.random() * albums.length);
-
-  const randomAlbum = albums[randomIndex];
-
-  return getAlbumFormatsFn(randomAlbum, "CD", "LP", "Cassette");
+function getAlbumFormats(album: Album, formats: Array<string>) {
+  // function body
 }
 ```
 
-Without specifying the shape of the function passed in, we would end up with the implicity `any` error.
+### Function Types
+
+We've used type annotations to specify the types of function parameters, but we can also use TypeScript to describe the types of functions themselves.
+
+We can do this using this syntax:
+
+```typescript
+type Mapper = (item: string) => number;
+```
+
+This is a type alias for a function that takes in a `string` and returns a `number`.
+
+We could then use this to describe a callback function passed to another function:
+
+```typescript
+const mapOverItems = (items: string[], map: Mapper) => {
+  return items.map(map);
+};
+```
+
+Or, declare it inline:
+
+```typescript
+const mapOverItems = (items: string[], map: (item: string) => number) => {
+  return items.map(map);
+};
+```
+
+This lets us pass a function to `mapOverItems` that changes the value of the items in the array.
+
+```typescript
+const arrayOfNumbers = mapOverItems(["1", "2", "3"], (item) => {
+  return parseInt(item) * 100;
+});
+```
+
+Function types are as flexible as function definitions. You can declare multiple parameters, rest parameters, and optional parameters.
+
+```typescript
+// Optional parameters
+type WithOptional = (index?: number) => number;
+
+// Rest parameters
+type WithRest = (...rest: string[]) => number;
+
+// Multiple parameters
+type WithMultiple = (first: string, second: string) => number;
+```
 
 ### The `void` Type
+
+<!-- CONTINUE -->
 
 But what if our function doesn't return anything at all? This is where TypeScript's `void` type comes in.
 
