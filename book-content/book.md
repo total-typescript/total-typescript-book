@@ -1,12 +1,3 @@
-<!-- markdownlint-configure-file
-{
-  "hr-style": {
-    "style": "---"
-  },
-  "no-trailing-spaces": false
-}
--->
-
 Part 1: Introduction
 
 ---
