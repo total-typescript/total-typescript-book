@@ -1404,13 +1404,9 @@ However, in practice you mostly won't annotate variables like this. If we remove
 
 ```typescript
 let example1 = "Hello World!";
-
 let example2 = 42;
-
 let example3 = true;
-
 let example4 = Symbol();
-
 let example5 = 123n;
 ```
 
@@ -1441,239 +1437,6 @@ const handleFormData = (e: any) => {
 If `e` had been properly typed, this error would have been caught by TypeScript right away. We'll come back to this example in the future to see the proper typing.
 
 Using `any` may seem like a quick fix when you have trouble figuring out how to properly type something, but it can come back to bite you later.
-
-## Basic Function Annotations
-
-In the previous section, we saw a simple method for annotating function parameters. Let's add a few more tools to our toolbox.
-
-### Optional Parameters
-
-For cases where a function parameter is optional, we can add the `?` operator before the `:`.
-
-Say we wanted to add an optional `releaseDate` parameter to the `logAlbumInfo` function. We could do so like this:
-
-```typescript
-const logAlbumInfo = (
-  title: string,
-  trackCount: number,
-  isReleased: boolean,
-  releaseDate?: string,
-) => {
-  // rest of function body
-};
-```
-
-Now we can call `logAlbumInfo` and include a release date string, or leave it out:
-
-```typescript
-logAlbumInfo("Midnights", 13, true, "2022-10-21");
-
-logAlbumInfo("American Beauty", 10, true);
-```
-
-Hovering over the optional `releaseDate` parameter in VS Code will show us that it is now typed as `string | undefined`.
-
-We'll discuss the `|` symbol more later, but this means that the parameter could either be a `string` or `undefined`. It would be acceptable to literally pass `undefined` as a second argument, or it can be omitted all together.
-
-### Default Parameters
-
-In addition to marking parameters as optional, you can set default values for parameters by using the `=` operator.
-
-For example, we could set the `format` to default to `"CD"` if no format is provided:
-
-```typescript
-const logAlbumInfo = (
-  title: string,
-  trackCount: number,
-  isReleased: boolean,
-  format: string = "CD",
-) => {
-  // rest of function body
-};
-```
-
-The annotation of `: string` can also be omitted:
-
-```typescript
-const logAlbumInfo = (
-  title: string,
-  trackCount: number,
-  isReleased: boolean,
-  format = "CD",
-) => {
-  // rest of function body
-};
-```
-
-Since it can infer the type of the `format` parameter from the value provided. This is another nice example of type inference.
-
-### Function Return Types
-
-In addition to setting parameter types, we can also set the return type of a function.
-
-The return type of a function can be annotated by placing a `:` and the type after the closing parentheses of the parameter list. For the `logAlbumInfo` function, we can specify that the function will return a string:
-
-```typescript
-const logAlbumInfo = (
-  title: string,
-  trackCount: number,
-  isReleased: boolean,
-): string => {
-  // rest of function body
-};
-```
-
-If the value returned from a function doesn't match the type that was specified, TypeScript will show an error.
-
-```typescript
-const logAlbumInfo = (
-  title: string,
-  trackCount: number,
-  isReleased: boolean,
-): string => {
-  return 123; // red squiggly line under `123`
-};
-```
-
-Return types useful for when you want to ensure that a function returns a specific type of value.
-
-### Exercises
-
-#### Exercise 1: Optional Function Parameters
-
-Here we have a `concatName` function, whose implementation takes in two `string` parameters `first` and `last`.
-
-If there's no `last` name passed, the return would be just the `first` name. Otherwise, it would return `first` concatenated with `last`:
-
-```typescript
-const concatName = (first: string, last: string) => {
-  if (!last) {
-    return first;
-  }
-
-  return `${first} ${last}`;
-};
-```
-
-When calling `concatName` with a first and last name, the function works as expected without errors:
-
-```typescript
-const result = concatName("John", "Doe");
-```
-
-However, when calling `concatName` with just a first name, we get an error:
-
-```typescript
-const result2 = concatName("John"); // red squiggly line under `concatName("John")`
-```
-
-The error message reads:
-
-```
-Expected 2 arguments, but got 1.
-```
-
-Try to use an optional parameter annotation to fix the error.
-
-#### Exercise 2: Default Function Parameters
-
-Here we have the same `concatName` function as before, where the `last` name is optional:
-
-```typescript
-const concatName = (first: string, last?: string) => {
-  if (!last) {
-    return first;
-  }
-
-  return `${first} ${last}`;
-};
-```
-
-We also have a couple of tests. This test checks that the function returns the full name when passed a first and last name:
-
-```typescript
-it("should return the full name", () => {
-  const result = concatName("John", "Doe");
-
-  type test = Expect<Equal<typeof result, string>>;
-
-  expect(result).toEqual("John Doe");
-});
-```
-
-However, the second test expects that when `concatName` is called with just a first name as an argument, the function should use `Pocock` as the default last name:
-
-```typescript
-it("should return the first name", () => {
-  const result = concatName("John");
-
-  type test = Expect<Equal<typeof result, string>>;
-
-  expect(result).toEqual("John Pocock");
-});
-```
-
-This test currently fails, with the output from `vitest` indicating the error is on the `expect` line:
-
-```
-
-AssertionError: expected 'John' to deeply equal 'John Pocock'
-
-- Expected
-
-+ Received
-
-— John Pocock
-
-+ John
-
-expect(result).toEqual("John Pocock");
-
-^
-
-```
-
-Update the `concatName` function to use `Pocock` as the default last name if one is not provided.
-
-#### Solution 1: Optional Function Parameters
-
-By adding a question mark `?` to the end of a parameter, it will be marked as optional:
-
-```typescript
-function concatName(first: string, last?: string) {
-  // ...implementation
-}
-```
-
-#### Solution 2: Default Function Parameters
-
-To add a default parameter in TypeScript, we would use the `=` syntax that is also used in JavaScript.
-
-In this case, we will update `last` to default to "Pocock" if no value is provided:
-
-```typescript
-export const concatName = (first: string, last?: string = "Pocock") => {
-  return `${first} ${last}`;
-};
-```
-
-##### "Parameter cannot have question mark and initializer."
-
-While this passes our runtime tests, it actually fails in TypeScript:
-
-```
-Parameter cannot have question mark and initializer.
-```
-
-This is because TypeScript doesn't allow us to have both an optional parameter and a default value. The optionality is already implied by the default value.
-
-To fix the error, we can remove the question mark from the `last` parameter:
-
-```typescript
-export const concatName = (first: string, last = "Pocock") => {
-  return `${first} ${last}`;
-};
-```
 
 ## Object Literal Types
 
@@ -2609,9 +2372,98 @@ const parsedData: number = JSON.parse('{"name": "Alice", "age": 30}');
 
 So, this is more 'type faith' than 'type safe'. We are hoping that `parsedData` is the type we expect it to be. We'll explore this idea more later in the book.
 
-## More Function Typings
+## Typing Functions
 
-Let's expand upon what we've learned about functions and their type annotations so far.
+### Optional Parameters
+
+For cases where a function parameter is optional, we can add the `?` operator before the `:`.
+
+Say we wanted to add an optional `releaseDate` parameter to the `logAlbumInfo` function. We could do so like this:
+
+```typescript
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+  releaseDate?: string,
+) => {
+  // rest of function body
+};
+```
+
+Now we can call `logAlbumInfo` and include a release date string, or leave it out:
+
+```typescript
+logAlbumInfo("Midnights", 13, true, "2022-10-21");
+
+logAlbumInfo("American Beauty", 10, true);
+```
+
+Hovering over the optional `releaseDate` parameter in VS Code will show us that it is now typed as `string | undefined`.
+
+We'll discuss the `|` symbol more later, but this means that the parameter could either be a `string` or `undefined`. It would be acceptable to literally pass `undefined` as a second argument, or it can be omitted all together.
+
+### Default Parameters
+
+In addition to marking parameters as optional, you can set default values for parameters by using the `=` operator.
+
+For example, we could set the `format` to default to `"CD"` if no format is provided:
+
+```typescript
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+  format: string = "CD",
+) => {
+  // rest of function body
+};
+```
+
+The annotation of `: string` can also be omitted:
+
+```typescript
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+  format = "CD",
+) => {
+  // rest of function body
+};
+```
+
+Since it can infer the type of the `format` parameter from the value provided. This is another nice example of type inference.
+
+### Function Return Types
+
+In addition to setting parameter types, we can also set the return type of a function.
+
+The return type of a function can be annotated by placing a `:` and the type after the closing parentheses of the parameter list. For the `logAlbumInfo` function, we can specify that the function will return a string:
+
+```typescript
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+): string => {
+  // rest of function body
+};
+```
+
+If the value returned from a function doesn't match the type that was specified, TypeScript will show an error.
+
+```typescript
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+): string => {
+  return 123; // red squiggly line under `123`
+};
+```
+
+Return types useful for when you want to ensure that a function returns a specific type of value.
 
 ### Rest Parameters
 
@@ -2768,7 +2620,103 @@ Now, our function must return a `Promise` that resolves to a `User`.
 
 ### Exercises
 
-#### Exercise 1: Rest Parameters
+#### Exercise 1: Optional Function Parameters
+
+Here we have a `concatName` function, whose implementation takes in two `string` parameters `first` and `last`.
+
+If there's no `last` name passed, the return would be just the `first` name. Otherwise, it would return `first` concatenated with `last`:
+
+```typescript
+const concatName = (first: string, last: string) => {
+  if (!last) {
+    return first;
+  }
+
+  return `${first} ${last}`;
+};
+```
+
+When calling `concatName` with a first and last name, the function works as expected without errors:
+
+```typescript
+const result = concatName("John", "Doe");
+```
+
+However, when calling `concatName` with just a first name, we get an error:
+
+```typescript
+const result2 = concatName("John"); // red squiggly line under `concatName("John")`
+```
+
+The error message reads:
+
+```
+Expected 2 arguments, but got 1.
+```
+
+Try to use an optional parameter annotation to fix the error.
+
+#### Exercise 2: Default Function Parameters
+
+Here we have the same `concatName` function as before, where the `last` name is optional:
+
+```typescript
+const concatName = (first: string, last?: string) => {
+  if (!last) {
+    return first;
+  }
+
+  return `${first} ${last}`;
+};
+```
+
+We also have a couple of tests. This test checks that the function returns the full name when passed a first and last name:
+
+```typescript
+it("should return the full name", () => {
+  const result = concatName("John", "Doe");
+
+  type test = Expect<Equal<typeof result, string>>;
+
+  expect(result).toEqual("John Doe");
+});
+```
+
+However, the second test expects that when `concatName` is called with just a first name as an argument, the function should use `Pocock` as the default last name:
+
+```typescript
+it("should return the first name", () => {
+  const result = concatName("John");
+
+  type test = Expect<Equal<typeof result, string>>;
+
+  expect(result).toEqual("John Pocock");
+});
+```
+
+This test currently fails, with the output from `vitest` indicating the error is on the `expect` line:
+
+```
+
+AssertionError: expected 'John' to deeply equal 'John Pocock'
+
+- Expected
+
++ Received
+
+— John Pocock
+
++ John
+
+expect(result).toEqual("John Pocock");
+
+^
+
+```
+
+Update the `concatName` function to use `Pocock` as the default last name if one is not provided.
+
+#### Exercise 3: Rest Parameters
 
 Here we have a `concatenate` function that takes in a variable number of strings:
 
@@ -2796,7 +2744,7 @@ Rest parameter 'strings' implicitly has an 'any[]' type.
 
 How would you update the rest parameter to specify that it should be an array of strings?
 
-#### Exercise 2: Function Types
+#### Exercise 4: Function Types
 
 Here, we have a `modifyUser` function that takes in an array of `users`, an `id` of the user that we want to change, and a `makeChange` function that makes that change:
 
@@ -2856,9 +2804,7 @@ modifyUser(
 
 How would you type `makeChange` as a function takes in a `User` and returns a `User`?
 
-#### Exercise 3: Functions Returning `void`
-
-<!-- CONTINUE -->
+#### Exercise 5: Functions Returning `void`
 
 Here we explore a classic web development example.
 
@@ -2891,7 +2837,7 @@ This is triggering our `@ts-expect-error` directive.
 
 How should `addClickEventListener` be typed so that each error is resolved?
 
-#### Exercise 4: `void` vs `undefined`
+#### Exercise 6: `void` vs `undefined`
 
 We've got a function that accepts a callback and calls it. The callback doesn't return anything, so we've typed it as `() => undefined`:
 
@@ -2915,7 +2861,7 @@ acceptsCallback(returnString); // red squiggly line under `returnString`
 
 Why is this happening? Can we alter the type of `acceptsCallback` to fix this error?
 
-#### Exercise 5: Typing Async Functions
+#### Exercise 7: Typing Async Functions
 
 This `fetchData` function awaits the `response` from a call to `fetch`, then gets the `data` by calling `response.json()`:
 
@@ -2972,7 +2918,47 @@ How can we type `data` as a number without changing the calls to `fetch` or `res
 
 There are two possible solutions here.
 
-#### Solution 1: Rest Parameters
+#### Solution 1: Optional Function Parameters
+
+By adding a question mark `?` to the end of a parameter, it will be marked as optional:
+
+```typescript
+function concatName(first: string, last?: string) {
+  // ...implementation
+}
+```
+
+#### Solution 2: Default Function Parameters
+
+To add a default parameter in TypeScript, we would use the `=` syntax that is also used in JavaScript.
+
+In this case, we will update `last` to default to "Pocock" if no value is provided:
+
+```typescript
+export const concatName = (first: string, last?: string = "Pocock") => {
+  return `${first} ${last}`;
+};
+```
+
+##### "Parameter cannot have question mark and initializer."
+
+While this passes our runtime tests, it actually fails in TypeScript:
+
+```
+Parameter cannot have question mark and initializer.
+```
+
+This is because TypeScript doesn't allow us to have both an optional parameter and a default value. The optionality is already implied by the default value.
+
+To fix the error, we can remove the question mark from the `last` parameter:
+
+```typescript
+export const concatName = (first: string, last = "Pocock") => {
+  return `${first} ${last}`;
+};
+```
+
+#### Solution 3: Rest Parameters
 
 When using rest parameters, all of the arguments passed to the function will be collected into an array. This means that the `strings` parameter can be typed as an array of strings:
 
@@ -2990,7 +2976,7 @@ export function concatenate(...strings: Array<string>) {
 }
 ```
 
-#### Solution 2: Function Types
+#### Solution 4: Function Types
 
 Let's start by annotating the `makeChange` parameter to be a function. For now, we'll specify that it returns `any`:
 
@@ -3058,7 +3044,7 @@ const modifyUser = (user: User[], id: string, makeChange: MakeChangeFunc) => {
 
 Both techniques behave the same, but if you need to reuse the `makeChange` function type, a type alias is the way to go.
 
-#### Solution 3: Functions Returning `void`
+#### Solution 5: Functions Returning `void`
 
 Let's start by annotating the `listener` parameter to be a function. For now, we'll specify that it returns a string:
 
@@ -3098,7 +3084,7 @@ const addClickEventListener = (listener: () => void) => {
 
 This is a great way to tell TypeScript that we don't care about the return value of the `listener` function.
 
-#### Solution 4: `void` vs `undefined`
+#### Solution 6: `void` vs `undefined`
 
 The solution is to change the of `callback` to `() => void`:
 
@@ -3112,7 +3098,7 @@ Now we can pass in `returnString` without any issues. This is because `returnStr
 
 So if you really don't care about the result of a function, you should type it as `() => void`.
 
-#### Solution 5: Typing Async Functions
+#### Solution 7: Typing Async Functions
 
 You might be tempted to try passing a type argument to `fetch`, similar to how you would with `Map` or `Set`.
 
