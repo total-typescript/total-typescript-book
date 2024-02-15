@@ -2708,21 +2708,63 @@ type WithMultiple = (first: string, second: string) => number;
 
 ### The `void` Type
 
-<!-- CONTINUE -->
+Some functions don't return anything. They perform some kind of action, but they don't produce a value.
 
-But what if our function doesn't return anything at all? This is where TypeScript's `void` type comes in.
+A great example is a `console.log`:
 
-Any time a function does a `console.log` or performs some type of side effect, its return type is `void`. This is TypeScript's way of saying that nothing is ever going to be there.
+```typescript
+const logResult = console.log("Hello!");
+```
 
-Note that this is different behavior than in JavaScript!
+What type do you expect `logResult` to be? In JavaScript, the value is `undefined`. If we were to `console.log(logResult)`, that's what we'd see in the console.
 
-In JavaScript, the type of a function that doesn't return anything is `undefined`, which is a value that can be assigned to a variable.
+But TypeScript has a special type for these situations - where a function's return value should be deliberately ignored. It's called `void`.
 
-<!-- TODO - add an example -->
+If we hover over `.log` in `console.log`, we'll see that it returns `void`:
+
+```
+(method) Console.log(...data: any[]): void
+```
+
+So, `logResult` is also `void`.
+
+This is TypeScript's way of saying "ignore the result of this function call".
 
 ### Typing Async Functions
 
-<!-- TODO -->
+We've looked at how to strongly type what a function returns, via a return type:
+
+```typescript
+const getUser = (id: string): User => {
+  // function body
+};
+```
+
+But what about when the function is asynchronous?
+
+```typescript
+// The return type of an async function or method must
+// be the global Promise<T> type. Did you mean to write
+// 'Promise<User>'?
+// red squiggle under User
+const getUser = async (id: string): User => {
+  // function body
+};
+```
+
+Fortunately, TypeScript's error message is helpful here. It's telling us that the return type of an async function must be a `Promise`.
+
+So, we can pass `User` to a `Promise`:
+
+```typescript
+const getUser = async (id: string): Promise<User> => {
+  const user = await db.users.get(id);
+
+  return user;
+};
+```
+
+Now, our function must return a `Promise` that resolves to a `User`.
 
 ### Exercises
 
@@ -2749,21 +2791,18 @@ it("should concatenate strings", () => {
 The test passes, but there's an error on the `...strings` rest parameter:
 
 ```
-
 Rest parameter 'strings' implicitly has an 'any[]' type.
-
 ```
 
 How would you update the rest parameter to specify that it should be an array of strings?
 
 #### Exercise 2: Function Types
 
-Here we have a `modifyUser` function that takes in an array of `users`, an `id` of the user that we want to change, and a `makeChange` function that makes that change:
+Here, we have a `modifyUser` function that takes in an array of `users`, an `id` of the user that we want to change, and a `makeChange` function that makes that change:
 
 ```typescript
 type User = {
   id: string;
-
   name: string;
 };
 
@@ -2783,9 +2822,7 @@ const modifyUser = (user: User[], id: string, makeChange) => {
 Currently there is an error under `makeChange`:
 
 ```
-
 Parameter `makeChange` implicitly has an `any` type.
-
 ```
 
 Here's an example of how this function would be called:
@@ -2793,29 +2830,24 @@ Here's an example of how this function would be called:
 ```typescript
 const users: User[] = [
   { id: "1", name: "John" },
-
   { id: "2", name: "Jane" },
 ];
 
 modifyUser(users, "1", (user) => {
   // red squiggly line under `user`
-
   return { ...user, name: "Waqas" };
 });
 ```
 
 In the above example, the `user` parameter to the error function also has the "implicit `any`" error.
 
-The `modifyUser` type annotation for the `makeChange` function to be updated, while also ensuring that the return type is the same as the `User` type. For example, we should not be able to return a `name` of `123`:
+The `modifyUser` type annotation for the `makeChange` function to be updated. It should return a modified user. For example, we should not be able to return a `name` of `123`, because in the `User` type, `name` is a `string`:
 
 ```typescript
 modifyUser(
   users,
-
   "1",
-
   // @ts-expect-error
-
   (user) => {
     return { ...user, name: 123 };
   },
@@ -2825,6 +2857,8 @@ modifyUser(
 How would you type `makeChange` as a function takes in a `User` and returns a `User`?
 
 #### Exercise 3: Functions Returning `void`
+
+<!-- CONTINUE -->
 
 Here we explore a classic web development example.
 
@@ -2840,19 +2874,48 @@ const addClickEventListener = (listener) => {
 addClickEventListener(() => {
   console.log("Clicked!");
 });
+```
 
+Currently there is an error under `listener` because it doesn't have a type signature.
+
+We're also _not_ getting an error when we pass an incorrect value to `addClickEventListener`.
+
+```typescript
 addClickEventListener(
   // @ts-expect-error // red squiggly line under `@ts-expect-error`
-
   "abc",
 );
 ```
 
-Currently there is an error under `listener` because it is implicitly typed as `any`. Because of this, there is also an error under the `@ts-expect-error` directive, because the string being passed into `addClickEventListener` is acceptable for the `listener` parameter.
+This is triggering our `@ts-expect-error` directive.
 
-How should `addClickEventListener` be typed so that the errors are resolved?
+How should `addClickEventListener` be typed so that each error is resolved?
 
-#### Exercise 4: Typing Async Functions
+#### Exercise 4: `void` vs `undefined`
+
+We've got a function that accepts a callback and calls it. The callback doesn't return anything, so we've typed it as `() => undefined`:
+
+```typescript
+const acceptsCallback = (callback: () => undefined) => {
+  callback();
+};
+```
+
+But we're getting an error when we try to pass in `returnString`, a function that _does_ return something:
+
+```typescript
+const returnString = () => {
+  return "Hello!";
+};
+
+// Argument of type '() => string' is not
+// assignable to parameter of type '() => undefined'.
+acceptsCallback(returnString); // red squiggly line under `returnString`
+```
+
+Why is this happening? Can we alter the type of `acceptsCallback` to fix this error?
+
+#### Exercise 5: Typing Async Functions
 
 This `fetchData` function awaits the `response` from a call to `fetch`, then gets the `data` by calling `response.json()`:
 
@@ -2872,18 +2935,15 @@ Hovering over `response`, we can see that it has a type of `Response`, which is 
 
 ```typescript
 // hovering over response
-
 const response: Response;
 ```
 
 When hovering over `response.json()`, we can see that it returns a `Promise<any>`:
 
 ```typescript
-
 // hovering over response.json()
 
 const response.json(): Promise<any>
-
 ```
 
 If we were to remove the `await` keyword from the call to `fetch`, the return type would also become `Promise<any>`:
@@ -2910,13 +2970,11 @@ The test is currently failing because `data` is typed as `any` instead of `numbe
 
 How can we type `data` as a number without changing the calls to `fetch` or `response.json()`?
 
-One way involves adding a type to `fetchData` itself. Another way involves typing `data` itself. Since we're dealing with `any`, there is some flexibility in the types that you can add.
+There are two possible solutions here.
 
 #### Solution 1: Rest Parameters
 
-As we've seen with previous errors involving an `implicit any` type, the solution here is relatively straight forward.
-
-When using rest parameters, all of the arguments passed to the parameter will end up as an array that is passed to the function. So in this case, the `strings` parameter can be typed as an array:
+When using rest parameters, all of the arguments passed to the function will be collected into an array. This means that the `strings` parameter can be typed as an array of strings:
 
 ```typescript
 export function concatenate(...strings: string[]) {
@@ -2924,9 +2982,17 @@ export function concatenate(...strings: string[]) {
 }
 ```
 
+Or, of course, using the `Array<>` syntax:
+
+```typescript
+export function concatenate(...strings: Array<string>) {
+  return strings.join("");
+}
+```
+
 #### Solution 2: Function Types
 
-The starting point for annotating the `makeChange` function will look like an arrow function. For now, we'll say it doesn't take in a parameter and returns `any`:
+Let's start by annotating the `makeChange` parameter to be a function. For now, we'll specify that it returns `any`:
 
 ```typescript
 const modifyUser = (user: User[], id: string, makeChange: () => any) => {
@@ -2942,8 +3008,7 @@ const modifyUser = (user: User[], id: string, makeChange: () => any) => {
 
 With this first change in place, we get an error under `u` when calling `makeChange` since we said that `makeChange` takes in no arguments:
 
-```typescript
-
+```
 // inside the `user.map()` function
 
 return makeChange(u)
@@ -2951,56 +3016,51 @@ return makeChange(u)
 // hovering over `u` shows:
 
 Expected 0 arguments, but got 1.
-
 ```
 
-This tells us we need to add an argument to the `makeChange` function type. We can do this the same as we would for a regular function parameter.
+This tells us we need to add a parameter to the `makeChange` function type.
 
-In this case, we will specify that `user` is of type `User`. We also will specify the return type of `User`, which will fix the error where we return `123` as the `name`.
+In this case, we will specify that `user` is of type `User`.
 
 ```typescript
-
 const modifyUser = (
-
-user: User[],
-
-id: string,
-
-makeChange: (user: User) => User,
-
+  user: User[],
+  id: string,
+  makeChange: (user: User) => any,
 ) => {
+  // function body
+};
+```
 
-...
+This is pretty good, but we also need to make sure our `makeChange` function returns a `User`:
 
+```typescript
+const modifyUser = (
+  user: User[],
+  id: string,
+  makeChange: (user: User) => User,
+) => {
+  // function body
+};
 ```
 
 Now the errors are resolved, and we have autocompletion for the `User` properties when writing a `makeChange` function.
 
-We can clean up the code a bit by creating a type alias for the `makeChange` function type:
+Optionally, we can clean up the code a bit by creating a type alias for the `makeChange` function type:
 
 ```typescript
+type MakeChangeFunc = (user: User) => User;
 
-type MakeChangeFunc = (user: User) => User
-
-const modifyUser = (
-
-user: User[],
-
-id: string,
-
-makeChange: MakeChangeFunc,
-
-) => {
-
-...
-
+const modifyUser = (user: User[], id: string, makeChange: MakeChangeFunc) => {
+  // function body
+};
 ```
 
-This is a great technique for expressing function types for functions as well as callbacks.
+Both techniques behave the same, but if you need to reuse the `makeChange` function type, a type alias is the way to go.
 
 #### Solution 3: Functions Returning `void`
 
-Like before, we can start by annotating the `listener` parameter to be a function. For now, we'll specify that it returns a string:
+Let's start by annotating the `listener` parameter to be a function. For now, we'll specify that it returns a string:
 
 ```typescript
 const addClickEventListener = (listener: () => string) => {
@@ -3021,11 +3081,9 @@ addClickEventListener(() => {
 When we hover over the error, we see the following message:
 
 ```
-
 Argument of type '() => void' is not assignable to parameter of type '() => string'.
 
 Type 'void' is not assignable to type 'string'.
-
 ```
 
 The error message tells us that the `listener` function is returning `void`, which is not assignable to `string`.
@@ -3038,7 +3096,23 @@ const addClickEventListener = (listener: () => void) => {
 };
 ```
 
-#### Solution 4: Typing Async Functions
+This is a great way to tell TypeScript that we don't care about the return value of the `listener` function.
+
+#### Solution 4: `void` vs `undefined`
+
+The solution is to change the of `callback` to `() => void`:
+
+```typescript
+const acceptsCallback = (callback: () => void) => {
+  callback();
+};
+```
+
+Now we can pass in `returnString` without any issues. This is because `returnString` returns a `string`, and `void` tells TypeScript to ignore the return value when comparing them.
+
+So if you really don't care about the result of a function, you should type it as `() => void`.
+
+#### Solution 5: Typing Async Functions
 
 You might be tempted to try passing a type argument to `fetch`, similar to how you would with `Map` or `Set`.
 
@@ -3059,8 +3133,7 @@ function fetch(
 
 We also can't add a type annotation to `response.json()` because as it doesn't accept type arguments either:
 
-```typescript
-
+```
 // this won't work!
 
 const data: number = await response.json<number>(); // red squiggly line under number
@@ -3068,7 +3141,6 @@ const data: number = await response.json<number>(); // red squiggly line under n
 // Hovering over number shows:
 
 Expected 0 type arguments, but got 1.
-
 ```
 
 One thing that will work is to specify that `data` is a `number`:
@@ -3082,24 +3154,19 @@ This works because `data` was `any` before, and `await response.json()` returns 
 However, the best way to solve this problem is to add a return type to the function. In this case, it should be a `number`:
 
 ```typescript
-
-async function fetchData(): number {  // red squiggly line under number
-
-...
-
+// red squiggly line under number
+async function fetchData(): number {
+  // function body
+}
 ```
 
 Now `data` is typed as a `number`, except we have an error under our return type annotation:
 
 ```
-
 The return type of an async function or method must be the global Promise<T> type. Did you mean to write 'Promise<number>'?
-
 ```
 
-This is a rare instance of a very helpful error message from TypeScript!
-
-By following its suggestion, we've successfully added the correct return type to our function, and the error is resolved:
+So, we should change the return type to `Promise<number>`:
 
 ```typescript
 async function fetchData(): Promise<number> {
@@ -3113,21 +3180,19 @@ async function fetchData(): Promise<number> {
 
 By wrapping the `number` inside of `Promise<>`, we make sure that the `data` is awaited before the type is figured out.
 
-If we don't `await` the function call, `data` will have the type `Promise<number>` instead of `number`. This is important because we need to `await` the `fetchData` function for its result to be useful.
+##### "Type Safe" vs "Type Faith"
 
-```typescript
-const data = fetchData();
+An interesting note here is that TypeScript is not really enforcing the return type of `fetchData`. It's just assuming that `data` is a `number` because we've told it to be.
 
-// hovering over data shows:
+This is a good example of "type faith" - we're telling TypeScript to trust us that `data` is a `number`. But if it's not, TypeScript won't catch it at runtime.
 
-const data: Promise<number>;
-```
-
-Return types are useful for specifying what a function should return, since TypeScript will enforce it.
+We'll return to this topic later in the book.
 
 ---
 
 # 05. Create Sets of Types with Unions, Intersections, and Interfaces
+
+<!-- CONTINUE -->
 
 ## Unions and Literals
 
@@ -6703,7 +6768,7 @@ The `ts-reset` library offers a way of balancing between the strictness and flex
 
 ### Exercises
 
-#### Exercise 4: Inferring a Tuple
+#### Exercise 1: Inferring a Tuple
 
 In this exercise, we are dealing with an async function named `fetchData` that fetches data from a URL and returns a result.
 
@@ -6756,9 +6821,9 @@ Depending on whether or not the fetch operation is successful, the tuple should 
 
 Hint: There are two possible approaches to solve this challenge. One way would be to define an explicit return type for the function. Alternatively, you could attempt to add or change type annotations for the `return` values within the function.
 
-#### Exercise 5: Inferring Literal Values
+#### Exercise 2: Inferring Literal Values
 
-#### Exercise 5: Ensuring Literal Type Inference
+#### Exercise 3: Ensuring Literal Type Inference
 
 Let's revisit a previous exercise and evolve our solution.
 
@@ -6802,7 +6867,7 @@ Try to find two ways to make modifications: one that makes the `type` property i
 
 You should not alter the `ButtonAttributes` type definition or the `modifyButtons` function.
 
-#### Solution 4: Inferring a Tuple
+#### Solution 1: Inferring a Tuple
 
 As mentioned, there are two different solutions to this challenge.
 
@@ -6859,7 +6924,7 @@ In the case of this challenge, without `as const`, TypeScript could misinterpret
 
 Overall, both solutions offer unique benefits. The first technique provides a straightforward approach to type definition, while the second leverages TypeScript's inference capabilities.
 
-#### Solution 5: Ensuring Literal Type Inference
+#### Solution 2: Ensuring Literal Type Inference
 
 The `as const` assertion can be used to solve this challenge in a couple of ways– one with immutable `type` properties, and one that infers the literal type of the `type` property while allowing for changes.
 
