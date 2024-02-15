@@ -2611,8 +2611,6 @@ So, this is more 'type faith' than 'type safe'. We are hoping that `parsedData` 
 
 ## More Function Typings
 
-<!-- CONTINUE -->
-
 Let's expand upon what we've learned about functions and their type annotations so far.
 
 ### Rest Parameters
@@ -6049,8 +6047,8 @@ const updateProduct = (
 The way you declare variables and object properties in TypeScript can significantly affect type inference and mutability. In this chapter, we'll explore the implications of using `let` and `const`, how to ensure proper object property inference, and techniques for enforcing immutability.
 
 ### Variable Declaration and Type Inference
-  
-As with recent versions of JavaScript, TypeScript supports the `let` and `const` keywords for variable declaration.  
+
+As with recent versions of JavaScript, TypeScript supports the `let` and `const` keywords for variable declaration.
 
 When using the `let` keyword, the variable is mutable and can be reassigned. This mutability can lead to less precise type inference, as TypeScript must account for potential changes to the variable's value.
 
@@ -6065,17 +6063,17 @@ type AlbumGenre = "rock" | "country" | "electronic";
 Using `let`, we can declare a variable `albumGenre` and assign it the value `"rock"`:
 
 ```typescript
-let albumGenre = "rock";
+let albumGenre = "rock";
 
 // hovering over albumGenre shows:
-let albumGenre: string
+let albumGenre: string;
 ```
 
 Then we can attempt to assign a genre inside of an `albumDetails` object:
 
 ```typescript
-const albumDetails: { genre: AlbumGenre } = {
-  genre: albumGenre, // red squiggly line under genre
+const albumDetails: { genre: AlbumGenre } = {
+  genre: albumGenre, // red squiggly line under genre
 };
 ```
 
@@ -6090,14 +6088,14 @@ Because `let` was used when declaring the variable, TypeScript sees that mutabil
 When we change the variable declaration to use `const`, TypeScript will infer the type more precisely. There is no longer an error in the assignment, and hovering over `albumGenre` inside of the `albumDetails` object shows that TypeScript has inferred it as the literal type `"rock"`:
 
 ```typescript
-const albumGenre = "rock";
+const albumGenre = "rock";
 
-const albumDetails: { genre: AlbumGenre } = {
-    genre: albumGenre, // No error
+const albumDetails: { genre: AlbumGenre } = {
+  genre: albumGenre, // No error
 };
 
 // hovering over albumGenre shows:
-const albumGenre: "rock"
+const albumGenre: "rock";
 ```
 
 If we try to change the value of `albumGenre` after declaring it as `const`, TypeScript will show an error:
@@ -6116,26 +6114,26 @@ Your choice between `let` and `const` when declaring variables impacts how TypeS
 ### Object Property Inference
 
 Just like in JavaScript, objects are mutable in TypeScript, meaning their properties can be changed after they are created. As we saw with variables, how you create objects in TypeScript can affect how well type inference works.
-  
+
 For this example, we have an `AlbumAttributes` type that includes a `status` property with a union of literal values representing possible album statuses:
 
 ```typescript
-type AlbumAttributes = {
-  status: "new release" | "on sale" | "staff pick";
+type AlbumAttributes = {
+  status: "new release" | "on sale" | "staff pick";
 };
 ```
 
 Say we had an `updateStatus` function that takes an `AlbumAttributes` object and updates its `status` property (though for illustration purposes, we won't define the function here):
 
 ```typescript
-const updateStatus = (attributes: AlbumAttributes) => {};
+const updateStatus = (attributes: AlbumAttributes) => {};
 
-const albumAttributes = {
-  status: "on sale",
+const albumAttributes = {
+  status: "on sale",
 };
 
-updateStatus(albumAttributes); // red squiggly line under albumAttributes
-``` 
+updateStatus(albumAttributes); // red squiggly line under albumAttributes
+```
 
 TypeScript gives us an error below `albumAttributes` inside of the `updateStatus` function call, with messages similar to what we saw before:
 
@@ -6157,7 +6155,7 @@ One approach is to inline the object when calling the `updateStatus` function in
 
 ```typescript
 updateStatus({
-  status: "onSale"
+  status: "onSale",
 }); // No error
 ```
 
@@ -6168,13 +6166,13 @@ When inlining the object, TypeScript knows that there is no way that `status` co
 Another option is to explicitly declare the type of the `albumAttributes` object to be `AlbumAttributes`:
 
 ```tsx
-const albumAttributes: AlbumAttributes = {
-    status: "on sale",
+const albumAttributes: AlbumAttributes = {
+  status: "on sale",
 };
 
 updateStatus(albumAttributes); // No error
 ```
-  
+
 When the object's type is specified, TypeScript can confidently infer that the `status` property matches one of the allowed literals from the union.
 
 Whether working with a single object or an array of objects, these techniques for ensuring proper object property inference will help you avoid inference errors.
@@ -6186,9 +6184,9 @@ For times when you want to ensure that an object's properties cannot be changed 
 Consider this `Album` interface, where the `title` and `artist` are marked as `readonly`:
 
 ```typescript
-interface Album {
-  readonly title: string;
-  readonly artist: string;
+interface Album {
+  readonly title: string;
+  readonly artist: string;
   status?: "new release" | "on sale" | "staff pick";
   genre?: string[];
 }
@@ -6243,7 +6241,7 @@ Both of these approaches are functionally the same. Hovering over the `readOnlyG
 
 ```typescript
 // hovering over `readOnlyGenres` shows:
-const readOnlyGenres: readonly string[]
+const readOnlyGenres: readonly string[];
 ```
 
 Note that while calling array methods that cause mutations will result in errors, methods like `map()` and `reduce()` will still work, as they create a copy of the array and do not mutate the original.
@@ -6312,7 +6310,7 @@ The big takeaway here is that even though you can assign mutable arrays to read-
 
 #### Exercise 1: Inference with an Array of Objects
 
-Here we have a `modifyButtons` function that takes in an array of objects with `type` properties that are either `"button"`, `"submit"`, or `"reset"`. 
+Here we have a `modifyButtons` function that takes in an array of objects with `type` properties that are either `"button"`, `"submit"`, or `"reset"`.
 
 When attempting to call `modifyButtons` with an array of objects that seem to meet the contract, TypeScript gives us an error:
 
@@ -6400,7 +6398,7 @@ Hovering over the `buttonsToChange` variable shows us that it is being inferred 
 // hovering over buttonsToChange shows:
 const buttonsToChange: {
   type: string;
-}[]
+}[];
 ```
 
 This means that we could change the type of the first element in the array to something different:
@@ -6473,7 +6471,6 @@ type Coordinate = readonly [number, number];
 
 Now, `dangerousFunction` throws a TypeScript error when we try to pass `myHouse` to it:
 
-
 ```tsx
 const dangerousFunction = (arrayOfNumbers: number[]) => {
   arrayOfNumbers.pop();
@@ -6501,18 +6498,18 @@ Earlier it was mentioned that the `Readonly` type helper only works on the first
 Let's revisit the example of the `AlbumAttributes` type that included a `status` property, along with a function to update it:
 
 ```typescript
-type AlbumAttributes = {
-  status: "new release" | "on sale" | "staff pick";
+type AlbumAttributes = {
+  status: "new release" | "on sale" | "staff pick";
 };
 
-const updateStatus = (attributes: AlbumAttributes) => {};
+const updateStatus = (attributes: AlbumAttributes) => {};
 
-const albumAttributes = {
-  status: "on sale",
+const albumAttributes = {
+  status: "on sale",
 };
 
-updateStatus(albumAttributes); // red squiggly line under albumAttributes
-``` 
+updateStatus(albumAttributes); // red squiggly line under albumAttributes
+```
 
 Recall that TypeScript presents an error when calling `updateStatus` because the `status` property was inferred as a `string` rather than the specific literal type `"on sale"`. We looked at two ways to solve the issue: using an inline object, or adding a type to the object.
 
@@ -6521,9 +6518,9 @@ The `as const` assertion gives us a third way. It ensures that an object and all
 The assertion gets added at the end of the object declaration:
 
 ```typescript
-const albumAttributes = {
-    status: "on sale",
-} as const;
+const albumAttributes = {
+  status: "on sale",
+} as const;
 ```
 
 When using `as const`, TypeScript will add the `readonly` modifier to each of the object's properties. Hovering over the `albumAttributes` object, we can see that TypeScript has added the `readonly` modifier to the `status` property:
@@ -6532,7 +6529,7 @@ When using `as const`, TypeScript will add the `readonly` modifier to each of th
 // hovering over albumAttributes shows:
 const albumAttributes: {
   readonly status: "on sale";
-}
+};
 ```
 
 As before, TypeScript can see that the `status` property can't be modified, so the error goes away.
@@ -6558,7 +6555,7 @@ type ShelfLocations = {
   endCap: {
     status: AlbumStatus;
   };
-}
+};
 ```
 
 First, we'll create a `shelfLocations` object that uses `Object.freeze`:
@@ -6582,16 +6579,16 @@ Hovering over `shelfLocations` shows that the object has the `Readonly` modifier
 ```tsx
 // hovering over shelfLocations shows:
 const shelfLocations: Readonly<{
-    entrance: {
-        status: string;
-    };
-    frontCounter: {
-        status: string;
-    };
-    endCap: {
-        status: string;
-    };
-}>
+  entrance: {
+    status: string;
+  };
+  frontCounter: {
+    status: string;
+  };
+  endCap: {
+    status: string;
+  };
+}>;
 ```
 
 Recall that the `Readonly` modifier only works on the first level of an object. If we try to add a new `backWall` property to the `shelfLocations` object, TypeScript will throw an error:
@@ -6626,16 +6623,16 @@ const shelfLocations = {
 
 // hovering over shelfLocations shows:
 const shelfLocations: {
-    readonly entrance: {
-        readonly status: "on sale";
-    };
-    readonly frontCounter: {
-        readonly status: "staff pick";
-    };
-    readonly endCap: {
-        readonly status: "new release";
-    };
-}
+  readonly entrance: {
+    readonly status: "on sale";
+  };
+  readonly frontCounter: {
+    readonly status: "staff pick";
+  };
+  readonly endCap: {
+    readonly status: "new release";
+  };
+};
 ```
 
 While both `as const` and `Object.freeze` will enforce immutability, `as const` is the more convenient and efficient choice. Unless you specifically need an object to be frozen at runtime with `Object.freeze`, you should stick with `as const`.
@@ -6658,17 +6655,17 @@ Let's compare the behavior:
 const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
 
 // hovering over readOnlyGenres shows:
-const readOnlyGenres: readonly string[]
+const readOnlyGenres: readonly string[];
 
 const readOnlyGenresAsConst = ["rock", "pop", "unclassifiable"] as const;
 
 // hovering over readOnlyGenresAsConst shows:
-const readOnlyGenresAsConst: readonly ["rock", "pop", "unclassifiable"]
+const readOnlyGenresAsConst: readonly ["rock", "pop", "unclassifiable"];
 ```
 
 Not only is `readOnlyGenresAsConst` an immutable array, but TypeScript has also inferred the array's elements as literal types. This means that the array can only contain the exact strings `"rock"`, `"pop"`, and `"unclassifiable"`.
 
-This means that array methods like `includes` and `indexOf` won't behave as expected in all situations. 
+This means that array methods like `includes` and `indexOf` won't behave as expected in all situations.
 
 For example, when calling `indexOf` with a string that isn't in the array, the regular `readonly` array will return `-1`, but the `as const` array will return an error:
 
@@ -6734,13 +6731,12 @@ const example = async () => {
 
 Currently, both members of the tuple are inferred as `any`, which isn't ideal.
 
-
 ```typescript
 const [error, data] = await fetchData();
 
 // hovering over error and data shows:
-const error: any
-const data: any
+const error: any;
+const data: any;
 ```
 
 Your challenge is to modify the `fetchData` function implementation so that TypeScript infers a Promise with a tuple for its return type.
@@ -6871,11 +6867,14 @@ const buttonsToChange = [
 ];
 
 // hovering over buttonsToChange shows:
-const buttonsToChange: ({
-  readonly type: "button";
-} | {
-  readonly type: "submit";
-})[]
+const buttonsToChange: (
+  | {
+      readonly type: "button";
+    }
+  | {
+      readonly type: "submit";
+    }
+)[];
 ```
 
 ##### Option 2: Infer the Literal Type
@@ -6893,11 +6892,14 @@ const buttonsToChange = [
 ];
 
 // hovering over buttonsToChange shows:
-const buttonsToChange: ({
-    type: "button";
-} | {
-    type: "submit";
-})[]
+const buttonsToChange: (
+  | {
+      type: "button";
+    }
+  | {
+      type: "submit";
+    }
+)[];
 ```
 
 Because the `type` properties in `buttonsToChange` are being inferred as literal types instead of strings, TypeScript no longer shows an error when calling `modifyButtons`.
@@ -6906,7 +6908,7 @@ Note that because the `type` properties inside of `buttonsToChange` are not mark
 
 ```tsx
 buttonsToChange[0].type = "reset"; // No error
-buttonsToChange[1].type = "panic";  // No error, but now can't be passed to modifyButtons
+buttonsToChange[1].type = "panic"; // No error, but now can't be passed to modifyButtons
 ```
 
 Similarly, if we were to add an additional object with a `type` property to `buttonsToChange` that isn't one of the specified literals in `ButtonAttributes`, TypeScript would show an error:
