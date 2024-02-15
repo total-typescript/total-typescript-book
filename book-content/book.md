@@ -3187,61 +3187,11 @@ We'll return to this topic later in the book.
 
 # 05. Unions, Literals and Narrowing
 
-## Union Types
+<!-- CONTINUE -->
+
+## Unions and Literals
 
 ### The Union Type Multiverse
-
-<!-- TODO - introduce the union type multiverse -->
-
-In JavaScript, we often need to work with variables that can be different types at different times.
-
-Since JavaScript is dynamically typed, it's totally fine if we have a `price` variable be a number `19.99` then change it into a string `"19.99"` later on. This is true for functions as well– we could write a `printPrice` function that accepts a price in either format, and it would print it out without complaint:
-
-```javascript
-// JavaScript version of printPrice
-
-function printPrice(price) {
-  console.log(`The price is ${price}`);
-}
-
-let price = 19.99;
-
-printPrice(price); // The price is 19.99
-
-price = "19.99";
-
-printPrice(price); // The price is 19.99
-```
-
-But how would we handle this in TypeScript?
-
-If we specify that `printPrice` accepts a number, TypeScript will throw an error when we try to pass a string to it:
-
-```tsx
-// TypeScript version of printPrice
-
-function printPrice(price: number) {
-  console.log(`The price is ${price}`);
-}
-
-let price = 19.99;
-
-printPrice(price); // The price is 19.99
-
-let stringPrice = "19.99";
-
-printPrice(stringPrice); // red squiggly line under stringPrice
-```
-
-Hovering over `stringPrice` shows:
-
-```
-Argument of type 'string' is not assignable to parameter of type 'number'
-```
-
-We know that the `printPrice` function will work just fine if we pass a string to it, but TypeScript won't accept anything else.
-
-Fortunately, TypeScript has a feature that will help us out in this situation.
 
 ### Union Types
 
@@ -3325,7 +3275,7 @@ Argument of type 'Price' is not assignable to parameter of type 'number'
 
 As we continue through the book, we'll expand the graph with other available types to help you get a better sense of how assignability works in TypeScript.
 
-## Literal Types
+### Literal Types
 
 Just as TypeScript allows us to create union types from multiple types, it also allows us to types which represent a specific primitive value. These are called literal types.
 
@@ -3389,7 +3339,7 @@ console.log(format); // "LP"
 
 It's great to have a union type representing all of the possible album formats, but it might be useful to have more specific types representing the formats for use in different parts of our application.
 
-#### Combining Unions With Unions
+### Combining Unions With Unions
 
 Union types can be combined with other union types to create even more complex type definitions.
 
@@ -4427,7 +4377,7 @@ Thanks to this huge conditional, our tests pass, and our error messages are gone
 
 As a side note, the Zod library would allow us to do this in a single line of code, but knowing how to do this manually is a great exercise to understand how narrowing works in TypeScript.
 
-## Working With “Unique but Related” Types
+## Discriminated Unions
 
 <!-- TODO - figure out a better title for this -->
 
