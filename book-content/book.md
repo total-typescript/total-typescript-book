@@ -3178,65 +3178,66 @@ We'll return to this topic later in the book.
 
 # 05. Unions, Literals and Narrowing
 
-<!-- CONTINUE -->
+In this section, we're going to see how TypeScript can help when a value is one of many possible types. We'll first look at declaring those types using union types, then we'll see how TypeScript can narrow down the type of a value based on your runtime code.
 
 ## Unions and Literals
 
-### The Union Type Multiverse
-
 ### Union Types
 
-Union types are TypeScript's way of allowing a variable to be one of several types.
+A union type is TypeScript's way of saying that a value can be "either this type or that type".
 
-To create a union type, the `|` operator is used to separate the types that the variable can be.
+For example, you might have an `id` that could be either a `string` or a `number`:
 
-We can use this syntax to update the `printPrice` function to accept a `number | string`:
+```typescript
+const logId = (id: string | number) => {
+  console.log(id);
+};
+```
 
-```tsx
-function printPrice(price: number | string) {
-  console.log(`The price is ${price}`);
+This means that `logId` can accept either a `string` or a `number` as an argument, but not a `boolean`:
+
+```typescript
+logId("abc"); // "abc"
+
+logId(123); // 123
+
+logId(true); // red squiggly line under true
+```
+
+To create a union type, the `|` operator is used to separate the types. Each type of the union is called a 'member' of the union.
+
+Union types also work when creating your own type aliases. For example, we can refactor our earlier definition into a type alias:
+
+```typescript
+type Id = number | string;
+
+function logId(id: Id) {
+  console.log(id);
 }
 ```
 
-With this update, we can now pass either a number or a string to the `printPrice` function without any errors.
+Union types can contain many different types - they don't all have to be primitives, or don't need to be related in any way. When they get particularly large, you can use this syntax (with the `|` before the first member of the union) to make it more readable:
 
-Union types also work when creating your own type aliases. For example, we can define a `Price` type that can be either a `number` or a `string` and use it in the `printPrice` function:
-
-```tsx
-type Price = number | string;
-
-function printPrice(price: Price) {
-  console.log(`The price is ${price}`);
-}
+```typescript
+type AllSortsOfStuff =
+  | string
+  | number
+  | boolean
+  | object
+  | null
+  | {
+      name: string;
+      age: number;
+    };
 ```
 
-Because `Price` is a union type of `number` and `string`, it is now possible to reassign what was initially a number into a string without TypeScript complaining:
-
-```tsx
-
-let price: Price = 19.99;
-
-printPrice(price); // The price is 19.99
-
-price = "19.99";
-
-printPrice(price); // The price is 19.99
-
-let otherPrice = 19.99;
-
-otherPrice = "19.99"; // red squiggly line under "otherPrice"
-
-// hovering over "otherPrice" shows:
-
-Type 'string' is not assignable to type 'number'
-
-```
+Union types can be used in many different ways, and they're a powerful tool for creating flexible type definitions.
 
 #### The Assignability of Union Types
 
 Now that we have a basic understanding of union types, let's take a moment to talk about assignability.
 
-Consider this assignability chart:
+Consider this chart:
 
 ![](images/image3.png)
 
@@ -3246,55 +3247,40 @@ When a variable is assigned a union type, TypeScript will only allow the variabl
 
 However, this doesn't work in reverse. If we have a union type, we won't be able to use it in a place expecting only one of its types.
 
-For example, if we changed the `printPrice` function to only accept a `number`, TypeScript would throw an error when we try to pass a `Price` to it:
+For example, if we changed the `logId` function to only accept a `number`, TypeScript would throw an error when we try to pass `string | number` to it:
 
 ```tsx
-function printPrice(price: number) {
-  console.log(`The price is ${price}`);
+function logId(id: number) {
+  console.log(`The id is ${id}`);
 }
 
-let price: Price = 19.99;
+type User = {
+  id: string | number;
+};
 
-printPrice(price); // red squiggly line under price
+const user: User = {
+  id: 123,
+};
+
+logId(user.id); // red squiggly line under user.id
 ```
 
-Hovering over `price` shows:
+Hovering over `user.id` shows:
 
 ```
-Argument of type 'Price' is not assignable to parameter of type 'number'
+Argument of type 'string | number' is not assignable to parameter of type 'number'.
+  Type 'string' is not assignable to type 'number'.
 ```
+
+This is because `user.id` _could_ be a `string`, and TypeScript is trying to protect us from accidentally passing a `string` to a function that only accepts a `number`.
 
 As we continue through the book, we'll expand the graph with other available types to help you get a better sense of how assignability works in TypeScript.
 
 ### Literal Types
 
-Just as TypeScript allows us to create union types from multiple types, it also allows us to types which represent a specific primitive value. These are called literal types.
+Just as TypeScript allows us to create union types from multiple types, it also allows us to create types which represent a specific primitive value. These are called literal types.
 
-Let's look at an example that compares how a `string` type compares to a literal type that represents a specific string.
-
-Here we have an `albumFormat` variable that TypeScript will infer as a `string` type. This means we can reassign it to any string value:
-
-```tsx
-let albumFormat = "LP";
-
-albumFormat = "CD";
-```
-
-However, if we want to restrict the `albumFormat` variable to only be able to hold the value `"LP"`, we can use a literal type:
-
-```tsx
-
-let albumFormat: "LP";
-
-albumFormat = "LP"; // no error because "LP" is assignable to "LP"
-
-albumFormat = "CD"; // red squiggly line under "CD"
-
-// hovering over "CD" shows:
-
-Type '"CD"' is not assignable to type '"LP"'
-
-```
+<!-- CONTINUE -->
 
 ### Combining Union Types and Literal Types
 
