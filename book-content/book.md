@@ -18,7 +18,7 @@ This was especially true for refactoring code. If you had to change a function s
 
 As limitations like these became more apparent, developers started looking for a better way to write JavaScript.
 
-Around 2010, Microsoft noticed that a lot of their teams were using a community project called Script# (ScriptSharp) to build their JavaScript apps. This library allowed developers to write code in C#, and then turn it to JavaScript. C# had excellent features for building large applications - so it made the experience of building these apps more pleasant. In fact, many teams had found this was the only way they could build complex applications in large teams.
+Around 2010, Microsoft noticed that a lot of their teams were using a community project called Script# (ScriptSharp) to build their JavaScript apps. This library allowed developers to write code in C#, and then turn it to JavaScript. C# had excellent features for building large applications - so it made the experience of building these apps more pleasant. In fact, many teams had found this was the only way they could build complex applications in large teams.
 
 Anders Hejlsberg, the creator of C#, was tasked to investigate this phenomenon. He was astonished. People were so annoyed with JavaScript that they were willing to code in a completely different language in order to get the powerful IDE features they were used to.
 
@@ -48,7 +48,7 @@ This is where TypeScript's `tsc` CLI comes in, which transforms your `.ts` files
 
 ![](images/image4.png)
 
-The great benefit of this system is that you get in a feedback loop with TypeScript. You write code. The in-IDE server gives you feedback. You adjust based on the feedback. And all of this happens before your code goes into the browser. This loop is much faster than JavaScript's, so can help you create higher-quality code faster.
+The great benefit of this system is that you get in a feedback loop with TypeScript. You write code. The in-IDE server gives you feedback. You adjust based on the feedback. And all of this happens before your code goes into the browser. This loop is much faster than JavaScript's, so can help you create higher-quality code faster.
 
 > Automated testing can also provide a high-quality feedback loop. While we won't cover this in this book, automated tests are a great companion to TypeScript for creating extremely high-quality code.
 
@@ -60,21 +60,21 @@ The thing that makes TypeScript from JavaScript different can be summed up in a 
 
 But there's a common misconception here. People think that TypeScript's core mission is to make JavaScript a strongly typed language, like C# or Rust. This is not quite accurate.
 
-TypeScript wasn't invented to make JavaScript strongly typed. It was built to allow amazing tooling for JavaScript.
+TypeScript wasn't invented to make JavaScript strongly typed. It was built to allow amazing tooling for JavaScript.
 
 Imagine you're building an IDE, and you want to give people warnings when they mis-type a function name or an object property. If you don't know the shapes of the variables, parameters and objects in your code, you'd have to resort to guesswork.
 
-But if you do know the types of everything in your app, you can begin implementing powerful IDE features like autocomplete, inline errors and automatic refactors.
+But if you do know the types of everything in your app, you can begin implementing powerful IDE features like autocomplete, inline errors and automatic refactors.
 
-So, TypeScript aims to provide just enough strong typing to make working with JavaScript more pleasant and productive.
+So, TypeScript aims to provide just enough strong typing to make working with JavaScript more pleasant and productive.
 
 ## Tools for TypeScript Development
 
 Let's break down the tools you need in order to work with TypeScript:
 
-- An IDE: In order to write code, you need an editor or Integrated Development Environment. While you can use any IDE, the assumption in this book is that you are using Microsoft's Visual Studio Code. The TypeScript integration with VS Code is excellent, as you will see shortly. Install it from https://code.visualstudio.com if you haven't already.
-- An Execution Environment: You need somewhere to run your emitted JavaScript. This could be Node.js or a web browser like Chrome.
-- The TypeScript CLI: Node.js is needed in order to run the TypeScript CLI (command line interface). This tool converts your TypeScript to JavaScript, and warns you of any issues in your project.
+- An IDE: In order to write code, you need an editor or Integrated Development Environment. While you can use any IDE, the assumption in this book is that you are using Microsoft's Visual Studio Code. The TypeScript integration with VS Code is excellent, as you will see shortly. Install it from https://code.visualstudio.com if you haven't already.
+- An Execution Environment: You need somewhere to run your emitted JavaScript. This could be Node.js or a web browser like Chrome.
+- The TypeScript CLI: Node.js is needed in order to run the TypeScript CLI (command line interface). This tool converts your TypeScript to JavaScript, and warns you of any issues in your project.
 
 ### Installing Node.js
 
@@ -134,7 +134,7 @@ To install PNPM, follow the instructions provided in the [official documentation
 
 TypeScript and its dependencies are contained within a single package, called typescript.
 
-You can install it globally with either pnpm or npm:
+You can install it globally with either pnpm or npm:
 
 ```
 pnpm add -g typescript
@@ -263,7 +263,7 @@ TypeScript tells us that there is a problem with `a`. Hovering over it shows the
 'a' is possibly 'null'.
 ```
 
-This tells us where the problem is, but it doesn't necessarily tell us what the problem is. In this case, we need to stop and think about why we can't call `toString()` on `null`. If we do, it will throw an error at runtime.
+This tells us where the problem is, but it doesn't necessarily tell us what the problem is. In this case, we need to stop and think about why we can't call `toString()` on `null`. If we do, it will throw an error at runtime.
 
 ```
 Uncaught TypeError: Cannot read properties of null (reading 'toString').
@@ -283,7 +283,7 @@ const obj = {};
 const result = obj.foo; // red squiggly line under `foo`
 ```
 
-TypeScript draws a red squiggly line below `foo`. But if we think about it, this code won't actually cause an error at runtime. We're trying to assign a property that doesn't exist in this object: `foo`. This won't error, it will just mean that result is undefined.
+TypeScript draws a red squiggly line below `foo`. But if we think about it, this code won't actually cause an error at runtime. We're trying to assign a property that doesn't exist in this object: `foo`. This won't error, it will just mean that result is undefined.
 
 It may seem strange that TypeScript would warn us about something that won't cause an error, but it's actually a good thing. If TypeScript didn't warn us about this, it would be saying that we can access any property on any object at any time. Over the course of an entire application, this could result in quite a few bugs.
 
@@ -311,7 +311,7 @@ const album: Album = {
 };
 ```
 
-We define an 'Album' type - an object with three properties. Then, we say that const album needs to be of that type via `const album: Album`. Don't worry if you don't understand all the syntax yet - we'll cover it all later.
+We define an 'Album' type - an object with three properties. Then, we say that const album needs to be of that type via `const album: Album`. Don't worry if you don't understand all the syntax yet - we'll cover it all later.
 
 Can you see the problem? There's a typo of the `artist` property when creating an album. Hovering over `artsist` shows the following error message:
 
@@ -419,7 +419,7 @@ We'll also get a readout of the `getElementById` function:
 (method) Document.getElementById(elementId: string): HTMLElement | null
 ```
 
-In the case of `getElementById`, we can see that it requires a string as an argument, and it returns an `HTMLElement | null`. We'll look at this syntax later, but it basically means either a `HTMLElement` or `null`.
+In the case of `getElementById`, we can see that it requires a string as an argument, and it returns an `HTMLElement | null`. We'll look at this syntax later, but it basically means either a `HTMLElement` or `null`.
 
 This tells us that we can fix the error by changing the argument to a string:
 
@@ -435,9 +435,9 @@ We also know that `element`'s type will be what `document.getElementById` return
 const element: HTMLElement | null;
 ```
 
-So, hovering in different places reveals different information. When I'm working in TypeScript, I hover constantly to get a better sense of what my code is doing.
+So, hovering in different places reveals different information. When I'm working in TypeScript, I hover constantly to get a better sense of what my code is doing.
 
-## JSDoc Comments
+## JSDoc Comments
 
 JSDoc is a syntax for adding documentation to the types and functions in your code. It allows VS Code to show additional information in the popup that shows when hovering.
 
@@ -602,7 +602,7 @@ After a couple of seconds, the server should kick back into gear and ensure that
 
 ## Working in JavaScript
 
-If you're a JavaScript user, you might have noticed that lots of these features are already available without using TypeScript. Autocomplete, organizing imports, auto imports and hovering all work in JavaScript. Why is that?
+If you're a JavaScript user, you might have noticed that lots of these features are already available without using TypeScript. Autocomplete, organizing imports, auto imports and hovering all work in JavaScript. Why is that?
 
 It's because of TypeScript. TypeScript's IDE server is not just running on TypeScript files, but on JavaScript files too. That means that some of TypeScript's amazing IDE experience is also available in JavaScript.
 
@@ -922,7 +922,7 @@ Reversing the change back to `message: string` will remove the error and the `ex
 
 Running `tsc` in watch mode is extremely useful for automatically compiling TypeScript files and catching errors as you write code.
 
-It can be especially useful on large projects because it checks the entire project. This is different to your IDE, which only shows the errors of the file that's currently open.
+It can be especially useful on large projects because it checks the entire project. This is different to your IDE, which only shows the errors of the file that's currently open.
 
 ## TypeScript With Modern Frameworks
 
@@ -954,7 +954,7 @@ Part 2: Fundamentals
 
 # 04. Essential Types and Annotations
 
-Now we've covered most of the why of TypeScript, it's time to start with the how. We'll cover key concepts like type annotations and type inference, as well as how to start writing type-safe functions.
+Now we've covered most of the why of TypeScript, it's time to start with the how. We'll cover key concepts like type annotations and type inference, as well as how to start writing type-safe functions.
 
 It's important to build a solid foundation, as everything you'll learn later builds upon what you'll learn in this chapter.
 
@@ -1064,7 +1064,7 @@ You can express much more complex types in TypeScript: arrays, objects, function
 
 TypeScript gives you the ability to annotate almost any value, variable or function in your code. You might be thinking “wait, do I need to annotate everything? That's a lot of extra code.”
 
-As it turns out, TypeScript can infer a lot from the context that your code is run.
+As it turns out, TypeScript can infer a lot from the context that your code is run.
 
 #### Variables Don't Always Need Annotations
 
@@ -2233,7 +2233,7 @@ userMap.set(1, { name: "Max", age: 30 });
 
 userMap.set(2, { name: "Manuel", age: 31 });
 
-// @ts-expect-error  // red squiggly line under `@ts-expect-error`
+// @ts-expect-error  // red squiggly line under `@ts-expect-error`
 userMap.set("3", { name: "Anna", age: 29 });
 
 // @ts-expect-error // red squiggly line under `@ts-expect-error`
@@ -2347,7 +2347,7 @@ However, we want our parsed data to have the correct type. Hovering over `JSON.p
 
 ```typescript
 
-JSON.parse(text: string, reviver?: ((this: any, key: string, value: any) => any)  undefined): any
+JSON.parse(text: string, reviver?: ((this: any, key: string, value: any) => any)  undefined): any
 
 ```
 
@@ -3615,7 +3615,7 @@ console.log(year); // `year` is string | number | boolean
 
 ```
 
-### Narrowing with the switch(true) Pattern
+### Narrowing with the switch(true) Pattern
 
 You may be familiar with the `switch (true)` pattern. This pattern is reminiscent of an `if` statement but can be adapted to fit into a switch statement construct.
 
@@ -4756,7 +4756,7 @@ function calculateArea(shape: Shape) {
 
     // case "square": {
 
-    //   return shape.sideLength * shape.sideLength;
+    //   return shape.sideLength * shape.sideLength;
 
     // }
 
@@ -5321,8 +5321,8 @@ type ExtendedAlbumAwards = Record<BaseAwards, boolean> & {
 const extendedNominations: ExtendedAlbumAwards = {
   Grammy: true,
   MercuryPrize: false,
-  Billboard: true, // Additional awards can be dynamically added
-  "American Music Awards": true,
+  Billboard: true, // Additional awards can be dynamically added
+  "American Music Awards": true,
 };
 ```
 
@@ -6909,3 +6909,798 @@ Argument of type '({ type: "button"; } | { type: "submit"; } | { type: "panic"; 
 ```
 
 Both of these solutions show how useful `as const` can be for helping TypeScript give us the best type inference possible.
+
+
+# 08. Classes
+
+Classes are a like a blueprint for creating special objects. These objects can hold more than just data– they also hold behaviors and methods for interacting with the data they contain.
+
+For every class you declare using the `class` keyword, you can create an instance of that class using the `new` keyword. TypeScript will enforce that the instance you create follows the structure and requirements of the class you've defined.
+
+Let's build a class from scratch and see how it works.
+
+## Creating a Class
+
+To create a class, you use the `class` keyword followed by the name of the class. Similar to types and interfaces, the convention is to have the name in PascalCase, which means the first letter of each word in the name is capitalized.
+
+We'll start creating the `Album` class in a similar way to how a type or interface is created:
+
+```tsx
+class Album {
+  title: string; // red squiggly line under title
+  artist: string; // red squiggly line under artist
+  releaseYear: number; // red squiggly line under releaseYear
+}
+```
+
+At this point, even though it looks like a type or interface, TypeScript gives an error for each property in the class:
+
+```tsx
+// hovering over title shows:
+
+Property 'title' has no initializer and is not definitely assigned in the constructor.
+```
+
+In order to fix these errors, we need to add a constructor to the class. The constructor is a special method that runs when a new instance of the class is created. It's where you can set up the initial state of the object.
+
+### Adding a Constructor
+
+To start, we'll add a constructor that hardcodes values for the properties of the `Album` class:
+
+```tsx
+class Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+
+  constructor() {
+    this.title = "Loop Finding Jazz Records";
+    this.artist = "Jan Jelinek";
+    this.releaseYear = 2001;
+  }
+}
+```
+
+Now, when we create a new instance of the `Album` class, we can access the properties and values we've set in the constructor:
+
+```tsx
+const loopFindingJazzRecords = new Album();
+
+console.log(loopFindingJazzRecords.title); // Output: Loop Finding Jazz Records
+```
+
+The `new` keyword creates a new instance of the `Album` class, and the constructor sets the initial state of the object. However, because the properties are hardcoded, every instance of the `Album` class will have the same values.
+
+Note that TypeScript is able to infer the types of the properties from the constructor, so we don't need to specify the types again. However, it's common to see the types specified in the class body as well since they act as a form of documentation for the class that's quick to read.
+
+Let's update the constructor to accept arguments for the properties of the `Album` class.
+
+### Adding Arguments to the Constructor
+
+Update the constructor to accept an optional `opts` argument that includes the properties of the `Album` class:
+
+```tsx
+// inside the Album class
+constructor(opts?: { title: string; artist: string; releaseYear: number }) {
+  ...
+```
+
+Then inside of the body of the constructor, we'll use assign `this.title`, `this.artist`, and `this.releaseYear` to the values of the `opts` argument. If the values are not provided, we'll use default values:
+
+```tsx
+// inside the Album class
+constructor(opts?: { title: string; artist: string; releaseYear: number }) {
+  this.title = opts?.title || "Unknown Album";
+  this.artist = opts?.artist || "Unknown Artist";
+  this.releaseYear = opts?.releaseYear || 0;
+}
+```
+
+The `this` keyword refers to the instance of the class, and it's used to access the properties and methods of the class.
+
+Now, when we create a new instance of the `Album` class, we can pass an object with the properties we want to set. If we don't provide any values, the default values will be used:
+
+```tsx
+const loopFindingJazzRecords = new Album({
+  title: "Loop Finding Jazz Records",
+  artist: "Jan Jelinek",
+  releaseYear: 2001,
+});
+
+console.log(loopFindingJazzRecords.title); // Output: Loop Finding Jazz Records
+
+const unknownAlbum = new Album();
+
+console.log(unknownAlbum.title); // Output: Unknown Album
+```
+
+Note that it's not required to follow this pattern of using an `opts` object in the constructor parameters. You can still specify the properties or use default values directly: 
+
+```tsx
+constructor(title: string = "Unknown Album", artist: string = "Unknown Artist", releaseYear: number = 0) {
+  ...
+```
+
+The style you use is up to you, but the optional `opts` object is nice since it allows an easy way to create a default class instance.
+
+### Creating a Class Without a Constructor
+
+Depending on the needs of your application, it's also possible to create a class without a constructor. In this case, the initial state of the class properties need to be initialized when they're declared:
+```tsx
+class Album {
+  title = "Unknown Album";
+  artist = "Unknown Artist";
+  releaseYear = 0;
+}
+```
+
+## Properties in Classes
+
+Now that we've seen how to create a class and create new instances of it, let's look a bit closer at how properties work.
+
+### Immutable `readonly` Properties
+
+As we've seen with types and interfaces, the `readonly` keyword can be used to make a property immutable. This means that once the property is set, it cannot be changed.  
+
+In the case of our `Album` example, all of the existing properties could be marked as `readonly` since they're unlikely to change:
+
+```tsx
+class Album {
+  readonly title: string;
+  readonly artist: string;
+  readonly releaseYear: number;
+
+  constructor(opts?: { title: string; artist: string; releaseYear: number; }) {
+    ...
+}
+```
+
+In addition to `readonly`, there are some additional modifiers we can add to our class properties.
+
+### `public` and `private` Properties
+
+The `public` and `private` keywords are used to control the visibility and accessibility of class properties.
+
+By default, properties are `public`, which means that they can be accessed from outside the class. We saw this when calling `console.log()` to print the title of an `Album` instance.
+
+If we want to restrict access to certain properties, we can mark them as `private`. This means that they can only be accessed from within the class itself.
+
+For example, say we want to add a `rating` property to the album class that will only be used inside of the class:
+
+```tsx
+class Album {
+  readonly title: string;
+  readonly artist: string;
+  readonly releaseYear: number;
+  private rating = 0;
+
+  constructor(opts?: { title: string; artist: string; releaseYear: number; }) {
+    ...
+}
+```
+
+Now if we try to access the `rating` property from outside of the class, TypeScript will give us an error:
+
+```tsx
+console.log(loopFindingJazzRecords.rating); // red squiggly line under rating
+
+// hovering over rating shows:
+Property 'rating' is private and only accessible within class 'Album'.
+```
+
+For an alternative syntax, you can also use the `#` symbol to mark a property as private:
+
+```tsx
+class Album {
+  #rating = 0;
+```
+
+The `#` syntax behaves the same as `private`, but it's a newer feature that's part of the ECMAScript standard. This means that it can be used in JavaScript as well as TypeScript, if you ever need to convert your TypeScript code to JavaScript.
+
+Regardless of which syntax you use, the `rating` of an album is a private property that is encapsulated within the class. However, just because the `rating` property is private doesn't mean it can't be accessed or modified.
+
+## Class Methods
+
+Along with properties, classes can also contain methods. These special functions define the behaviors of a class and can be used to interact with both public and private properties.
+
+### Implementing Class Methods
+
+Let's add a `printAlbumInfo` method to the `Album` class that will log the album's title, artist, and release year.
+
+There are a couple of techniques for adding methods to a class.
+
+The first is to follow the same pattern as the constructor and directly add the method to the class body:
+
+```tsx
+// inside of the Album class
+printAlbumInfo() {
+  console.log(`${this.title} by ${this.artist}, released in ${this.releaseYear}.`);
+}
+```
+
+Another option is to use an arrow function to define the method. This has the benefit of automatically binding `this` to the class instance, which can be useful in certain scenarios:
+
+```tsx
+// inside of the Album class
+printAlbumInfo = () => {
+  console.log(`${this.title} by ${this.artist}, released in ${this.releaseYear}.`);
+}
+```
+
+Once the `printAlbumInfo` method has been added, we can call it to log the album's information:
+
+```tsx
+loopFindingJazzRecords.printAlbumInfo();
+
+// Output: Loop Finding Jazz Records by Jan Jelinek, released in 2001.
+```
+
+The technique you choose for adding a method to a class essentially boils down to your personal preference. Both are similar to write, and both provide access to `this`. It shouldn't be a concern most of the time, though the arrow function syntax is useful when using legacy React Class Components or passing methods as callbacks.
+
+### Accessing & Modifying Properties
+
+Earlier we added a private `rating` property to the `Album` class. In order to access and modify this property, we can add special methods called getters and setters to the class.
+
+As the names suggest, a getter is used to retrieve the value of a property, and a setter is used to modify the value of a property.
+
+#### Add a Getter
+
+To add a getter for the `rating` property, we use the `get` keyword followed by a method named similarly to property we want to access:
+
+```tsx
+// inside the Album class
+get currentRating() {
+  return this.rating;
+}
+```
+
+This getter method will allow for the `rating` property to be accessed and modified in the setter method.
+
+#### Add a Setter
+
+Similarly, we'll add a setter for the `rating` property using the `set` keyword. Additional logic can be used to validate the new value before it's assigned:
+
+```tsx
+// inside the Album class
+set currentRating(newRating: number) {
+  if (newRating >= 0 && newRating <= 10) {
+    this.rating = newRating;
+  } else {
+    throw new Error("Invalid rating");
+  }
+}
+```
+
+#### Bringing it All Together
+
+To bring our examples of class methods and getters and setters together, let's add a `printRating` method to the `Album` class that will log the album's rating:
+
+```tsx
+// inside the Album class
+printRating() {
+  console.log(`Rating: ${this.rating}`);
+}
+```
+
+Now we can use `currentRating` to set a rating, then print it using the `printRating` method:
+
+```tsx
+loopFindingJazzRecords.currentRating = 9;
+loopFindingJazzRecords.printRating(); // Output: Rating: 9
+```
+
+To recap, getters and setters allows us to control how properties are accessed and modified within a class. Without using these methods, we would have to make the `rating` property public. This would allow it to be accessed and modified from outside of the class without any validation:
+
+```tsx
+// imagine if the rating property was public
+loopFindingJazzRecords.rating = 999; // No error
+```
+
+Being smart about using `readonly` and `private` properties along with getters and setters can help you ensure that your class instances are used correctly.
+
+## Class Inheritance
+
+Similar to how we can extend types and interfaces, we can also extend classes in TypeScript. This allows you to create a hierarchy of classes that can inherit properties and methods from one another, making your code more organized and reusable.
+
+For this example, we'll go back to our basic `Album` class that will act as our base class:
+
+```typescript
+class Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+
+  constructor(opts?: { title: string, artist: string, releaseYear: number }) {
+    this.title = title;
+    this.artist = artist;
+    this.releaseYear = releaseYear;
+  }
+
+  displayInfo() {
+    console.log(`${this.title} by ${this.artist}, released in ${this.releaseYear}.`);
+  }
+}
+```
+
+The goal is to create a `SpecialEditionAlbum` class that extends the `Album` class and adds a `bonusTracks` property.
+
+### Extending a Class
+
+The first step is to use the `extends` keyword to create the `SpecialEditionAlbum` class:
+
+```tsx
+class SpecialEditionAlbum extends Album {}
+```
+
+Once the `extends` keyword is added, any new properties or methods added to the `SpecialEditionAlbum` class will be in addition to what it inherits from the `Album` class. For example, we can add a `bonusTracks` property to the `SpecialEditionAlbum` class:
+
+```tsx
+class SpecialEditionAlbum extends Album {
+  bonusTracks: string[];
+}
+```
+
+Next, we need to add a constructor that includes all of the properties from the `Album` class as well as the `bonusTracks` property. There are a couple of important things to note about the constructor when extending a class.
+
+First, the arguments to the constructor should match the shape used in the parent class. In this case, that's an `opts` object with the properties of the `Album` class along with the new `bonusTracks` property.
+
+Second, we need to include a call to `super()`. This is a special method that calls the constructor of the parent class and sets up the properties it defines. This is crucial to ensure that the base properties are initialized properly. We'll pass in the `title`, `artist`, and `releaseYear` properties to the `super()` method and then set the `bonusTracks` property:
+
+```tsx
+class SpecialEditionAlbum extends Album {
+  bonusTracks: string[];
+
+  constructor(opts?: { title: string, artist: string, releaseYear: number, bonusTracks: string[] }) {
+    super(opts.title, opts.artist, opts.releaseYear);
+    this.bonusTracks = opts.bonusTracks;
+  }
+}
+```
+
+Now that we have the `SpecialEditionAlbum` class set up, we can create a new instance similarly to how we would with the `Album` class:
+
+```tsx
+const plasticOnoBandSpecialEdition = new SpecialEditionAlbum({
+  title: "Plastic Ono Band",
+  artist: "John Lennon",
+  releaseYear: 2000,
+  bonusTracks: ["Power to the People", "Do the Oz"],
+});
+```
+
+While this example only added a single property, you can imagine how following the pattern of extending a base class can be useful for creating a hierarchy of classes with shared properties and methods.
+
+## Types & Interfaces with Classes
+
+There are several ways that types and interfaces can be used in conjunction with classes to enforce structure and reduce repetition. Classes can even be used as types themselves!
+
+### Types and Interfaces as Class Contracts
+
+For situations where you want to enforce that a class adheres to a specific structure, you can use an interface or a type as a contract. If a class doesn't adhere to the contract, TypeScript will give an error.
+
+The `SpecialEditionAlbum` class we created in the previous example adds a `bonusTracks` property to the `Album` class, but there is no `trackList` property for the regular `Album` class.
+
+Let's create an interface to enforce that any class that implements it must have a `trackList` property.
+
+Following the Hungarian naming convention, the interface will be named `IAlbum` and include properties for the `title`, `artist`, `releaseYear`, and `trackList` properties:
+
+```tsx
+interface IAlbum {
+  title: string;
+  artist: string;
+  releaseYear: number;
+  trackList: string[];
+}
+```
+
+Note that the `I` prefix is used to indicate an interface, while a `T` indicates a type. It isn't required to use these prefixes, but it's a common convention and makes it more clear what the interface will be used for when reading the code.
+
+With the interface created, we can associate it with the `Album` class.
+
+#### The `implements` Keyword
+
+The `implements` keyword is used to tell TypeScript which type or interface a class should adhere to. In this case, we'll use it to ensure that the `Album` class follows the structure of the `IAlbum` interface:
+
+```tsx
+class Album implements IAlbum { // red squiggly line under Album
+  title: string;
+  artist: string;
+  releaseYear: number;
+  
+  constructor(opts?: { title: string, artist: string, releaseYear: number }) {
+    this.title = opts.title;
+    this.artist = opts.artist;
+    this.releaseYear = opts.releaseYear;
+  }
+}
+```
+
+Because the `trackList` property is missing from the `Album` class, TypeScript now gives us an error. In order to fix it, the `trackList` property needs to be added to the `Album` class. Once the property is added, we could update the interface or set up getters and setters accordingly:
+
+```tsx
+class Album implements IAlbum {
+  title: string;
+  artist: string;
+  releaseYear: number;
+  trackList: string[] = [];
+
+  constructor(opts?: { title: string, artist: string, releaseYear: number, trackList: string[] }) {
+    this.title = opts.title;
+    this.artist = opts.artist;
+    this.releaseYear = opts.releaseYear;
+    this.trackList = opts.trackList;
+  }
+  
+  ...
+}  
+```
+
+### Types & Interfaces for Class Types
+
+To save time when working with constructors or other class methods, you can use a type or interface to define the shape of the arguments that will be passed to the class.
+
+For example, we could use the `IAlbum` interface to define the shape of the `opts` argument in the `Album` class:
+
+```tsx
+class Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+  trackList: string[] = [];
+
+  constructor(opts: IAlbum) {
+    this.title = opts.title;
+    this.artist = opts.artist;
+    this.releaseYear = opts.releaseYear;
+    this.trackList = opts.trackList;
+  }
+}
+```
+
+We could also intersect `IAlbum` with the additional `bonusTracks` property for the extended `SpecialEditionAlbum` class:
+
+```tsx
+class SpecialEditionAlbum extends Album {
+  bonusTracks: string[];
+
+  constructor(opts: IAlbum & { bonusTracks: string[] }) {
+    super(opts);
+    this.bonusTracks = opts.bonusTracks;
+  }
+}
+```
+
+### Using a Class as a Type
+
+An interesting property of classes in TypeScript is that they can be used as types for variables and function parameters. The syntax is similar to how you would use any other type or interface.
+
+In this case, we'll use the `SpecialEditionAlbum` class to type the `album` parameter of a `printBonusInfo` function:
+
+```tsx
+function printBonusInfo(album: SpecialEditionAlbum) {
+  const bonusTrackCount = album.bonusTracks.length;
+  console.log(`${album.title} has ${bonusTrackCount} bonus tracks.`);
+}
+```
+
+We can then call the function and pass in an instance of the `SpecialEditionAlbum` class:
+
+```tsx
+printBonusInfo(plasticOnoBandSpecialEdition);
+
+// Output: Plastic Ono Band has 2 bonus tracks.
+```
+
+While using a class as a type is possible, it's a much more common pattern to require classes to implement a specific interface.
+
+## Exercises
+
+### Exercise 1: Creating a Class
+
+Here we have a class called `CanvasNode` that currently functions identically to an empty object:
+
+```typescript
+class CanvasNode {}
+```
+
+Inside of a test case, we instantiate the class by calling `new CanvasNode()`.
+
+However, have some errors since we expect it to house two properties, specifically `x` and `y`, each with a default value of `0`:
+
+```typescript
+it("Should store some basic properties", () => {
+  const canvasNode = new CanvasNode();
+
+  expect(canvasNode.x).toEqual(0); // red squiggly line under x
+  expect(canvasNode.y).toEqual(0); // red squiggly line under y
+
+  // @ts-expect-error Property is readonly
+  canvasNode.x = 10;
+
+  // @ts-expect-error Property is readonly
+  canvasNode.y = 20;
+});
+```
+
+As seen from the `@ts-expect-error` directives, we also expect these properties to be readonly.
+
+Your challenge is to implement the `CanvasNode` class to satisfy these requirements. For extra practice, solve the challenge with and without the use of a constructor.
+
+### Exercise 2: Implementing Class Methods
+
+In this exercise, we've simplified our `CanvasNode` class so that it no longer has read-only properties:
+
+```typescript
+class CanvasNode {
+  x = 0;
+  y = 0;
+}
+```
+
+There is a test case for being able to move the `CanvasNode` object to a new location:
+
+```typescript
+it("Should be able to move to a new location", () => {
+  const canvasNode = new CanvasNode();
+
+  expect(canvasNode.x).toEqual(0);
+  expect(canvasNode.y).toEqual(0);
+
+  canvasNode.move(10, 20); // red squiggly line under move
+
+  expect(canvasNode.x).toEqual(10);
+  expect(canvasNode.y).toEqual(20);
+});
+```
+
+Currently, there is an error under the `move` method call because the `CanvasNode` class does not have a `move` method.
+
+Your task is to add a `move` method to the `CanvasNode` class that will update the `x` and `y` properties to the new location.
+
+### Exercise 3: Implement a Getter
+
+Let's continue working with the `CanvasNode` class, which now has a constructor that accepts an optional argument, renamed to `position`. This `position` is an object that replaces the individual `x` and `y` we had before:
+
+```tsx
+class CanvasNode {
+  x: number;
+  y: number;
+
+  constructor(position?: { x: number; y: number }) {
+    this.x = position?.x ?? 0;
+    this.y = position?.y ?? 0;
+  }
+
+  move(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+}
+```
+
+In these test cases, there are errors accessing the `position` property since it is not currently a property of the `CanvasNode` class:
+
+```typescript
+it("Should be able to move", () => {
+  const canvasNode = new CanvasNode();
+
+  expect(canvasNode.position).toEqual({ x: 0, y: 0 }); // red squiggly line under position
+
+  canvasNode.move(10, 20);
+
+  expect(canvasNode.position).toEqual({ x: 10, y: 20 }); // red squiggly line under position
+});
+
+it("Should be able to receive an initial position", () => {
+  const canvasNode = new CanvasNode({
+    x: 10,
+    y: 20,
+  });
+
+  expect(canvasNode.position).toEqual({ x: 10, y: 20 }); // red squiggly line under position
+});
+```
+
+Your task is to update the `CanvasNode` class to include a `position` getter that will allow for the test cases to pass.
+
+### Exercise 4: Implement a Setter
+
+The `CanvasNode` class has been updated so that `x` and `y` are now private properties:
+
+```tsx
+class CanvasNode {
+  #x: number;
+  #y: number;
+
+  constructor(position?: { x: number; y: number }) {
+    this.#x = position?.x ?? 0;
+    this.#y = position?.y ?? 0;
+  }
+
+  // your `position` getter method here
+
+  // move method as before
+}
+```
+
+The `#` in front of the `x` and `y` properties means they are `readonly` and can't be modified directly outside of the class. In addition, when a getter is present without a setter, its property will also be treated as `readonly`, as seen in this test case:
+
+```typescript
+canvasNode.position = { x: 10, y: 20 }; // red squiggly line under position
+
+// hovering over position shows:
+Cannot assign to 'position' because it is a read-only property.
+```
+
+Your task is to write a setter for the `position` property that will allow for the test case to pass.
+
+### Exercise 5: Extending a Class
+
+Here we have a more complex version of the `CanvasNode` class.
+
+In addition to the `x` and `y` properties, the class now has a `viewMode` property that is typed as `ViewMode` which can be set to `hidden`, `visible`, or `selected`:
+
+```typescript
+type ViewMode = "hidden" | "visible" | "selected";
+
+class CanvasNode {
+  x = 0;
+  y = 0;
+  viewMode: ViewMode = "visible";
+
+  constructor(options?: { x: number; y: number; viewMode?: ViewMode }) {
+    this.x = options?.x ?? 0;
+    this.y = options?.y ?? 0;
+    this.viewMode = options?.viewMode ?? "visible";
+  }
+
+  /* getter, setter, and move methods as before */
+```
+
+Imagine if our application had a `Shape` class that only needed the `x` and `y` properties and the ability to move around. It wouldn't need the `viewMode` property or the logic related to it.
+
+Your task is to refactor the `CanvasNode` class to split the `x` and `y` properties into a separate class called `Shape`. Then, the `CanvasNode` class should extend the `Shape` class, adding the `viewMode` property and the logic related to it.
+
+### Solution 1: Creating a Class
+
+Here's an example of a `CanvasNode` class with a constructor that meets the requirements:
+
+```typescript
+class CanvasNode {
+  readonly x: number;
+  readonly y: number;
+
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+  }
+}
+```
+
+Without a constructor, the `CanvasNode` class can be implemented by assigning the properties directly:
+
+```typescript
+class CanvasNode {
+  readonly x = 0;
+  readonly y = 0;
+}
+```
+
+### Solution 2: Implementing Class Methods
+
+The `move` method can be implemented either as a regular method or as an arrow function:
+
+Here's the regular method:
+
+```typescript
+class CanvasNode {
+  x = 0;
+  y = 0;
+
+  move(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+}
+```
+
+And the arrow function:
+
+```typescript
+class CanvasNode {
+  x = 0;
+  y = 0;
+
+  move = (x: number, y: number) => {
+    this.x = x;
+    this.y = y;
+  }
+}
+```
+
+Note that these solutions did not use a constructor, but still satisfy the requirements of the test case.
+
+### Solution 3: Implement a Getter
+
+Here's how the `CanvasNode` class can be updated to include a getter for the `position` property:
+
+```typescript
+class CanvasNode {
+  x: number;
+  y: number;
+
+  constructor(position?: { x: number; y: number }) {
+    this.x = position?.x ?? 0;
+    this.y = position?.y ?? 0;
+  }
+
+  move(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  get position() {
+    return { x: this.x, y: this.y };
+  }
+}
+```
+
+With the getter in place, the test cases will pass.
+
+Remember, when using a getter, you can access the property as if it were a regular property on the class instance:
+
+```typescript
+const canvasNode = new CanvasNode();
+console.log(canvasNode.position.x); // 0
+console.log(canvasNode.position.y); // 0
+```
+
+### Solution 4: Implement a Setter
+
+Here's how a `position` setter can be added to the `CanvasNode` class:
+
+```typescript
+// inside the CanvasNode class
+set position(pos) {
+  this.x = pos.x;
+  this.y = pos.y;
+}
+```
+
+Note that we don't have to add a type to the `pos` parameter since TypeScript is smart enough to infer it based on the getter's return type.
+
+### Solution 5: Extending a Class
+
+The new `Shape` class would look very similar to the original `CanvasNode` class:
+
+```tsx
+class Shape {
+  #x: number;
+  #y: number;
+
+  constructor(options?: { x: number; y: number }) {
+    this.#x = options?.x ?? 0;
+    this.#y = options?.y ?? 0;
+  }
+
+  // position getter and setter methods
+
+  move(x: number, y: number) {
+    this.#x = x;
+    this.#y = y;
+  }
+}
+```
+
+The `CanvasNode` class would then extend the `Shape` class and add the `viewMode` property. The constructor would also be updated to accept the `viewMode` and call `super()` to pass the `x` and `y` properties to the `Shape` class:
+
+```tsx
+class CanvasNode extends Shape {
+  #viewMode: ViewMode;
+
+  constructor(options?: { x: number; y: number; viewMode?: ViewMode }) {
+    super(options);
+    this.#viewMode = options?.viewMode ?? "visible";
+  }
+}
+```
