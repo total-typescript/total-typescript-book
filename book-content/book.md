@@ -3561,8 +3561,6 @@ The `typeof` operator is just one way to narrow types.
 
 TypeScript can use other conditional operators like `&&` and `||`, and will take the truthiness into account for coercing the boolean value. It's also possible to use other operators like `instanceof` and `in` for checking object properties. You can even throw errors or use early returns to narrow types.
 
-<!-- TODO: maybe add a quick reference of all the ways you can narrow -->
-
 We'll take a closer look at these in the following exercises.
 
 ### Exercises
@@ -3679,15 +3677,13 @@ Your challenge is to find the correct syntax for narrowing down the types within
 
 The changes should happen inside of the function without modifying any other parts of the code.
 
-<!-- CONTINUE -->
-
 #### Solution 1: Narrowing with `if` Statements
 
 There are several different ways to validate the username length.
 
-##### Option 1: Check for `username`
+##### Option 1: Check Truthiness
 
-We could use an `if` statement to check if `username` exists. If it does, we can return `username.length > 5`, otherwise we can return `false`:
+We could use an `if` statement to check if `username` is truthy. If it does, we can return `username.length > 5`, otherwise we can return `false`:
 
 ```typescript
 function validateUsername(username: string | null): boolean {
@@ -3701,7 +3697,7 @@ function validateUsername(username: string | null): boolean {
 }
 ```
 
-This implementation corresponds to the logic we wanted in the exercise, but it doesn't account for other behavior we would want in the real world like checking for empty strings.
+There is a catch to this piece of logic. If `username` is an empty string, it will return `false` because an empty string is falsy. This happens to match the behavior we want for this exercise - but it's important to bear that in mind.
 
 ##### Option 2: Check if `typeof username` is `"string"`
 
@@ -3716,6 +3712,8 @@ function validateUsername(username: string | null): boolean {
   return false;
 }
 ```
+
+This avoids the issue with empty strings.
 
 ##### Option 3: Check if `typeof username` is not `"string"`
 
@@ -3733,13 +3731,13 @@ function validateUsername(username: string | null | undefined): boolean {
 }
 ```
 
-This approach has the unconventional implementation of this exercise, but it is nice to know how to properly check for a `null`, so you should be aware of this method as well.
+This shows that TypeScript understands the _reverse_ of a check. Very smart.
 
 ##### Option 4: Check if `typeof username` is `"object"`
 
-An unconventional approach to checking for `null` is by exploiting a JavaScript quirk where the type of `null` is equal to `"object"`.
+A odd JavaScript quirk is that the type of `null` is equal to `"object"`.
 
-The body is otherwise the same as the previous option:
+TypeScript knows this, so we can actually use it to our advantage. We can check if `username` is an object, and if it is, we can return `false`:
 
 ```typescript
 function validateUsername(username: string | null): boolean {
@@ -3753,7 +3751,7 @@ function validateUsername(username: string | null): boolean {
 
 ##### Option 5: Extract the check into its own variable
 
-Finally, for readability and reusability purposes you could store the check in its own variable `isUsernameNotNull` and negate the boolean. Since we don't care about the return value or the naming in the guard clause, we can also negate the value and use the double-bang to ensure we have just a boolean.
+Finally, for readability and reusability purposes you could store the check in its own variable `isUsernameOK`.
 
 Here's what this would look like:
 
@@ -3769,15 +3767,21 @@ function validateUsername(username: string | null): boolean {
 }
 ```
 
+TypeScript is smart enough to understand that the value of `isUsernameOK` corresponds to whether `username` is a string or not. Very smart.
+
 All of the above options use `if` statements to perform checks by narrowing types by using `typeof`.
 
 No matter which option you go with, remember that you can always use an `if` statement to narrow your type and add code to the case that the condition passes.
 
 #### Solution 2: Throwing Errors to Narrow
 
-In order to crash the app if `appElement` does not exist, we can add an `if` statement that checks if `appElement` is `null` or does not exist, then throws an error:
+The issue with this code is that `document.getElementById` returns `null | HTMLElement`. But we want to make sure that `appElement` is an `HTMLElement` before we use it.
 
-```tsx
+We are pretty sure that `appElement` exists. If it doesn't exist, we probably want to crash the app early so that we can get an informative error about what's gone wrong.
+
+So, we can add an `if` statement that checks if `appElement` is falsy, then throws an error:
+
+```typescript
 if (!appElement) {
   throw new Error("Could not find app element");
 }
@@ -3785,7 +3789,7 @@ if (!appElement) {
 
 By adding this error condition, we can be sure that we will never reach any subsequent code if `appElement` is `null`.
 
-If we hover over `appElement` after the `if` statement, we can see that TypeScript now knows that `appElement` is an `HTMLElement`. This means our test also now passes:
+If we hover over `appElement` after the `if` statement, we can see that TypeScript now knows that `appElement` is an `HTMLElement` - it's no longer `null`. This means our test also now passes:
 
 ```tsx
 console.log(appElement);
@@ -3797,35 +3801,48 @@ const appElement: HTMLElement;
 type Test = Expect<Equal<typeof appElement, HTMLElement>>; // passes
 ```
 
-Throwing errors like this can help you identify issues at runtime. In this specific case, it acts like a type annotation that narrows down the code inside of the immediate `if` statement scope.
-
-In general, this technique is useful any time you need to manage logical flow in your applications.
+Throwing errors like this can help you identify issues at runtime. In this specific case, it narrows down the code _outside_ of the immediate `if` statement scope. Amazing.
 
 #### Solution 3: Using `in` to Narrow
 
-It may be tempting to change the `APIReponse` type to make it a little bit different. For example, we could add an `error` as a string on one side and `data` as undefined on the other branch:
+Your first instinct will be to check if `response.data` is truthy.
+
+```typescript
+const handleResponse = (response: APIResponse) => {
+  // Property 'data' does not exist on type 'APIResponse'.
+  // Red line under response.data
+  if (response.data) {
+    return response.data.id;
+  } else {
+    throw new Error(response.error);
+  }
+};
+```
+
+But you'll get an error. This is because `response.data` is only available on one of the members of the union. TypeScript doesn't know that `response` is the one with `data` on it.
+
+##### Option 1: Changing the Type
+
+It may be tempting to change the `APIResponse` type to add `.data` to both branches:
 
 ```tsx
-// Don't change the type like this!
-
 type APIResponse =
   | {
       data: {
         id: string;
       };
-
-      error: undefined;
     }
   | {
       data?: undefined;
-
       error: string;
     };
 ```
 
-However, there's a much simpler way to do this.
+This is certainly one way to handle it. But there is a built-in way to do it.
 
-We can use an `in` operator to check if a specific key exists on `json`.
+##### Option 2: Using `in`
+
+We can use an `in` operator to check if a specific key exists on `response`.
 
 In this example, it would check for the key `data`:
 
@@ -3839,11 +3856,13 @@ const handleResponse = (response: APIResponse) => {
 };
 ```
 
-The neat thing about this approach is that it manages to narrow the type of the `response` without needing an environment where narrowing can occur.
-
 If the `response` isn't the one with `data` on it, then it must be the one with `error`, so we can throw an `Error` with the error message.
 
+You can check this out by hovering over `.data` and `.error` in each of the branches of the `if` statement. TypeScript will show you that it knows the type of `response` in each case.
+
 Using `in` here gives us a great way to narrow down objects that might have different keys from one another.
+
+<!-- CONTINUE -->
 
 ## `unknown` and `never`
 
