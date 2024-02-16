@@ -3252,45 +3252,6 @@ type AllSortsOfStuff =
 
 Union types can be used in many different ways, and they're a powerful tool for creating flexible type definitions.
 
-#### The Assignability of Union Types
-
-Now that we have a basic understanding of union types, let's think about how they work in our apps.
-
-Consider this chart:
-
-![](images/image3.png)
-
-At the top, we have `string | number`. Below are two boxes `string` and `number`, each with their own connecting arrow pointing to `string | number`. This diagram shows that both `string` and `number` are assignable to `string | number`.
-
-However, this doesn't work in reverse. We can't pass `string | number` to a function that only accepts `string`.
-
-For example, if we changed the `logId` function to only accept a `number`, TypeScript would throw an error when we try to pass `string | number` to it:
-
-```tsx
-function logId(id: number) {
-  console.log(`The id is ${id}`);
-}
-
-type User = {
-  id: string | number;
-};
-
-const user: User = {
-  id: 123,
-};
-
-logId(user.id); // red squiggly line under user.id
-```
-
-Hovering over `user.id` shows:
-
-```
-Argument of type 'string | number' is not assignable to parameter of type 'number'.
-  Type 'string' is not assignable to type 'number'.
-```
-
-This is because `user.id` _could_ be a `string`, and TypeScript is trying to protect us from accidentally passing a `string` to a function that only accepts a `number`.
-
 ### Literal Types
 
 Just as TypeScript allows us to create union types from multiple types, it also allows us to create types which represent a specific primitive value. These are called literal types.
@@ -3347,97 +3308,11 @@ const getAlbumFormats = (format: PhysicalFormat) => {
 getAlbumFormats("MP3"); // red squiggly line under "MP3"
 ```
 
-### Resolving Literal Types to Wider Types
-
-Let's look at how literal types combine with their wider types.
-
-Let's look at this `getResolvedIconSize` function. It takes in an `iconSize` parameter that is a union of literal types `"small" | "medium" | "large"` as well as the `string` type:
-
-```typescript
-const getResolvedIconSize = (
-  iconSize: "small" | "medium" | "large" | string, // notice the mix of literal types and string
-) => {
-  switch (iconSize) {
-    case "small":
-      return 16;
-
-    case "medium":
-      return 32;
-
-    case "large":
-      return 48;
-
-    default:
-      return iconSize;
-  }
-};
-```
+### Exercises
 
 <!-- CONTINUE -->
 
-Inside the function, we have a `switch` statement that returns the corresponding size for the given `iconSize`. If the `iconSize` is not one of the literal sizes, then it just returns the `iconSize`.
-
-Let's revisit the assignability chart to see what's going on here.
-
-#### Assignability of Literal Types with Wider Types
-
-We have a union of literal types `"small" | "medium" | "large"` and the `string` type and the wider string type.
-
-Any of the individual `"small"`, `"medium"`, and `"large"` literals are assignable to the literals as well as `string`. In turn, `string` is assignable to `"small" | "medium" | "large" | string`.
-
-Following the pattern we've seen in previous examples, we might draw the assignability chart like this:
-
-![](images/image1.png)
-
-However, this chart isn't quite accurate.
-
-Because all of the individual literals are in a union with their wider type, they get cancelled out. TypeScript looks at the union and sees that it can just be represented by `string`, so it goes with that instead of the size literals.
-
-Here's what the more actual assignability chart looks like:
-
-![](images/image6.png)
-
-Even though the `getResolvedIconSize` function looks like we could pass in any of the sizes, when TypeScript sees the union of literal types and a wider type, it resolves to the wider type.
-
-We can see this behavior happening when trying to pass in one of the sizes, because there will not be autocompletion for the individual sizes as we're typing:
-
-```typescript
-getResolvedIconSize("small"); // no autocompletion for "small"
-```
-
-However, when we hover over the call to `getResolvedIconSize`, we'll still see the full union from the function signature:
-
-```typescript
-// hovering over getResolvedIconSize shows:
-
-const getResolvedIconSize: (
-  iconSize: "small" | "medium" | "large" | string,
-) => string | 16 | 32 | 48;
-```
-
-#### Autocompletion Trick for Literal Types with Wider Types
-
-There is a workaround that can be added to the function signature that will work when literal types are in a union with a wider type.
-
-By wrapping the wider type in parentheses and including an ampersand with an empty object, we will get the desired behavior:
-
-```typescript
-
-const getResolvedIconSize = (iconSize: "small" | "medium" | "large" | (string & {}),) => {
-
-...
-
-}
-
-```
-
-While this trick is interesting, it's not something to be applied without proper thought and understanding of its implications. We'll look behind the scenes of this syntax later.
-
-For now, the big takeaway here is that you shouldn't think about a union of literals and their wider types together as "this or that". Instead, think of them as just the wider type since that is what TypeScript will resolve to.
-
-#### Exercises
-
-##### Exercise 1: `string` or `null`
+#### Exercise 1: `string` or `null`
 
 Here we have a function called `getUsername` that takes in a `username` string. If the `username` is not equal to `null`, we return a new interpolated string. Otherwise, we return `"Guest"`:
 
@@ -3475,7 +3350,7 @@ Normally we wouldn't explicitly call the `getUsername` function with `null`, but
 
 Currently, the `username` parameter only accepts a `string` type, and the check for `null` isn't doing anything. Update the type definition so the errors are resolved and the function can handle `null` values.
 
-##### Exercise 2: Restricting Function Parameters
+#### Exercise 2: Restricting Function Parameters
 
 Here we have a `move` function that takes in a `direction` of type string, and a `distance` of type number:
 
@@ -3521,7 +3396,7 @@ move(
 
 Your challenge is to update the `move` function so that it only accepts the strings `"up"`, `"down"`, `"left"`, and `"right"`. This way, TypeScript will throw an error when we try to pass in any other string.
 
-##### Solution 1: `string` or `null`
+#### Solution 1: `string` or `null`
 
 The solution is to update the `username` parameter to be a union of `string` and `null`:
 
@@ -3535,7 +3410,7 @@ function getUsername(username: string | null) {
 
 With this change, the `getUsername` function will now accept `null` as a valid value for the `username` parameter, and the errors will be resolved.
 
-##### Solution 2: Restricting Function Parameters
+#### Solution 2: Restricting Function Parameters
 
 In order to restrict what the `direction` can be, we can use a union type of literal values (in this case strings).
 
@@ -3561,11 +3436,98 @@ function move(direction: Direction, distance: number) {
 
 ## Narrowing
 
-Narrowing in TypeScript allows us to refine a value that can be more than one type. We do this through conditional statements that use type guards to check the variable's type. The more certain TypeScript is about what it's working with, the more safe our code will be.
+### Wider vs Narrower Types
+
+Some types are wider versions of other types. For example, `string` is wider than the literal string `"small"`. This is because `string` can be any string, while `"small"` can only be the string `"small"`.
+
+In reverse, we might say that `"small"` is a 'narrower' type than `string`. It's a more specific version of a string. `404` is a narrower type than `number`, and `true` is a narrower type than `boolean`.
+
+This is only true of types which have some kind of shared relationship. For example, `"small"` is not a narrower version of `number` - because `"small"` itself is not a number.
+
+In TypeScript, the narrower version of a type can always take the place of the wider version.
+
+For example, if a function accepts a `string`, we can pass in `"small"`:
+
+```typescript
+const logSize = (size: string) => {
+  console.log(size.toUpperCase());
+};
+
+logSize("small");
+```
+
+But if a function accepts `"small"`, we can't pass any random `string`:
+
+```typescript
+const recordOfSizes = {
+  small: "small",
+  large: "large",
+};
+
+const logSize = (size: "small" | "large") => {
+  console.log(recordOfSizes[size]);
+};
+
+logSize("medium"); // red squiggly line under "medium"
+```
+
+If you're familiar with the concept of 'subtypes' and 'supertypes' in set theory, this is a similar idea. `"small"` is a subtype of `string` (it is more specific), and `string` is a supertype of `"small"`.
+
+### Unions Are Wider Than Their Members
+
+A union type is a wider type than its members. For example, `string | number` is wider than `string` or `number` on their own.
+
+This means that we can pass a `string` or a `number` to a function that accepts `string | number`:
+
+```typescript
+function logId(id: string | number) {
+  console.log(id);
+}
+
+logId("abc");
+logId(123);
+```
+
+However, this doesn't work in reverse. We can't pass `string | number` to a function that only accepts `string`.
+
+For example, if we changed this `logId` function to only accept a `number`, TypeScript would throw an error when we try to pass `string | number` to it:
+
+```tsx
+function logId(id: number) {
+  console.log(`The id is ${id}`);
+}
+
+type User = {
+  id: string | number;
+};
+
+const user: User = {
+  id: 123,
+};
+
+logId(user.id); // red squiggly line under user.id
+```
+
+Hovering over `user.id` shows:
+
+```
+Argument of type 'string | number' is not assignable to parameter of type 'number'.
+  Type 'string' is not assignable to type 'number'.
+```
+
+So, it's important to think of a union type as a wider type than its members.
+
+### What is Narrowing?
+
+Narrowing in TypeScript lets us take a wider type and make it narrower using runtime code.
+
+This can be useful when we want to do different things based on the type of a value. For example, we might want to handle a `string` differently to a `number`, or `"small"` differently to `"large"`.
 
 ### Narrowing with `typeof`
 
-The `typeof` operator is useful for determining what type a given variable is.
+<!-- CONTINUE -->
+
+The `typeof` operator is useful for determining what type a given value is.
 
 Consider a function `getAlbumYear` that takes in a parameter `year`, which can either be a `string` or `number`. Here's how we could use the `typeof` operator to narrow down the type of `year`:
 
@@ -6910,7 +6872,6 @@ Argument of type '({ type: "button"; } | { type: "submit"; } | { type: "panic"; 
 
 Both of these solutions show how useful `as const` can be for helping TypeScript give us the best type inference possible.
 
-
 # 08. Classes
 
 Classes are a like a blueprint for creating special objects. These objects can hold more than just data– they also hold behaviors and methods for interacting with the data they contain.
@@ -7014,7 +6975,7 @@ const unknownAlbum = new Album();
 console.log(unknownAlbum.title); // Output: Unknown Album
 ```
 
-Note that it's not required to follow this pattern of using an `opts` object in the constructor parameters. You can still specify the properties or use default values directly: 
+Note that it's not required to follow this pattern of using an `opts` object in the constructor parameters. You can still specify the properties or use default values directly:
 
 ```tsx
 constructor(title: string = "Unknown Album", artist: string = "Unknown Artist", releaseYear: number = 0) {
@@ -7026,6 +6987,7 @@ The style you use is up to you, but the optional `opts` object is nice since it 
 ### Creating a Class Without a Constructor
 
 Depending on the needs of your application, it's also possible to create a class without a constructor. In this case, the initial state of the class properties need to be initialized when they're declared:
+
 ```tsx
 class Album {
   title = "Unknown Album";
@@ -7040,7 +7002,7 @@ Now that we've seen how to create a class and create new instances of it, let's 
 
 ### Immutable `readonly` Properties
 
-As we've seen with types and interfaces, the `readonly` keyword can be used to make a property immutable. This means that once the property is set, it cannot be changed.  
+As we've seen with types and interfaces, the `readonly` keyword can be used to make a property immutable. This means that once the property is set, it cannot be changed.
 
 In the case of our `Album` example, all of the existing properties could be marked as `readonly` since they're unlikely to change:
 
@@ -7123,8 +7085,10 @@ Another option is to use an arrow function to define the method. This has the be
 ```tsx
 // inside of the Album class
 printAlbumInfo = () => {
-  console.log(`${this.title} by ${this.artist}, released in ${this.releaseYear}.`);
-}
+  console.log(
+    `${this.title} by ${this.artist}, released in ${this.releaseYear}.`,
+  );
+};
 ```
 
 Once the `printAlbumInfo` method has been added, we can call it to log the album's information:
@@ -7210,14 +7174,16 @@ class Album {
   artist: string;
   releaseYear: number;
 
-  constructor(opts?: { title: string, artist: string, releaseYear: number }) {
+  constructor(opts?: { title: string; artist: string; releaseYear: number }) {
     this.title = title;
     this.artist = artist;
     this.releaseYear = releaseYear;
   }
 
   displayInfo() {
-    console.log(`${this.title} by ${this.artist}, released in ${this.releaseYear}.`);
+    console.log(
+      `${this.title} by ${this.artist}, released in ${this.releaseYear}.`,
+    );
   }
 }
 ```
@@ -7250,7 +7216,12 @@ Second, we need to include a call to `super()`. This is a special method that ca
 class SpecialEditionAlbum extends Album {
   bonusTracks: string[];
 
-  constructor(opts?: { title: string, artist: string, releaseYear: number, bonusTracks: string[] }) {
+  constructor(opts?: {
+    title: string;
+    artist: string;
+    releaseYear: number;
+    bonusTracks: string[];
+  }) {
     super(opts.title, opts.artist, opts.releaseYear);
     this.bonusTracks = opts.bonusTracks;
   }
@@ -7302,12 +7273,13 @@ With the interface created, we can associate it with the `Album` class.
 The `implements` keyword is used to tell TypeScript which type or interface a class should adhere to. In this case, we'll use it to ensure that the `Album` class follows the structure of the `IAlbum` interface:
 
 ```tsx
-class Album implements IAlbum { // red squiggly line under Album
+class Album implements IAlbum {
+  // red squiggly line under Album
   title: string;
   artist: string;
   releaseYear: number;
-  
-  constructor(opts?: { title: string, artist: string, releaseYear: number }) {
+
+  constructor(opts?: { title: string; artist: string; releaseYear: number }) {
     this.title = opts.title;
     this.artist = opts.artist;
     this.releaseYear = opts.releaseYear;
@@ -7330,9 +7302,9 @@ class Album implements IAlbum {
     this.releaseYear = opts.releaseYear;
     this.trackList = opts.trackList;
   }
-  
+
   ...
-}  
+}
 ```
 
 ### Types & Interfaces for Class Types
@@ -7614,7 +7586,7 @@ class CanvasNode {
   move = (x: number, y: number) => {
     this.x = x;
     this.y = y;
-  }
+  };
 }
 ```
 
