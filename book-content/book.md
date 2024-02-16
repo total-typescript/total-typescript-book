@@ -3310,8 +3310,6 @@ getAlbumFormats("MP3"); // red squiggly line under "MP3"
 
 ### Exercises
 
-<!-- CONTINUE -->
-
 #### Exercise 1: `string` or `null`
 
 Here we have a function called `getUsername` that takes in a `username` string. If the `username` is not equal to `null`, we return a new interpolated string. Otherwise, we return `"Guest"`:
@@ -3341,14 +3339,12 @@ type test2 = Expect<Equal<typeof result2, string>>;
 Hovering over `null` shows us the following error message:
 
 ```
-
 Argument of type 'null' is not assignable to parameter of type 'string'.
-
 ```
 
-Normally we wouldn't explicitly call the `getUsername` function with `null`, but it's important that we handle `null` values appropriately. For example, we might be getting the `username` from a user record in a database, and the user might or might not have a name depending on how they signed up.
+Normally we wouldn't explicitly call the `getUsername` function with `null`, but in this case it's important that we handle `null` values. For example, we might be getting the `username` from a user record in a database, and the user might or might not have a name depending on how they signed up.
 
-Currently, the `username` parameter only accepts a `string` type, and the check for `null` isn't doing anything. Update the type definition so the errors are resolved and the function can handle `null` values.
+Currently, the `username` parameter only accepts a `string` type, and the check for `null` isn't doing anything. Update the function parameter's type so the errors are resolved and the function can handle `null` .
 
 #### Exercise 2: Restricting Function Parameters
 
@@ -3370,7 +3366,7 @@ move("up", 10);
 move("left", 5);
 ```
 
-To test this function, we have the `@ts-expect-error` directives that tell TypeScript we expect the following lines to throw an error.
+To test this function, we have some `@ts-expect-error` directives that tell TypeScript we expect the following lines to throw an error.
 
 However, since the `move` function currently takes in a `string` for the `direction` parameter, we can pass in any string we want, even if it's not a valid direction. There is also a test where we expect that passing `20` as a distance won't work, but it's being accepted as well.
 
@@ -3379,17 +3375,13 @@ This leads to TypeScript drawing red squiggly lines under the `@ts-expect-error`
 ```typescript
 move(
   // @ts-expect-error - "up-right" is not a valid direction // red squiggly line
-
   "up-right",
-
   10,
 );
 
 move(
   // @ts-expect-error - "down-left" is not a valid direction // red squiggly line
-
   "down-left",
-
   20,
 );
 ```
@@ -3401,11 +3393,9 @@ Your challenge is to update the `move` function so that it only accepts the stri
 The solution is to update the `username` parameter to be a union of `string` and `null`:
 
 ```typescript
-
 function getUsername(username: string | null) {
-
-...
-
+  // function body
+}
 ```
 
 With this change, the `getUsername` function will now accept `null` as a valid value for the `username` parameter, and the errors will be resolved.
@@ -3525,173 +3515,55 @@ This can be useful when we want to do different things based on the type of a va
 
 ### Narrowing with `typeof`
 
-<!-- CONTINUE -->
-
-The `typeof` operator is useful for determining what type a given value is.
+One way we can narrow down the type of a value is to use the `typeof` operator, combined with an `if` statement.
 
 Consider a function `getAlbumYear` that takes in a parameter `year`, which can either be a `string` or `number`. Here's how we could use the `typeof` operator to narrow down the type of `year`:
 
 ```typescript
-
-const getAlbumYear = (year: string | number ) => {
-
-if (typeof year === "string") {
-
-console.log(`The album was released in ${year}.`); // `year` is string
-
-} else (typeof year === "number") {
-
-console.log(`The album was released in ${year}.`); // `year` is number
-
-}
-
+const getAlbumYear = (year: string | number) => {
+  if (typeof year === "string") {
+    console.log(`The album was released in ${year.toUppercase()}.`); // `year` is string
+  } else if (typeof year === "number") {
+    console.log(`The album was released in ${year.toFixed(0)}.`); // `year` is number
+  }
 };
-
 ```
 
 It looks straightforward, but there are some important things to realize about what's happening behind the scenes.
 
-Scoping plays a big role in narrowing. In the first `if` block, TypeScript understands that `year` is a `string` because we've used the `typeof` operator to check its type. In the `else` block, TypeScript understands that `year` is a `number` because we've used the `typeof` operator to check its type.
+Scoping plays a big role in narrowing. In the first `if` block, TypeScript understands that `year` is a `string` because we've used the `typeof` operator to check its type. In the `else if` block, TypeScript understands that `year` is a `number` because we've used the `typeof` operator to check its type.
+
+<!-- ILLUSTRATION HERE? -->
+
+This lets us call `toUpperCase` on `year` when it's a `string`, and `toFixed` on `year` when it's a `number`.
 
 However, anywhere outside of the conditional block the type of `year` is still the union `string | number`. This is because narrowing only applies within the block's scope.
 
 For the sale of illustration, if we add a `boolean` to the `year` union, the first `if` block will still end up with a type of `string`, but the `else` block will end up with a type of `number | boolean`:
 
 ```typescript
-
 const getAlbumYear = (year: string | number | boolean) => {
-
-if (typeof year === "string") {
-
-console.log(`The album was released in ${year}.`); // `year` is string
-
-} else (typeof year === "number") {
-
-console.log(`The album was released in ${year}.`); // `year` is number | boolean
-
-}
-
-console.log(year); // `year` is string | number | boolean
-
-};
-
-```
-
-### Narrowing with the switch(true) Pattern
-
-You may be familiar with the `switch (true)` pattern. This pattern is reminiscent of an `if` statement but can be adapted to fit into a switch statement construct.
-
-Here's an example of a `categorizeAlbumSales` function that uses this pattern to return a string explaining the number of albums sold based on the Album's `certification` property:
-
-```tsx
-function categorizeAlbumSales(album: Album): string {
-  switch (true) {
-    case album.certification === "diamond": {
-      return "Over 10,000,000 albums sold";
-    }
-
-    case album.certification === "multi-platinum": {
-      return "2,000,000 to 9,999,999 albums sold";
-    }
-
-    case album.certification === "platinum": {
-      return "1,000,000 to 1,999,999 albums sold";
-    }
-
-    case album.certification === "gold": {
-      return "500,000 to 999,999 albums sold";
-    }
-
-    default: {
-      return "Less than 500,000 albums sold";
-    }
+  if (typeof year === "string") {
+    console.log(`The album was released in ${year}.`); // `year` is string
+  } else if (typeof year === "number") {
+    console.log(`The album was released in ${year}.`); // `year` is number | boolean
   }
-}
+
+  console.log(year); // `year` is string | number | boolean
+};
 ```
 
-The thing being passed into the case is the condition we're checking the truthiness of. In this case, each `album`'s `certification` property gets accurately narrowed down to return a specific string.
-
-This pattern can be adapted to checking any properties, and helps to avoid complexity when working with multiple narrowing statements.
+This is a powerful example of how TypeScript can read your runtime code and use it to narrow down the type of a value.
 
 ### Other Ways to Narrow
 
 The `typeof` operator is just one way to narrow types.
 
-TypeScript can use other conditional operators like `&&` and `||`, and will take the truthiness into account for coercing the boolean value. It's also possible to use other operators like `instanceof` and `in` for checking object properties.
+TypeScript can use other conditional operators like `&&` and `||`, and will take the truthiness into account for coercing the boolean value. It's also possible to use other operators like `instanceof` and `in` for checking object properties. You can even throw errors or use early returns to narrow types.
 
-However, there are some situations where narrowing doesn't quite work as expected.
+<!-- TODO: maybe add a quick reference of all the ways you can narrow -->
 
-### Narrowing with a `Map`
-
-Here we have a `processUserMap` function that takes in an `eventMap` that is a `Map` containing a key of `string` and a value of the `Event` type, which has a `message` string on it:
-
-```typescript
-type Event = {
-  message: string;
-};
-
-const processUserMap = (eventMap: Map<string, Event>) => {
-  if (eventMap.has("error")) {
-    const message = eventMap.get("error").message; // red squiggly line under `eventMap.get("error")`
-
-    throw new Error(message);
-  }
-};
-```
-
-Hovering over the `eventMap.get("error")` error tells us `Object is possibly 'undefined'`.
-
-We get this error because TypeScript doesn't understand the relationship between `.has` and `.get` on a `Map` like it does with a regular object.
-
-In a Map, the `.has()` function just returns a boolean. TypeScript doesn't know that the boolean is related to the Map in any way, so when it tries to access the value with `.get()`, it returns `Event | undefined`, instead of just `Event`.
-
-To fix this, we will refactor the code by extracting the `event` into a constant. Then we can check if the `event` exists and use scoping to our advantage:
-
-```typescript
-const processUserMap = (eventMap: Map<string, Event>) => {
-  const event = eventMap.get("error");
-
-  if (event) {
-    const message = event.message;
-
-    throw new Error(message);
-  }
-};
-```
-
-This refactored version of the code works a bit more closely to what TypeScript wants to do in figuring out the relationship between variables instead of using the Map's built in methods like `has` or `get`.
-
-### `Boolean()` Doesn't Narrow as Expected
-
-Narrowing can be done with a number of other type guards, but there are some situations where the process won't work as expected.
-
-Consider this `canAttendRatedRMovies` function that isn't working as expected when using JavaScript's `Boolean()` function:
-
-```typescript
-function canAttendRatedRMovies(age: number | null): boolean {
-  // Why isn't this working?
-
-  const isOldEnough = Boolean(age && age >= 17);
-
-  if (isOldEnough) {
-    return true; // Supposed to indicate the customer can purchase explicit lyrics version
-  }
-
-  return false;
-}
-```
-
-However, if we use a double bang `!!` to convert the age check into a boolean, everything works as expected:
-
-```typescript
-// Works as Expected!
-
-const isOldEnough = !!(age && age >= 18);
-```
-
-This works because TypeScript is really good at understanding operator syntax for "not" (`!`), "or" (`||`), and "and" (`&&`). However, when looking at `Boolean(age && age >= 18)`, TypeScript only sees the `Boolean` part. It doesn't recognize that it's related to the `age`.
-
-It's not just functions like `Boolean` that don't narrow as expected. Certain objects like `Map` also can have issues.
+We'll take a closer look at these in the following exercises.
 
 ### Exercises
 
@@ -3743,13 +3615,13 @@ Currently, a test to see if the `appElement` is an `HTMLElement` fails:
 type Test = Expect<Equal<typeof appElement, HTMLElement>>; // red squiggly line under Equal<>
 ```
 
-Your task is to refactor the code to throw an `Error` if `appElement` doesn't exist.
+Your task is to use `throw` to narrow down the type of `appElement` before it's checked by the test.
 
-#### Exercise 3: Narrowing API Responses
+#### Exercise 3: Using `in` to Narrow
 
-Here we have a `HandleResponse` function that takes in a type of `APIResponse`, which is a union of two types of objects.
+Here we have a `handleResponse` function that takes in a type of `APIResponse`, which is a union of two types of objects.
 
-The goal of the `HandleResponse` function is to check whether the provided object has a `data` property. If it does, the function should return the `id` property. If not, it should throw an `Error` with the message from the `error` property.
+The goal of the `handleResponse` function is to check whether the provided object has a `data` property. If it does, the function should return the `id` property. If not, it should throw an `Error` with the message from the `error` property.
 
 ```tsx
 type APIResponse =
@@ -3799,17 +3671,15 @@ test("passes the test even with the error", () => {
 
 Then we have the inverse error, where `Property 'error' does not exist on type 'APIResponse'`:
 
-```tsx
-
-Property data does not exist on type 'APIResponse'.ts.
-
+```
+Property data does not exist on type 'APIResponse'.
 ```
 
-We're also getting a warning because we have unreachable code on the `if (true)` statement.
-
-Your challenge is to find the correct syntax for narrowing down the types within the `HandleResponse` function's `if` condition.
+Your challenge is to find the correct syntax for narrowing down the types within the `handleResponse` function's `if` condition.
 
 The changes should happen inside of the function without modifying any other parts of the code.
+
+<!-- CONTINUE -->
 
 #### Solution 1: Narrowing with `if` Statements
 
@@ -3931,7 +3801,7 @@ Throwing errors like this can help you identify issues at runtime. In this speci
 
 In general, this technique is useful any time you need to manage logical flow in your applications.
 
-#### Solution 3: Narrowing API Responses
+#### Solution 3: Using `in` to Narrow
 
 It may be tempting to change the `APIReponse` type to make it a little bit different. For example, we could add an `error` as a string on one side and `data` as undefined on the other branch:
 

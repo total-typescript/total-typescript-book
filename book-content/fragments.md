@@ -149,3 +149,119 @@ const getResolvedIconSize = (
 While this trick is interesting, it's not something to be applied without proper thought and understanding of its implications. We'll look behind the scenes of this syntax later.
 
 For now, the big takeaway here is that you shouldn't think about a union of literals and their wider types together as "this or that". Instead, think of them as just the wider type since that is what TypeScript will resolve to.
+
+---
+
+## When Narrowing Doesn't Work
+
+<!-- MAYBE move to the weird parts? -->
+
+### Narrowing with a `Map`
+
+Here we have a `processUserMap` function that takes in an `eventMap` that is a `Map` containing a key of `string` and a value of the `Event` type, which has a `message` string on it:
+
+```typescript
+type Event = {
+  message: string;
+};
+
+const processUserMap = (eventMap: Map<string, Event>) => {
+  if (eventMap.has("error")) {
+    const message = eventMap.get("error").message; // red squiggly line under `eventMap.get("error")`
+
+    throw new Error(message);
+  }
+};
+```
+
+Hovering over the `eventMap.get("error")` error tells us `Object is possibly 'undefined'`.
+
+We get this error because TypeScript doesn't understand the relationship between `.has` and `.get` on a `Map` like it does with a regular object.
+
+In a Map, the `.has()` function just returns a boolean. TypeScript doesn't know that the boolean is related to the Map in any way, so when it tries to access the value with `.get()`, it returns `Event | undefined`, instead of just `Event`.
+
+To fix this, we will refactor the code by extracting the `event` into a constant. Then we can check if the `event` exists and use scoping to our advantage:
+
+```typescript
+const processUserMap = (eventMap: Map<string, Event>) => {
+  const event = eventMap.get("error");
+
+  if (event) {
+    const message = event.message;
+
+    throw new Error(message);
+  }
+};
+```
+
+This refactored version of the code works a bit more closely to what TypeScript wants to do in figuring out the relationship between variables instead of using the Map's built in methods like `has` or `get`.
+
+### `Boolean()` Doesn't Narrow as Expected
+
+Narrowing can be done with a number of other type guards, but there are some situations where the process won't work as expected.
+
+Consider this `canAttendRatedRMovies` function that isn't working as expected when using JavaScript's `Boolean()` function:
+
+```typescript
+function canAttendRatedRMovies(age: number | null): boolean {
+  // Why isn't this working?
+
+  const isOldEnough = Boolean(age && age >= 17);
+
+  if (isOldEnough) {
+    return true; // Supposed to indicate the customer can purchase explicit lyrics version
+  }
+
+  return false;
+}
+```
+
+However, if we use a double bang `!!` to convert the age check into a boolean, everything works as expected:
+
+```typescript
+// Works as Expected!
+
+const isOldEnough = !!(age && age >= 18);
+```
+
+This works because TypeScript is really good at understanding operator syntax for "not" (`!`), "or" (`||`), and "and" (`&&`). However, when looking at `Boolean(age && age >= 18)`, TypeScript only sees the `Boolean` part. It doesn't recognize that it's related to the `age`.
+
+It's not just functions like `Boolean` that don't narrow as expected. Certain objects like `Map` also can have issues.
+
+---
+
+### Narrowing with the switch(true) Pattern
+
+You may be familiar with the `switch (true)` pattern. This pattern is reminiscent of an `if` statement but can be adapted to fit into a switch statement construct.
+
+Here's an example of a `categorizeAlbumSales` function that uses this pattern to return a string explaining the number of albums sold based on the Album's `certification` property:
+
+```tsx
+function categorizeAlbumSales(album: Album): string {
+  switch (true) {
+    case album.certification === "diamond": {
+      return "Over 10,000,000 albums sold";
+    }
+
+    case album.certification === "multi-platinum": {
+      return "2,000,000 to 9,999,999 albums sold";
+    }
+
+    case album.certification === "platinum": {
+      return "1,000,000 to 1,999,999 albums sold";
+    }
+
+    case album.certification === "gold": {
+      return "500,000 to 999,999 albums sold";
+    }
+
+    default: {
+      return "Less than 500,000 albums sold";
+    }
+  }
+}
+```
+
+The thing being passed into the case is the condition we're checking the truthiness of. In this case, each `album`'s `certification` property gets accurately narrowed down to return a specific string.
+
+This pattern can be adapted to checking any properties, and helps to avoid complexity when working with multiple narrowing statements.
