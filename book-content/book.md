@@ -3186,6 +3186,25 @@ In this section, we're going to see how TypeScript can help when a value is one 
 
 A union type is TypeScript's way of saying that a value can be "either this type or that type".
 
+This situation comes up in JavaScript all the time. Imagine you have a value that is a `string` on Tuesdays, but `null` the rest of the time:
+
+```typescript
+const message = Date.now() % 2 === 0 ? "Hello Tuesdays!" : null;
+```
+
+If we hover over `message`, we can see that TypeScript has inferred its type as `string | null`:
+
+```typescript
+// hovering over message
+const message: string | null;
+```
+
+This is a union type. It means that `message` can be either a `string` or `null`.
+
+#### Declaring Union Types
+
+We can declare our own union types.
+
 For example, you might have an `id` that could be either a `string` or a `number`:
 
 ```typescript
@@ -3235,7 +3254,7 @@ Union types can be used in many different ways, and they're a powerful tool for 
 
 #### The Assignability of Union Types
 
-Now that we have a basic understanding of union types, let's take a moment to talk about assignability.
+Now that we have a basic understanding of union types, let's think about how they work in our apps.
 
 Consider this chart:
 
@@ -3243,9 +3262,7 @@ Consider this chart:
 
 At the top, we have `string | number`. Below are two boxes `string` and `number`, each with their own connecting arrow pointing to `string | number`. This diagram shows that both `string` and `number` are assignable to `string | number`.
 
-When a variable is assigned a union type, TypeScript will only allow the variable to be assigned values that are of one of the types in the union.
-
-However, this doesn't work in reverse. If we have a union type, we won't be able to use it in a place expecting only one of its types.
+However, this doesn't work in reverse. We can't pass `string | number` to a function that only accepts `string`.
 
 For example, if we changed the `logId` function to only accept a `number`, TypeScript would throw an error when we try to pass `string | number` to it:
 
@@ -3274,51 +3291,35 @@ Argument of type 'string | number' is not assignable to parameter of type 'numbe
 
 This is because `user.id` _could_ be a `string`, and TypeScript is trying to protect us from accidentally passing a `string` to a function that only accepts a `number`.
 
-As we continue through the book, we'll expand the graph with other available types to help you get a better sense of how assignability works in TypeScript.
-
 ### Literal Types
 
 Just as TypeScript allows us to create union types from multiple types, it also allows us to create types which represent a specific primitive value. These are called literal types.
 
-<!-- CONTINUE -->
+Literal types can be used to represent strings, numbers, or booleans that have specific values.
 
-### Combining Union Types and Literal Types
-
-TypeScript allows us to combine union types and literal types to create complex type definitions.
-
-To update our `albumFormat` example, we can turn it into a union type containing literal types for the various available album formats:
-
-```tsx
-let albumFormat: "LP" | "CD" | "MP3" | "FLAC" | "Cassette";
+```typescript
+type YesOrNo = "yes" | "no";
+type StatusCode = 200 | 404 | 500;
+type TrueOrFalse = true | false;
 ```
 
-Now, the `albumFormat` variable can only be assigned one of the four literal types we specified. Choosing any other value will result in a TypeScript error:
+In the `YesOrNo` type, the `|` operator is used to create a union of the string literals `"yes"` and `"no"`. This means that a value of type `YesOrNo` can only be one of these two strings.
 
-```tsx
+This feature is what powers the autocomplete we've seen in functions like `document.addEventListener`:
 
-albumFormat = "Edison Wax Cylinder"; // red squiggly line under albumFormat
-
-// hovering over albumFormat shows:
-
-Type '"Edison Wax Cylinder"' is not assignable to type '"LP" | "CD" | "MP3" | "FLAC" | "Cassette"'
-
+```typescript
+document.addEventListener(
+  // DOMContentLoaded, mouseover, etc.
+  "click",
+  () => {},
+);
 ```
 
-Creating a type alias for the union of literals is a good way to clean this up:
-
-```tsx
-type AlbumFormat = "LP" | "CD" | "MP3" | "FLAC" | "Cassette";
-
-let format: AlbumFormat = "LP";
-
-console.log(format); // "LP"
-```
-
-It's great to have a union type representing all of the possible album formats, but it might be useful to have more specific types representing the formats for use in different parts of our application.
+The first argument to `addEventListener` is a union of string literals, which is why we get autocompletion for the different event types.
 
 ### Combining Unions With Unions
 
-Union types can be combined with other union types to create even more complex type definitions.
+What happens when we make a union of two union types? They combine together to make one big union.
 
 For example, we can create `DigitalFormat` and `PhysicalFormat` types that contain a union of literal values:
 
@@ -3338,45 +3339,23 @@ Now, we can use the `DigitalFormat` type for functions that handle digital forma
 
 This way, we can ensure that each function only handles the cases it's supposed to handle, and TypeScript will throw an error if we try to pass an incorrect format to a function.
 
-### How Big Can Union Types Get?
+```typescript
+const getAlbumFormats = (format: PhysicalFormat) => {
+  // function body
+};
 
-You probably won't ever have an issue with the size of your union types, but it's worth noting that there is an upper limit to how many members there can be.
-
-Consider a union type `Alphabet` that includes literals for each letter of the alphabet:
-
-```tsx
-
-type Alphabet = "a" | "b" | "c" | // pretend all 26 letters are here
-
+getAlbumFormats("MP3"); // red squiggly line under "MP3"
 ```
-
-Using some advanced type syntax that we'll cover later in the book, we'll do some type manipulation to create a `TooBig` type based on the `Alphabet` type:
-
-```tsx
-type TooBig = `${Alphabet}${Alphabet}${Alphabet}${Alphabet}`; // red squiggly line under the string template
-```
-
-The syntax above sets the `TooBig` type to be a union of every possible four letter combination of the `Alphabet` type. From `"AAAA" | "AAAB" | "AAAC" | ...` to `... | "ZZZY" | "ZZZZ"`, the `TooBig` type would contain 26^4, or 456,976 members.
-
-This is too large for TypeScript to handle, which is why it gives an error under the string template:
-
-```
-
-Expression creates a union type that is too complex to represent.
-
-```
-
-As mentioned before, you probably won't ever have an issue with the size of your unions. However, for situations where there are a large number of possible values, you should consider just using `string` as the type and handling logic and validation elsewhere in your code.
 
 ### Resolving Literal Types to Wider Types
 
-Let's look at how a union of literal types is resolved to a wider type.
+Let's look at how literal types combine with their wider types.
 
-Consider this `getResolvedIconSize` function that takes in an `iconSize` parameter that is a union of literal types `"small" | "medium" | "large"` as well as just the `string` type:
+Let's look at this `getResolvedIconSize` function. It takes in an `iconSize` parameter that is a union of literal types `"small" | "medium" | "large"` as well as the `string` type:
 
 ```typescript
 const getResolvedIconSize = (
-  iconSize: "small" | "medium" | "large" | string, // notice the mix of literal types & string
+  iconSize: "small" | "medium" | "large" | string, // notice the mix of literal types and string
 ) => {
   switch (iconSize) {
     case "small":
@@ -3393,6 +3372,8 @@ const getResolvedIconSize = (
   }
 };
 ```
+
+<!-- CONTINUE -->
 
 Inside the function, we have a `switch` statement that returns the corresponding size for the given `iconSize`. If the `iconSize` is not one of the literal sizes, then it just returns the `iconSize`.
 
