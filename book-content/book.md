@@ -4797,19 +4797,16 @@ The `AlbumSales` type now requires objects to include all of the properties from
 ```tsx
 
 const wishYouWereHereSales: AlbumSales = {
+  title: "Wish You Were Here",
 
-title: "Wish You Were Here",
+  artist: "Pink Floyd",
 
-artist: "Pink Floyd",
+  releaseYear: 1975
 
-releaseYear: 1975
+  unitsSold: 13000000,
 
-unitsSold: 13000000,
-
-revenue: 65000000,
-
+  revenue: 65000000,
 };
-
 ```
 
 If the contract of the `AlbumSales` type isn't fulfilled when creating a new object, TypeScript will raise an error.
