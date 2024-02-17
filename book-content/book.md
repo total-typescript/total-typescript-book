@@ -3862,17 +3862,15 @@ You can check this out by hovering over `.data` and `.error` in each of the bran
 
 Using `in` here gives us a great way to narrow down objects that might have different keys from one another.
 
-<!-- CONTINUE -->
-
 ## `unknown` and `never`
 
-Let's pause for a moment to introduce a couple more types that play an important role in TypeScript, particularly when it comes to narrowing.
+Let's pause for a moment to introduce a couple more types that play an important role in TypeScript, particularly when we talk about 'wide' and 'narrow' types.
 
-### The `unknown` Type
+### The Widest Type: `unknown`
 
-TypeScript has a special type called `unknown`. It represents something we don't know what it is, but we still want to keep type checking on it.
+TypeScript's widest type is `unknown`. It represents something that we don't know what it is.
 
-The `unknown` type sits at the top of our type hierarchy in TypeScript. All other types like strings, numbers, booleans, null, undefined, and their respective literals are assignable to `unknown`, as seen in its assignability chart:
+If you imagine a scale whether the widest types are at the top and the narrowest types are at the bottom, `unknown` is at the top. All other types like strings, numbers, booleans, null, undefined, and their respective literals are assignable to `unknown`, as seen in its assignability chart:
 
 <img src="https://res.cloudinary.com/total-typescript/image/upload/v1706814781/065-introduction-to-unknown.explainer_ohm9pd.png">
 
@@ -3882,31 +3880,56 @@ Consider this example function `fn` that takes in an `input` parameter of type `
 const fn = (input: unknown) => {};
 
 // Anything is assignable to unknown!
-
 fn("hello");
-
 fn(42);
-
 fn(true);
-
 fn({});
-
 fn([]);
-
 fn(() => {});
 ```
 
-All of the above function calls are valid because `unknown` is assignable to any other type, and unlike the `any` type, it can be checked against.
+All of the above function calls are valid because `unknown` is assignable to any other type
 
-The `unknown` type is the preferred choice when you want to represent something that's truly unknown in JavaScript. For example, it is extremely useful when you have things coming into your application from outside sources, like input from a form.
+The `unknown` type is the preferred choice when you want to represent something that's truly unknown in JavaScript. For example, it is extremely useful when you have things coming into your application from outside sources, like input from a form or a call to a webhook.
 
-However, the `unknown` type must be narrowed before you can do anything with it. You can't access any properties on `unknown`, or call any functions except for those that expect `unknown`.
+#### What's the Difference Between `unknown` and `any`?
 
-### The `never` Type
+You might be wondering what the difference is between `unknown` and `any`. They're both wide types, but there's a key difference.
 
-Let's go from the top of the assignability chart to the bottom.
+`any` doesn't really fit into our definition of 'wide' and 'narrow' types. It breaks the type system. It's not really a type at all - it's a way of opting out of TypeScript's type checking.
 
-But first, consider this function that doesn't return anything:
+`any` can be assigned to anything, and anything can be assigned to `any`. `any` is both narrower and wider than every other type.
+
+`unknown`, on the other hand, is part of TypeScript's type system. It's wider than every other type, so it can't be assigned to anything.
+
+```typescript
+const handleWebhookInput = (input: unknown) => {
+  // red line under input
+  // 'input' is of type 'unknown'.
+  input.toUppercase();
+};
+
+const handleWebhookInputWithAny = (input: any) => {
+  // no error
+  input.toUppercase();
+};
+```
+
+This means that `unknown` is a safe type, but `any` is not. `unknown` means "I don't know what this is", while `any` means "I don't care what this is".
+
+### The Narrowest Type: `never`
+
+If `unknown` is the widest type in TypeScript, `never` is the narrowest.
+
+`never` represents something that will _never_ happen. It's the very bottom of the type hierarchy.
+
+You'll rarely use a `never` type annotation yourself. Instead, it'll pop up in error messages and hovers - often when narrowing.
+
+But first, let's look at a simple example of a `never` type:
+
+#### `never` vs `void`
+
+Let's consider a function that never returns anything:
 
 ```typescript
 const getNever = () => {
@@ -3914,7 +3937,7 @@ const getNever = () => {
 };
 ```
 
-When checking the type of this function, TypeScript will infer that it returns `void`, indicating that it essentially returns nothing.
+When hovering this function, TypeScript will infer that it returns `void`, indicating that it essentially returns nothing.
 
 ```typescript
 // hovering over `getNever` shows:
@@ -3922,7 +3945,7 @@ When checking the type of this function, TypeScript will infer that it returns `
 const getNever: () => void;
 ```
 
-However, if we throw an error inside of the function, the function will never return:
+However, if we throw an error inside of the function, the function will _never_ return:
 
 ```typescript
 const getNever = () => {
@@ -3938,25 +3961,22 @@ With this change, TypeScript will infer that the function's type is `never`:
 const getNever: () => never;
 ```
 
-The `never` type represents something that can never happen. Where the `unknown` type is like the "top" type in TypeScript, `never` is like the "bottom".
+The `never` type represents something that can never happen.
 
 There are some weird implications for the `never` type.
 
 You cannot assign anything to `never`, except for `never` itself.
 
 ```typescript
+const fn = (input: never) => {};
+
 // red squiggly lines under everything in parens
 
 fn("hello");
-
 fn(42);
-
 fn(true);
-
 fn({});
-
 fn([]);
-
 fn(() => {});
 
 // no error here, since we're assigning `never` to `never`
@@ -3976,19 +3996,17 @@ const bool: boolean = getNever();
 const arr: string[] = getNever();
 ```
 
-Let's update the assignability chart to include `never`:
+This behavior looks extremely odd at first - but we'll see later why it's useful.
+
+Let's update our chart to include `never`:
 
 ![](images/image2.png)
 
-The `never` type can be assigned to any other type, but nothing can be assigned to it.
-
-As shown in the diagram, `never` truly is the bottom type in TypeScript. Nothing can be assigned to the `never` type but the `never` type. The `unknown` type is at the top of the hierarchy and can have anything assigned to it, but you can't go the other way.
-
-It might be confusing initially, but keeping this hierarchy in mind and understanding the relationship between `unknown` and `never` will help you grasp the concept more smoothly as you progress through the exercises.
+This gives us pretty much the full picture of TypeScript's type hierarchy.
 
 ### Exercises
 
-#### Exercise 1: Dealing with Unknown Errors
+#### Exercise 1: Narrowing Errors with `instanceof`
 
 In TypeScript, one of the most common places you'll encounter the `unknown` type is when using a `try...catch` statement to handle potentially dangerous code. Let's consider an example:
 
@@ -4010,9 +4028,9 @@ try {
 }
 ```
 
-In the code snippet above, we have a function called `somethingDangerous` that has a 50-50 chance of either throwing an error with the message "Something went wrong" or returning "all good". We're using a `try...catch` block to handle any errors that might be thrown by the function.
+In the code snippet above, we have a function called `somethingDangerous` that has a 50/50 chance of either throwing an error.
 
-Notice that the `error` variable in the `catch` clause is typed as `unknown`. This is the default behavior in TypeScript.
+Notice that the `error` variable in the `catch` clause is typed as `unknown`.
 
 Now let's say we want to log the error using `console.error()` only if the error contains a `message` attribute. We know that errors typically come with a `message` attribute, like in the following example:
 
@@ -4022,11 +4040,11 @@ const error = new Error("Some error message");
 console.log(error.message);
 ```
 
-Your task is to update the `if` statement to have the proper condition to check if the `error` has a message attribute before logging it. Remember, `error` is a class!
+Your task is to update the `if` statement to have the proper condition to check if the `error` has a message attribute before logging it. Check the title of the exercise to get a hint... And remember, `Error` is a class.
 
 #### Exercise 2: Narrowing `unknown` to a Value
 
-Here we have a `parseValue` function that takes in an `unknown` value:
+Here we have a `parseValue` function that takes in a `value` of type `unknown`:
 
 ```typescript
 const parseValue = (value: unknown) => {
@@ -4062,11 +4080,13 @@ it("Should error when anything else is passed in", () => {
 });
 ```
 
-Your challenge is to modify the `parseValue` function so that the tests pass and the errors go away. As a head's up, the solution requires a large conditional statement!
+Your challenge is to modify the `parseValue` function so that the tests pass and the errors go away. I want you to challenge yourself to do this _only_ by narrowing the type of `value` inside of the function. No changes to the types. This will require a very large `if` statement!
 
-#### Solution 1: Dealing with Unknown Errors
+#### Solution 1: Narrowing Errors with `instanceof`
 
-The way to solve this challenge is to narrow types using the `instanceof` operator.
+<!-- CONTINUE -->
+
+The way to solve this challenge is to narrow the `error` using the `instanceof` operator.
 
 Where we check the error message, we'll check if `error` is an instance of `Error`:
 
