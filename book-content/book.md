@@ -7585,13 +7585,13 @@ class CanvasNode extends Shape {
 
 ## TypeScript-only Features
 
-Beyond adding types, TypeScript has several features that are not found in JavaScript. Some of these are runtime features that were introduced in the earlier years, but for the last several releases the TypeScript team has been focused on introducing features that disappear or are removed by the compiler when it transpiles the TypeScript code to JavaScript. 
+Beyond adding types, TypeScript has several features that are not found in JavaScript. Some of these are runtime features that were introduced in the earlier years, but for the last several releases the TypeScript team has been focused on introducing features that disappear or are removed by the compiler when it transpiles the TypeScript code to JavaScript.
 
 In this chapter we'll look at several of these TypesScript-only features, including parameter properties, enums, namespaces, and declaration merging. Along the way we'll discuss benefits and trade-offs, as well as when you might want to stick with JavaScript.
 
 ### Class Parameter Properties
 
-With classes on the brain from the previous chapter, let's look at one more example that demonstrates a TypeScript-only feature. 
+With classes on the brain from the previous chapter, let's look at one more example that demonstrates a TypeScript-only feature.
 
 Parameter properties allow you to declare and initialize class members directly from the constructor parameters. This feature not only simplifies the code but also enhances readability and maintainability.
 
@@ -7655,7 +7655,7 @@ Numeric enums group together a set of related members and automatically assigns 
 enum AlbumStatus {
   NewRelease,
   OnSale,
-  StaffPick
+  StaffPick,
 }
 ```
 
@@ -7681,7 +7681,7 @@ Note that this time inside of the of the `AlbumStatus` enum the equals sign is u
 enum AlbumStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
-  StaffPick = "STAFF_PICK"
+  StaffPick = "STAFF_PICK",
 }
 ```
 
@@ -7734,7 +7734,7 @@ const AlbumStatus = {
   OnSale: "ON_SALE",
   ON_SALE: "OnSale",
   StaffPick: "STAFF_PICK",
-  STAFF_PICK: "StaffPick"
+  STAFF_PICK: "StaffPick",
 };
 ```
 
@@ -7748,7 +7748,7 @@ A `const` enum is declared similarly to the other enums, but with the `const` ke
 const enum AlbumStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
-  StaffPick = "STAFF_PICK"
+  StaffPick = "STAFF_PICK",
 }
 ```
 
@@ -7757,10 +7757,14 @@ The major difference is that `const` enums disappear when the TypeScript is tran
 However, if an array is created that accesses the enum's values, the transpiled JavaScript will end up with those values:
 
 ```tsx
-let albumStatuses = [AlbumStatus.NewRelease, AlbumStatus.OnSale, AlbumStatus.StaffPick];
+let albumStatuses = [
+  AlbumStatus.NewRelease,
+  AlbumStatus.OnSale,
+  AlbumStatus.StaffPick,
+];
 
 // the above transpiles to:
-"use strict";
+("use strict");
 let albumStatuses = ["NEW_RELEASE", "ON_SALE", "STAFF_PICK"];
 ```
 
@@ -7793,7 +7797,11 @@ namespace RecordStoreUtils {
   }
 
   export namespace Sales {
-    export function recordSale(albumTitle: string, quantity: number, price: number) {
+    export function recordSale(
+      albumTitle: string,
+      quantity: number,
+      price: number,
+    ) {
       // Implementation to record an album sale
     }
 
@@ -7804,7 +7812,7 @@ namespace RecordStoreUtils {
   }
 }
 ```
-  
+
 In this example, `AlbumCollection` is the main namespace, with `Sales` as a nested namespace. This structure helps in organizing the code by functionality and makes it clear which part of the application each function pertains to.
 
 The stuff inside of the `AlbumCollection` can be used as values or types:
@@ -7813,18 +7821,17 @@ The stuff inside of the `AlbumCollection` can be used as values or types:
 const odelay: AlbumCollection.Album.Album = {
   title: "Odelay!",
   artist: "Beck",
-  year: 1996
+  year: 1996,
 };
 
 AlbumCollection.Sales.recordSale("Odelay!", 1, 10.99);
 ```
 
-The behavior in the example above is very similar to modules, despite pre-dating their introduction to JavaScript. 
+The behavior in the example above is very similar to modules, despite pre-dating their introduction to JavaScript.
 
 While modules have now become the standard for organizing your code, you will still encounter namespaces when dealing with global scope types that come from external libraries. We'll revisit this topic later.
 
 When it comes to your own projects, you should stick with using modules.
-
 
 ### Merging Namespaces
 
@@ -7845,7 +7852,11 @@ namespace RecordStoreUtils {
 
 namespace RecordStoreUtils {
   export namespace Sales {
-    export function recordSale(albumTitle: string, quantity: number, price: number) {
+    export function recordSale(
+      albumTitle: string,
+      quantity: number,
+      price: number,
+    ) {
       // Implementation to record an album sale
     }
 
@@ -7863,7 +7874,7 @@ Because namespaces support declaration merging, the two declarations are automat
 const loaded: RecordStoreUtils.Album.Album = {
   title: "Loaded",
   artist: "The Velvet Underground",
-  year: 1970
+  year: 1970,
 };
 
 RecordStoreUtils.Sales.calculateTotalSales("Loaded");
@@ -7896,7 +7907,7 @@ const madvillainy: RecordStoreUtils.Album = {
   artist: "Madvillain",
   year: 2004,
   genre: ["Hip Hop", "Experimental"],
-  recordLabel: "Stones Throw"
+  recordLabel: "Stones Throw",
 };
 ```
 
@@ -7910,7 +7921,7 @@ Parameter properties are compiled to assignments in the constructor. Enums are c
 
 All of these features are useful in various situations, and it's good that they all compile to basic JavaScript.
 
-However, for the most part you should prefer using ES features over any of these TypeScript features. 
+However, for the most part you should prefer using ES features over any of these TypeScript features.
 
 Part of the reasoning behind this is that there are several efforts happening with the TC39 committee to bring JavaScript closer to TypeScript.
 
@@ -7924,13 +7935,13 @@ The big takeaway here is that you should avoid using any of the TypeScript-only 
 
 # 09. TypeScript-only Features
 
-Beyond adding types, TypeScript has several features that are not found in JavaScript. Some of these are runtime features that were introduced in the earlier years, but for the last several releases the TypeScript team has been focused on introducing features that disappear or are removed by the compiler when it transpiles the TypeScript code to JavaScript. 
+Beyond adding types, TypeScript has several features that are not found in JavaScript. Some of these are runtime features that were introduced in the earlier years, but for the last several releases the TypeScript team has been focused on introducing features that disappear or are removed by the compiler when it transpiles the TypeScript code to JavaScript.
 
 In this chapter we'll look at several of these TypesScript-only features, including parameter properties, enums, namespaces, and declaration merging. Along the way we'll discuss benefits and trade-offs, as well as when you might want to stick with JavaScript.
 
 ## Class Parameter Properties
 
-With classes on the brain from the previous chapter, let's look at one more example that demonstrates a TypeScript-only feature. 
+With classes on the brain from the previous chapter, let's look at one more example that demonstrates a TypeScript-only feature.
 
 Parameter properties allow you to declare and initialize class members directly from the constructor parameters. This feature not only simplifies the code but also enhances readability and maintainability.
 
@@ -7994,7 +8005,7 @@ Numeric enums group together a set of related members and automatically assigns 
 enum AlbumStatus {
   NewRelease,
   OnSale,
-  StaffPick
+  StaffPick,
 }
 ```
 
@@ -8020,7 +8031,7 @@ Note that this time inside of the of the `AlbumStatus` enum the equals sign is u
 enum AlbumStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
-  StaffPick = "STAFF_PICK"
+  StaffPick = "STAFF_PICK",
 }
 ```
 
@@ -8073,7 +8084,7 @@ const AlbumStatus = {
   OnSale: "ON_SALE",
   ON_SALE: "OnSale",
   StaffPick: "STAFF_PICK",
-  STAFF_PICK: "StaffPick"
+  STAFF_PICK: "StaffPick",
 };
 ```
 
@@ -8087,7 +8098,7 @@ A `const` enum is declared similarly to the other enums, but with the `const` ke
 const enum AlbumStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
-  StaffPick = "STAFF_PICK"
+  StaffPick = "STAFF_PICK",
 }
 ```
 
@@ -8096,10 +8107,14 @@ The major difference is that `const` enums disappear when the TypeScript is tran
 However, if an array is created that accesses the enum's values, the transpiled JavaScript will end up with those values:
 
 ```tsx
-let albumStatuses = [AlbumStatus.NewRelease, AlbumStatus.OnSale, AlbumStatus.StaffPick];
+let albumStatuses = [
+  AlbumStatus.NewRelease,
+  AlbumStatus.OnSale,
+  AlbumStatus.StaffPick,
+];
 
 // the above transpiles to:
-"use strict";
+("use strict");
 let albumStatuses = ["NEW_RELEASE", "ON_SALE", "STAFF_PICK"];
 ```
 
@@ -8132,7 +8147,11 @@ namespace RecordStoreUtils {
   }
 
   export namespace Sales {
-    export function recordSale(albumTitle: string, quantity: number, price: number) {
+    export function recordSale(
+      albumTitle: string,
+      quantity: number,
+      price: number,
+    ) {
       // Implementation to record an album sale
     }
 
@@ -8143,7 +8162,7 @@ namespace RecordStoreUtils {
   }
 }
 ```
-  
+
 In this example, `AlbumCollection` is the main namespace, with `Sales` as a nested namespace. This structure helps in organizing the code by functionality and makes it clear which part of the application each function pertains to.
 
 The stuff inside of the `AlbumCollection` can be used as values or types:
@@ -8152,18 +8171,17 @@ The stuff inside of the `AlbumCollection` can be used as values or types:
 const odelay: AlbumCollection.Album.Album = {
   title: "Odelay!",
   artist: "Beck",
-  year: 1996
+  year: 1996,
 };
 
 AlbumCollection.Sales.recordSale("Odelay!", 1, 10.99);
 ```
 
-The behavior in the example above is very similar to modules, despite pre-dating their introduction to JavaScript. 
+The behavior in the example above is very similar to modules, despite pre-dating their introduction to JavaScript.
 
 While modules have now become the standard for organizing your code, you will still encounter namespaces when dealing with global scope types that come from external libraries. We'll revisit this topic later.
 
 When it comes to your own projects, you should stick with using modules.
-
 
 ### Merging Namespaces
 
@@ -8184,7 +8202,11 @@ namespace RecordStoreUtils {
 
 namespace RecordStoreUtils {
   export namespace Sales {
-    export function recordSale(albumTitle: string, quantity: number, price: number) {
+    export function recordSale(
+      albumTitle: string,
+      quantity: number,
+      price: number,
+    ) {
       // Implementation to record an album sale
     }
 
@@ -8202,7 +8224,7 @@ Because namespaces support declaration merging, the two declarations are automat
 const loaded: RecordStoreUtils.Album.Album = {
   title: "Loaded",
   artist: "The Velvet Underground",
-  year: 1970
+  year: 1970,
 };
 
 RecordStoreUtils.Sales.calculateTotalSales("Loaded");
@@ -8235,7 +8257,7 @@ const madvillainy: RecordStoreUtils.Album = {
   artist: "Madvillain",
   year: 2004,
   genre: ["Hip Hop", "Experimental"],
-  recordLabel: "Stones Throw"
+  recordLabel: "Stones Throw",
 };
 ```
 
@@ -8249,7 +8271,7 @@ Parameter properties are compiled to assignments in the constructor. Enums are c
 
 All of these features are useful in various situations, and it's good that they all compile to basic JavaScript.
 
-However, for the most part you should prefer using ES features over any of these TypeScript features. 
+However, for the most part you should prefer using ES features over any of these TypeScript features.
 
 Part of the reasoning behind this is that there are several efforts happening with the TC39 committee to bring JavaScript closer to TypeScript.
 
