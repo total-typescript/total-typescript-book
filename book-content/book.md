@@ -4084,11 +4084,9 @@ Your challenge is to modify the `parseValue` function so that the tests pass and
 
 #### Solution 1: Narrowing Errors with `instanceof`
 
-<!-- CONTINUE -->
-
 The way to solve this challenge is to narrow the `error` using the `instanceof` operator.
 
-Where we check the error message, we'll check if `error` is an instance of `Error`:
+Where we check the error message, we'll check if `error` is an instance of the class `Error`:
 
 ```typescript
 if (error instanceof Error) {
@@ -4096,9 +4094,17 @@ if (error instanceof Error) {
 }
 ```
 
-The `instanceof` operator covers all children that come from `Error` class as well, such as `TypeError`.
+The `instanceof` operator covers other classes which inherit from the `Error` class as well, such as `TypeError`.
 
-Even though it works in this particular example for all kinds of `Error`s, in the real world someone may be throwing a string in code instead. To be more safe from these edge cases, it's a good idea to include an `else` block that would throw the `error` variable like so:
+In this case, we're logging the error message to the console - but this could be used to display something different in our applications, or to log the error to an external service.
+
+Even though it works in this particular example for all kinds of `Error`s, it won't cover us for the strange case where someone throws a non-`Error` object.
+
+```typescript
+throw "This is not an error!";
+```
+
+To be more safe from these edge cases, it's a good idea to include an `else` block that would throw the `error` variable like so:
 
 ```typescript
 if (error instanceof Error) {
@@ -4108,7 +4114,7 @@ if (error instanceof Error) {
 }
 ```
 
-Now `unknown` has been narrowed down into a known class.
+Using this technique, we can handle the error in a safe way and avoid any potential runtime errors.
 
 #### Solution 2: Narrowing `unknown` to a Value
 
@@ -4144,7 +4150,7 @@ if (typeof value === "object" && "data" in value) {
 }
 ```
 
-With this change, TypeScript is complaining that `value` is possibly `null`.
+With this change, TypeScript is complaining that `value` is possibly `null`. This is because, of course, `typeof null` is `"object"`. Thanks, JavaScript!
 
 To fix this, we can add `&& value` to our first condition to make sure it isn't `null`:
 
@@ -4204,152 +4210,164 @@ const parseValue: (value: unknown) => string;
 
 Thanks to this huge conditional, our tests pass, and our error messages are gone!
 
-As a side note, the Zod library would allow us to do this in a single line of code, but knowing how to do this manually is a great exercise to understand how narrowing works in TypeScript.
+This is usually _not_ how you'd want to write your code. It's a bit of a mess. You could use a library like [Zod](https://zod.dev) to do this with a much nicer API. But it's a great way to understand how `unknown` and narrowing work in TypeScript.
 
 ## Discriminated Unions
 
-<!-- TODO - figure out a better title for this -->
+In this section we'll look at a common pattern TypeScript developers use to structure their code. It's called a 'discriminated union'.
 
-We've seen how unions can be used to combine different types into a single type. However, there are situations where working with unions can get a bit cumbersome.
+To understand what a discriminated union is, let's first look at the problem it solves.
 
-For example, when working with a union of types that share a common property but may have properties that are unique to each type, you may find yourself needing to write multiple type guards to narrow down the type.
+### The Problem: The Bag Of Optionals
 
-Consider this `Album` type, which includes a required `format`, `title`, `artist`, and `totalLength` attributes, as well as optional attributes related to length and speed:
-
-```typescript
-type Album = {
-  format: "CD" | "Cassette" | "Vinyl";
-
-  title: string;
-
-  artist: string;
-
-  totalLength: number;
-
-  maxCDLength?: 80;
-
-  maxSideLength?: number;
-};
-```
-
-Say we wanted to write a function that will determine the number of discs or records or cassettes that an album will be released on. We could check if the `format` is "CD", then return `album.totalLength` divided by `album.maxCDLength` since a CD only has one side. Otherwise, we would return `album.totalLength` divided by `album.maxSideLength` since we know it would be either cassette or vinyl which have two sides:
-
-```tsx
-function calculateUnitsNeeded(album: Album): number {
-  if (album.format === "CD") {
-    // Assuming maxCDLength is always 80 for CDs
-
-    return Math.ceil(album.totalLength / album.maxCDLength); // red squiggly line under album.maxCDLength
-  } else {
-    // For Vinyl and Cassette, using maxSideLength
-
-    return Math.ceil(album.totalLength / (album.maxSideLength * 2)); // red squiggly line under album.maxSideLength
-  }
-}
-```
-
-With this current implementation, TypeScript is giving us errors underneath `album.maxCDLength` and `album.maxSideLength`:
-
-```tsx
-
-// hovering over album.maxCDLength shows:
-
-'album.maxCDLength' is possibly 'undefined'
-
-// hovering over album.maxSideLength shows:
-
-'album.maxSideLength' is possibly 'undefined'
-
-```
-
-The error messages tell us that the optional properties on the `Album` type could be `undefined`, so this code could cause a runtime error when trying to do math operations with them.
-
-Instead of having a single type with multiple optional properties, we can create separate types for each that includes only the properties that are relevant to that format:
-
-```tsx
-type CD = {
-  format: "CD";
-
-  title: string;
-
-  artist: string;
-
-  totalLength: number;
-
-  maxCDLength: 74;
-};
-
-type Cassette = {
-  format: "Cassette";
-
-  title: string;
-
-  artist: string;
-
-  totalLength: number;
-
-  maxSideLength: 45;
-};
-
-type Vinyl = {
-  format: "Vinyl";
-
-  title: string;
-
-  artist: string;
-
-  totalLength: number;
-
-  maxSideLength: 22;
-};
-```
-
-### Introducing Discriminated Unions
-
-Now that we have clear-cut types for each format, we can form a union that accurately represents the `Album`:
+Let's imagine we are modelling a data fetch. We have a `State` type with a `status` property which can be in one of three states: `loading`, `success`, or `error`.
 
 ```typescript
-type Album = CD | Cassette | Vinyl;
+type State = {
+  status: "loading" | "success" | "error";
+};
 ```
 
-The `Album` type is now a discriminated union, as it consolidates distinct formats into a single type. The key to this union is the `format` property, which acts as the discriminator.
+This is useful, but we also need to capture some extra data. The data coming back from the fetch, or the error message if the fetch fails.
 
-With this change, the `calculateUnitsNeeded` function makes use of the discriminated `Album` type to check for the `format` property and accordingly determine the album's type without errors:
+We could add an `error` and `data` property to the `State` type:
 
-```tsx
-function calculateUnitsNeeded(album: Album): number {
-  if (album.format === "CD") {
-    return Math.ceil(album.totalLength / album.maxCDLength);
-  } else {
-    return Math.ceil(album.totalLength / (album.maxSideLength * 2));
+```typescript
+type State = {
+  status: "loading" | "success" | "error";
+  error?: string;
+  data?: string;
+};
+```
+
+And let's imagine we have a `renderUI` function that returns a string based on the input.
+
+```typescript
+const renderUI = (state: State) => {
+  if (state.status === "loading") {
+    return "Loading...";
   }
-}
+
+  if (state.status === "error") {
+    return `Error: ${state.error.toUpperCase()}`; // Red line under state.error
+  }
+
+  if (state.status === "success") {
+    return `Data: ${state.data}`;
+  }
+};
 ```
 
-If the album's `format` is `"CD"`, we know it will have a `maxCDLength` property. Otherwise, we know that the `maxSideLength` property will be present. Using a discriminated union also provides us with autocomplete and type checking for the properties specific to each format.
+This all looks good, except for the error we're getting on `state.error`. TypeScript is telling us that `state.error` could be `undefined`, and we can't call `toUpperCase` on `undefined`.
 
-It is important to keep the discriminator consistent across every type in the discriminated union. For example, changing `format` of `CD` to `type` would cause the union to crumble.
+This is because we've declared our `State` type in an incorrect way. We've made it so the `error` and `data` properties are _not related to the statuses where they occur_. In other words, it's possible to create types which will never happen in our app:
 
-However, the type of the discriminator doesn't have to be a string literal. It could be a number, a boolean, or an enum value.
+```typescript
+const state: State = {
+  status: "loading",
+  error: "This is an error", // should not happen on "loading!"
+  data: "This is data", // should not happen on "loading!"
+};
+```
 
-Similarly, you don't have to use types as the members of a discriminated union. You could use interfaces, tuples, or even classes– the only requirement is to have a discriminator property that is common to all members of the discriminated union. This ensures TypeScript will be able to narrow properly.
+I'd describe this type as a "bag of optionals". It's a type that's too loose. We need to tighten it up so that `error` can only happen on `error`, and `data` can only happen on `success`.
+
+### The Solution: Discriminated Unions
+
+The solution is to turn our `State` type into a discriminated union.
+
+A discriminated union is a type that has a common property, the 'discriminant', which is a literal type that is unique to each member of the union.
+
+In our case, the `status` property is the discriminant.
+
+Let's take each status and separate them into separate object literals:
+
+```typescript
+type State =
+  | {
+      status: "loading";
+    }
+  | {
+      status: "error";
+    }
+  | {
+      status: "success";
+    };
+```
+
+Now, we can associate the `error` and `data` properties with the `error` and `success` statuses respectively:
+
+```typescript
+type State =
+  | {
+      status: "loading";
+    }
+  | {
+      status: "error";
+      error: string;
+    }
+  | {
+      status: "success";
+      data: string;
+    };
+```
+
+Now, if we hover over `state.error` in the `renderUI` function, we can see that TypeScript knows that `state.error` is a `string`:
+
+```typescript
+const renderUI = (state: State) => {
+  if (state.status === "loading") {
+    return "Loading...";
+  }
+
+  if (state.status === "error") {
+    return `Error: ${state.error.toUpperCase()}`;
+  }
+
+  if (state.status === "success") {
+    return `Data: ${state.data}`;
+  }
+};
+```
+
+This is due to TypeScript's narrowing - it knows that `state.status` is `"error"`, so it knows that `state.error` is a `string` inside of the `if` block.
+
+To clean up our original type, we could use a type alias for each of the statuses:
+
+```typescript
+type LoadingState = {
+  status: "loading";
+};
+
+type ErrorState = {
+  status: "error";
+  error: string;
+};
+
+type SuccessState = {
+  status: "success";
+  data: string;
+};
+
+type State = LoadingState | ErrorState | SuccessState;
+```
+
+So if you're noticing that your types are resembling 'bags of optionals', it's a good idea to consider using a discriminated union.
 
 ### Exercises
 
 #### Exercise 1: Destructuring a Discriminated Union
 
-Consider a discriminated union called `Shape` that is made up of two types: `Circle` and `Square`. Both types have a `kind` property that acts as the discriminator.
+Consider a discriminated union called `Shape` that is made up of two types: `Circle` and `Square`. Both types have a `kind` property that acts as the discriminant.
 
 ```tsx
 type Circle = {
   kind: "circle";
-
   radius: number;
 };
 
 type Square = {
   kind: "square";
-
   sideLength: number;
 };
 
@@ -4372,25 +4390,19 @@ function calculateArea({ kind, radius, sideLength }: Shape) {
 
 However, TypeScript is showing us errors below `'radius'` and `'sideLength'`:
 
-```tsx
-
+```
 // hovering over radius shows:
-
 Property 'radius' does not exist on type 'Shape'.
 
 // hovering over sideLength shows:
-
 Property 'sideLength' does not exist on type 'Shape'.
-
 ```
 
-We get this error because TypeScript cannot guarantee that `radius` and `sideLength` will be present on the `Shape` type. A more accurate error would tell us that these properties do not exist on all branches of the `Shape` type. Because the `kind` property does exist on all branches, we do not have an error under that property.
-
-Your task is to update the implementation of the `calculateArea` function so that destructuring properties from the passed in `Shape` works without errors. Hint: this may involve changing the location where the destructuring takes place.
+Your task is to update the implementation of the `calculateArea` function so that destructuring properties from the passed in `Shape` works without errors. Hint: the examples I showed in the chapter _didn't_ use destructuring, but some destructuring is possible.
 
 #### Exercise 2: Narrowing a Discriminated Union with a Switch Statement
 
-Here we have a version of the `calcuateArea` function that uses an `if-else` statement to calculate the area of a circle or square without doing any destructuring:
+Here we have our `calculateArea` function from the previous exercise, but without any destructuring.
 
 ```typescript
 function calculateArea(shape: Shape) {
@@ -4402,13 +4414,9 @@ function calculateArea(shape: Shape) {
 }
 ```
 
-Your challenge is to refactor this function to use a `switch` statement based on the `kind` property instead of an `if-else` statement.
+Your challenge is to refactor this function to use a `switch` statement instead of the `if/else` statement. The `switch` statement should be used to narrow the type of `shape` and calculate the area accordingly.
 
-The reason behind this refactor is that `switch` statements make it easier to extend the function to allow for more shapes without repeating `if (shape.kind === "whatever")` over and over again.
-
-As you refactor, ensure that all the behavior is preserved. The area should be calculated accurately, regardless of the shape.
-
-#### Exercise 3: Destructuring a Discriminated Union of Tuples
+#### Exercise 3: Discriminated Tuples
 
 Here we have a `fetchData` function that returns a promise that resolves to an `ApiResponse` tuple that consists of two elements.
 
@@ -4430,9 +4438,7 @@ async function fetchData(): Promise<ApiResponse> {
     if (!response.ok) {
       return [
         "error",
-
         // Imagine some improved error handling here
-
         "An error occurred",
       ];
     }
@@ -4464,19 +4470,19 @@ async function exampleFunc() {
 }
 ```
 
-The problem stems from the `ApiResponse` type being too wide.
+The problem stems from the `ApiResponse` type being a "bag of optionals".
 
 The `ApiResponse` type needs to be updated so that there are two possible combinations for the returned tuple:
 
-If the first element is `"error"` then the tuple signifies an error occurred with the second element being the error message.
+If the first element is `"error"` then the second element should be the error message.
 
-Otherwise, if the first element is `"success"` the tuple carries the successful payload, which is an array of `User` objects.
+If the first element is `"success"`, then the second element should be an array of `User` objects.
 
-Your challenge is to redefine the `ApiResponse` type to be a discriminated unions of tuples that only allows for the specific combinations for the `success` and `error` states defined above.
+Your challenge is to redefine the `ApiResponse` type to be a discriminated tuple that only allows for the specific combinations for the `success` and `error` states defined above.
 
 #### Exercise 4: Handling Defaults with a Discriminated Union
 
-We're back to the `calculateArea` function example:
+We're back with out `calculateArea` function:
 
 ```typescript
 function calculateArea(shape: Shape) {
@@ -4490,7 +4496,7 @@ function calculateArea(shape: Shape) {
 
 Until now, the test cases have involved checking if the `kind` of the `Shape` is a `circle` or a `square`, then calculating the area accordingly.
 
-However, a new test case has been added for a situation where no `kind` value has been passed into the function:
+However, a new test case has been added for a situation where no `kind` has been passed into the function:
 
 ```typescript
 it("Should calculate the area of a circle when no kind is passed", () => {
@@ -4506,17 +4512,17 @@ it("Should calculate the area of a circle when no kind is passed", () => {
 
 TypeScript is showing errors under `radius` in the test:
 
-```typescript
-
+```
 Argument of type '{ radius: number; }' is not assignable to parameter of type 'Shape'.
-
 Property 'kind' is missing in type '{ radius: number; }' but required in type 'Circle'.
-
 ```
 
 The test expects that if a `kind` isn't passed in, the shape should be treated as a circle. However, the current implementation doesn't account for this.
 
-Your challenge is to make updates to the `Shape` discriminated union that will allow for a missing value. Next, you'll need to make adjustments to the `calculateArea` function to ensure that TypeScript's type narrowing works properly within the function.
+Your challenge is to:
+
+1. Make updates to the `Shape` discriminated union that will allow for us to omit `kind`.
+2. Make adjustments to the `calculateArea` function to ensure that TypeScript's type narrowing works properly within the function.
 
 #### Solution 1: Destructuring a Discriminated Union
 
@@ -4527,76 +4533,69 @@ Before we look at the working solution, let's look at an attempt that doesn't wo
 Since we know that `kind` is present in all branches of the discriminated union, we can try using the rest parameter syntax to bring along the other properties:
 
 ```typescript
-
 function calculateArea({ kind, ...shape }: Shape) {
-
-// rest of function
-
+  // rest of function
+}
 ```
 
 Then inside of the conditional branches, we can specify the `kind` and destructure from the `shape` object:
 
 ```typescript
-
 if (kind === "circle") {
+  const { radius } = shape; // red squiggly line under radius
 
-const { radius } = shape; // red squiggly line under radius
-
-return Math.PI * radius * radius;
-
+  return Math.PI * radius * radius;
 } else {
+  const { sideLength } = shape; // red squiggly line under sideLength
 
-const { sideLength } = shape; // red squiggly line under sideLength
-
-return sideLength * sideLength;
-
+  return sideLength * sideLength;
 }
-
-}
-
 ```
 
 However, this approach doesn't work because the `kind` property has been separated from the rest of the shape. As a result, TypeScript can't track the relationship between `kind` and the other properties of `shape`.
 
 Both `radius` and `sideLength` have error messages below them:
 
-```typescript
-
+```
 Property 'radius' does not exist on type '{ radius: number; } | { sideLength: number; }'.
-
 Property 'sideLength' does not exist on type '{ radius: number; } | { sideLength: number; }'.
-
 ```
 
 TypeScript gives us these errors because it still cannot guarantee properties in the function parameters since it doesn't know yet whether it's dealing with a `Circle` or a `Square`.
 
 ##### The Working Destructuring Solution
 
-Instead of doing the destructuring at the function parameter level, we instead will revert the function parameter back to `shape` and move the destructuring to take place inside of the conditional branches:
+Instead of doing the destructuring at the function parameter level, we instead will revert the function parameter back to `shape`:
 
 ```typescript
 function calculateArea(shape: Shape) {
-  if (shape.kind === "circle") {
-    const { radius } = shape;
+  // rest of function
+}
+```
 
-    return Math.PI * radius * radius;
-  } else {
-    const { sideLength } = shape;
+...and move the destructuring to take place inside of the conditional branches:
 
-    return sideLength * sideLength;
-  }
+```typescript
+if (shape.kind === "circle") {
+  const { radius } = shape;
+
+  return Math.PI * radius * radius;
+} else {
+  const { sideLength } = shape;
+
+  return sideLength * sideLength;
 }
 ```
 
 Now within the `if` condition, TypeScript can recognize that `shape` is indeed a `Circle` and allows us to safely access the `radius` property. A similar approach is taken for the `Square` in the `else` condition.
 
-Destructuring is best used closer to where it's needed, especially when dealing with discriminated unions. Also note that TypeScript's auto-completion feature makes it convenient to work with properties directly, which don't require destructuring at all.
+This approach works because TypeScript can track the relationship between `kind` and the other properties of `shape` when the destructuring takes place inside of the conditional branches.
+
+In general, I prefer to avoid destructuring when working with discriminated unions. But if you want to, do it _inside_ of the conditional branches.
 
 #### Solution 2: Narrowing a Discriminated Union with a Switch Statement
 
-The first step is to clear out the `calcuateArea` function and add the `switch` keyword and specify `shape.kind` as our switch condition. TypeScript's intelligence kicks in and suggests autocompletion for `circle` and `square`, based on the discriminated union.
-
-Each case will be handled as they were with the `if-else` statement:
+The first step is to clear out the `calculateArea` function and add the `switch` keyword and specify `shape.kind` as our switch condition:
 
 ```typescript
 function calculateArea(shape: Shape) {
@@ -4604,15 +4603,15 @@ function calculateArea(shape: Shape) {
     case "circle": {
       return Math.PI * shape.radius * shape.radius;
     }
-
     case "square": {
       return shape.sideLength * shape.sideLength;
     }
-
     // Potential additional cases for more shapes
   }
 }
 ```
+
+As a nice bonus, TypeScript offers us autocomplete on the cases for the `switch` statement. This is a great way to ensure that we're handling all of the cases for our discriminated union.
 
 ##### Not Accounting for All Cases
 
@@ -4624,13 +4623,9 @@ function calculateArea(shape: Shape) {
     case "circle": {
       return Math.PI * shape.radius * shape.radius;
     }
-
     // case "square": {
-
     //   return shape.sideLength * shape.sideLength;
-
     // }
-
     // Potential additional cases for more shapes
   }
 }
@@ -4640,7 +4635,6 @@ Now when we hover over the function, we see that the return type is `number | un
 
 ```typescript
 // hovering over `calculateArea` shows
-
 function calculateArea(shape: Shape): number | undefined;
 ```
 
@@ -4648,33 +4642,17 @@ Switch statements work great with discriminated unions!
 
 #### Solution 3: Destructuring a Discriminated Union of Tuples
 
-At the start of this exercise, the `ApiResponse` type was too wide:
-
-```tsx
-type ApiResponse = [string, User[] | string];
-```
-
-We need to update the type to handle both the error and success states separately.
-
-Let's start by handling the error state of our API response.
-
-##### Handling the Error State
-
-In this state, the first element of the tuple is `"error"` and the second element is a string that contains the error message:
-
-```typescript
-type ApiResponse = ["error", string];
-```
-
-##### Handling the Success State
-
-Next, we need to add another option to our discriminated union with `"success"` as the first member and an array of users (`User[]`) as the second:
+When you're done, your `ApiResponse` type should look like this:
 
 ```typescript
 type ApiResponse = ["error", string] | ["success", User[]];
 ```
 
-With this update to the `ApiResponse` type, the errors have gone away!
+We've created two possible combinations for the `ApiResponse` type. An error state, and a success state. And instead of objects, we've used tuples.
+
+You might be thinking - where's the discriminant? It's the first element of the tuple. This is what's called a discriminated tuple.
+
+And with this update to the `ApiResponse` type, the errors have gone away!
 
 ##### Understanding Tuple Relationships
 
@@ -4684,8 +4662,6 @@ Inside of the `exampleFunc` function, we use array destructuring to pull out the
 const [status, value] = await fetchData();
 ```
 
-In this case, `status` is acting as the discriminator for the `ApiResponse` type.
-
 Even though the `status` and `value` variables are separate, TypeScript keeps track of the relationships behind them. If `status` is checked and is equal to `"success"`, TypeScript can narrow down `value` to be of the `User[]` type automatically:
 
 ```typescript
@@ -4694,11 +4670,7 @@ Even though the `status` and `value` variables are separate, TypeScript keeps tr
 const status: "error" | "success";
 ```
 
-Note that this intelligent behavior is specific to discriminated tuples, and won't work with discriminated objects.
-
-##### Error Handling with Discriminated Unions
-
-If you were to change the function to try to return a value that doesn't match the defined tuple structure, TypeScript would raise an error. For example, an empty object or an array where a string is expected would not be assignable. The type system checks that the pair of values in the tuple align with either the `["error", string]` or `["success", User[]]` format defined by the `ApiResponse` discriminated union.
+Note that this intelligent behavior is specific to discriminated tuples, and won't work with discriminated objects - as we saw in our previous exercise.
 
 #### Solution 4: Handling Defaults with a Discriminated Union
 
@@ -4724,6 +4696,17 @@ This solution appears to work initially since it resolves the error in the radiu
 
 However, this approach brings back errors inside of the `calculateArea` function because the discriminated union is broken since not every member has a `kind` property.
 
+```typescript
+function calculateArea(shape: Shape) {
+  if (shape.kind === "circle") {
+    // error on shape.kind
+    return Math.PI * shape.radius * shape.radius;
+  } else {
+    return shape.sideLength * shape.sideLength;
+  }
+}
+```
+
 ##### Attempt 2: Updating the `Circle` Type
 
 Rather than developing a new type, we could modify the `Circle` type to make the `kind` property optional:
@@ -4731,13 +4714,11 @@ Rather than developing a new type, we could modify the `Circle` type to make the
 ```typescript
 type Circle = {
   kind?: "circle";
-
   radius: number;
 };
 
 type Square = {
   kind: "square";
-
   sideLength: number;
 };
 
@@ -4776,7 +4757,11 @@ if (shape.kind === "square") {
 
 By inspecting `square` first, all shape cases that aren't squares default to circles. The circle is treated as optional, which preserves our discriminated union and keeps the function flexible.
 
+Sometimes, just flipping the runtime logic makes TypeScript happy!
+
 # 06. Objects
+
+<!-- CONTINUE -->
 
 ## Extending Objects
 
