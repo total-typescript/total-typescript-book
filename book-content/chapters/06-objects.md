@@ -445,13 +445,11 @@ interface Product extends WithId, WithCreatedAt {
 
 We've now refactored our intersections to use `interface extends` - our TypeScript compiler will thank us.
 
-<!-- CONTINUE -->
-
 ## Dynamic Object Keys
 
 When using objects, it's common that we won't always know the exact keys that will be used.
 
-In JavaScript, we can start with an empty object and add keys and values to it as we go:
+In JavaScript, we can start with an empty object and add keys and values to it dynamically:
 
 ```typescript
 // JavaScript Example
@@ -462,7 +460,7 @@ albumAwards.MercuryPrize = false;
 albumAwards.Billboard = true;
 ```
 
-However, when we try to add keys to an empty prototype object in TypeScript, we'll get errors:
+However, when we try to add keys dynamically to an object in TypeScript, we'll get errors:
 
 ```typescript
 // TypeScript Example
@@ -473,32 +471,58 @@ albumAwards.MercuryPrize = false; // red squiggly line under MercuryPrize
 albumAwards.Billboard = true; // red squiggly line under Billboard
 
 // hovering over Grammy shows:
-Property 'Grammy' does not exist on type '{}'.
+// Property 'Grammy' does not exist on type '{}'.
 ```
 
-TypeScript is protecting us from adding keys to an object that doesn't have them defined.
+This can feel unhelpful. You might think that TypeScript, based on its ability to narrow our code, should be able to figure out that we're adding keys to an object.
+
+In this case, TypeScript prefers to be conservative. It's not going to let you add keys to an object that it doesn't know about. This is because TypeScript is trying to prevent you from making a mistake.
 
 We need to tell TypeScript that we want to be able to dynamically add keys. Let's look at some ways to do this.
 
 ### Index Signatures for Dynamic Keys
 
-Index signatures are one way to specify we want to be able to add any key and value to an object. The syntax uses square brackets, just like we would if we were adding a dynamic key to an object literal.
+Let's take another look at the code above.
 
-Here's how we would specify an inline index signature for the `albumAwards` object literal. We'll call the key `award` as a string, and specify it should have a boolean value to match the example above:
+```typescript
+const albumAwards = {};
+
+albumAwards.Grammy = true; // red squiggly line under Grammy
+```
+
+The technical term for what we're doing here is 'indexing'. We're indexing into `albumAwards` with a string key, `Grammy`, and assigning it a value.
+
+To support this behavior, we want to tell TypeScript that whenever we try to index into `albumAwards` with a string, we should expect a boolean value.
+
+To do that, we can use an 'index signature'.
+
+Here's how we would specify an index signature for the `albumAwards` object.
 
 ```typescript
 const albumAwards: {
-  [award: string]: boolean;
+  [index: string]: boolean;
 } = {};
+
+albumAwards.Grammy = true;
+albumAwards.MercuryPrize = false;
+albumAwards.Billboard = true;
 ```
 
-Note that with the inline index signature above, the values must always be a boolean. The `award` keys we add can't use a string or any other type.
+The `[index: string]: boolean` syntax is an index signature. It tells TypeScript that `albumAwards` can have any string key, and the value will always be a boolean.
+
+We can choose any name for the `index`. It's just a description.
+
+```typescript
+const albumAwards: {
+  [iCanBeAnything: string]: boolean;
+} = {};
+```
 
 The same syntax can also be used with types and interfaces:
 
 ```typescript
 interface AlbumAwards {
-  [award: string]: boolean;
+  [index: string]: boolean;
 }
 
 const beyonceAwards: AlbumAwards = {
@@ -507,7 +531,9 @@ const beyonceAwards: AlbumAwards = {
 };
 ```
 
-Index signatures are one way to handle dynamic keys, but there's a more readable way to do this with a type we've seen before.
+Index signatures are one way to handle dynamic keys, but there is a very popular type helper which is often preferred.
+
+<!-- CONTINUE -->
 
 ### Using a Record Type for Dynamic Keys
 
