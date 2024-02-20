@@ -1,31 +1,30 @@
 # 06. Objects
 
-<!-- CONTINUE -->
+So far, we've looked at object types only in the context of 'object literals', defined using `{}` with type aliases.
+
+But TypeScript has many tools available that let you be more expressive with object types. You can model inheritance, create new object types from existing ones, and use dynamic keys.
 
 ## Extending Objects
 
-Creating new objects based on objects that already exist is a great way to promote modularity and reusability in your code. There are two primary methods for extending objects in TypeScript: using intersections and extending interfaces.
+Let's start our investigation by looking at how to build object types from _other object types_ in TypeScript.
 
 ### Intersection Types
 
-Unlike the union operator `|` which represents an "or" relationship between types, the intersection operator `&` signifies an 'and' relationship.
+An intersection type lets us combine multiple object types into a single type. It uses the `&` operator. You can think of it like the reverse of the `|` operator. Instead of representing an "or" relationship between types, the `&` operator signifies an "and" relationship.
 
-Using the intersection operator `&` combines multiple separate types into a single type that inherits all of the properties of the source types (formally known as "constituent types").
+Using the intersection operator `&` combines multiple separate types into a single type.
 
 Consider these types for `Album` and `SalesData`:
 
 ```typescript
 type Album = {
   title: string;
-
   artist: string;
-
   releaseYear: number;
 };
 
 type SalesData = {
   unitsSold: number;
-
   revenue: number;
 };
 ```
@@ -38,49 +37,105 @@ type AlbumSales = Album & SalesData;
 
 The `AlbumSales` type now requires objects to include all of the properties from both `AlbumDetails` and `SalesData`:
 
-```tsx
-
+```typescript
 const wishYouWereHereSales: AlbumSales = {
   title: "Wish You Were Here",
-
   artist: "Pink Floyd",
-
   releaseYear: 1975
-
   unitsSold: 13000000,
-
   revenue: 65000000,
 };
 ```
 
 If the contract of the `AlbumSales` type isn't fulfilled when creating a new object, TypeScript will raise an error.
 
+It's also possible to intersect more than two types:
+
+```typescript
+type AlbumSales = Album & SalesData & { genre: string };
+```
+
+This is a useful method for creating new types from existing ones.
+
+#### Intersection Types With Primitives
+
+It's worth noting that intersection types can also be used with primitives, like `string` and `number` - though it often produces odd results.
+
+For instance, let's try intersecting `string` and `number`:
+
+```typescript
+type StringAndNumber = string & number;
+```
+
+What type do you think `StringAndNumber` is? It's actually `never`. This is because `string` and `number` have innate properties that can't be combined together.
+
+This also happens when you intersect two object types with an incompatible property:
+
+```typescript
+type User1 = {
+  age: number;
+};
+
+type User2 = {
+  age: string;
+};
+
+type User = User1 & User2;
+
+// hovering over User shows:
+type User = {
+  age: never;
+};
+```
+
+In this case, the `age` property resolves to `never` because it's impossible for a single property to be both a `number` and a `string`.
+
 ### Interfaces
 
-<!-- TODO - introduce interfaces -->
+So far, we've been only using the `type` keyword to define object types. Experienced TypeScript programmers will likely be tearing their hair out thinking "Why aren't we talking about interfaces?!".
 
-Another option for creating new objects is to use TypeScript interfaces and the `extends` keyword. This approach is particularly useful when building hierarchies or when multiple extensions are needed.
+Interfaces are one of TypeScript's most famous features. They shipped with the very first versions of TypeScript and are considered a core part of the language.
+
+Interfaces let you declare object types using a slightly different syntax to `type`. Let's compare the syntax:
+
+```typescript
+type Album = {
+  title: string;
+  artist: string;
+  releaseYear: number;
+};
+
+interface Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+}
+```
+
+They're largely identical, except for the keyword and an equals sign. But it's a common mistake to think of them as interchangeable. They're not.
+
+They have quite different capabilities, which we'll explore in this section.
+
+### `interface extends`
+
+One of `interface`'s most powerful features is its ability to extend other interfaces. This allows you to create new interfaces that inherit properties from existing ones.
 
 In this example, we have a base `Album` interface that will be extended into `StudioAlbum` and `LiveAlbum` interfaces that allow us to provide more specific details about an album:
 
 ```typescript
 interface Album {
   title: string;
-
   artist: string;
-
   releaseYear: number;
 }
 
 interface StudioAlbum extends Album {
   studio: string;
-
   producer: string;
 }
 
 interface LiveAlbum extends Album {
   concertVenue: string;
-
   concertDate: Date;
 }
 ```
@@ -90,25 +145,17 @@ This structure allows us to create more specific album representations with a cl
 ```tsx
 const americanBeauty: StudioAlbum = {
   title: "American Beauty",
-
   artist: "Grateful Dead",
-
   releaseYear: 1970,
-
   studio: "Wally Heider Studios",
-
   producer: "Grateful Dead and Stephen Barncard",
 };
 
 const oneFromTheVault: LiveAlbum = {
   title: "One from the Vault",
-
   artist: "Grateful Dead",
-
   releaseYear: 1991,
-
   concertVenue: "Great American Music Hall",
-
   concertDate: new Date("1975-08-13"),
 };
 ```
@@ -121,48 +168,105 @@ interface BoxSet extends StudioAlbum, LiveAlbum {
 }
 ```
 
-### Types vs Interfaces
+### Intersections vs `interface extends`
 
-We've now seen two ways of extending objects in TypeScript: one using `type` and one using `interface`.
+We've now covered two separate TypeScript syntaxes for extending object types: `&` and `interface extends`. So, which is better?
 
-_So, what's the difference?_
+You should choose `interface extends` for two reasons.
 
-A `type` can represent anything– union types, objects, intersection types, and more.
+#### Better Errors When Merging Incompatible Types
 
-On the other hand, an `interface` primarily represents object types, though it can also be used to define function types. Interfaces are particularly important given the significance of object types in TypeScript and the broader context of JavaScript.
+We saw earlier that when you intersect two object types with an incompatible property, TypeScript will resolve the property to `never`:
 
-Generally speaking, it doesn't matter too much if you use `type` or `interface` in your code, though you will learn benefits and drawbacks of each as you continue to work with TypeScript.
+```typescript
+type User1 = {
+  age: number;
+};
 
-### Intersections vs Interfaces
+type User2 = {
+  age: string;
+};
 
-For the topic at hand, when it comes to extending objects you'll get better performance from using `interface extends`.
+type User = User1 & User2;
+```
 
-By using `interface extends`, TypeScript can cache interfaces based on their names. This effectively creates a reference for future use. It's also more expressive when reading the code, as it's clear that one interface is extending another.
+When using `interface extends`, TypeScript will raise an error when you try to extend an interface with an incompatible property:
 
-In contrast, using `&` requires TypeScript to compute the intersection almost every time it's used. This is largely due to the potentially complex nature of intersections.
+```typescript
+interface User1 {
+  age: number;
+}
 
-The debate between `type` vs `interface` will continue to arise in the TypeScript community, but when extending objects, using interfaces and the `extends` keyword is the way to go.
+// Red line under User
+interface User extends User1 {
+  age: string;
+}
+```
 
-### Interface Declaration Merging
+Hovering over `User` will show an error message:
 
-In addition to being able to `extend` interfaces, TypeScript also allows for interfaces to be declared more than once. When an interface is declared multiple times, TypeScript automatically merges the declarations into a single interface. This is known as interface declaration merging.
+```
+Interface 'User' incorrectly extends interface 'User1'.
+  Types of property 'age' are incompatible.
+```
+
+This is very different because it actually sources an error. With intersections, TypeScript will only raise an error when you try to access the `age` property, not when you define it.
+
+So, `interface extends` is better for catching errors when building out your types.
+
+#### Better TypeScript Performance
+
+When you're working in TypeScript, the performance of your types should be at the back of your mind. In large projects, how you define your types can have a big impact on how fast your IDE feels, and how long it takes for `tsc` to check your code.
+
+`interface extends` is much better for TypeScript performance than intersections. With intersections, the intersection is recomputed every time it's used. This can be slow, especially when you're working with complex types.
+
+But TypeScript can cache the resulting type of an interface based on its name. So if you use `interface extends`, TypeScript only has to compute the type once, and then it can reuse it every time you use the interface.
+
+#### Conclusion
+
+`interface extends` is better for catching errors and for TypeScript performance. This doesn't mean you need to define all your object types using `interface` - we'll get to that later. But if you need to make one object type extend another, you should use `interface extends` where possible.
+
+### Types Vs Interfaces
+
+Now we know how good `interface extends` is for extending object types, a natural question arises. Should we use `interface` for all our types by default?
+
+Let's look at a few comparison points between types and interfaces.
+
+#### Types Can be Anything
+
+Type aliases are a lot more flexible than interfaces. A `type` can represent anything– union types, objects, intersection types, and more.
+
+```typescript
+type Union = string | number;
+```
+
+When we declare a type alias, we're just giving an alias to an existing type.
+
+On the other hand, an `interface` can only represent object types (and functions, which we'll look at much later).
+
+#### Declaration Merging
+
+Interfaces in TypeScript have an odd property. When multiple interfaces with the same name in the same scope are created, TypeScript automatically merges them. This is known as declaration merging.
 
 Here's an example of an `Album` interface with properties for the `title` and `artist`:
 
 ```typescript
 interface Album {
   title: string;
-
   artist: string;
 }
 ```
 
-Suppose that as the application evolves, you want to add more details to the album's metadata, such as the release year and genre. With declaration merging, you can simply declare the `Album` interface again with the new properties:
+Suppose that as the application evolves, you want to add more details to the album's metadata, such as the release year and genre. With declaration merging, you can declare the `Album` interface _again_ with the new properties:
 
 ```typescript
 interface Album {
-  releaseYear: number;
+  title: string;
+  artist: string;
+}
 
+interface Album {
+  releaseYear: number;
   genres: string[];
 }
 ```
@@ -172,22 +276,39 @@ Behind the scenes, TypeScript automatically merges these two declarations into a
 ```typescript
 interface Album {
   title: string;
-
   artist: string;
-
   releaseYear: number;
-
   genres: string[];
 }
 ```
 
-This is a different behavior than in JavaScript, which would cause an error if you tried to redeclare an object in the same scope. You would also get an error in TypeScript if you tried to redeclare a type with the `type` keyword.
+This is very different from `type`, which would give you an error if you tried to declare the same type twice:
 
-However, when using `interface` to declare a type, additional declarations are merged which may or may not be what you want.
+```typescript
+// Red line under both Album's
+// Duplicate identifier 'Album'
+type Album = {
+  title: string;
+  artist: string;
+};
 
-This might give you pause about using `interface` instead of `type` by default.
+type Album = {
+  releaseYear: number;
+  genres: string[];
+};
+```
 
-There will be more advanced examples of interface declaration merging in the future, but for now, it's important to know that TypeScript automatically merges interfaces when they're declared multiple times.
+Coming from a JavaScript point of view, this behavior of interfaces feels pretty weird. I have lost hours of my life to having two interfaces with the same name in the same 2,000+ line file. It's there for a good reason - that we'll explore in a later chapter - but it's a bit of a gotcha.
+
+This alone makes me wary of using interfaces by default.
+
+#### Conclusion
+
+So, should you use `type` or `interface` by default?
+
+I tend to default to `type` unless I need to use `interface extends`. This is because `type` is more flexible and doesn't have the weirdness of declaration merging.
+
+But, it's a close call. I wouldn't blame you for going the opposite way. Many folks coming from a more object-oriented background will prefer `interface` because it's more familiar to them. And, as we'll see later, `interface` works particularly well with classes.
 
 ### Exercises
 
@@ -198,21 +319,15 @@ Here we have a `User` type and a `Product` type, both with some common propertie
 ```tsx
 type User = {
   id: string;
-
   createdAt: Date;
-
   name: string;
-
   email: string;
 };
 
 type Product = {
   id: string;
-
   createdAt: Date;
-
   name: string;
-
   price: number;
 };
 ```
