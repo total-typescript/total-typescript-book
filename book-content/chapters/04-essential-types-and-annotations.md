@@ -1174,7 +1174,7 @@ But we can also use that syntax to pass types to functions.
 
 ### Passing Types To `Set`
 
-A `Set` is JavaScript feature that represents a collection of unique values.
+A `Set` is a JavaScript feature that represents a collection of unique values.
 
 To create a `Set`, use the `new` keyword and call `Set`:
 
@@ -1509,7 +1509,7 @@ const logAlbumInfo = (
 };
 ```
 
-Return types useful for when you want to ensure that a function returns a specific type of value.
+Return types are useful for when you want to ensure that a function returns a specific type of value.
 
 ### Rest Parameters
 
