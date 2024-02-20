@@ -61,10 +61,10 @@ type AlbumSalesType = typeof albumSales;
 
 // hovering over AlbumSalesType shows:
 type AlbumSalesType = {
-    "Kind of Blue": number;
-    "A Love Supreme": number;
-    "Mingus Ah Um": number;
-}
+  "Kind of Blue": number;
+  "A Love Supreme": number;
+  "Mingus Ah Um": number;
+};
 ```
 
 The `typeof` operator is useful when you're not sure what the exact shape of an object will be ahead of time.
@@ -92,7 +92,7 @@ Use the `typeof` keyword whenever you need to extract types based on runtime val
 
 ### You Can't Create Runtime Types from Values
 
-We've seen that `typeof` can create types from runtime values, but it's important to note that there is no way to to create a value from a type. 
+We've seen that `typeof` can create types from runtime values, but it's important to note that there is no way to to create a value from a type.
 
 In other words, there is no `valueof` operator:
 
@@ -117,10 +117,10 @@ The `keyof` and `typeof` operators can be combined into a single operation to cr
 For example, we can create a new `albumTitles` union type based on the keys from the `albumSales` object:
 
 ```tsx
-type AlbumTitles = keyof typeof albumSales; 
+type AlbumTitles = keyof typeof albumSales;
 
 // hovering over AlbumTitles shows:
-type AlbumTitles = "Kind of Blue" | "A Love Supreme" | "Mingus Ah Um"
+type AlbumTitles = "Kind of Blue" | "A Love Supreme" | "Mingus Ah Um";
 ```
 
 First, `typeof albumSales` extracts the type of the `albumSales` object, which is an object type with string keys and number values. Then `keyof` extracts those string keys to create the union type.
@@ -132,7 +132,7 @@ This is just one example of how new types can be created without having to manua
 Indexed access types in TypeScript allow you to specify a key to access the type of a property within another type. This feature is similar to how you would access the value of a property in an object at runtime, but instead operates at the type level.
 
 For example, we could use an indexed access type to extract the type of the `title` property from `AlbumDetails`:
-  
+
 ```tsx
 interface Album {
   title: string;
@@ -156,7 +156,7 @@ In this case, the error message has a helpful suggestion: use `Album["title"]` t
 type AlbumTitle = Album["title"];
 
 // hovering over AlbumTitle shows:
-type AlbumTitle = string
+type AlbumTitle = string;
 ```
 
 Using this indexed access syntax, the `AlbumTitle` type is equivalent to `string`, because that's the type of the `title` property in the `Album` interface.
@@ -181,7 +181,7 @@ const albumDetails = {
   "Kind of Blue": ["Kind of Blue", "Miles Davis", 1959],
   "A Love Supreme": ["A Love Supreme", "John Coltrane", 1965],
   "Mingus Ah Um": ["Mingus Ah Um", "Charles Mingus", 1959],
-}
+};
 ```
 
 Since `albumDetails` is a value instead of a type, we'll use `typeof` to create a type from it:
@@ -191,10 +191,10 @@ type AlbumDetailsType = typeof albumDetails;
 
 // hovering over AlbumDetailsType shows:
 type AlbumDetailsType = {
-    "Kind of Blue": [string, string, number];
-    "A Love Supreme": [string, string, number];
-    "Mingus Ah Um": [string, string, number];
-}
+  "Kind of Blue": [string, string, number];
+  "A Love Supreme": [string, string, number];
+  "Mingus Ah Um": [string, string, number];
+};
 ```
 
 Then we'll create an `AlbumNames` type by using `keyof` to extract the keys from `AlbumDetailsType`:
@@ -203,7 +203,7 @@ Then we'll create an `AlbumNames` type by using `keyof` to extract the keys from
 type AlbumNames = keyof albumDetails;
 
 // hovering over AlbumNames shows:
-type AlbumNames = "Kind of Blue" | "A Love Supreme" | "Mingus Ah Um"
+type AlbumNames = "Kind of Blue" | "A Love Supreme" | "Mingus Ah Um";
 ```
 
 Once we have an `AlbumNames` type, we can use an indexed access type to create a new type based on the original `albumDetails` object. This type will be a tuple that can hold either a string or number:
@@ -212,7 +212,7 @@ Once we have an `AlbumNames` type, we can use an indexed access type to create a
 type AlbumInfoTuple = AlbumDetailsType[AlbumNames];
 
 // hovering over AlbumInfoTuple shows:
-type AlbumInfoTuple = (string | number)[]
+type AlbumInfoTuple = (string | number)[];
 ```
 
 This means we can now use the `AlbumInfoTuple` type for any other object that has the same structure as the `albumDetails` values:
@@ -297,7 +297,7 @@ const configurations = {
 ```
 
 An `Environment` type has been declared as follows:
- 
+
 ```typescript
 type Environment = "development" | "production" | "staging";
 ```
@@ -351,7 +351,9 @@ type ProgramModeMap = typeof programModeEnumMap;
 
 type PlannedPrograms = unknown;
 
-type test = Expect<Equal<PlannedPrograms, 'planned1on1' | 'plannedSelfDirected'>>; // red squiggly line under Equal<>
+type test = Expect<
+  Equal<PlannedPrograms, "planned1on1" | "plannedSelfDirected">
+>; // red squiggly line under Equal<>
 ```
 
 This time, your challenge is to update the `PlannedPrograms` type to use an indexed access type to extract a union of the `ProgramModeMap` values that included "`planned`".
@@ -461,22 +463,22 @@ type Environment = keyof Configurations;
 
 // hovering over Configurations shows:
 type Configurations = {
-    development: {
-        apiBaseUrl: string;
-        timeout: number;
-    };
-    production: {
-        apiBaseUrl: string;
-        timeout: number;
-    };
-    staging: {
-        apiBaseUrl: string;
-        timeout: number;
-    };
-}
+  development: {
+    apiBaseUrl: string;
+    timeout: number;
+  };
+  production: {
+    apiBaseUrl: string;
+    timeout: number;
+  };
+  staging: {
+    apiBaseUrl: string;
+    timeout: number;
+  };
+};
 
 // hovering over Environment shows:
-type Environment = "development" | "production" | "staging"
+type Environment = "development" | "production" | "staging";
 ```
 
 ### Solution 3: Accessing Specific Values
@@ -487,7 +489,7 @@ Using an indexed access type, we can access the `GROUP` property from the `Progr
 type Group = ProgramModeMap["GROUP"];
 
 // hovering over Group shows:
-type Group = "group"
+type Group = "group";
 ```
 
 With this change, the `Group` type will be in sync with the `ProgramModeEnumMap`'s `group` value. This means our test will pass as expected.
@@ -497,7 +499,7 @@ With this change, the `Group` type will be in sync with the `ProgramModeEnumMap`
 In order to create the `PlannedPrograms` type, we can use an indexed access type to extract a union of the `ProgramModeMap` values that include "`planned`":
 
 ```tsx
-type Key = 'PLANNED_ONE_ON_ONE' | 'PLANNED_SELF_DIRECTED';
+type Key = "PLANNED_ONE_ON_ONE" | "PLANNED_SELF_DIRECTED";
 type PlannedPrograms = ProgramModeMap[Key];
 ```
 
@@ -524,7 +526,13 @@ Either solution results in a union of all values from the `programModeEnumMap` o
 
 ```typescript
 // hovering over AllPrograms shows:
-type AllPrograms = "group" | "announcement" | "1on1" | "selfDirected" | "planned1on1" | "plannedSelfDirected"
+type AllPrograms =
+  | "group"
+  | "announcement"
+  | "1on1"
+  | "selfDirected"
+  | "planned1on1"
+  | "plannedSelfDirected";
 ```
 
 ### Solution 6: Create a Union from an `as const` Array
@@ -535,7 +543,7 @@ When using `typeof` and `keyof` with indexed access type, we can extract all of 
 type AllPrograms = (typeof programModes)[keyof typeof programModes];
 
 // hovering over AllPrograms shows:
-type AllPrograms = 
+type AllPrograms =
   | "group"
   | "announcement"
   | "1on1"
@@ -588,7 +596,7 @@ Using the `Parameters` utility type, we can extract the parameters from the `sel
 type SellAlbumParams = Parameters<typeof sellAlbum>;
 
 // hovering over SellAlbumParams shows:
-type SellAlbumParams = [Album, number, number]
+type SellAlbumParams = [Album, number, number];
 ```
 
 This `SellAlbumParams` type is a tuple type that holds the `Album`, `price`, and `quantity` parameters from the `sellAlbum` function.
@@ -603,7 +611,7 @@ After seeing the `Parameters` type, it follows that the `ReturnType` utility typ
 type SellAlbumReturn = ReturnType<typeof sellAlbum>;
 
 // hovering over SellAlbumReturn shows:
-type SellAlbumReturn = number
+type SellAlbumReturn = number;
 ```
 
 In this case, the `SellAlbumReturn` type is a number, which corresponds to the inferred return type of the `sellAlbum` function.
@@ -654,7 +662,7 @@ type MakeQueryParameters = [
     };
     body?: string;
   }?,
-]
+];
 ```
 
 In addition to being a bit annoying to write and read, the other problem with the above is that we now have two sources of truth: one is the `MakeQueryParameters` type, and the other is in the `makeQuery` function.
@@ -670,7 +678,7 @@ const createUser = (id: string) => {
   return {
     id,
     name: "John Doe",
-    email: "example@email.com"
+    email: "example@email.com",
   };
 };
 ```
@@ -683,7 +691,8 @@ The goal is to create a `User` type that represents the return type of the `crea
 type User = unknown;
 
 type test = Expect<
-  Equal< // red squiggly line under Equal<>
+  Equal<
+    // red squiggly line under Equal<>
     User,
     {
       id: string;
@@ -710,7 +719,8 @@ const fetchUser = async (id: string) => {
 };
 
 type test = Expect<
-  Equal< // red squiggly line under Equal<>
+  Equal<
+    // red squiggly line under Equal<>
     User,
     {
       id: string;
@@ -746,17 +756,21 @@ type MakeQueryParameters = Parameters<typeof makeQuery>;
 // hovering over MakeQueryParameters shows:
 type MakeQueryParameters = [
   url: string,
-  opts?: {
-    method?: string | undefined;
-    headers?: {
-      [key: string]: string;
-    } | undefined;
-    body?: string | undefined;
-  } | undefined
-]
+  opts?:
+    | {
+        method?: string | undefined;
+        headers?:
+          | {
+              [key: string]: string;
+            }
+          | undefined;
+        body?: string | undefined;
+      }
+    | undefined,
+];
 ```
 
-We now have `MakeQueryParameters` representing a tuple where the first member is a `url` string, and the second is the optional `opts` object. 
+We now have `MakeQueryParameters` representing a tuple where the first member is a `url` string, and the second is the optional `opts` object.
 
 Indexing into the type would allow us to create an `Opts` type that represents the `opts` object:
 
@@ -773,10 +787,10 @@ type User = ReturnType<typeof createUser>;
 
 // hovering over User shows:
 type User = {
-    id: string;
-    name: string;
-    email: string;
-}
+  id: string;
+  name: string;
+  email: string;
+};
 ```
 
 This `User` type is a match for the expected type, which means our test will pass as expected.
@@ -793,7 +807,7 @@ type User = Promise<{
   id: string;
   name: string;
   email: string;
-}>
+}>;
 ```
 
 In order to unwrap the `Promise` type and provide the type of the resolved value, we can use the `Awaited` utility type:
