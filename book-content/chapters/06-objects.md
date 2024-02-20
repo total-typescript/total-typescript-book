@@ -142,7 +142,7 @@ interface LiveAlbum extends Album {
 
 This structure allows us to create more specific album representations with a clear inheritance relationship:
 
-```tsx
+```typescript
 const americanBeauty: StudioAlbum = {
   title: "American Beauty",
   artist: "Grateful Dead",
@@ -162,7 +162,7 @@ const oneFromTheVault: LiveAlbum = {
 
 Just as adding additional `&` operators add to an intersection, it's also possible for an interface to extend multiple other interfaces by separating them with commas:
 
-```tsx
+```typescript
 interface BoxSet extends StudioAlbum, LiveAlbum {
   numberOfDiscs: number;
 }
@@ -220,13 +220,13 @@ When you're working in TypeScript, the performance of your types should be at th
 
 `interface extends` is much better for TypeScript performance than intersections. With intersections, the intersection is recomputed every time it's used. This can be slow, especially when you're working with complex types.
 
-But TypeScript can cache the resulting type of an interface based on its name. So if you use `interface extends`, TypeScript only has to compute the type once, and then it can reuse it every time you use the interface.
+Interfaces are faster. TypeScript can cache the resulting type of an interface based on its name. So if you use `interface extends`, TypeScript only has to compute the type once, and then it can reused it every time you use the interface.
 
 #### Conclusion
 
 `interface extends` is better for catching errors and for TypeScript performance. This doesn't mean you need to define all your object types using `interface` - we'll get to that later. But if you need to make one object type extend another, you should use `interface extends` where possible.
 
-### Types Vs Interfaces
+### Types vs Interfaces
 
 Now we know how good `interface extends` is for extending object types, a natural question arises. Should we use `interface` for all our types by default?
 
@@ -234,13 +234,13 @@ Let's look at a few comparison points between types and interfaces.
 
 #### Types Can be Anything
 
-Type aliases are a lot more flexible than interfaces. A `type` can represent anything– union types, objects, intersection types, and more.
+Type aliases are a lot more flexible than interfaces. A `type` can represent anything – union types, object types, intersection types, and more.
 
 ```typescript
 type Union = string | number;
 ```
 
-When we declare a type alias, we're just giving an alias to an existing type.
+When we declare a type alias, we're just giving a name (or alias) to an existing type.
 
 On the other hand, an `interface` can only represent object types (and functions, which we'll look at much later).
 
@@ -257,7 +257,7 @@ interface Album {
 }
 ```
 
-Suppose that as the application evolves, you want to add more details to the album's metadata, such as the release year and genre. With declaration merging, you can declare the `Album` interface _again_ with the new properties:
+But let's imagine that, in the same file, you accidentally declare another `Album` interface with properties for the `releaseYear` and `genres`:
 
 ```typescript
 interface Album {
@@ -271,9 +271,10 @@ interface Album {
 }
 ```
 
-Behind the scenes, TypeScript automatically merges these two declarations into a single interface that includes all of the properties from both declarations:
+TypeScript automatically merges these two declarations into a single interface that includes all of the properties from both declarations:
 
 ```typescript
+// Under the hood:
 interface Album {
   title: string;
   artist: string;
@@ -300,15 +301,15 @@ type Album = {
 
 Coming from a JavaScript point of view, this behavior of interfaces feels pretty weird. I have lost hours of my life to having two interfaces with the same name in the same 2,000+ line file. It's there for a good reason - that we'll explore in a later chapter - but it's a bit of a gotcha.
 
-This alone makes me wary of using interfaces by default.
+Declaration merging, and its somewhat unexpected behavior, makes me a little wary of using interfaces.
 
 #### Conclusion
 
-So, should you use `type` or `interface` by default?
+So, should you use `type` or `interface` for declaring simple object types?
 
-I tend to default to `type` unless I need to use `interface extends`. This is because `type` is more flexible and doesn't have the weirdness of declaration merging.
+I tend to default to `type` unless I need to use `interface extends`. This is because `type` is more flexible and doesn't declaration merge unexpectedly.
 
-But, it's a close call. I wouldn't blame you for going the opposite way. Many folks coming from a more object-oriented background will prefer `interface` because it's more familiar to them. And, as we'll see later, `interface` works particularly well with classes.
+But, it's a close call. I wouldn't blame you for going the opposite way. Many folks coming from a more object-oriented background will prefer `interface` because it's more familiar to them from other languages.
 
 ### Exercises
 
@@ -316,7 +317,7 @@ But, it's a close call. I wouldn't blame you for going the opposite way. Many fo
 
 Here we have a `User` type and a `Product` type, both with some common properties like `id` and `createdAt`:
 
-```tsx
+```typescript
 type User = {
   id: string;
   createdAt: Date;
@@ -332,7 +333,7 @@ type Product = {
 };
 ```
 
-Your task is to create an intersection by refactoring the `User` and `Product` types such that they rely on the same `BaseEntity` type with properties `id` and `createdAt`.
+Your task is to create a new `BaseEntity` type that includes the `id` and `createdAt` properties. Then, use the `&` operator to create `User` and `Product` types that intersect with `BaseEntity`.
 
 #### Exercise 2: Extending Interfaces
 
@@ -347,28 +348,43 @@ To solve this challenge, we'll create a new `BaseEntity` type with the common pr
 ```typescript
 type BaseEntity = {
   id: string;
-
   createdAt: Date;
 };
 ```
 
-Once the `BaseEntity` type is created, we can use it to create the `User` and `Product` types that intersect it:
+Once the `BaseEntity` type is created, we can intersect it with the `User` and `Product` types:
+
+```typescript
+type User = {
+  id: string;
+  createdAt: Date;
+  name: string;
+  email: string;
+} & BaseEntity;
+
+type Product = {
+  id: string;
+  createdAt: Date;
+  name: string;
+  price: number;
+} & BaseEntity;
+```
+
+Then, we can remove the common properties from `User` and `Product`:
 
 ```typescript
 type User = {
   name: string;
-
   email: string;
 } & BaseEntity;
 
 type Product = {
   name: string;
-
   price: number;
 } & BaseEntity;
 ```
 
-Now `User` and `Product` have exactly the same behavior that they did before, but with less duplication.
+Now `User` and `Product` have exactly the same behavior that they did before, but with less duplicated code.
 
 #### Solution 2: Extending Interfaces
 
@@ -377,19 +393,16 @@ Instead of using the `type` keyword, the `BaseEntity`, `User`, and `Product`, ca
 ```typescript
 interface BaseEntity {
   id: string;
-
   createdAt: Date;
 }
 
 interface User {
   name: string;
-
   email: string;
 }
 
 interface Product {
   name: string;
-
   price: number;
 }
 ```
@@ -399,18 +412,16 @@ Once the interfaces are created, we can use the `extends` keyword to extend the 
 ```typescript
 interface User extends BaseEntity {
   name: string;
-
   email: string;
 }
 
 interface Product extends BaseEntity {
   name: string;
-
   price: number;
 }
 ```
 
-As eluded to by the extra credit, we can take this further by creating `WithId` and `WithCreatedAt` interfaces that represent objects with an `id` and `createdAt` property. Then, we can have `User` and `Product` extend from these interfaces by adding commas:
+For the extra credit, we can take this further by creating `WithId` and `WithCreatedAt` interfaces that represent objects with an `id` and `createdAt` property. Then, we can have `User` and `Product` extend from these interfaces by adding commas:
 
 ```typescript
 interface WithId {
@@ -423,18 +434,18 @@ interface WithCreatedAt {
 
 interface User extends WithId, WithCreatedAt {
   name: string;
-
   email: string;
 }
 
 interface Product extends WithId, WithCreatedAt {
   name: string;
-
   price: number;
 }
 ```
 
-Here, `User` represents an object with an `id`, `createdAt`, `name`, and `email` while `Product` represents an object with an `id`, `createdAt`, `name`, and `price`.
+We've now refactored our intersections to use `interface extends` - our TypeScript compiler will thank us.
+
+<!-- CONTINUE -->
 
 ## Dynamic Object Keys
 
@@ -442,7 +453,7 @@ When using objects, it's common that we won't always know the exact keys that wi
 
 In JavaScript, we can start with an empty object and add keys and values to it as we go:
 
-```tsx
+```typescript
 // JavaScript Example
 const albumAwards = {};
 
@@ -453,7 +464,7 @@ albumAwards.Billboard = true;
 
 However, when we try to add keys to an empty prototype object in TypeScript, we'll get errors:
 
-```tsx
+```typescript
 // TypeScript Example
 const albumAwards = {};
 
@@ -475,7 +486,7 @@ Index signatures are one way to specify we want to be able to add any key and va
 
 Here's how we would specify an inline index signature for the `albumAwards` object literal. We'll call the key `award` as a string, and specify it should have a boolean value to match the example above:
 
-```tsx
+```typescript
 const albumAwards: {
   [award: string]: boolean;
 } = {};
@@ -485,7 +496,7 @@ Note that with the inline index signature above, the values must always be a boo
 
 The same syntax can also be used with types and interfaces:
 
-```tsx
+```typescript
 interface AlbumAwards {
   [award: string]: boolean;
 }
@@ -504,7 +515,7 @@ The `Record` utility type is the preferred option for supporting dynamic keys. T
 
 Here's how we would use `Record` for the `albumAwards` object, where the key will be a string and the value will be a boolean:
 
-```tsx
+```typescript
 const albumAwards: Record<string, boolean> = {};
 
 albumAwards.Grammy = true;
@@ -543,7 +554,7 @@ Being able to support both default and dynamic keys in our data structures allow
 
 Here we have an object called `scores`, and we are trying to assign several different properties to it:
 
-```tsx
+```typescript
 const scores = {};
 
 scores.math = 95; // red squiggly line under math
@@ -557,7 +568,7 @@ Your task is to update `scores` to support the dynamic subject keys three ways: 
 
 Here we have a `scores` object with default properties for `math` and `english`:
 
-```tsx
+```typescript
 interface Scores {}
 
 // @ts-expect-error science is missing! // red squiggly line under @ts-expect-error
@@ -781,7 +792,7 @@ const doubleCup: RequiredAlbum = {
 
 An important thing to note is that `Required` only works one level deep. For example, if the `Album`'s `genre` contained nested properties, `Required<Album>` would not make the children required:
 
-```tsx
+```typescript
 type Album = {
   title: string;
   artist: string;
@@ -811,7 +822,7 @@ If you find yourself in a situation where you need a deeply Required type, check
 
 The `PropertyKey` type is a global type that represents the set of all possible keys that can be used on an object, including string, number, and symbol. You can find its type definition inside of TypeScript's ES5 type definitions file:
 
-```tsx
+```typescript
 // inside lib.es5.d.ts
 declare type PropertyKey = string | number | symbol;
 ```
@@ -820,7 +831,7 @@ Because `PropertyKey` works with all possible keys, it's great for working with 
 
 For example, when using an index signature you could set the key type to `PropertyKey` in order to allow for any valid key type:
 
-```tsx
+```typescript
 type Album = {
   [key: PropertyKey]: string;
 };
@@ -848,7 +859,7 @@ The Omit helper type is kind of like the opposite of Pick. It allows you to crea
 
 For example, we could use Omit to create the same `BasicAlbum` type we created with Pick, but this time by excluding the `id`, `releaseYear` and `genre` properties:
 
-```tsx
+```typescript
 type BasicAlbum = Omit<Album, "id" | "releaseYear" | "genre">;
 ```
 
@@ -866,7 +877,7 @@ type AlbumWithoutProducer = Omit<Album, "producer">;
 
 If we tried to create an `AlbumWithOnlyProducer` type using Pick, we would get an error because `producer` doesn't exist on `Album`:
 
-```tsx
+```typescript
 type AlbumWithOnlyProducer = Pick<Album, "producer">; // red squiggly line under "producer"
 
 // hovering over producer shows:
@@ -891,7 +902,7 @@ Earlier it was mentioned that Pick doesn't work well with union types. Omit has 
 
 Consider a scenario where we have three interface types for `Album`, `CollectorEdition`, and `DigitalRelease`:
 
-```tsx
+```typescript
 type Album = {
   id: string;
   title: string;
@@ -918,7 +929,7 @@ These types share common properties such as `id`, `title`, and `coverImageId`, b
 
 After creating a `MusicProduct` type that is a union of these three types, say we want to create a `MusicProductWithoutId` type, mirroring the structure of `MusicProduct` but excluding the `id` field:
 
-```tsx
+```typescript
 type MusicProduct = Album | CollectorEdition | DigitalRelease;
 
 type MusicProductWithoutId = Omit<MusicProduct, "id">;
@@ -926,7 +937,7 @@ type MusicProductWithoutId = Omit<MusicProduct, "id">;
 
 You might assume that `MusicProductWithoutId` would be a union of the three types minus the `id` field. However, what we get instead is a simplified object type containing only the `title` and `coverImageId`– the other properties that were shared across all types, without `id`.
 
-```tsx
+```typescript
 // hovering over MusicProductWithoutId shows:
 type MusicProductWithoutId = {
   title: string;
@@ -940,7 +951,7 @@ This unexpected outcome stems from how Omit processes union types. Rather than i
 
 In order to address this, we can create a `DistributiveOmit` type. It's defined similarly to Omit but operates individually on each union member. Note the inclusion of `PropertyKey` in the type definition to allow for any valid key type:
 
-```tsx
+```typescript
 type DistributiveOmit<T, K extends PropertyKey> = T extends any
   ? Omit<T, K>
   : never;
@@ -948,7 +959,7 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends any
 
 When we apply `DistributiveOmit` to our `MusicProduct` type, we get the anticipated result: a union of `Album`, `CollectorEdition`, and `DigitalRelease` with the `id` field omitted:
 
-```tsx
+```typescript
 type MusicProductWithoutId = DistributiveOmit<MusicProduct, "id">;
 
 // Hovering over MusicProductWithoutId shows:
@@ -960,7 +971,7 @@ type MusicProductWithoutId =
 
 Structurally, this is the same as:
 
-```tsx
+```typescript
 type MusicProductWithoutId =
   | {
       title: string;
@@ -1078,7 +1089,7 @@ Your task is to update the `hasKey` function so that all of these tests pass. Tr
 
 Here we have a function `updateProduct` that takes two arguments: an `id`, and a `productInfo` object derived from the `Product` type, excluding the `id` field.
 
-```tsx
+```typescript
 interface Product {
   id: number;
   name: string;
@@ -1095,7 +1106,7 @@ The twist here is that during a product update, we might not want to modify all 
 
 This means we have several different test scenarios. For example, update just the name, just the price, or just the description. Combinations like updating the name and the price or the name and the description are also tested.
 
-```tsx
+```typescript
 updateProduct(1, {
   // red squiggly line under the entire object
   name: "Book",
@@ -1164,7 +1175,7 @@ const fetchUser = async (): Promise<OmittedUser> => {
 
 We could create an interface `NameAndEmail` that contains a `name` and `email` property, along with updating the `User` interface to remove those properties in favor of extending them:
 
-```tsx
+```typescript
 interface NameAndEmail {
   name: string;
   email: string;
@@ -1178,7 +1189,7 @@ interface User extends NameAndEmail {
 
 Then the `fetchUser` function could return a `Promise` of `NameAndEmail`:
 
-```tsx
+```typescript
 const fetchUser = async (): Promise<NameAndEmail> => {
   ...
 ```
