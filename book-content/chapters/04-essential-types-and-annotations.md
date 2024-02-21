@@ -1198,7 +1198,7 @@ One way to fix this would be to pass some values to `Set` so it understands what
 const formats = new Set(["CD", "DVD"]);
 ```
 
-But, we don't _want_ to pass any values to it initially.
+But, we might not _want_ to pass any values to it initially.
 
 We can get around this by passing a _type_ to `Set` when we call it, using the angle brackets syntax:
 
