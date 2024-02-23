@@ -1,95 +1,134 @@
-<!-- CONTINUE -->
-
 # 07. Mutability
 
-The way you declare variables and object properties in TypeScript can significantly affect type inference and mutability. In this chapter, we'll explore the implications of using `let` and `const`, how to ensure proper object property inference, and techniques for enforcing immutability.
+In our chapter on unions and narrowing, we explored how TypeScript can infer types from the logical flow of our code. In this chapter, we'll see how mutability - whether a value can be changed or not - can affect type inference.
 
-## How Mutability Affects Inference
+## Mutability and Inference
 
 ### Variable Declaration and Type Inference
 
-As with recent versions of JavaScript, TypeScript supports the `let` and `const` keywords for variable declaration.
+How you declare your variables in TypeScript affects whether or not they can be changed.
 
-When using the `let` keyword, the variable is mutable and can be reassigned. This mutability can lead to less precise type inference, as TypeScript must account for potential changes to the variable's value.
+#### How TypeScript Infers `let`
 
-Using `const` indicates that the variable's value is immutable and cannot be changed once set. This immutability allows TypeScript to infer more precise types.
+When using the `let` keyword, the variable is _mutable_ and can be reassigned.
 
-Consider this `AlbumGenre` type is a union of literal values representing possible genres for an album:
+Consider this `AlbumGenre` type: a union of literal values representing possible genres for an album:
 
-```typescript
+```ts twoslash
 type AlbumGenre = "rock" | "country" | "electronic";
 ```
 
-Using `let`, we can declare a variable `albumGenre` and assign it the value `"rock"`:
+Using `let`, we can declare a variable `albumGenre` and assign it the value `"rock"`. Then we can attempt to pass `albumGenre` to a function that expects an `AlbumGenre`:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+type AlbumGenre = "rock" | "country" | "electronic";
+
+// ---cut---
+
 let albumGenre = "rock";
 
-// hovering over albumGenre shows:
-let albumGenre: string;
-```
-
-Then we can attempt to assign a genre inside of an `albumDetails` object:
-
-```typescript
-const albumDetails: { genre: AlbumGenre } = {
-  genre: albumGenre, // red squiggly line under genre
+const handleGenre = (genre: AlbumGenre) => {
+  // ...
 };
+
+handleGenre(albumGenre);
 ```
 
-TypeScript shows us an error below `genre` inside of the assignment:
+Because `let` was used when declaring the variable, TypeScript understands that the value can later be changed. In this case, it infers `albumGenre` as a `string` rather than the specific literal type `"rock"`. In our code, we could do this:
 
-```tsx
-Type 'string' is not assignable to type 'AlbumGenre'.
+```ts twoslash
+let albumGenre = "rock";
+
+// ---cut---
+
+albumGenre = "country";
 ```
 
-Because `let` was used when declaring the variable, TypeScript sees that mutability has been implied. Therefore, it will infer a more general type in order to accommodate the variable being reassigned. In this case, it infers `albumGenre` as a `string` rather than the specific literal type `"rock"`.
+Therefore, it will infer a wider type in order to accommodate the variable being reassigned.
 
-When we change the variable declaration to use `const`, TypeScript will infer the type more precisely. There is no longer an error in the assignment, and hovering over `albumGenre` inside of the `albumDetails` object shows that TypeScript has inferred it as the literal type `"rock"`:
+We can fix the error above by assigning a specific type to the `let`:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+type AlbumGenre = "rock" | "country" | "electronic";
+
+// ---cut---
+
+let albumGenre: AlbumGenre = "rock";
+
+const handleGenre = (genre: AlbumGenre) => {
+  // ...
+};
+
+handleGenre(albumGenre); // no more error
+```
+
+Now, `albumGenre` _can_ be reassigned, but only to a value that is a member of the `AlbumGenre` union. So, it will no longer show an error when passed to `handleGenre`.
+
+But there's another interesting solution.
+
+#### How TypeScript Infers `const`
+
+When using `const`, the variable is _immutable_ and cannot be reassigned. When we change the variable declaration to use `const`, TypeScript will infer the type more narrowly:
+
+```ts twoslash
+// @errors: 2345
+type AlbumGenre = "rock" | "country" | "electronic";
+
+// ---cut---
+
 const albumGenre = "rock";
 
-const albumDetails: { genre: AlbumGenre } = {
-  genre: albumGenre, // No error
+const handleGenre = (genre: AlbumGenre) => {
+  // ...
 };
 
-// hovering over albumGenre shows:
-const albumGenre: "rock";
+handleGenre(albumGenre); // No error
 ```
+
+There is no longer an error in the assignment, and hovering over `albumGenre` inside of the `albumDetails` object shows that TypeScript has inferred it as the literal type `"rock"`.
 
 If we try to change the value of `albumGenre` after declaring it as `const`, TypeScript will show an error:
 
-```typescript
-genre = "country"; // red squiggly line under genre
+```ts twoslash
+// @errors: 2588
+type AlbumGenre = "rock" | "country" | "electronic";
 
-// Hovering over genre shows:
-Error: Cannot assign to 'genre' because it is a constant
+const albumGenre = "rock";
+
+// ---cut---
+
+albumGenre = "country";
 ```
 
-TypeScript is mirroring JavaScript's treatment of const in order to prevent possible runtime errors. When you declare a variable as `const`, TypeScript infers it as the literal type you specified.
+TypeScript is mirroring JavaScript's treatment of const in order to prevent possible runtime errors. When you declare a variable with `const`, TypeScript infers it as the literal type you specified.
 
-Your choice between `let` and `const` when declaring variables impacts how TypeScript infers types. Using `let` is good for variables that you expect to change, while `const` is better for variables that won't.
+So, TypeScript uses how JavaScript works to its advantage. This will often encourage you to use `const` over `let` when declaring variables, as it's a little stricter.
 
 ### Object Property Inference
 
-Just like in JavaScript, objects are mutable in TypeScript, meaning their properties can be changed after they are created. As we saw with variables, how you create objects in TypeScript can affect how well type inference works.
+The picture with `const` and `let` becomes a bit more complicated when it comes to object properties.
+
+Objects are mutable in JavaScript, meaning their properties can be changed after they are created.
 
 For this example, we have an `AlbumAttributes` type that includes a `status` property with a union of literal values representing possible album statuses:
 
 ```typescript
 type AlbumAttributes = {
-  status: "new release" | "on sale" | "staff pick";
+  status: "new-release" | "on-sale" | "staff-pick";
 };
 ```
 
-Say we had an `updateStatus` function that takes an `AlbumAttributes` object and updates its `status` property (though for illustration purposes, we won't define the function here):
+Say we had an `updateStatus` function that takes an `AlbumAttributes` object:
 
 ```typescript
-const updateStatus = (attributes: AlbumAttributes) => {};
+const updateStatus = (attributes: AlbumAttributes) => {
+  // ...
+};
 
 const albumAttributes = {
-  status: "on sale",
+  status: "on-sale",
 };
 
 updateStatus(albumAttributes); // red squiggly line under albumAttributes
@@ -97,17 +136,21 @@ updateStatus(albumAttributes); // red squiggly line under albumAttributes
 
 TypeScript gives us an error below `albumAttributes` inside of the `updateStatus` function call, with messages similar to what we saw before:
 
-```tsx
+```
 Argument of type '{ status: string; }' is not assignable to parameter of type 'AlbumAttributes'.
 Types of property 'status' are incompatible.
-Type 'string' is not assignable to type '"new release" | "on sale" | "staff pick"'.
+Type 'string' is not assignable to type '"new-release" | "on-sale" | "staff-pick"'.
 ```
 
-Even though the `albumAttributes` object was declared with `const`, TypeScript treats object properties as mutable. We get the error when calling `updateStatus` because the `status` property is inferred as a `string` rather than the specific literal type `"on sale"`.
+This is happening because TypeScript has inferred the `status` property as a `string` rather than the specific literal type `"on-sale"`. Similar to with `let`, TypeScript understands that the property could later be reassigned:
 
-### Resolving Property Inference Errors
+```typescript
+albumAttributes.status = "new-release";
+```
 
-Let's look at a couple of ways to fix this inference issue.
+This is true even though the `albumAttributes` object was declared with `const`. We get the error when calling `updateStatus` because `status: string` can't be passed to a function that expects `status: "new-release" | "on-sale" | "staff-pick"`. TypeScript is trying to protect us from potential runtime errors.
+
+Let's look at a couple of ways to fix this issue.
 
 #### Using an Inline Object
 
@@ -115,11 +158,11 @@ One approach is to inline the object when calling the `updateStatus` function in
 
 ```typescript
 updateStatus({
-  status: "onSale",
+  status: "on-sale",
 }); // No error
 ```
 
-When inlining the object, TypeScript knows that there is no way that `status` could be changed before it is passed into the function.
+When inlining the object, TypeScript knows that there is no way that `status` could be changed before it is passed into the function, so it infers it more narrowly.
 
 #### Adding a Type to the Object
 
@@ -127,17 +170,23 @@ Another option is to explicitly declare the type of the `albumAttributes` object
 
 ```tsx
 const albumAttributes: AlbumAttributes = {
-  status: "on sale",
+  status: "on-sale",
 };
 
 updateStatus(albumAttributes); // No error
 ```
 
-When the object's type is specified, TypeScript can confidently infer that the `status` property matches one of the allowed literals from the union.
+This works similarly to how it did with the `let`. While `albumAttributes.status` can still be reassigned, it can only be reassigned to a valid value:
 
-Whether working with a single object or an array of objects, these techniques for ensuring proper object property inference will help you avoid inference errors.
+```typescript
+albumAttributes.status = "new-release"; // No error
+```
 
-## Readonly Object Properties
+This behaviour works the same for all object-like structures, including arrays and tuples. We'll examine those later in the exercises.
+
+<!-- CONTINUE -->
+
+### Readonly Object Properties
 
 For times when you want to ensure that an object's properties cannot be changed after they are set, TypeScript provides the `readonly` modifier.
 
@@ -147,14 +196,14 @@ Consider this `Album` interface, where the `title` and `artist` are marked as `r
 interface Album {
   readonly title: string;
   readonly artist: string;
-  status?: "new release" | "on sale" | "staff pick";
+  status?: "new-release" | "on-sale" | "staff-pick";
   genre?: string[];
 }
 ```
 
 Once an `Album` object is created, its `title` and `artist` properties are locked in and cannot be changed. However, the optional `status` and `genre` properties can still be modified.
 
-### The `Readonly` Type Helper
+#### The `Readonly` Type Helper
 
 If you want to specify that all properties of an object should be read-only, TypeScript provides a type helper called `Readonly`.
 
@@ -166,7 +215,7 @@ Here's an example of using `Readonly` to create an `Album` object:
 const readOnlyWhiteAlbum: Readonly<Album> = {
   title: "The Beatles (White Album)",
   artist: "The Beatles",
-  status: "staff pick",
+  status: "staff-pick",
 };
 ```
 
@@ -181,7 +230,7 @@ Cannot assign to 'genre' because it is a read-only property
 
 Note that like many of TypeScript's type helpers, the immutability enforced by `Readonly` only operates on the first level. It won't make properties read-only recursively.
 
-## Readonly Arrays
+### Readonly Arrays
 
 As with object properties, arrays and tuples can be made immutable by using the `readonly` modifier.
 
@@ -215,7 +264,7 @@ readOnlyGenres.push("experimental"); // red squiggly line under push
 Property 'push' does not exist on type 'readonly string[]'
 ```
 
-### Distinguishing Assignability Between Read-Only and Mutable Arrays
+#### Distinguishing Assignability Between Read-Only and Mutable Arrays
 
 To help drive the concept home, let's take compare assignability between read-only and mutable arrays.
 
@@ -266,9 +315,9 @@ Essentially, read-only arrays can only be assigned to other read-only types. Thi
 
 The big takeaway here is that even though you can assign mutable arrays to read-only arrays, you cannot assign read-only arrays to mutable arrays.
 
-## Exercises
+### Exercises
 
-### Exercise 1: Inference with an Array of Objects
+#### Exercise 1: Inference with an Array of Objects
 
 Here we have a `modifyButtons` function that takes in an array of objects with `type` properties that are either `"button"`, `"submit"`, or `"reset"`.
 
@@ -295,7 +344,7 @@ modifyButtons(buttonsToChange); // red squiggly line under buttonsToChange
 
 Your task is to determine why this error shows up, then resolve it.
 
-### Exercise 2: Avoiding Array Mutation
+#### Exercise 2: Avoiding Array Mutation
 
 This `printNames` function accepts an array of `name` strings and logs them to the console. However, there are also non-working `@ts-expect-error` comments that should not allow for names to be added or changed:
 
@@ -315,7 +364,7 @@ function printNames(names: string[]) {
 
 Your task is to update the type of the `names` parameter so that the array cannot be mutated. There are two ways to solve this problem.
 
-### Exercise 3: An Unsafe Tuple
+#### Exercise 3: An Unsafe Tuple
 
 Here we have a `dangerousFunction` which accepts an array of numbers as an argument:
 
@@ -350,7 +399,7 @@ Your task is to adjust the type of `Coordinate` such that TypeScript triggers an
 
 Note that you should only change `Coordinate`, and leave the function untouched.
 
-### Solution 1: Inference with an Array of Objects
+#### Solution 1: Inference with an Array of Objects
 
 Hovering over the `buttonsToChange` variable shows us that it is being inferred as an array of objects with a `type` property of type `string`:
 
@@ -390,9 +439,9 @@ const buttonsToChange: ButtonAttributes[] = [
 modifyButtons(buttonsToChange); // No error
 ```
 
-### Solution 2: Avoiding Array Mutation
+#### Solution 2: Avoiding Array Mutation
 
-#### Option 1: Add the `readonly` Keyword
+##### Option 1: Add the `readonly` Keyword
 
 The first approach solution is to add the `readonly` keyword before the `string[]` array. It applies to the entire `string[]` array, converting it into a read-only array:
 
@@ -404,7 +453,7 @@ function printNames(names: readonly string[]) {
 
 With this setup, you can't call `.push()` or modify elements in the array. However, methods like `map()` and `reduce()` remain accessible since these create a copy of the array, and do not mutate the original.
 
-#### Option 2: Use the `ReadonlyArray` Type Helper
+##### Option 2: Use the `ReadonlyArray` Type Helper
 
 Alternatively, you could use the `ReadonlyArray` type helper:
 
@@ -421,7 +470,7 @@ Regardless of which of these two methods you use, TypeScript will still display 
 (parameter) names: readonly string[]
 ```
 
-### Solution 3: An Unsafe Tuple
+#### Solution 3: An Unsafe Tuple
 
 The best way to prevent unwanted changes to the `Coordinate` tuple is to make it a `readonly` tuple:
 
@@ -459,19 +508,19 @@ Let's revisit the example of the `AlbumAttributes` type that included a `status`
 
 ```typescript
 type AlbumAttributes = {
-  status: "new release" | "on sale" | "staff pick";
+  status: "new-release" | "on-sale" | "staff-pick";
 };
 
 const updateStatus = (attributes: AlbumAttributes) => {};
 
 const albumAttributes = {
-  status: "on sale",
+  status: "on-sale",
 };
 
 updateStatus(albumAttributes); // red squiggly line under albumAttributes
 ```
 
-Recall that TypeScript presents an error when calling `updateStatus` because the `status` property was inferred as a `string` rather than the specific literal type `"on sale"`. We looked at two ways to solve the issue: using an inline object, or adding a type to the object.
+Recall that TypeScript presents an error when calling `updateStatus` because the `status` property was inferred as a `string` rather than the specific literal type `"on-sale"`. We looked at two ways to solve the issue: using an inline object, or adding a type to the object.
 
 The `as const` assertion gives us a third way. It ensures that an object and all of its properties are treated as constants, meaning that they cannot be changed once they are created.
 
@@ -479,7 +528,7 @@ The assertion gets added at the end of the object declaration:
 
 ```typescript
 const albumAttributes = {
-  status: "on sale",
+  status: "on-sale",
 } as const;
 ```
 
@@ -488,7 +537,7 @@ When using `as const`, TypeScript will add the `readonly` modifier to each of th
 ```tsx
 // hovering over albumAttributes shows:
 const albumAttributes: {
-  readonly status: "on sale";
+  readonly status: "on-sale";
 };
 ```
 
@@ -503,7 +552,7 @@ In JavaScript, the `Object.freeze` method is a common way to create immutable ob
 For this example, we'll rework the `AlbumAttributes` with nested `status` property to an `AlbumStatus` type that will be used inside of a `ShelfLocations` object:
 
 ```tsx
-type AlbumStatus = "new release" | "on sale" | "staff pick";
+type AlbumStatus = "new-release" | "on-sale" | "staff-pick";
 
 type ShelfLocations = {
   entrance: {
@@ -523,13 +572,13 @@ First, we'll create a `shelfLocations` object that uses `Object.freeze`:
 ```tsx
 const shelfLocations = Object.freeze({
   entrance: {
-    status: "on sale",
+    status: "on-sale",
   },
   frontCounter: {
-    status: "staff pick",
+    status: "staff-pick",
   },
   endCap: {
-    status: "new release",
+    status: "new-release",
   },
 });
 ```
@@ -554,7 +603,7 @@ const shelfLocations: Readonly<{
 Recall that the `Readonly` modifier only works on the first level of an object. If we try to add a new `backWall` property to the `shelfLocations` object, TypeScript will throw an error:
 
 ```tsx
-shelfLocations.backWall = { status: "on sale" }; // red squiggly line under backWall
+shelfLocations.backWall = { status: "on-sale" }; // red squiggly line under backWall
 
 // hovering over backWall shows:
 Property 'backWall' does not exist on type 'Readonly<{ entrance: { status: string; }; frontCounter: { status: string; }; endCap: { status: string; }; }>'
@@ -563,7 +612,7 @@ Property 'backWall' does not exist on type 'Readonly<{ entrance: { status: strin
 However, we are able to change the nested `status` property of a specific location:
 
 ```tsx
-shelfLocations.entrance.status = "new release";
+shelfLocations.entrance.status = "new-release";
 ```
 
 Again, using `as const` makes the entire object deeply read-only, including all nested properties:
@@ -571,26 +620,26 @@ Again, using `as const` makes the entire object deeply read-only, including all 
 ```tsx
 const shelfLocations = {
   entrance: {
-    status: "on sale",
+    status: "on-sale",
   },
   frontCounter: {
-    status: "staff pick",
+    status: "staff-pick",
   },
   endCap: {
-    status: "new release",
+    status: "new-release",
   },
 } as const;
 
 // hovering over shelfLocations shows:
 const shelfLocations: {
   readonly entrance: {
-    readonly status: "on sale";
+    readonly status: "on-sale";
   };
   readonly frontCounter: {
-    readonly status: "staff pick";
+    readonly status: "staff-pick";
   };
   readonly endCap: {
-    readonly status: "new release";
+    readonly status: "new-release";
   };
 };
 ```
