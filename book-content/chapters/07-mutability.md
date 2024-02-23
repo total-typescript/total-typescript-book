@@ -184,11 +184,11 @@ albumAttributes.status = "new-release"; // No error
 
 This behaviour works the same for all object-like structures, including arrays and tuples. We'll examine those later in the exercises.
 
-<!-- CONTINUE -->
-
 ### Readonly Object Properties
 
-For times when you want to ensure that an object's properties cannot be changed after they are set, TypeScript provides the `readonly` modifier.
+In JavaScript, as we've seen, object properties are mutable by default. But TypeScript lets us be more specific about whether or not a property of an object can be mutated.
+
+To make a property read-only (not writable), you can use the `readonly` modifier:
 
 Consider this `Album` interface, where the `title` and `artist` are marked as `readonly`:
 
@@ -203,9 +203,11 @@ interface Album {
 
 Once an `Album` object is created, its `title` and `artist` properties are locked in and cannot be changed. However, the optional `status` and `genre` properties can still be modified.
 
+Note that this only occurs on the _type_ level. At runtime, the properties are still mutable. TypeScript is just helping us catch potential errors.
+
 #### The `Readonly` Type Helper
 
-If you want to specify that all properties of an object should be read-only, TypeScript provides a type helper called `Readonly`.
+If you want to specify that _all_ properties of an object should be read-only, TypeScript provides a type helper called `Readonly`.
 
 To use it, you simply wrap the object type with `Readonly`.
 
@@ -223,16 +225,14 @@ Because the `readOnlyWhiteAlbum` object was created using the `Readonly` type he
 
 ```tsx
 readOnlyWhiteAlbum.genre = ["rock", "pop", "unclassifiable"]; // red squiggly line under genre
-
-// hovering over genre shows:
-Cannot assign to 'genre' because it is a read-only property
+// Cannot assign to 'genre' because it is a read-only property
 ```
 
 Note that like many of TypeScript's type helpers, the immutability enforced by `Readonly` only operates on the first level. It won't make properties read-only recursively.
 
 ### Readonly Arrays
 
-As with object properties, arrays and tuples can be made immutable by using the `readonly` modifier.
+As with object properties, arrays and tuples can also be made immutable by using the `readonly` modifier.
 
 Here's how the `readonly` modifier can be used to create a read-only array of genres. Once the array is created, its contents cannot be modified:
 
@@ -240,7 +240,7 @@ Here's how the `readonly` modifier can be used to create a read-only array of ge
 const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
 ```
 
-TypeScript also offers a `ReadonlyArray` type helper that functions in the same way to using the above syntax:
+Similar to the `Array` syntax, TypeScript also offers a `ReadonlyArray` type helper that functions in the same way to using the above syntax:
 
 ```tsx
 const readOnlyGenres: ReadonlyArray<string> = ["rock", "pop", "unclassifiable"];
@@ -253,9 +253,16 @@ Both of these approaches are functionally the same. Hovering over the `readOnlyG
 const readOnlyGenres: readonly string[];
 ```
 
-Note that while calling array methods that cause mutations will result in errors, methods like `map()` and `reduce()` will still work, as they create a copy of the array and do not mutate the original.
+Readonly arrays disallow the use of array methods that cause mutations, such as `push` and `pop`:
 
-```tsx
+```typescript
+readOnlyGenres.push("experimental"); // red squiggly line under push
+// Property 'push' does not exist on type 'readonly string[]'
+```
+
+However, methods like `map` and `reduce` will still work, as they create a copy of the array and do not mutate the original.
+
+```typescript
 const uppercaseGenres = readOnlyGenres.map((genre) => genre.toUpperCase()); // No error
 
 readOnlyGenres.push("experimental"); // red squiggly line under push
@@ -264,23 +271,21 @@ readOnlyGenres.push("experimental"); // red squiggly line under push
 Property 'push' does not exist on type 'readonly string[]'
 ```
 
-#### Distinguishing Assignability Between Read-Only and Mutable Arrays
+Note that, just like the `readonly` for object properties, this doesn't affect the runtime behavior of the array. It's just a way to help catch potential errors.
 
-To help drive the concept home, let's take compare assignability between read-only and mutable arrays.
+#### How Read-Only and Mutable Arrays Work Together
+
+To help drive the concept home, let's see how read-only and mutable arrays work together.
 
 Here are two `printGenre` functions that are functionally identical, except `printGenresReadOnly` takes a read-only array of genres as a parameter whereas `printGenresMutable` takes a mutable array:
 
 ```typescript
 function printGenresReadOnly(genres: readonly string[]) {
-  for (const genre of genres) {
-    console.log(genre);
-  }
+  // ...
 }
 
 function printGenresMutable(genres: string[]) {
-  for (const genre of genres) {
-    console.log(genre);
-  }
+  // ...
 }
 ```
 
@@ -306,14 +311,16 @@ printGenresReadOnly(readOnlyGenres);
 printGenresMutable(readOnlyGenres); // red squiggly line under readOnlyGenres
 
 // hovering over readOnlyGenres shows:
-Error: Argument of type 'readonly ["rock", "pop", "unclassifiable"]' is not assignable to parameter of type 'string[]'
+// Error: Argument of type 'readonly ["rock", "pop", "unclassifiable"]' is not assignable to parameter of type 'string[]'
 ```
 
-The error arises due to the potential for a mutable array to be altered inside of the function, which isn't acceptable for a read-only array.
+This is because we might be mutating the array inside of `printGenresMutable`. If we passed a read-only array.
 
-Essentially, read-only arrays can only be assigned to other read-only types. This characteristic is somewhat viral: if a function deep down the call stack expects a `readonly` array, then that array must remain `readonly` throughout. Doing so ensures that the array won't be mutated in any manner as it moves down the stack.
+Essentially, read-only arrays can only be assigned to other read-only types. This can spread virally throughout your application: if a function deep down the call stack expects a `readonly` array, then that array must remain `readonly` throughout. But doing so brings benefits. It ensures that the array won't be mutated in any manner as it moves down the stack. Very useful.
 
-The big takeaway here is that even though you can assign mutable arrays to read-only arrays, you cannot assign read-only arrays to mutable arrays.
+The takeaway here is that even though you can assign mutable arrays to read-only arrays, you cannot assign read-only arrays to mutable arrays.
+
+<!-- CONTINUE -->
 
 ### Exercises
 
