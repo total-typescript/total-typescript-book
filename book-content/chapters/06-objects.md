@@ -531,13 +531,11 @@ const beyonceAwards: AlbumAwards = {
 };
 ```
 
-Index signatures are one way to handle dynamic keys, but there is a very popular type helper which is often preferred.
-
-<!-- CONTINUE -->
+Index signatures are one way to handle dynamic keys. But there's a utility type that some argue is even better.
 
 ### Using a Record Type for Dynamic Keys
 
-The `Record` utility type is the preferred option for supporting dynamic keys. This type allows us to use any string, number, or symbol as a key, and supports any type for the value.
+The `Record` utility type is another option for supporting dynamic keys.
 
 Here's how we would use `Record` for the `albumAwards` object, where the key will be a string and the value will be a boolean:
 
@@ -547,7 +545,32 @@ const albumAwards: Record<string, boolean> = {};
 albumAwards.Grammy = true;
 ```
 
-The `Record` type helper is a repeatable pattern that's easy to read and understand. It's also an abstraction, which is generally preferred over using the lower-level index signature syntax. However, both options are valid and can even be used together.
+The first type argument is the key, and the second type argument is the value. This is a more concise way to achieve a similar result as an index signature.
+
+`Record` can also support a union type as keys, but an index signature can't:
+
+```typescript
+const albumAwards: Record<"Grammy" | "MercuryPrize" | "Billboard", boolean> = {
+  Grammy: true,
+  MercuryPrize: false,
+  Billboard: true,
+};
+
+const albumAwards: {
+  // red line under index
+  // An index signature parameter type cannot be a literal type or generic type.
+  // Consider using a mapped object type instead.
+  [index: "Grammy" | "MercuryPrize" | "Billboard"]: boolean;
+} = {
+  Grammy: true,
+  MercuryPrize: false,
+  Billboard: true,
+};
+```
+
+Index signatures can't used literal types, but `Record` can. We'll look at why this is when we explore mapped types in a later chapter.
+
+The `Record` type helper is a repeatable pattern that's easy to read and understand, and is a bit more flexible than an index signature. It's my go-to for dynamic keys.
 
 ### Combining Known and Dynamic Keys
 
@@ -570,9 +593,23 @@ const extendedNominations: ExtendedAlbumAwards = {
 };
 ```
 
-This technique would also work when using an interface and the `extends` keyword.
+This technique would also work when using an interface and the `extends` keyword:
 
-Being able to support both default and dynamic keys in our data structures allows us quite a bit of flexibility to adapt to changing requirements in your applications.
+```typescript
+interface BaseAwards {
+  Grammy: boolean;
+  MercuryPrize: boolean;
+  Billboard: boolean;
+}
+
+interface ExtendedAlbumAwards extends BaseAwards {
+  [award: string]: boolean;
+}
+```
+
+This version is preferable because, in general, `interface extends` is preferable to intersections.
+
+Being able to support both default and dynamic keys in our data structures allows a lot of flexibility to adapt to changing requirements in your applications.
 
 ### Exercises
 
@@ -588,33 +625,39 @@ scores.english = 90; // red squiggly line under english
 scores.science = 85; // red squiggly line under science
 ```
 
-Your task is to update `scores` to support the dynamic subject keys three ways: an inline index signature, a type, an interface, and a `Record`.
+Your task is to give `scores` a type annotation to support the dynamic subject keys. There are three ways: an inline index signature, a type, an interface, or a `Record`.
 
 #### Exercise 2: Default Properties with Dynamic Keys
 
-Here we have a `scores` object with default properties for `math` and `english`:
+Here, we're trying to model a situation where we want some required keys - `math`, `english`, and `science` - on our scores object.
+
+But we also want to add dynamic properties. In this case, `athletics`, `french`, and `spanish`:
 
 ```typescript
 interface Scores {}
 
-// @ts-expect-error science is missing! // red squiggly line under @ts-expect-error
+// @ts-expect-error science should be provided // red squiggly line under @ts-expect-error
 const scores: Scores = {
   math: 95,
   english: 90,
 };
+
+scores.athletics = 100; // red line under athletics
+scores.french = 75; // red line under french
+scores.spanish = 70; // red line under spanish
 ```
 
-Here the `@ts-expect-error` directive is saying that we expect there to be an error because `science` is missing. However, there isn't actually an error with `scores` so instead TypeScript gives us an error below the directive.
+The definition of scores should be erroring, because `science` is missing - but it's not, because our definition of `Scores` is currently an empty object.
 
-Your task is to update the `Scores` interface to specify default keys for `math`, `english`, and `science` while allowing for any other subject to be added. Once you've updated the type correctly, the red squiggly line below `@ts-expect-error` will go away because `science` will be required but missing. For extra practice, create a `RequiredScores` interface that can be extended.
+Your task is to update the `Scores` interface to specify default keys for `math`, `english`, and `science` while allowing for any other subject to be added. Once you've updated the type correctly, the red squiggly line below `@ts-expect-error` will go away because `science` will be required but missing. See if you can use `interface extends` to achieve this.
 
-#### Exercise 3: Restricting Object Keys
+#### Exercise 3: Restricting Object Keys With Records
 
 Here we have a `configurations` object, typed as `Configurations` which is currently unknown.
 
 The object holds keys for `development`, `production`, and `staging`, and each respective key is associated with configuration details such as `apiBaseUrl` and `timeout`.
 
-There is also a `notAllowed` key, which is decorated with a `@ts-expect-error` comment. This is because, like the name says, the `notAllowed` key should not be allowed. However, there is an error below the directive because `notAllowed` is currently being allowed because of `Configuration`'s `unknown` type.
+There is also a `notAllowed` key, which is decorated with a `@ts-expect-error` comment. But currently, this is not erroring in TypeScript as expected.
 
 ```typescript
 type Environment = "development" | "production" | "staging";
@@ -642,11 +685,13 @@ const configurations: Configurations = {
 };
 ```
 
-Update the `Configurations` type to be a Record that specifies the keys from `Environment`, while ensuring the `notAllowed` key is still not be allowed.
+Update the `Configurations` type so that only the keys from `Environment` are allowed on the `configurations` object. Once you've updated the type correctly, the red squiggly line below `@ts-expect-error` will go away because `notAllowed` will be disallowed properly.
 
 #### Solution 1: Use an Index Signature for Dynamic Keys
 
-Inline index signature:
+Here are the three solutions:
+
+You can use an inline index signature:
 
 ```typescript
 const scores: {
@@ -654,7 +699,7 @@ const scores: {
 } = {};
 ```
 
-Interface:
+Or an interface:
 
 ```typescript
 interface Scores {
@@ -662,7 +707,15 @@ interface Scores {
 }
 ```
 
-Record:
+Or a type:
+
+```typescript
+type Scores = {
+  [key: string]: number;
+};
+```
+
+Or finally, a record:
 
 ```typescript
 const scores: Record<string, number> = {};
@@ -695,21 +748,13 @@ interface Scores extends RequiredScores {
 }
 ```
 
+These two are functionally equivalent, except for the fact that you get access to the `RequiredScores` interface if you need to use that seprately.
+
 #### Solution 3: Restricting Object Keys
 
-We know that the values of the `Configurations` object will be `apiBaseUrl`, which is a string, and `timeout`, which is a number.
-These key-value pairs are added to the `Configurations` type like so:
-
-```typescript
-type Environment = "development" | "production" | "staging";
-
-type Configurations = {
-  apiBaseUrl: string;
-  timeout: number;
-};
-```
-
 ##### A Failed First Attempt at Using Record
+
+We know that the values of the `Configurations` object will be `apiBaseUrl`, which is a string, and `timeout`, which is a number.
 
 It may be tempting to use a Record to set the key as a string and the value an object with the properties `apiBaseUrl` and `timeout`:
 
@@ -741,15 +786,17 @@ type Configurations = Record<
 
 Now TypeScript will throw an error when the object includes a key that doesn't exist in `Environment`, like `notAllowed`.
 
-## Utility Types for Object Manipulation
+<!-- CONTINUE -->
 
-TypeScript offers a variety of built-in types for you to use when working with objects. Whether you need to transform an existing object type or create a new type based on an existing one, there's likely a utility type that can help with that.
+## Reducing Duplication with Utility Types
+
+When working with object types in TypeScript, you'll often find yourself in situations where your object types share common properties. This can lead to a lot of duplicated code.
+
+We've seen how using `interface extends` can help us model inheritance, but TypeScript also gives us tools to directly manipulate object types. With its built-in utility types, we can remove properties from types, make them optional, and more.
 
 ### `Partial`
 
-We've seen how to use the question mark operator `?` to make properties optional in TypeScript. However, when dealing with an object type where every key is optional it gets a bit annoying to have to write (and read) the `?` over and over again.
-
-The Partial utility type allows you to quickly transform all of the properties of a given type into optional properties.
+The Partial utility type lets you create a new object type from an existing one, except all of its properties are optional.
 
 Consider an Album interface that contains detailed information about an album:
 
