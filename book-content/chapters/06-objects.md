@@ -611,6 +611,27 @@ This version is preferable because, in general, `interface extends` is preferabl
 
 Being able to support both default and dynamic keys in our data structures allows a lot of flexibility to adapt to changing requirements in your applications.
 
+### `PropertyKey`
+
+A useful type to know about when working with dynamic keys is `PropertyKey`.
+
+The `PropertyKey` type is a global type that represents the set of all possible keys that can be used on an object, including string, number, and symbol. You can find its type definition inside of TypeScript's ES5 type definitions file:
+
+```typescript
+// inside lib.es5.d.ts
+declare type PropertyKey = string | number | symbol;
+```
+
+Because `PropertyKey` works with all possible keys, it's great for working with dynamic keys where you aren't sure what the type of the key will be.
+
+For example, when using an index signature you could set the key type to `PropertyKey` in order to allow for any valid key type:
+
+```typescript
+type Album = {
+  [key: PropertyKey]: string;
+};
+```
+
 ### Exercises
 
 #### Exercise 1: Use an Index Signature for Dynamic Keys
@@ -686,6 +707,62 @@ const configurations: Configurations = {
 ```
 
 Update the `Configurations` type so that only the keys from `Environment` are allowed on the `configurations` object. Once you've updated the type correctly, the red squiggly line below `@ts-expect-error` will go away because `notAllowed` will be disallowed properly.
+
+#### Exercise 4: Dynamic Key Support
+
+Consider this `hasKey` function that accepts an object and a key, then calls `object.hasOwnProperty` on that object:
+
+```typescript
+const hasKey = (obj: object, key: string) => {
+  return obj.hasOwnProperty(key);
+};
+```
+
+There are several test cases for this function:
+
+The first test case checks that it works on string keys, which doesn't present any issues. As anticipated, `hasKey(obj, "foo")` would return true and `hasKey(obj, "bar")` would return false:
+
+```typescript
+it("Should work on string keys", () => {
+  const obj = {
+    foo: "bar",
+  };
+
+  expect(hasKey(obj, "foo")).toBe(true);
+  expect(hasKey(obj, "bar")).toBe(false);
+});
+```
+
+A test case that checks for numeric keys does have issues because the function is expecting a string key:
+
+```typescript
+it("Should work on number keys", () => {
+  const obj = {
+    1: "bar",
+  };
+
+  expect(hasKey(obj, 1)).toBe(true); // red squiggly line under 1
+  expect(hasKey(obj, 2)).toBe(false); // red squiggly line under 2
+});
+```
+
+Because an object can also have a symbol as a key, there is also a test for that case. It currently has type errors for `fooSymbol` and `barSymbol` when calling `hasKey`:
+
+```typescript
+it("Should work on symbol keys", () => {
+  const fooSymbol = Symbol("foo");
+  const barSymbol = Symbol("bar");
+
+  const obj = {
+    [fooSymbol]: "bar",
+  };
+
+  expect(hasKey(obj, fooSymbol)).toBe(true); // red squiggly line under fooSymbol
+  expect(hasKey(obj, barSymbol)).toBe(false); // red squiggly line under barSymbol
+});
+```
+
+Your task is to update the `hasKey` function so that all of these tests pass. Try to be as concise as possible!
 
 #### Solution 1: Use an Index Signature for Dynamic Keys
 
@@ -786,7 +863,33 @@ type Configurations = Record<
 
 Now TypeScript will throw an error when the object includes a key that doesn't exist in `Environment`, like `notAllowed`.
 
-<!-- CONTINUE -->
+#### Solution 4: Dynamic Key Support
+
+The obvious answer is to change the `key`'s type to `string | number | symbol`:
+
+```typescript
+const hasKey = (obj: object, key: string | number | symbol) => {
+  return obj.hasOwnProperty(key);
+};
+```
+
+However, there's a much more succinct solution.
+
+Hovering over `hasOwnProperty` shows us the type definition:
+
+```typescript
+(method) Object.hasOwnProperty(v: PropertyKey): boolean
+```
+
+Recall that the `PropertyKey` type represents every possible value a key can have. This means we can use it as the type for the key parameter:
+
+```typescript
+const hasKey = (obj: object, key: PropertyKey) => {
+  return obj.hasOwnProperty(key);
+};
+```
+
+Beautiful.
 
 ## Reducing Duplication with Utility Types
 
@@ -820,18 +923,19 @@ type PartialAlbum = Partial<Album>;
 
 Now we have a `PartialAlbum` type where `id`, `title`, `artist`, `releaseYear`, and `genre` are all optional.
 
-This means we can create an album with only some of the properties of `Album`:
+This means we can create a function which only receives a subset of the album's properties:
 
 ```typescript
-const geogaddi: PartialAlbum = {
-  title: "Geogaddi",
-  artist: "Boards of Canada",
+const updateAlbum = (album: PartialAlbum) => {
+  // ...
 };
+
+updateAlbum({ title: "Geogaddi", artist: "Boards of Canada" });
 ```
 
 ### `Required`
 
-On the opposite side of `Partial` is the `Required` type, which makes sure all of the properties of a given type are required– even those that started as optional.
+On the opposite side of `Partial` is the `Required` type, which makes sure all of the properties of a given object type are required.
 
 This `Album` interface has the `releaseYear` and `genre` properties marked as optional:
 
@@ -863,7 +967,7 @@ const doubleCup: RequiredAlbum = {
 
 #### Required with Nested Properties
 
-An important thing to note is that `Required` only works one level deep. For example, if the `Album`'s `genre` contained nested properties, `Required<Album>` would not make the children required:
+An important thing to note is that both `Required` and `Partial` only work one level deep. For example, if the `Album`'s `genre` contained nested properties, `Required<Album>` would not make the children required:
 
 ```typescript
 type Album = {
@@ -891,60 +995,55 @@ type RequiredAlbum = {
 
 If you find yourself in a situation where you need a deeply Required type, check out the type-fest library by Sindre Sorhus.
 
-### `PropertyKey`
-
-The `PropertyKey` type is a global type that represents the set of all possible keys that can be used on an object, including string, number, and symbol. You can find its type definition inside of TypeScript's ES5 type definitions file:
-
-```typescript
-// inside lib.es5.d.ts
-declare type PropertyKey = string | number | symbol;
-```
-
-Because `PropertyKey` works with all possible keys, it's great for working with dynamic keys where you aren't sure what the type of the key will be.
-
-For example, when using an index signature you could set the key type to `PropertyKey` in order to allow for any valid key type:
-
-```typescript
-type Album = {
-  [key: PropertyKey]: string;
-};
-```
-
-The `PropertyKey` type is used behind the scenes of several TypeScript features
-
 ### `Pick`
 
-The Pick utility type allows you to create a new type by selecting a subset of properties from an existing type. This type helper allows you to keep a main type as the source of truth while creating subtypes that contain only what you need.
+The Pick utility type allows you to create a new object type by picking certain properties from an existing object.
 
 For example, say we want to create a new type that only includes the `title` and `artist` properties from the `Album` type:
 
 ```typescript
-type BasicAlbum = Pick<Album, "title" | "artist">;
+type AlbumData = Pick<Album, "title" | "artist">;
 ```
 
-An important thing to note is that Pick doesn't work well with union types, so it's best to stick with object types when using it.
+This results in `AlbumData` being a type that only includes the `title` and `artist` properties.
 
-Despite this limitation, Pick is a great way to ensure you're only working with the data you need.
+This is extremely useful when you want to have one object that relies on the shape of another object. We'll explore this more in the chapter on deriving types from other types.
 
 ### `Omit`
 
 The Omit helper type is kind of like the opposite of Pick. It allows you to create a new type by excluding a subset of properties from an existing type.
 
-For example, we could use Omit to create the same `BasicAlbum` type we created with Pick, but this time by excluding the `id`, `releaseYear` and `genre` properties:
+For example, we could use Omit to create the same `AlbumData` type we created with Pick, but this time by excluding the `id`, `releaseYear` and `genre` properties:
 
 ```typescript
-type BasicAlbum = Omit<Album, "id" | "releaseYear" | "genre">;
+type AlbumData = Omit<Album, "id" | "releaseYear" | "genre">;
 ```
 
-On the surface, using Omit is straightforward, but there are a couple of quirks to be aware of.
+A common use case is to create a type without `id`, for situations where the `id` has not yet been assigned:
 
-#### Omit is Loose
+```typescript
+type AlbumData = Omit<Album, "id">;
+```
 
-When using Omit, you are able to exclude properties that don't exist on an object.
+This means that as `Album` gains more properties, they will flow down to `AlbumData` too.
+
+On the surface, using Omit is straightforward, but there is a small quirk to be aware of.
+
+#### Omit is Looser than Pick
+
+When using Omit, you are able to exclude properties that don't exist on an object type.
 
 For example, creating an `AlbumWithoutProducer` type with our `Album` type would not result in an error, even though `producer` doesn't exist on `Album`:
 
 ```typescript
+type Album = {
+  id: string;
+  title: string;
+  artist: string;
+  releaseYear: number;
+  genre: string;
+};
+
 type AlbumWithoutProducer = Omit<Album, "producer">;
 ```
 
@@ -957,21 +1056,27 @@ type AlbumWithOnlyProducer = Pick<Album, "producer">; // red squiggly line under
 Type '"producer"' does not satisfy the constraint 'keyof Album'.
 ```
 
-Why do these two seemingly related utility types behave differently?
+Why do these two utility types behave differently?
 
-When the TypeScript team was originally implementing Omit, they were faced with a decision to create a strict or loose version of Omit. The strict version would only permit the omission of valid keys (`id`, `title`, `artist`, `releaseYear`, `genre`), whereas the loose version wouldn't have this constraint
+When the TypeScript team was originally implementing Omit, they were faced with a decision to create a strict or loose version of Omit. The strict version would only permit the omission of valid keys (`id`, `title`, `artist`, `releaseYear`, `genre`), whereas the loose version wouldn't have this constraint.
 
 At the time, it was a more popular idea in the community to implement a loose version, so that's the one they went with. Given that global types in TypeScript are globally available and don't require an import statement, the looser version is seen as a safer choice, as it is more compatible and less likely to cause unforeseen errors.
 
-However, having this loose implementation of Omit doesn't allow for autocompletion. You won't get any suggestions when you start typing the properties you want to omit, so anything is fair game.
-
 While it is possible to create a strict version of Omit, the loose version should be sufficient for most cases. Just keep an eye out, since it may error in ways you don't expect.
+
+If you do need a strict version, it would look something like this:
+
+```typescript
+type StrictOmit<T, K extends keyof T> = Omit<T, K>;
+```
+
+We'll investigate this syntax later in the book.
 
 For more insights into the decisions behind Omit, refer to the TypeScript team's original [discussion](https://github.com/microsoft/TypeScript/issues/30455) and [pull request](https://github.com/microsoft/TypeScript/pull/30552) adding `Omit`, and their [final note](https://github.com/microsoft/TypeScript/issues/30825#issuecomment-523668235) on the topic.
 
-#### Omit Doesn't Distribute
+### Omit And Pick Don't Work Well With Union Types
 
-Earlier it was mentioned that Pick doesn't work well with union types. Omit has a similar issue that we'll look at now.
+`Omit` and `Pick` have some odd behaviour when used with union types. Let's look at an example to see what I mean.
 
 Consider a scenario where we have three interface types for `Album`, `CollectorEdition`, and `DigitalRelease`:
 
@@ -980,25 +1085,22 @@ type Album = {
   id: string;
   title: string;
   genre: string;
-  coverImageId: string;
 };
 
 type CollectorEdition = {
   id: string;
   title: string;
   limitedEditionFeatures: string[];
-  coverImageId: string;
 };
 
 type DigitalRelease = {
   id: string;
   title: string;
   digitalFormat: string;
-  coverImageId: string;
 };
 ```
 
-These types share common properties such as `id`, `title`, and `coverImageId`, but each also has unique attributes. The `Album` type includes `genre`, the `CollectorEdition` includes `limitedEditionFeatures`, and `DigitalRelease` has `digitalFormat`:
+These types share two common properties - `id` and `title` - but each also has unique attributes. The `Album` type includes `genre`, the `CollectorEdition` includes `limitedEditionFeatures`, and `DigitalRelease` has `digitalFormat`:
 
 After creating a `MusicProduct` type that is a union of these three types, say we want to create a `MusicProductWithoutId` type, mirroring the structure of `MusicProduct` but excluding the `id` field:
 
@@ -1008,19 +1110,38 @@ type MusicProduct = Album | CollectorEdition | DigitalRelease;
 type MusicProductWithoutId = Omit<MusicProduct, "id">;
 ```
 
-You might assume that `MusicProductWithoutId` would be a union of the three types minus the `id` field. However, what we get instead is a simplified object type containing only the `title` and `coverImageId`– the other properties that were shared across all types, without `id`.
+You might assume that `MusicProductWithoutId` would be a union of the three types minus the `id` field. However, what we get instead is a simplified object type containing only `title` – the other properties that were shared across all types, without `id`.
 
 ```typescript
-// hovering over MusicProductWithoutId shows:
+// Expected:
+type MusicProductWithoutId =
+  | Omit<Album, "id">
+  | Omit<CollectorEdition, "id">
+  | Omit<DigitalRelease, "id">;
+
+// Actual:
 type MusicProductWithoutId = {
   title: string;
-  coverImageId: string;
 };
 ```
 
-This unexpected outcome stems from how Omit processes union types. Rather than iterating over each union member, it amalgamates them into a single structure it can understand.
+This is particularly annoying given that `Partial` and `Required` work as expected with union types:
 
-##### The `DistributiveOmit` Type
+```typescript
+type PartialMusicProduct = Partial<MusicProduct>;
+
+// Hovering over PartialMusicProduct shows:
+type PartialMusicProduct =
+  | Partial<Album>
+  | Partial<CollectorEdition>
+  | Partial<DigitalRelease>;
+```
+
+This stems from how `Omit` processes union types. Rather than iterating over each union member, it amalgamates them into a single structure it can understand.
+
+The technical reason for this is that `Omit` and `Pick` are not distributive. This means that when you use them with a union type, they don't operate individually on each union member.
+
+#### The `DistributiveOmit` and `DistributivePick` Types
 
 In order to address this, we can create a `DistributiveOmit` type. It's defined similarly to Omit but operates individually on each union member. Note the inclusion of `PropertyKey` in the type definition to allow for any valid key type:
 
@@ -1049,23 +1170,26 @@ type MusicProductWithoutId =
   | {
       title: string;
       genre: string;
-      coverImageId: string;
     }
   | {
       title: string;
       limitedEditionFeatures: string[];
-      coverImageId: string;
     }
   | {
       title: string;
       digitalFormat: string;
-      coverImageId: string;
     };
 ```
 
 In situations where you need to use Omit with union types, using a distributive version will give you a much more predictable result.
 
-For practice, try creating a `DistributivePick` type based on the original type definition of `Pick`.
+For completeness, the `DistributivePick` type can be defined in a similar way:
+
+```typescript
+type DistributivePick<T, K extends PropertyKey> = T extends any
+  ? Pick<T, K>
+  : never;
+```
 
 ### Exercises
 
@@ -1102,63 +1226,7 @@ Your task is to update the typing so that only the `name` and `email` fields are
 
 You can use the helper types we've looked at to accomplish this, but for extra practice try using just interfaces.
 
-#### Exercise 2: Dynamic Key Support
-
-Consider this `hasKey` function that accepts an object and a key, then calls `object.hasOwnProperty` on that object:
-
-```typescript
-const hasKey = (obj: object, key: string) => {
-  return obj.hasOwnProperty(key);
-};
-```
-
-There are several test cases for this function:
-
-The first test case checks that it works on string keys, which doesn't present any issues. As anticipated, `hasKey(obj, "foo")` would return true and `hasKey(obj, "bar")` would return false:
-
-```typescript
-it("Should work on string keys", () => {
-  const obj = {
-    foo: "bar",
-  };
-
-  expect(hasKey(obj, "foo")).toBe(true);
-  expect(hasKey(obj, "bar")).toBe(false);
-});
-```
-
-A test case that checks for numeric keys does have issues because the function is expecting a string key:
-
-```typescript
-it("Should work on number keys", () => {
-  const obj = {
-    1: "bar",
-  };
-
-  expect(hasKey(obj, 1)).toBe(true); // red squiggly line under 1
-  expect(hasKey(obj, 2)).toBe(false); // red squiggly line under 2
-});
-```
-
-Because an object can also have a symbol as a key, there is also a test for that case. It currently has type errors for `fooSymbol` and `barSymbol` when calling `hasKey`:
-
-```typescript
-it("Should work on symbol keys", () => {
-  const fooSymbol = Symbol("foo");
-  const barSymbol = Symbol("bar");
-
-  const obj = {
-    [fooSymbol]: "bar",
-  };
-
-  expect(hasKey(obj, fooSymbol)).toBe(true); // red squiggly line under fooSymbol
-  expect(hasKey(obj, barSymbol)).toBe(false); // red squiggly line under barSymbol
-});
-```
-
-Your task is to update the `hasKey` function so that all of these tests pass. Try to be as concise as possible!
-
-#### Exercise 3: Updating a Product
+#### Exercise 2: Updating a Product
 
 Here we have a function `updateProduct` that takes two arguments: an `id`, and a `productInfo` object derived from the `Product` type, excluding the `id` field.
 
@@ -1170,7 +1238,7 @@ interface Product {
   description: string;
 }
 
-const updateProduct = (id: number, productInfo: Omit<Product, "id">) => {
+const updateProduct = (id: number, productInfo: unknown) => {
   // Do something with the productInfo
 };
 ```
@@ -1208,7 +1276,7 @@ updateProduct(1, {
 });
 ```
 
-Your challenge is to modify the `ProductInfo` type to reflect these requirements. The `id` should remain absent from `ProductInfo`, but we also want all other properties in `ProductInfo` to be optional.
+Your challenge is to modify the `productInfo` parameter to reflect these requirements. The `id` should remain absent from `productInfo`, but we also want all other properties in `productInfo` to be optional.
 
 #### Solution 1: Expecting Certain Properties
 
@@ -1264,40 +1332,17 @@ Then the `fetchUser` function could return a `Promise` of `NameAndEmail`:
 
 ```typescript
 const fetchUser = async (): Promise<NameAndEmail> => {
-  ...
-```
-
-#### Solution 2: Dynamic Key Support
-
-The obvious answer is to change the `key`'s type to `string | number | symbol`:
-
-```typescript
-const hasKey = (obj: object, key: string | number | symbol) => {
-  return obj.hasOwnProperty(key);
+  // ...
 };
 ```
 
-However, there's a much more succinct solution.
+`Omit` will mean that the object grows as the source object grows. `Pick` and `interface extends` will mean that the object will stay the same size. So depending on requirements, you can choose the best approach.
 
-Hovering over `hasOwnProperty` shows us the type definition:
+#### Solution 2: Updating a Product
 
-```typescript
-(method) Object.hasOwnProperty(v: PropertyKey): boolean
-```
+Using a _combination_ of `Omit` and `Partial` will allow us to create a type that excludes the `id` field from `Product` and makes all other properties optional.
 
-Recall that the `PropertyKey` type represents every possible value a key can have. This means we can use it as the type for the key parameter:
-
-```typescript
-const hasKey = (obj: object, key: PropertyKey) => {
-  return obj.hasOwnProperty(key);
-};
-```
-
-#### Solution 3: Updating a Product
-
-Using the `Partial` type helper is a good fit in this scenario.
-
-In this case, wrapping `Ommit<Product, "id">` in `Partial` will remove the `id` while making all of the remaining properties optional:
+In this case, wrapping `Omit<Product, "id">` in `Partial` will remove the `id` while making all of the remaining properties optional:
 
 ```typescript
 const updateProduct = (

@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # 07. Mutability
 
 The way you declare variables and object properties in TypeScript can significantly affect type inference and mutability. In this chapter, we'll explore the implications of using `let` and `const`, how to ensure proper object property inference, and techniques for enforcing immutability.
