@@ -568,7 +568,7 @@ const albumAwards: {
 };
 ```
 
-Index signatures can't used literal types, but `Record` can. We'll look at why this is when we explore mapped types in a later chapter.
+Index signatures can't use literal types, but `Record` can. We'll look at why this is when we explore mapped types in a later chapter.
 
 The `Record` type helper is a repeatable pattern that's easy to read and understand, and is a bit more flexible than an index signature. It's my go-to for dynamic keys.
 
