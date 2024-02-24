@@ -168,7 +168,7 @@ When inlining the object, TypeScript knows that there is no way that `status` co
 
 Another option is to explicitly declare the type of the `albumAttributes` object to be `AlbumAttributes`:
 
-```tsx
+```typescript
 const albumAttributes: AlbumAttributes = {
   status: "on-sale",
 };
@@ -223,7 +223,7 @@ const readOnlyWhiteAlbum: Readonly<Album> = {
 
 Because the `readOnlyWhiteAlbum` object was created using the `Readonly` type helper, none of the properties can be modified:
 
-```tsx
+```typescript
 readOnlyWhiteAlbum.genre = ["rock", "pop", "unclassifiable"]; // red squiggly line under genre
 // Cannot assign to 'genre' because it is a read-only property
 ```
@@ -242,7 +242,7 @@ const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
 
 Similar to the `Array` syntax, TypeScript also offers a `ReadonlyArray` type helper that functions in the same way to using the above syntax:
 
-```tsx
+```typescript
 const readOnlyGenres: ReadonlyArray<string> = ["rock", "pop", "unclassifiable"];
 ```
 
@@ -320,8 +320,6 @@ Essentially, read-only arrays can only be assigned to other read-only types. Thi
 
 The takeaway here is that even though you can assign mutable arrays to read-only arrays, you cannot assign read-only arrays to mutable arrays.
 
-<!-- CONTINUE -->
-
 ### Exercises
 
 #### Exercise 1: Inference with an Array of Objects
@@ -375,7 +373,7 @@ Your task is to update the type of the `names` parameter so that the array canno
 
 Here we have a `dangerousFunction` which accepts an array of numbers as an argument:
 
-```tsx
+```typescript
 const dangerousFunction = (arrayOfNumbers: number[]) => {
   arrayOfNumbers.pop();
   arrayOfNumbers.pop();
@@ -384,7 +382,7 @@ const dangerousFunction = (arrayOfNumbers: number[]) => {
 
 Additionally, we've defined a variable `myHouse` which is a tuple representing a `Coordinate`:
 
-```tsx
+```typescript
 type Coordinate = [number, number];
 const myHouse: Coordinate = [0, 0];
 ```
@@ -395,7 +393,7 @@ Given that `pop` removes the last element from an array, calling `dangerousFunct
 
 Currently, TypeScript does not alert us to this potential issue, as seen by the error line under `@ts-expect-error`:
 
-```tsx
+```typescript
 dangerousFunction(
   // @ts-expect-error // red squiggly line under @ts-expect-error
   myHouse,
@@ -417,17 +415,17 @@ const buttonsToChange: {
 }[];
 ```
 
-This means that we could change the type of the first element in the array to something different:
+This inference is happening because our array is mutable. We could change the type of the first element in the array to something different:
 
-```tsx
+```typescript
 buttonsToChange[0].type = "something strange";
 ```
 
-TypeScript doesn't like this, so it won't infer properly.
+This wider type is incompatible with the `ButtonAttributes` type, which expects the `type` property to be one of `"button"`, `"submit"`, or `"reset"`.
 
 The fix here is to specify that `buttonsToChange` is an array of `ButtonAttributes`:
 
-```tsx
+```typescript
 type ButtonAttributes = {
   type: "button" | "submit" | "reset";
 };
@@ -446,6 +444,21 @@ const buttonsToChange: ButtonAttributes[] = [
 modifyButtons(buttonsToChange); // No error
 ```
 
+Or, we could pass the array directly to the `modifyButtons` function:
+
+```typescript
+modifyButtons([
+  {
+    type: "button",
+  },
+  {
+    type: "submit",
+  },
+]); // No error
+```
+
+By doing this, TypeScript will infer the `type` property more narrowly, and the error will go away.
+
 #### Solution 2: Avoiding Array Mutation
 
 ##### Option 1: Add the `readonly` Keyword
@@ -458,7 +471,7 @@ function printNames(names: readonly string[]) {
 }
 ```
 
-With this setup, you can't call `.push()` or modify elements in the array. However, methods like `map()` and `reduce()` remain accessible since these create a copy of the array, and do not mutate the original.
+With this setup, you can't call `.push()` or modify elements in the array.
 
 ##### Option 2: Use the `ReadonlyArray` Type Helper
 
@@ -477,17 +490,19 @@ Regardless of which of these two methods you use, TypeScript will still display 
 (parameter) names: readonly string[]
 ```
 
+Both work equally well at preventing the array from being modified.
+
 #### Solution 3: An Unsafe Tuple
 
 The best way to prevent unwanted changes to the `Coordinate` tuple is to make it a `readonly` tuple:
 
-```tsx
+```typescript
 type Coordinate = readonly [number, number];
 ```
 
 Now, `dangerousFunction` throws a TypeScript error when we try to pass `myHouse` to it:
 
-```tsx
+```typescript
 const dangerousFunction = (arrayOfNumbers: number[]) => {
   arrayOfNumbers.pop();
   arrayOfNumbers.pop();
@@ -499,13 +514,15 @@ dangerousFunction(
 );
 
 // hovering over myHouse shows:
-Argument of type 'Coordinate' is not assignable to parameter of type 'number[]'.
-  The type 'Coordinate' is 'readonly' and cannot be assigned to the mutable type 'number[]'.
+// Argument of type 'Coordinate' is not assignable to parameter of type 'number[]'.
+//   The type 'Coordinate' is 'readonly' and cannot be assigned to the mutable type 'number[]'.
 ```
 
 We get an error because the function's signature expects a modifiable array of numbers, but `myHouse` is a read-only tuple. TypeScript is protecting us against unwanted changes.
 
 It's a good practice to use `readonly` tuples as much as possible to avoid problems like the one in this exercise.
+
+<!-- CONTINUE -->
 
 ## Deep Immutability with `as const`
 
@@ -541,7 +558,7 @@ const albumAttributes = {
 
 When using `as const`, TypeScript will add the `readonly` modifier to each of the object's properties. Hovering over the `albumAttributes` object, we can see that TypeScript has added the `readonly` modifier to the `status` property:
 
-```tsx
+```typescript
 // hovering over albumAttributes shows:
 const albumAttributes: {
   readonly status: "on-sale";
@@ -558,7 +575,7 @@ In JavaScript, the `Object.freeze` method is a common way to create immutable ob
 
 For this example, we'll rework the `AlbumAttributes` with nested `status` property to an `AlbumStatus` type that will be used inside of a `ShelfLocations` object:
 
-```tsx
+```typescript
 type AlbumStatus = "new-release" | "on-sale" | "staff-pick";
 
 type ShelfLocations = {
@@ -576,7 +593,7 @@ type ShelfLocations = {
 
 First, we'll create a `shelfLocations` object that uses `Object.freeze`:
 
-```tsx
+```typescript
 const shelfLocations = Object.freeze({
   entrance: {
     status: "on-sale",
@@ -592,7 +609,7 @@ const shelfLocations = Object.freeze({
 
 Hovering over `shelfLocations` shows that the object has the `Readonly` modifier applied to it:
 
-```tsx
+```typescript
 // hovering over shelfLocations shows:
 const shelfLocations: Readonly<{
   entrance: {
@@ -609,7 +626,7 @@ const shelfLocations: Readonly<{
 
 Recall that the `Readonly` modifier only works on the first level of an object. If we try to add a new `backWall` property to the `shelfLocations` object, TypeScript will throw an error:
 
-```tsx
+```typescript
 shelfLocations.backWall = { status: "on-sale" }; // red squiggly line under backWall
 
 // hovering over backWall shows:
@@ -618,13 +635,13 @@ Property 'backWall' does not exist on type 'Readonly<{ entrance: { status: strin
 
 However, we are able to change the nested `status` property of a specific location:
 
-```tsx
+```typescript
 shelfLocations.entrance.status = "new-release";
 ```
 
 Again, using `as const` makes the entire object deeply read-only, including all nested properties:
 
-```tsx
+```typescript
 const shelfLocations = {
   entrance: {
     status: "on-sale",
@@ -657,7 +674,7 @@ While both `as const` and `Object.freeze` will enforce immutability, `as const` 
 
 The `as const` assertion can also be used to create read-only arrays:
 
-```tsx
+```typescript
 const readOnlyGenres = ["rock", "pop", "unclassifiable"] as const;
 ```
 
@@ -667,7 +684,7 @@ However, there is a key difference when using `as const` with arrays. When you u
 
 Let's compare the behavior:
 
-```tsx
+```typescript
 const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
 
 // hovering over readOnlyGenres shows:
@@ -685,7 +702,7 @@ This means that array methods like `includes` and `indexOf` won't behave as expe
 
 For example, when calling `indexOf` with a string that isn't in the array, the regular `readonly` array will return `-1`, but the `as const` array will return an error:
 
-```tsx
+```typescript
 readOnlyGenres.indexOf("jazz"); // -1
 
 readOnlyGenresAsConst.indexOf("jazz"); // red squiggly line under "jazz"
@@ -700,7 +717,7 @@ While this specific typing adds predictability for TypeScript, it can be limitin
 
 Total TypeScript's `ts-reset` library can help with this. It globally adjusts some of TypeScript's types, including updating arrays to accept any string when using `includes` and `indexOf`:
 
-```tsx
+```typescript
 readOnlyGenresAsConst.indexOf("jazz"); // No error when `ts-reset` is imported
 ```
 
@@ -846,7 +863,7 @@ const fetchData = async () => {
 
 With these changes in place, when we check the return type of `fetchData` in the `example` function, we can see that `error` is inferred as `Error | undefined`, and `data` is `any`:
 
-```tsx
+```typescript
 const example = async () => {
   const [error, data] = await fetchData();
   ...
@@ -922,14 +939,14 @@ Because the `type` properties in `buttonsToChange` are being inferred as literal
 
 Note that because the `type` properties inside of `buttonsToChange` are not marked as `readonly`, we are able to change them. However, assigning a value that isn't one of the specified literals in `ButtonAttributes` will result in an error when it is passed to `modifyButtons`:
 
-```tsx
+```typescript
 buttonsToChange[0].type = "reset"; // No error
 buttonsToChange[1].type = "panic"; // No error, but now can't be passed to modifyButtons
 ```
 
 Similarly, if we were to add an additional object with a `type` property to `buttonsToChange` that isn't one of the specified literals in `ButtonAttributes`, TypeScript would show an error:
 
-```tsx
+```typescript
 const buttonsToChange = [
   {
     type: "button" as const,
