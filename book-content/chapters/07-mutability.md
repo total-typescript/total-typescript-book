@@ -522,76 +522,81 @@ We get an error because the function's signature expects a modifiable array of n
 
 It's a good practice to use `readonly` tuples as much as possible to avoid problems like the one in this exercise.
 
-<!-- CONTINUE -->
-
 ## Deep Immutability with `as const`
 
-Earlier it was mentioned that the `Readonly` type helper only works on the first level of an object. However, TypeScript's `as const` assertion specifies that all of an object's properties should be treated as deeply read-only, no matter how deeply nested they are.
+We've seen so far that objects and arrays are mutable in JavaScript. This leads to their properties being inferred _widely_ by TypeScript.
 
-Let's revisit the example of the `AlbumAttributes` type that included a `status` property, along with a function to update it:
+We can get around this by giving the property a type annotation. But it still doesn't infer the literal type of the property.
 
 ```typescript
-type AlbumAttributes = {
-  status: "new-release" | "on-sale" | "staff-pick";
-};
-
-const updateStatus = (attributes: AlbumAttributes) => {};
-
-const albumAttributes = {
+const albumAttributes: AlbumAttributes = {
   status: "on-sale",
 };
 
-updateStatus(albumAttributes); // red squiggly line under albumAttributes
+// hovering over albumAttributes shows:
+const albumAttributes: {
+  status: "new-release" | "on-sale" | "staff-pick";
+};
 ```
 
-Recall that TypeScript presents an error when calling `updateStatus` because the `status` property was inferred as a `string` rather than the specific literal type `"on-sale"`. We looked at two ways to solve the issue: using an inline object, or adding a type to the object.
+Instead of `albumAttributes.status` being inferred as `"on-sale"`, it's inferred as `"new-release" | "on-sale" | "staff-pick"`.
 
-The `as const` assertion gives us a third way. It ensures that an object and all of its properties are treated as constants, meaning that they cannot be changed once they are created.
+One way we could get TypeScript to infer it properly would be to somehow mark the entire object, and all its properties, as immutable. This would tell TypeScript that the object and its properties can't be changed, so it would be free to infer the literal types of the properties.
 
-The assertion gets added at the end of the object declaration:
+This is where the `as const` assertion comes in. We can use it to mark an object and all of its properties as constants, meaning that they can't be changed once they are created.
 
 ```typescript
 const albumAttributes = {
   status: "on-sale",
 } as const;
-```
 
-When using `as const`, TypeScript will add the `readonly` modifier to each of the object's properties. Hovering over the `albumAttributes` object, we can see that TypeScript has added the `readonly` modifier to the `status` property:
-
-```typescript
 // hovering over albumAttributes shows:
 const albumAttributes: {
   readonly status: "on-sale";
 };
 ```
 
-As before, TypeScript can see that the `status` property can't be modified, so the error goes away.
+The `as const` assertion has made the entire object deeply read-only, including all of its properties. This means that `albumAttributes.status` is now inferred as the literal type `"on-sale"`.
 
-There's no cost to using `as const` since it disappears at runtime. This makes it a very useful tool for your TypeScript applications, especially when configuring objects.
+Attempting to change the `status` property will result in an error:
+
+```typescript
+albumAttributes.status = "new-release"; // red squiggly line under status
+```
+
+This makes `as const` ideal for large config objects that you don't expect to change.
+
+Just like the `readonly` modifier, `as const` only affects the type level. At runtime, the object and its properties are still mutable.
+
+### `as const` vs Variable Annotation
+
+You might be wondering what would happen if we combined `as const` with a variable annotation. How would it be inferred?
+
+```typescript
+const albumAttributes: AlbumAttributes = {
+  status: "on-sale",
+} as const;
+```
+
+You can think of this code as a competition between two forces: the `as const` assertion operating on the value, and the annotation operating on the variable.
+
+When you have a competition like this, the variable annotation wins. The variable _owns_ the value, and forgets whatever the explicit value was before.
+
+This means, curiously, that the `status` property is inferred as being mutable:
+
+```typescript
+albumAttributes.status = "new-release"; // No error
+```
+
+The `as const` assertion is being overridden by the variable annotation. Not fun.
+
+We'll explore this interaction between variables and values further in our chapter on annotations and assertions.
 
 ### Comparing `as const` with `Object.freeze`
 
-In JavaScript, the `Object.freeze` method is a common way to create immutable objects. While it is also possible to be used in TypeScript, there are some significant differences between `Object.freeze` and `as const`.
+In JavaScript, the `Object.freeze` method is a way to create immutable objects at runtime. There are some significant differences between `Object.freeze` and `as const`.
 
-For this example, we'll rework the `AlbumAttributes` with nested `status` property to an `AlbumStatus` type that will be used inside of a `ShelfLocations` object:
-
-```typescript
-type AlbumStatus = "new-release" | "on-sale" | "staff-pick";
-
-type ShelfLocations = {
-  entrance: {
-    status: AlbumStatus;
-  };
-  frontCounter: {
-    status: AlbumStatus;
-  };
-  endCap: {
-    status: AlbumStatus;
-  };
-};
-```
-
-First, we'll create a `shelfLocations` object that uses `Object.freeze`:
+For this example, we'll create a `shelfLocations` object that uses `Object.freeze`:
 
 ```typescript
 const shelfLocations = Object.freeze({
@@ -624,13 +629,13 @@ const shelfLocations: Readonly<{
 }>;
 ```
 
-Recall that the `Readonly` modifier only works on the first level of an object. If we try to add a new `backWall` property to the `shelfLocations` object, TypeScript will throw an error:
+Recall that the `Readonly` modifier only works on the _first level_ of an object. If we try to add a new `backWall` property to the `shelfLocations` object, TypeScript will throw an error:
 
 ```typescript
 shelfLocations.backWall = { status: "on-sale" }; // red squiggly line under backWall
 
 // hovering over backWall shows:
-Property 'backWall' does not exist on type 'Readonly<{ entrance: { status: string; }; frontCounter: { status: string; }; endCap: { status: string; }; }>'
+// Property 'backWall' does not exist on type 'Readonly<{ entrance: { status: string; }; frontCounter: { status: string; }; endCap: { status: string; }; }>'
 ```
 
 However, we are able to change the nested `status` property of a specific location:
@@ -639,7 +644,9 @@ However, we are able to change the nested `status` property of a specific locati
 shelfLocations.entrance.status = "new-release";
 ```
 
-Again, using `as const` makes the entire object deeply read-only, including all nested properties:
+This is in line with how `Object.freeze` works in JavaScript. It only makes the object and its properties read-only at the first level. It doesn't make the entire object deeply read-only.
+
+Using `as const` makes the entire object deeply read-only, including all nested properties:
 
 ```typescript
 const shelfLocations = {
@@ -668,7 +675,11 @@ const shelfLocations: {
 };
 ```
 
-While both `as const` and `Object.freeze` will enforce immutability, `as const` is the more convenient and efficient choice. Unless you specifically need an object to be frozen at runtime with `Object.freeze`, you should stick with `as const`.
+Of course, this is just a type-level annotation. `Object.freeze` gives you runtime immutability, while `as const` gives you type-level immutability. I actually prefer the latter - doing less work at runtime is always a good thing.
+
+So while both `as const` and `Object.freeze` will enforce immutability, `as const` is the more convenient and efficient choice. Unless you specifically need the top level of an object to be frozen at runtime, you should stick with `as const`.
+
+<!-- CONTINUE -->
 
 #### `as const` for Immutable Arrays
 
