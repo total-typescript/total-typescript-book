@@ -461,6 +461,8 @@ By doing this, TypeScript will infer the `type` property more narrowly, and the 
 
 #### Solution 2: Avoiding Array Mutation
 
+Here are a couple ways to solve this problem.
+
 ##### Option 1: Add the `readonly` Keyword
 
 The first approach solution is to add the `readonly` keyword before the `string[]` array. It applies to the entire `string[]` array, converting it into a read-only array:
@@ -471,7 +473,7 @@ function printNames(names: readonly string[]) {
 }
 ```
 
-With this setup, you can't call `.push()` or modify elements in the array.
+With this setup, TypeScript won't allow you to add items with `.push()` or perform any other modifications on the array.
 
 ##### Option 2: Use the `ReadonlyArray` Type Helper
 
