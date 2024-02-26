@@ -1192,15 +1192,22 @@ const formats: Set<unknown>;
 
 That's because the `Set` doesn't know what type it's supposed to be! We haven't passed it any values, so it defaults to an `unknown` type.
 
-One way to fix this would be to pass some values to `Set` so it understands what type it's supposed to be:
+One way to have TypeScript know what type we want the `Set` to hold would be to pass in some initial values:
 
 ```typescript
 const formats = new Set(["CD", "DVD"]);
 ```
 
-But, we don't _want_ to pass any values to it initially.
+In this case, since we specified two strings when creating the `Set`, TypeScript knows that `formats` is a `Set` of strings:
 
-We can get around this by passing a _type_ to `Set` when we call it, using the angle brackets syntax:
+```typescript
+// hovering over `formats` shows:
+const formats: Set<string>;
+```
+
+But it's not always the case that we know exactly what values we want to pass to a `Set` when we create it. We might want to create an empty `Set` that we know will hold strings later on.
+
+For this, we can pass a type to `Set` using the angle brackets syntax:
 
 ```typescript
 const formats = new Set<string>();
@@ -1222,39 +1229,49 @@ This is a really important thing to understand in TypeScript. You can pass types
 
 ### Not All Functions Can Receive Types
 
-Most functions in TypeScript _can't_ receive types. A common example where you might want to pass a type is when calling `document.getElementById`.
+Most functions in TypeScript _can't_ receive types.
+
+For example, let's look at `document.getElementById` that comes in from the DOM typings.
+
+A common example where you might want to pass a type is when calling `document.getElementById`. Here we're trying to get an audio element:
 
 ```typescript
 const audioElement = document.getElementById("player");
 ```
 
-We know that `audioElement` is going to be a `HTMLAudioElement`. This type comes from the DOM typings, which we'll talk about later.
-
-So, it makes sense that we should be able to pass it to `document.getElementById`:
+We know that `audioElement` is going to be a `HTMLAudioElement`, so it seems like we should be able to pass it to `document.getElementById`:
 
 ```typescript
-// Red line under HTMLAudioElement
-// Expected 0 type arguments, but got 1.
+// red squiggly line under HTMLAudioElement
 const audioElement = document.getElementById<HTMLAudioElement>("player");
+
+// hovering over HTMLAudioElement shows:
+// Expected 0 type arguments, but got 1.
 ```
 
 But unfortunately, we can't. We get an error saying that `.getElementById` expects zero type arguments.
 
 We can see whether a function can receive type arguments by hovering over it. Let's try hovering `.getElementById`:
 
-```
+```typescript
+// hovering over .getElementById shows:
 (method) Document.getElementById(elementId: string): HTMLElement | null
 ```
 
-`.getElementById` contains no angle brackets (`<>`) in its hover. Let's contrasting it with a function that _can_ receive type arguments, like `document.querySelector`:
+Notice that `.getElementById` contains no angle brackets (`<>`) in its hover, which is why we can't pass a type to it.
 
-```
+Let's contrast it with a function that _can_ receive type arguments, like `document.querySelector`:
+
+```typescript
+const audioElement = document.querySelector("#player");
+
+// hovering over .querySelector shows:
 (method) ParentNode.querySelector<Element>(selectors: string): Element | null
 ```
 
-`.querySelector` has some angle brackets before the parentheses. It shows the default value inside them - in this case, `Element`.
+This type definition shows us that `.querySelector` has some angle brackets before the parentheses. Inside of the brackets is the default value inside them - in this case, `Element`.
 
-So, to fix our code above we could replace `.getElementById` with `.querySelector`.
+So, to fix our code above we could replace `.getElementById` with `.querySelector` and use the `#player` selector to find the audio element:
 
 ```typescript
 const audioElement = document.querySelector<HTMLAudioElement>("#player");
