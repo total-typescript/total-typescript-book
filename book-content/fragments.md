@@ -265,3 +265,58 @@ function categorizeAlbumSales(album: Album): string {
 The thing being passed into the case is the condition we're checking the truthiness of. In this case, each `album`'s `certification` property gets accurately narrowed down to return a specific string.
 
 This pattern can be adapted to checking any properties, and helps to avoid complexity when working with multiple narrowing statements.
+
+---
+
+#### `as const` for Immutable Arrays
+
+The `as const` assertion can also be used to create read-only arrays:
+
+```typescript
+const readOnlyGenres = ["rock", "pop", "unclassifiable"] as const;
+```
+
+For the most part, the rules of read-only arrays discussed earlier in the chapter still apply– mutations like `push` and `pop` won't work, but methods like `map` and `reduce` will.
+
+However, there is a key difference when using `as const` with arrays. When you use `as const` with an array, TypeScript will infer the array's elements as literal types.
+
+Let's compare the behavior:
+
+```typescript
+const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
+
+// hovering over readOnlyGenres shows:
+const readOnlyGenres: readonly string[];
+
+const readOnlyGenresAsConst = ["rock", "pop", "unclassifiable"] as const;
+
+// hovering over readOnlyGenresAsConst shows:
+const readOnlyGenresAsConst: readonly ["rock", "pop", "unclassifiable"];
+```
+
+Not only is `readOnlyGenresAsConst` an immutable array, but TypeScript has also inferred the array's elements as literal types. This means that the array can only contain the exact strings `"rock"`, `"pop"`, and `"unclassifiable"`.
+
+This means that array methods like `includes` and `indexOf` won't behave as expected in all situations.
+
+For example, when calling `indexOf` with a string that isn't in the array, the regular `readonly` array will return `-1`, but the `as const` array will return an error:
+
+```typescript
+readOnlyGenres.indexOf("jazz"); // -1
+
+readOnlyGenresAsConst.indexOf("jazz"); // red squiggly line under "jazz"
+
+// hovering over "jazz" shows:
+// Argument of type '"jazz"' is not assignable to parameter of type '"rock" | "pop" | "unclassifiable"'
+```
+
+##### Improve Read-only Array Handling with `ts-reset`
+
+While this specific typing adds predictability for TypeScript, it can be limiting and annoying when compared to behavior you're used to in JavaScript.
+
+Total TypeScript's `ts-reset` library can help with this. It globally adjusts some of TypeScript's types, including updating arrays to accept any string when using `includes` and `indexOf`:
+
+```typescript
+readOnlyGenresAsConst.indexOf("jazz"); // No error when `ts-reset` is imported
+```
+
+The `ts-reset` library offers a way of balancing between the strictness and flexibility that TypeScript provides. While some developers might prefer TypeScript's stricter approach, if you ever find read-only arrays troublesome, this library is a useful addition to your toolkit to make the TypeScript experience smoother. Find out [more about `ts-reset` on GitHub](https://github.com/total-typescript/ts-reset).
