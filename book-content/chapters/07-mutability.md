@@ -679,11 +679,9 @@ Of course, this is just a type-level annotation. `Object.freeze` gives you runti
 
 So while both `as const` and `Object.freeze` will enforce immutability, `as const` is the more convenient and efficient choice. Unless you specifically need the top level of an object to be frozen at runtime, you should stick with `as const`.
 
-<!-- CONTINUE -->
-
 ### Exercises
 
-#### Exercise 1: Inferring a Tuple
+#### Exercise 1: Returning A Tuple From A Function
 
 In this exercise, we are dealing with an async function named `fetchData` that fetches data from a URL and returns a result.
 
@@ -736,7 +734,7 @@ Hint: There are two possible approaches to solve this challenge. One way would b
 
 #### Exercise 2: Inferring Literal Values
 
-#### Exercise 3: Ensuring Literal Type Inference
+#### Exercise 3: Inferring Literal Values In Arrays
 
 Let's revisit a previous exercise and evolve our solution.
 
@@ -774,13 +772,11 @@ const buttonsToChange: ButtonAttributes[] = [
 ];
 ```
 
-This time, your challenge is to solve the error by making alternative updates to `buttonsToChange`.
-
-Try to find two ways to make modifications: one that makes the `type` property immutable, and one that infers a literal value and allows for changing the `type` to any that has been specified in the `ButtonAttributes` type.
+This time, your challenge is to solve the error by finding a different solution. Specifically, you should modify the `buttonsToChange` array so that TypeScript infers the literal type of the `type` property.
 
 You should not alter the `ButtonAttributes` type definition or the `modifyButtons` function.
 
-#### Solution 1: Inferring a Tuple
+#### Solution 1: Returning A Tuple From A Function
 
 As mentioned, there are two different solutions to this challenge.
 
@@ -795,7 +791,7 @@ const fetchData = async (): Promise<[Error | undefined, any?]> => {
   ...
 ```
 
-This technique works, but it's a little cumbersome.
+This technique works perfectly well.
 
 ##### Option 2: Using `as const`
 
@@ -822,28 +818,70 @@ With these changes in place, when we check the return type of `fetchData` in the
 ```typescript
 const example = async () => {
   const [error, data] = await fetchData();
-  ...
+
+  // ...
+};
 
 // hovering over error shows:
-const error: Error | undefined
+const error: Error | undefined;
 
 // hovering over data shows:
-const data: any
+const data: any;
 ```
 
-Using `as const` sets a variable is read-only, which assists TypeScript in accurately assigning the type of tuples.
+In the case of this challenge, without `as const`, TypeScript is making two mistakes. Firstly, it's inferring each of the returned arrays as _arrays_, not tuples. This is TypeScript's default behaviour:
 
-In the case of this challenge, without `as const`, TypeScript could misinterpret the return value as `Promise<any[]>`. However, by using `as const`, TypeScript correctly observes the return value as a tuple (`Promise<[string | undefined, any]>`).
+```typescript
+const data = await result.json();
 
-Overall, both solutions offer unique benefits. The first technique provides a straightforward approach to type definition, while the second leverages TypeScript's inference capabilities.
+const result = [undefined, data];
 
-#### Solution 2: Ensuring Literal Type Inference
+// hovering over result shows:
+const result: any[];
+```
 
-The `as const` assertion can be used to solve this challenge in a couple of ways– one with immutable `type` properties, and one that infers the literal type of the `type` property while allowing for changes.
+We can also see that when `undefined` is placed into an array with `any`, TypeScript infers the array as `any[]`. This is TypeScript's second mistake - collapsing our `undefined` value so it all but disappears.
 
-#### Option 1: Making the `type` Property Immutable
+However, by using `as const`, TypeScript correctly infers the return value as a tuple (`Promise<[string | undefined, any]>`). This is a great example of how `as const` can help TypeScript give us the best type inference possible.
 
-Recall that adding `as const` to an object makes all of its properties read-only. This means that the `type` property of the objects inside of `buttonsToChange` can't be changed, so TypeScript will allow for the call to `modifyButtons`:
+<!-- CONTINUE -->
+
+#### Solution 3: Inferring Literal Values In Arrays
+
+##### Option 1: Annotate the Entire Array
+
+The `as const` assertion can be used to solve this problem. By annotating the entire array with `as const`, TypeScript will infer the literal type of the `type` property:
+
+```typescript
+const buttonsToChange = [
+  {
+    type: "button",
+  },
+  {
+    type: "submit",
+  },
+] as const;
+```
+
+Hovering over `buttonsToChange` shows that TypeScript has inferred the `type` property as a literal type:
+
+```typescript
+// hovering over buttonsToChange shows:
+const buttonsToChange: readonly [
+  {
+    readonly type: "button";
+  },
+  {
+    readonly type: "submit";
+  },
+];
+```
+
+And `modifyButtons` will no longer show an error when `buttonsToChange` is passed to it.
+
+##### Option 2: Annotate the members of the array
+
+Another way to solve this problem is to annotate each member of the array with `as const`:
 
 ```typescript
 const buttonsToChange = [
@@ -854,7 +892,11 @@ const buttonsToChange = [
     type: "submit",
   } as const,
 ];
+```
 
+Hovering over `buttonsToChange` shows something interesting. Each object is now inferred as `readonly`, but the array itself is not:
+
+```typescript
 // hovering over buttonsToChange shows:
 const buttonsToChange: (
   | {
@@ -866,9 +908,21 @@ const buttonsToChange: (
 )[];
 ```
 
-#### Option 2: Infer the Literal Type
+It's also no longer being inferred as a tuple with a fixed length. We can even modify the array by pushing new objects to it:
 
-By adding `as const` directly to the `type` property of each of the objects, TypeScript will infer the literal type:
+```typescript
+buttonsToChange.push({
+  type: "button",
+});
+```
+
+This is because we've targed the members of the array, not the entire array, with `as const`.
+
+But this inference is good enough to satisfy `modifyButtons`, because it matches the `ButtonAttributes` type.
+
+##### Option 3: `as const` on strings
+
+There is another option - you can use `as const` on string literals to infer the literal type:
 
 ```typescript
 const buttonsToChange = [
@@ -891,33 +945,6 @@ const buttonsToChange: (
 )[];
 ```
 
-Because the `type` properties in `buttonsToChange` are being inferred as literal types instead of strings, TypeScript no longer shows an error when calling `modifyButtons`.
+We've lost the `readonly` modifier, because `as const` is only being targeted at the string, not the object. But it's still enough to satisfy `modifyButtons`.
 
-Note that because the `type` properties inside of `buttonsToChange` are not marked as `readonly`, we are able to change them. However, assigning a value that isn't one of the specified literals in `ButtonAttributes` will result in an error when it is passed to `modifyButtons`:
-
-```typescript
-buttonsToChange[0].type = "reset"; // No error
-buttonsToChange[1].type = "panic"; // No error, but now can't be passed to modifyButtons
-```
-
-Similarly, if we were to add an additional object with a `type` property to `buttonsToChange` that isn't one of the specified literals in `ButtonAttributes`, TypeScript would show an error:
-
-```typescript
-const buttonsToChange = [
-  {
-    type: "button" as const,
-  },
-  {
-    type: "submit" as const,
-  },
-  {
-    type: "panic" as const,
-};
-
-modifyButtons(buttonsToChange); // red squiggly line under buttonsToChange
-
-// hovering over buttonsToChange shows:
-Argument of type '({ type: "button"; } | { type: "submit"; } | { type: "panic"; })[]' is not assignable to parameter of type 'ButtonAttributes[]'.
-```
-
-Both of these solutions show how useful `as const` can be for helping TypeScript give us the best type inference possible.
+This use of `as const` doesn't mark anything as readonly. It's more like a hint to TypeScript to infer a literal type where it wouldn't otherwise. This can be occasionally useful for when you want to allow mutation, but still want to infer a literal type.
