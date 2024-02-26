@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # 08. Classes
 
 Classes are a like a blueprint for creating special objects. These objects can hold more than just data– they also hold behaviors and methods for interacting with the data they contain.

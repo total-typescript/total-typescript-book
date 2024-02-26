@@ -844,8 +844,6 @@ We can also see that when `undefined` is placed into an array with `any`, TypeSc
 
 However, by using `as const`, TypeScript correctly infers the return value as a tuple (`Promise<[string | undefined, any]>`). This is a great example of how `as const` can help TypeScript give us the best type inference possible.
 
-<!-- CONTINUE -->
-
 #### Solution 3: Inferring Literal Values In Arrays
 
 ##### Option 1: Annotate the Entire Array
