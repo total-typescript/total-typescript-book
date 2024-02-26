@@ -1567,7 +1567,7 @@ getAlbumFormats(
 As an alternative, we can use the `Array<>` syntax instead.
 
 ```typescript
-function getAlbumFormats(album: Album, formats: Array<string>) {
+function getAlbumFormats(album: Album, ...formats: Array<string>) {
   // function body
 }
 ```
