@@ -28,13 +28,13 @@ In this book, you'll learn why it has become so popular, and how it can help you
 
 ## How TypeScript Works
 
-With a JavaScript-only project, you would typically write your code in files with a `.js` or `.jsx` file extension. These files are then able to be directly executed in the browser or a runtime environment like Node.js (which is used to run JavaScript on servers, or on your laptop). The JavaScript you write is the JavaScript that gets executed.
+With a JavaScript-only project, you would typically write your code in files with a `.js` file extension. These files are then able to be directly executed in the browser or a runtime environment like Node.js (which is used to run JavaScript on servers, or on your laptop). The JavaScript you write is the JavaScript that gets executed.
 
 ![](images/image5.png)
 
 If you're testing whether your code works, you need to test it inside the runtime - the browser or Node.js.
 
-For a TypeScript project, your code is primarily inside of `.ts` or `.tsx` files.
+For a TypeScript project, your code is primarily inside of `.ts` files.
 
 Inside your IDE, these files are monitored by TypeScript's 'language server'. This server watches you as you type, and powers IDE features like autocompletion and error checking, among others.
 
