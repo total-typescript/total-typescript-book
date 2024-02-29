@@ -70,7 +70,7 @@ So, in order to get the browser to understand our TypeScript code, we need to tu
 
 ## Transpiling TypeScript
 
-The process of turning JavaScript to TypeScript (called 'transpilation') can be handled by the TypeScript CLI `tsc`, which is installed when you install TypeScript. But before we can use `tsc`, we need to set up our TypeScript project.
+The process of turning TypeScript into JavaScript (called 'transpilation') can be handled by the TypeScript CLI `tsc`, which is installed when you install TypeScript. But before we can use `tsc`, we need to set up our TypeScript project.
 
 Open a terminal, and navigate to the parent directory of `example.ts` and `index.html`.
 

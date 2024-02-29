@@ -461,6 +461,8 @@ By doing this, TypeScript will infer the `type` property more narrowly, and the 
 
 #### Solution 2: Avoiding Array Mutation
 
+Here are a couple ways to solve this problem.
+
 ##### Option 1: Add the `readonly` Keyword
 
 The first approach solution is to add the `readonly` keyword before the `string[]` array. It applies to the entire `string[]` array, converting it into a read-only array:
@@ -471,7 +473,7 @@ function printNames(names: readonly string[]) {
 }
 ```
 
-With this setup, you can't call `.push()` or modify elements in the array.
+With this setup, TypeScript won't allow you to add items with `.push()` or perform any other modifications on the array.
 
 ##### Option 2: Use the `ReadonlyArray` Type Helper
 
@@ -732,9 +734,7 @@ Depending on whether or not the fetch operation is successful, the tuple should 
 
 Hint: There are two possible approaches to solve this challenge. One way would be to define an explicit return type for the function. Alternatively, you could attempt to add or change type annotations for the `return` values within the function.
 
-#### Exercise 2: Inferring Literal Values
-
-#### Exercise 3: Inferring Literal Values In Arrays
+#### Exercise 2: Inferring Literal Values In Arrays
 
 Let's revisit a previous exercise and evolve our solution.
 
@@ -844,7 +844,9 @@ We can also see that when `undefined` is placed into an array with `any`, TypeSc
 
 However, by using `as const`, TypeScript correctly infers the return value as a tuple (`Promise<[string | undefined, any]>`). This is a great example of how `as const` can help TypeScript give us the best type inference possible.
 
-#### Solution 3: Inferring Literal Values In Arrays
+#### Solution 2: Inferring Literal Values In Arrays
+
+Let's look at some different options for solving this challenge.
 
 ##### Option 1: Annotate the Entire Array
 
@@ -861,7 +863,7 @@ const buttonsToChange = [
 ] as const;
 ```
 
-Hovering over `buttonsToChange` shows that TypeScript has inferred the `type` property as a literal type:
+Hovering over `buttonsToChange` shows that TypeScript has inferred the `type` property as a literal type, and `modifyButtons` will no longer show an error when `buttonsToChange` is passed to it:
 
 ```typescript
 // hovering over buttonsToChange shows:
@@ -874,8 +876,6 @@ const buttonsToChange: readonly [
   },
 ];
 ```
-
-And `modifyButtons` will no longer show an error when `buttonsToChange` is passed to it.
 
 ##### Option 2: Annotate the members of the array
 
@@ -906,7 +906,7 @@ const buttonsToChange: (
 )[];
 ```
 
-It's also no longer being inferred as a tuple with a fixed length. We can even modify the array by pushing new objects to it:
+The `buttonsToChange` array is also no longer being inferred as a tuple with a fixed length, so we can modify it by pushing new objects to it:
 
 ```typescript
 buttonsToChange.push({
@@ -914,13 +914,13 @@ buttonsToChange.push({
 });
 ```
 
-This is because we've targed the members of the array, not the entire array, with `as const`.
+This behavior stems from tagging the individual members of the array with `as const`, instead of the entire array.
 
-But this inference is good enough to satisfy `modifyButtons`, because it matches the `ButtonAttributes` type.
+However, this inference is good enough to satisfy `modifyButtons`, because it matches the `ButtonAttributes` type.
 
 ##### Option 3: `as const` on strings
 
-There is another option - you can use `as const` on string literals to infer the literal type:
+The last solution we'll look at is using `as const` on the string literals to infer the literal type:
 
 ```typescript
 const buttonsToChange = [
@@ -931,7 +931,11 @@ const buttonsToChange = [
     type: "submit" as const,
   },
 ];
+```
 
+Now when we hover over `buttonsToChange` we've lost the `readonly` modifier, because `as const` is only being targeted at the string inside of the object, not the object itself:
+
+```typescript
 // hovering over buttonsToChange shows:
 const buttonsToChange: (
   | {
@@ -943,6 +947,6 @@ const buttonsToChange: (
 )[];
 ```
 
-We've lost the `readonly` modifier, because `as const` is only being targeted at the string, not the object. But it's still enough to satisfy `modifyButtons`.
+But again, this is still typed strongly enough to to satisfy `modifyButtons`.
 
-This use of `as const` doesn't mark anything as readonly. It's more like a hint to TypeScript to infer a literal type where it wouldn't otherwise. This can be occasionally useful for when you want to allow mutation, but still want to infer a literal type.
+When using `as const` like this acts like a hint to TypeScript that it should infer a literal type where it wouldn't otherwise. This can be occasionally useful for when you want to allow mutation, but still want to infer a literal type.
