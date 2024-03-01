@@ -164,32 +164,37 @@ const user = new User();
 console.log(user.name); // Output: Matt Pocock
 ```
 
-<!-- CONTINUE -->
+### `readonly` Class Properties
 
-### `readonly` Properties
-
-As we've seen with types and interfaces, the `readonly` keyword can be used to make a property immutable. This means that once the property is set, it cannot be changed.
-
-In the case of our `Album` example, all of the existing properties could be marked as `readonly` since they're unlikely to change:
+As we've seen with types and interfaces, the `readonly` keyword can be used to make a property immutable. This means that once the property is set, it cannot be changed:
 
 ```typescript
 class Album {
   readonly title: string;
   readonly artist: string;
   readonly releaseYear: number;
-
-  constructor(opts?: { title: string; artist: string; releaseYear: number; }) {
-    ...
 }
 ```
 
-In addition to `readonly`, there are some additional modifiers we can add to our class properties.
+### Optional Class Properties
+
+We can also mark properties as optional in the same way as objects, using the `?:` annotation:
+
+```typescript
+class Album {
+  title?: string;
+  artist?: string;
+  releaseYear?: number;
+}
+```
+
+As we can see from the lack of errors above, this also means they don't need to be set in the constructor.
 
 ### `public` and `private` Properties
 
 The `public` and `private` keywords are used to control the visibility and accessibility of class properties.
 
-By default, properties are `public`, which means that they can be accessed from outside the class. We saw this when calling `console.log()` to print the title of an `Album` instance.
+By default, properties are `public`, which means that they can be accessed from outside the class.
 
 If we want to restrict access to certain properties, we can mark them as `private`. This means that they can only be accessed from within the class itself.
 
@@ -197,13 +202,7 @@ For example, say we want to add a `rating` property to the album class that will
 
 ```typescript
 class Album {
-  readonly title: string;
-  readonly artist: string;
-  readonly releaseYear: number;
   private rating = 0;
-
-  constructor(opts?: { title: string; artist: string; releaseYear: number; }) {
-    ...
 }
 ```
 
@@ -213,23 +212,45 @@ Now if we try to access the `rating` property from outside of the class, TypeScr
 console.log(loopFindingJazzRecords.rating); // red squiggly line under rating
 
 // hovering over rating shows:
-Property 'rating' is private and only accessible within class 'Album'.
+// Property 'rating' is private and only accessible within class 'Album'.
 ```
 
-For an alternative syntax, you can also use the `#` symbol to mark a property as private:
+However, this doesn't actually prevent it from being accessed at runtime - `private` is just a compile-time annotation. You could suppress the error using a `@ts-ignore` (which we'll look at later) and still access the property:
+
+```typescript
+// @ts-ignore
+console.log(loopFindingJazzRecords.rating); // Output: 0
+```
+
+#### Runtime Private Properties
+
+To get the same behavior at runtime, you can also use the `#` prefix to mark a property as private:
 
 ```typescript
 class Album {
   #rating = 0;
+}
 ```
 
-The `#` syntax behaves the same as `private`, but it's a newer feature that's part of the ECMAScript standard. This means that it can be used in JavaScript as well as TypeScript, if you ever need to convert your TypeScript code to JavaScript.
+The `#` syntax behaves the same as `private`, but it's a newer feature that's part of the ECMAScript standard. This means that it can be used in JavaScript as well as TypeScript.
 
-Regardless of which syntax you use, the `rating` of an album is a private property that is encapsulated within the class. However, just because the `rating` property is private doesn't mean it can't be accessed or modified.
+Attempting to access a `#`-prefixed property from outside of the class will result in a syntax error:
+
+```typescript
+console.log(loopFindingJazzRecords.#rating); // SyntaxError
+```
+
+Attempting to cheat by accessing it with a dynamic string will return `undefined`:
+
+```typescript
+console.log(loopFindingJazzRecords["#rating"]); // Output: undefined
+```
+
+So, if you want to ensure that a property is truly private, you should use the `#` syntax.
 
 ## Class Methods
 
-Along with properties, classes can also contain methods. These special functions define the behaviors of a class and can be used to interact with both public and private properties.
+Along with properties, classes can also contain methods. These functions help express the behaviors of a class and can be used to interact with both public and private properties.
 
 ### Implementing Class Methods
 
@@ -246,7 +267,7 @@ printAlbumInfo() {
 }
 ```
 
-Another option is to use an arrow function to define the method. This has the benefit of automatically binding `this` to the class instance, which can be useful in certain scenarios:
+Another option is to use an arrow function to define the method:
 
 ```typescript
 // inside of the Album class
@@ -265,68 +286,40 @@ loopFindingJazzRecords.printAlbumInfo();
 // Output: Loop Finding Jazz Records by Jan Jelinek, released in 2001.
 ```
 
-The technique you choose for adding a method to a class essentially boils down to your personal preference. Both are similar to write, and both provide access to `this`. It shouldn't be a concern most of the time, though the arrow function syntax is useful when using legacy React Class Components or passing methods as callbacks.
+#### Arrow Functions or Class Methods?
 
-### Accessing & Modifying Properties
+Arrow functions and class methods do differ in their behavior. The difference is the way that `this` is handled.
 
-Earlier we added a private `rating` property to the `Album` class. In order to access and modify this property, we can add special methods called getters and setters to the class.
-
-As the names suggest, a getter is used to retrieve the value of a property, and a setter is used to modify the value of a property.
-
-#### Add a Getter
-
-To add a getter for the `rating` property, we use the `get` keyword followed by a method named similarly to property we want to access:
+This is runtime JavaScript behavior, so slightly outside the scope of this book. But in the interest of helpfulness, here's an example:
 
 ```typescript
-// inside the Album class
-get currentRating() {
-  return this.rating;
-}
-```
+class MyClass {
+  location = "Class";
 
-This getter method will allow for the `rating` property to be accessed and modified in the setter method.
+  arrow = () => {
+    console.log("arrow", this);
+  };
 
-#### Add a Setter
-
-Similarly, we'll add a setter for the `rating` property using the `set` keyword. Additional logic can be used to validate the new value before it's assigned:
-
-```typescript
-// inside the Album class
-set currentRating(newRating: number) {
-  if (newRating >= 0 && newRating <= 10) {
-    this.rating = newRating;
-  } else {
-    throw new Error("Invalid rating");
+  method() {
+    console.log("method", this);
   }
 }
+
+const myObj = {
+  location: "Object",
+  arrow: new MyClass().arrow,
+  method: new MyClass().method,
+};
+
+myObj.arrow(); // { location: 'Class' }
+myObj.method(); // { location: 'Object' }
 ```
 
-#### Bringing it All Together
+In the `arrow` method, `this` is bound to the instance of the class where it was defined. In the `method` method, `this` is bound to the object where it was called.
 
-To bring our examples of class methods and getters and setters together, let's add a `printRating` method to the `Album` class that will log the album's rating:
+This can be a bit of a gotcha when working with classes, whether in JavaScript or TypeScript.
 
-```typescript
-// inside the Album class
-printRating() {
-  console.log(`Rating: ${this.rating}`);
-}
-```
-
-Now we can use `currentRating` to set a rating, then print it using the `printRating` method:
-
-```typescript
-loopFindingJazzRecords.currentRating = 9;
-loopFindingJazzRecords.printRating(); // Output: Rating: 9
-```
-
-To recap, getters and setters allows us to control how properties are accessed and modified within a class. Without using these methods, we would have to make the `rating` property public. This would allow it to be accessed and modified from outside of the class without any validation:
-
-```typescript
-// imagine if the rating property was public
-loopFindingJazzRecords.rating = 999; // No error
-```
-
-Being smart about using `readonly` and `private` properties along with getters and setters can help you ensure that your class instances are used correctly.
+<!-- CONTINUE -->
 
 ## Class Inheritance
 
@@ -340,7 +333,7 @@ class Album {
   artist: string;
   releaseYear: number;
 
-  constructor(opts?: { title: string; artist: string; releaseYear: number }) {
+  constructor(opts: { title: string; artist: string; releaseYear: number }) {
     this.title = title;
     this.artist = artist;
     this.releaseYear = releaseYear;
@@ -376,19 +369,19 @@ Next, we need to add a constructor that includes all of the properties from the 
 
 First, the arguments to the constructor should match the shape used in the parent class. In this case, that's an `opts` object with the properties of the `Album` class along with the new `bonusTracks` property.
 
-Second, we need to include a call to `super()`. This is a special method that calls the constructor of the parent class and sets up the properties it defines. This is crucial to ensure that the base properties are initialized properly. We'll pass in the `title`, `artist`, and `releaseYear` properties to the `super()` method and then set the `bonusTracks` property:
+Second, we need to include a call to `super()`. This is a special method that calls the constructor of the parent class and sets up the properties it defines. This is crucial to ensure that the base properties are initialized properly. We'll pass in `opts` to the `super()` method and then set the `bonusTracks` property:
 
 ```typescript
 class SpecialEditionAlbum extends Album {
   bonusTracks: string[];
 
-  constructor(opts?: {
+  constructor(opts: {
     title: string;
     artist: string;
     releaseYear: number;
     bonusTracks: string[];
   }) {
-    super(opts.title, opts.artist, opts.releaseYear);
+    super(opts);
     this.bonusTracks = opts.bonusTracks;
   }
 }
@@ -405,7 +398,13 @@ const plasticOnoBandSpecialEdition = new SpecialEditionAlbum({
 });
 ```
 
-While this example only added a single property, you can imagine how following the pattern of extending a base class can be useful for creating a hierarchy of classes with shared properties and methods.
+This pattern can be used to add more methods, properties, and behavior to the `SpecialEditionAlbum` class, while still maintaining the properties and methods of the `Album` class.
+
+<!-- CONTINUE -->
+
+### Abstract Classes
+
+<!-- TODO -->
 
 ## Types & Interfaces with Classes
 
@@ -445,7 +444,7 @@ class Album implements IAlbum {
   artist: string;
   releaseYear: number;
 
-  constructor(opts?: { title: string; artist: string; releaseYear: number }) {
+  constructor(opts: { title: string; artist: string; releaseYear: number }) {
     this.title = opts.title;
     this.artist = opts.artist;
     this.releaseYear = opts.releaseYear;
@@ -462,7 +461,7 @@ class Album implements IAlbum {
   releaseYear: number;
   trackList: string[] = [];
 
-  constructor(opts?: { title: string, artist: string, releaseYear: number, trackList: string[] }) {
+  constructor(opts: { title: string, artist: string, releaseYear: number, trackList: string[] }) {
     this.title = opts.title;
     this.artist = opts.artist;
     this.releaseYear = opts.releaseYear;
