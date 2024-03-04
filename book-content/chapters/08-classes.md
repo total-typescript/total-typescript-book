@@ -214,7 +214,7 @@ class Album {
 
 As we can see from the lack of errors above, this also means they don't need to be set in the constructor.
 
-### `public`, `private` and `protected` Properties
+### `public` and `private` properties
 
 The `public` and `private` keywords are used to control the visibility and accessibility of class properties.
 
@@ -271,10 +271,6 @@ console.log(loopFindingJazzRecords["#rating"]); // Output: undefined
 ```
 
 So, if you want to ensure that a property is truly private, you should use the `#` syntax.
-
-#### `protected` Properties
-
-<!-- TODO -->
 
 ## Class Methods
 
@@ -425,6 +421,21 @@ const plasticOnoBandSpecialEdition = new SpecialEditionAlbum({
 ```
 
 This pattern can be used to add more methods, properties, and behavior to the `SpecialEditionAlbum` class, while still maintaining the properties and methods of the `Album` class.
+
+### `protected` Properties
+
+In addition to `public` and `private`, there's a third visibility modifier called `protected`. This is similar to `private`, but it allows the property to be accessed from within classes that extend the class.
+
+For example, if we wanted to make the `title` property of the `Album` class `protected`, we could do so like this:
+
+```typescript
+class Album {
+  protected title: string;
+  // ...
+}
+```
+
+Now, the `title` property can be accessed from within the `SpecialEditionAlbum` class, and not from outside the class.
 
 ### The `implements` Keyword
 
