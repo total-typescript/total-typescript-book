@@ -122,6 +122,30 @@ const unknownAlbum = new Album();
 console.log(unknownAlbum.title); // Output: Unknown Album
 ```
 
+### Using a Class as a Type
+
+An interesting property of classes in TypeScript is that they can be used as types for variables and function parameters. The syntax is similar to how you would use any other type or interface.
+
+In this case, we'll use the `Album` class to type the `album` parameter of a `printAlbumInfo` function:
+
+```typescript
+function printAlbumInfo(album: Album) {
+  console.log(
+    `${album.title} by ${album.artist}, released in ${album.releaseYear}.`,
+  );
+}
+```
+
+We can then call the function and pass in an instance of the `Album` class:
+
+```typescript
+printAlbumInfo(sixtyNineLoveSongsAlbum);
+
+// Output: 69 Love Songs by The Magnetic Fields, released in 1999.
+```
+
+While using a class as a type is possible, it's a much more common pattern to require classes to implement a specific interface.
+
 ## Properties in Classes
 
 Now that we've seen how to create a class and create new instances of it, let's look a bit closer at how properties work.
@@ -190,7 +214,7 @@ class Album {
 
 As we can see from the lack of errors above, this also means they don't need to be set in the constructor.
 
-### `public` and `private` Properties
+### `public`, `private` and `protected` Properties
 
 The `public` and `private` keywords are used to control the visibility and accessibility of class properties.
 
@@ -247,6 +271,10 @@ console.log(loopFindingJazzRecords["#rating"]); // Output: undefined
 ```
 
 So, if you want to ensure that a property is truly private, you should use the `#` syntax.
+
+#### `protected` Properties
+
+<!-- TODO -->
 
 ## Class Methods
 
@@ -318,8 +346,6 @@ myObj.method(); // { location: 'Object' }
 In the `arrow` method, `this` is bound to the instance of the class where it was defined. In the `method` method, `this` is bound to the object where it was called.
 
 This can be a bit of a gotcha when working with classes, whether in JavaScript or TypeScript.
-
-<!-- CONTINUE -->
 
 ## Class Inheritance
 
@@ -400,25 +426,15 @@ const plasticOnoBandSpecialEdition = new SpecialEditionAlbum({
 
 This pattern can be used to add more methods, properties, and behavior to the `SpecialEditionAlbum` class, while still maintaining the properties and methods of the `Album` class.
 
-<!-- CONTINUE -->
+### The `implements` Keyword
 
-### Abstract Classes
-
-<!-- TODO -->
-
-## Types & Interfaces with Classes
-
-There are several ways that types and interfaces can be used in conjunction with classes to enforce structure and reduce repetition. Classes can even be used as types themselves!
-
-### Types and Interfaces as Class Contracts
-
-For situations where you want to enforce that a class adheres to a specific structure, you can use an interface or a type as a contract. If a class doesn't adhere to the contract, TypeScript will give an error.
+There are some situations where you want to enforce that a class adheres to a specific structure. To do that, you can use the `implements` keyword.
 
 The `SpecialEditionAlbum` class we created in the previous example adds a `bonusTracks` property to the `Album` class, but there is no `trackList` property for the regular `Album` class.
 
 Let's create an interface to enforce that any class that implements it must have a `trackList` property.
 
-Following the Hungarian naming convention, the interface will be named `IAlbum` and include properties for the `title`, `artist`, `releaseYear`, and `trackList` properties:
+We'll call the interface `IAlbum`, and include properties for the `title`, `artist`, `releaseYear`, and `trackList` properties:
 
 ```typescript
 interface IAlbum {
@@ -429,13 +445,9 @@ interface IAlbum {
 }
 ```
 
-Note that the `I` prefix is used to indicate an interface, while a `T` indicates a type. It isn't required to use these prefixes, but it's a common convention and makes it more clear what the interface will be used for when reading the code.
+Note that the `I` prefix is used to indicate an interface, while a `T` indicates a type. It isn't required to use these prefixes, but it's a common convention called Hungarian Notation and makes it more clear what the interface will be used for when reading the code. I don't recommend doing this for all your interfaces and types - only when they conflict with a class of the same name.
 
-With the interface created, we can associate it with the `Album` class.
-
-#### The `implements` Keyword
-
-The `implements` keyword is used to tell TypeScript which type or interface a class should adhere to. In this case, we'll use it to ensure that the `Album` class follows the structure of the `IAlbum` interface:
+With the interface created, we can use the `implements` keyword to associate it with the `Album` class.
 
 ```typescript
 class Album implements IAlbum {
@@ -459,76 +471,110 @@ class Album implements IAlbum {
   title: string;
   artist: string;
   releaseYear: number;
-  trackList: string[] = [];
+  trackList: string[];
 
-  constructor(opts: { title: string, artist: string, releaseYear: number, trackList: string[] }) {
+  constructor(opts: {
+    title: string;
+    artist: string;
+    releaseYear: number;
+    trackList: string[];
+  }) {
     this.title = opts.title;
     this.artist = opts.artist;
     this.releaseYear = opts.releaseYear;
     this.trackList = opts.trackList;
   }
 
-  ...
+  // ...
 }
 ```
 
-### Types & Interfaces for Class Types
+This lets us define a contract for the `Album` class that enforces the structure of the class and helps catch errors early.
 
-To save time when working with constructors or other class methods, you can use a type or interface to define the shape of the arguments that will be passed to the class.
+### Abstract Classes
 
-For example, we could use the `IAlbum` interface to define the shape of the `opts` argument in the `Album` class:
+Another pattern you can use for defining base classes is the `abstract` keyword. Abstract classes blur the line between types and runtime. You can declare an abstract class like this:
 
 ```typescript
-class Album {
+abstract class AlbumBase {}
+```
+
+You can then define methods and behavior on it, like a regular class:
+
+```typescript
+abstract class AlbumBase {
   title: string;
   artist: string;
   releaseYear: number;
   trackList: string[] = [];
 
-  constructor(opts: IAlbum) {
+  constructor(opts: { title: string; artist: string; releaseYear: number }) {
     this.title = opts.title;
     this.artist = opts.artist;
     this.releaseYear = opts.releaseYear;
-    this.trackList = opts.trackList;
+  }
+
+  addTrack(track: string) {
+    this.trackList.push(track);
   }
 }
 ```
 
-We could also intersect `IAlbum` with the additional `bonusTracks` property for the extended `SpecialEditionAlbum` class:
+But if you try to create an instance of the `AlbumBase` class, TypeScript will give you an error:
 
 ```typescript
-class SpecialEditionAlbum extends Album {
-  bonusTracks: string[];
+const albumBase = new AlbumBase({
+  title: "Unknown Album",
+  artist: "Unknown Artist",
+  releaseYear: 0,
+}); // red squiggly line under AlbumBase
+```
 
-  constructor(opts: IAlbum & { bonusTracks: string[] }) {
-    super(opts);
-    this.bonusTracks = opts.bonusTracks;
+Instead, you'd need to create a class that extends the `AlbumBase` class:
+
+```typescript
+class Album extends AlbumBase {
+  // any extra functionality you want
+}
+
+const album = new Album({
+  title: "Unknown Album",
+  artist: "Unknown Artist",
+  releaseYear: 0,
+});
+```
+
+You'll notice that this idea is similar to implementing inferfaces - except that abstract classes can also include implementation details.
+
+This means you can blur the line a little between types and runtime. You can define a type contract for a class, but make it more reusable.
+
+#### Abstract Methods
+
+On our abstract class, we can use the `abstract` keyword before a method to indicate that it must be implemented by any class that extends the abstract class:
+
+```typescript
+abstract class AlbumBase {
+  // ...other properties and methods
+
+  abstract addReview(author: string, review: string): void;
+}
+```
+
+Now, any class that extends `AlbumBase` must implement the `addReview` method:
+
+```typescript
+class Album extends AlbumBase {
+  // ...other properties and methods
+
+  addReview(author: string, review: string) {
+    // ...implementation
   }
 }
 ```
 
-### Using a Class as a Type
+This gives us another tool for expressing the structure of our classes and ensuring that they adhere to a specific contract.
 
-An interesting property of classes in TypeScript is that they can be used as types for variables and function parameters. The syntax is similar to how you would use any other type or interface.
-
-In this case, we'll use the `SpecialEditionAlbum` class to type the `album` parameter of a `printBonusInfo` function:
-
-```typescript
-function printBonusInfo(album: SpecialEditionAlbum) {
-  const bonusTrackCount = album.bonusTracks.length;
-  console.log(`${album.title} has ${bonusTrackCount} bonus tracks.`);
-}
-```
-
-We can then call the function and pass in an instance of the `SpecialEditionAlbum` class:
-
-```typescript
-printBonusInfo(plasticOnoBandSpecialEdition);
-
-// Output: Plastic Ono Band has 2 bonus tracks.
-```
-
-While using a class as a type is possible, it's a much more common pattern to require classes to implement a specific interface.
+<!-- CONTINUE -->
 
 ## Exercises
 
@@ -666,7 +712,7 @@ The `#` in front of the `x` and `y` properties means they are `readonly` and can
 canvasNode.position = { x: 10, y: 20 }; // red squiggly line under position
 
 // hovering over position shows:
-Cannot assign to 'position' because it is a read-only property.
+// Cannot assign to 'position' because it is a read-only property.
 ```
 
 Your task is to write a setter for the `position` property that will allow for the test case to pass.
@@ -697,6 +743,8 @@ class CanvasNode {
 Imagine if our application had a `Shape` class that only needed the `x` and `y` properties and the ability to move around. It wouldn't need the `viewMode` property or the logic related to it.
 
 Your task is to refactor the `CanvasNode` class to split the `x` and `y` properties into a separate class called `Shape`. Then, the `CanvasNode` class should extend the `Shape` class, adding the `viewMode` property and the logic related to it.
+
+If you like, you can use an `abstract` class to define `Shape`.
 
 ### Solution 1: Creating a Class
 
@@ -755,9 +803,11 @@ class CanvasNode {
 }
 ```
 
-Note that these solutions did not use a constructor, but still satisfy the requirements of the test case.
+As discussed in a previous section, it's safer to use the arrow function to avoid issues with `this`.
 
 ### Solution 3: Implement a Getter
+
+<!-- CONTINUE -->
 
 Here's how the `CanvasNode` class can be updated to include a getter for the `position` property:
 
@@ -797,10 +847,12 @@ console.log(canvasNode.position.y); // 0
 Here's how a `position` setter can be added to the `CanvasNode` class:
 
 ```typescript
-// inside the CanvasNode class
-set position(pos) {
-  this.x = pos.x;
-  this.y = pos.y;
+class CanvasNode {
+  // inside the CanvasNode class
+  set position(pos) {
+    this.x = pos.x;
+    this.y = pos.y;
+  }
 }
 ```
 

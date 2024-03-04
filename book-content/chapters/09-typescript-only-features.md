@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # 09. TypeScript-only Features
 
 Beyond adding types, TypeScript has several features that are not found in JavaScript. Some of these are runtime features that were introduced in the earlier years, but for the last several releases the TypeScript team has been focused on introducing features that disappear or are removed by the compiler when it transpiles the TypeScript code to JavaScript.
