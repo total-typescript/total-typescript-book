@@ -1,62 +1,41 @@
-<!-- CONTINUE -->
-
 # 09. TypeScript-only Features
 
-Beyond adding types, TypeScript has several features that are not found in JavaScript. Some of these are runtime features that were introduced in the earlier years, but for the last several releases the TypeScript team has been focused on introducing features that disappear or are removed by the compiler when it transpiles the TypeScript code to JavaScript.
+Based on what I've told you so far, you might be thinking of TypeScript as just "JavaScript with types". JavaScript handles the runtime code, and TypeScript describes it with types.
 
-In this chapter we'll look at several of these TypesScript-only features, including parameter properties, enums, namespaces, and declaration merging. Along the way we'll discuss benefits and trade-offs, as well as when you might want to stick with JavaScript.
+But TypeScript actually has a few runtime features that don't exist in JavaScript. These features are compiled into JavaScript, but they are not part of the JavaScript language itself.
+
+In this chapter we'll look at several of these TypesScript-only features, including parameter properties, enums and namespaces. Along the way, we'll discuss benefits and trade-offs, as well as when you might want to stick with JavaScript.
 
 ## Class Parameter Properties
 
-With classes on the brain from the previous chapter, let's look at one more example that demonstrates a TypeScript-only feature.
+One TypeScript feature that doesn't exist in JavaScript is class parameter properties. These allow you to declare and initialize class members directly from the constructor parameters.
 
-Parameter properties allow you to declare and initialize class members directly from the constructor parameters. This feature not only simplifies the code but also enhances readability and maintainability.
+Consider this `Rating` class:
 
-Consider this `Rating` class that includes a `rate` method and a `rating` getter:
-
-```tsx
+```typescript
 class Rating {
   constructor(public value: number, private max: number) {}
-
-  rate(newValue: number) {
-    if (newValue >= 0 && newValue <= this.max) {
-      this.value = newValue;
-    }
-  }
-
-  get rating() {
-    return `${this.value}/${this.max}`;
-  }
 }
 ```
 
-Note that class constructor includes `public` before `value` and `private` before the `max` parameter.
+That the constructor includes `public` before the `value` prameter and `private` before the `max` parameter. In JavaScript, this compiles down to code which assigns the parameters to properties on the class:
 
-Without these keywords in place, attempting the access them results in an error:
-
-```tsx
-// removing the `private` keywords from the constructor parameters
+```typescript
 class Rating {
-  constructor(value: number, max: number) {}
-
-  rate(value: number) {
-    this.value = value; // red squiggly line under `value`
+  constructor(value, max) {
+    this.value = value;
+    this.max = max;
   }
 }
-
-// Hovering over value shows:
-Property 'value' does not exist on type 'Rating'.
 ```
 
-In order for the class to be able to access these values, one of these properties needs to be included for each parameter: `public`, `private`, `readonly`, or `protected`.
+Compared to handling the assignment manually, this saves a lot of code and keeps the class definition concise.
 
-The `protected` parameter behaves similarly to `private`, but it is able to be accessed by subclasses (for example, a `protected value` in a base `Rating` class could be accessed by an `AlbumRating` subclass).
-
-Parameter properties will work at runtime, allowing anything passed in to be automatically added to the class with the specified access level.
-
-This feature was an early addition to TypeScript, though it likely wouldn't be added to the language today.
+But unlike other TypeScript features, the outputted JavaScript is not a direct representation of the TypeScript code. This can make it difficult to understand what's happening if you're not familiar with the feature.
 
 ## Enums
+
+<!-- CONTINUE -->
 
 Enums, or enumerated types, are another runtime-level feature from the early days of TypeScript. They are used similarly to an object or interface, but with a few key differences. For example, enums can be used on the runtime level, while also being referred to by name on the type level.
 
@@ -68,7 +47,7 @@ There are a few different flavors of enums for expressing different types of dat
 
 Numeric enums group together a set of related members and automatically assigns them numeric values starting from 0. For example, consider this `AlbumStatus` enum:
 
-```tsx
+```typescript
 enum AlbumStatus {
   NewRelease,
   OnSale,
@@ -80,7 +59,7 @@ In this case, `AlbumStatus.NewRelease` would be 0, `AlbumStatus.OnSale` would be
 
 To use the `AlbumStatus` as a type, we could use its name:
 
-```tsx
+```typescript
 function logStatus(genre: AlbumStatus) {
   console.log(genre); // 0
 }
@@ -94,7 +73,7 @@ String enums allow you to assign string values to each member, which can be more
 
 Note that this time inside of the of the `AlbumStatus` enum the equals sign is used instead of a colon to assign the string value:
 
-```tsx
+```typescript
 enum AlbumStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
@@ -104,7 +83,7 @@ enum AlbumStatus {
 
 The same `logStatus` function from above would now log the string value instead of the number.
 
-```tsx
+```typescript
 function logStatus(genre: AlbumStatus) {
   console.log(genre); // 0
 }
@@ -114,7 +93,7 @@ logStatus(AlbumStatus.NewRelease);
 
 There is a somewhat annoying side effect of string enums to be aware of. When you have two enums with the same values, they can't be used interchangeably. Even thought `BookStatus` has the same members as `AlbumStatus`, they are not compatible when calling teh `logStatus` function:
 
-```tsx
+```typescript
 enum BookStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
@@ -161,7 +140,7 @@ While numeric and string enums are the most common, there is another type to be 
 
 A `const` enum is declared similarly to the other enums, but with the `const` keyword first:
 
-```tsx
+```typescript
 const enum AlbumStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
@@ -173,7 +152,7 @@ The major difference is that `const` enums disappear when the TypeScript is tran
 
 However, if an array is created that accesses the enum's values, the transpiled JavaScript will end up with those values:
 
-```tsx
+```typescript
 let albumStatuses = [
   AlbumStatus.NewRelease,
   AlbumStatus.OnSale,
@@ -234,7 +213,7 @@ In this example, `AlbumCollection` is the main namespace, with `Sales` as a nest
 
 The stuff inside of the `AlbumCollection` can be used as values or types:
 
-```tsx
+```typescript
 const odelay: AlbumCollection.Album.Album = {
   title: "Odelay!",
   artist: "Beck",
@@ -287,7 +266,7 @@ namespace RecordStoreUtils {
 
 Because namespaces support declaration merging, the two declarations are automatically combined into a single `RecordStoreUtils` namespace. Both the `Album` and `Sales` namespaces can be accessed as before:
 
-```tsx
+```typescript
 const loaded: RecordStoreUtils.Album.Album = {
   title: "Loaded",
   artist: "The Velvet Underground",
@@ -303,7 +282,7 @@ There are some constraints to this merging. For example, either all or none of t
 
 It's also possible for interfaces within namespaces to be merged. If we had two different `RecordStoreUtils` each with their own `Album` interface, TypeScript would automatically merge them into a single `Album` interface that includes all the properties:
 
-```tsx
+```typescript
 namespace RecordStoreUtils {
   export interface Album {
     title: string;
