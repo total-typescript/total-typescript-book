@@ -574,8 +574,6 @@ class Album extends AlbumBase {
 
 This gives us another tool for expressing the structure of our classes and ensuring that they adhere to a specific contract.
 
-<!-- CONTINUE -->
-
 ## Exercises
 
 ### Exercise 1: Creating a Class
@@ -806,8 +804,6 @@ class CanvasNode {
 As discussed in a previous section, it's safer to use the arrow function to avoid issues with `this`.
 
 ### Solution 3: Implement a Getter
-
-<!-- CONTINUE -->
 
 Here's how the `CanvasNode` class can be updated to include a getter for the `position` property:
 
