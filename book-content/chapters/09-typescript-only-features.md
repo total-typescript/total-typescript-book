@@ -35,13 +35,11 @@ But unlike other TypeScript features, the outputted JavaScript is not a direct r
 
 ## Enums
 
-<!-- CONTINUE -->
+You can use the `enum` keyword to define a set of named constants. These can be used as types or values.
 
-Enums, or enumerated types, are another runtime-level feature from the early days of TypeScript. They are used similarly to an object or interface, but with a few key differences. For example, enums can be used on the runtime level, while also being referred to by name on the type level.
+Enums were added in the very first version of TypeScript, but they haven't yet been added to JavaScript. This means it's a TypeScript-only runtime feature. And, as we'll see, it comes with some quirky behavior.
 
-A good use case for enums is when there are a limited set of related constants that aren't expected to change.
-
-There are a few different flavors of enums for expressing different types of data.
+A good use case for enums is when there are a limited set of related values that aren't expected to change.
 
 ### Numeric Enums
 
@@ -63,15 +61,43 @@ To use the `AlbumStatus` as a type, we could use its name:
 function logStatus(genre: AlbumStatus) {
   console.log(genre); // 0
 }
+```
 
+Now, `logStatus` can only receive values from the `AlbumStatus` enum object.
+
+```typescript
 logStatus(AlbumStatus.NewRelease);
+```
+
+#### Numeric Enums with Explicit Values
+
+You can also assign specific values to each member of the enum. For example, if you wanted to assign the value 1 to `NewRelease`, 2 to `OnSale`, and 3 to `StaffPick`, you could do so like this:
+
+```typescript
+enum AlbumStatus {
+  NewRelease = 1,
+  OnSale = 2,
+  StaffPick = 3,
+}
+```
+
+Now, `AlbumStatus.NewRelease` would be 1, `AlbumStatus.OnSale` would be 2, and so on.
+
+#### Auto-incrementing Numeric Enums
+
+If you choose to only assign _some_ numeric values to the enum, TypeScript will automatically increment the rest of the values from the last assigned value. For example, if you only assign a value to `NewRelease`, `OnSale` and `StaffPick` will be 2 and 3 respectively.
+
+```typescript
+enum AlbumStatus {
+  NewRelease = 1,
+  OnSale,
+  StaffPick,
+}
 ```
 
 ### String Enums
 
-String enums allow you to assign string values to each member, which can be more readable than numbers.
-
-Note that this time inside of the of the `AlbumStatus` enum the equals sign is used instead of a colon to assign the string value:
+String enums allow you to assign string values to each member of the enum. For example:
 
 ```typescript
 enum AlbumStatus {
@@ -85,28 +111,19 @@ The same `logStatus` function from above would now log the string value instead 
 
 ```typescript
 function logStatus(genre: AlbumStatus) {
-  console.log(genre); // 0
+  console.log(genre); // "NEW_RELEASE"
 }
 
 logStatus(AlbumStatus.NewRelease);
 ```
 
-There is a somewhat annoying side effect of string enums to be aware of. When you have two enums with the same values, they can't be used interchangeably. Even thought `BookStatus` has the same members as `AlbumStatus`, they are not compatible when calling teh `logStatus` function:
+### Enums Are Strange
 
-```typescript
-enum BookStatus {
-  NewRelease = "NEW_RELEASE",
-  OnSale = "ON_SALE",
-  StaffPick = "STAFF_PICK"
-}
+<!-- CONTINUE -->
 
-logStatus(BookStatus.NewRelease); // red squiggly line under BookStatus.NewRelease
+There is no equivalent syntax in JavaScript to the `enum` keyword. Since TypeScript gets to make up the rules for how enums work, they have some slightly odd behavior.
 
-// hovering over BookStatus.NewRelease shows:
-Argument of type 'BookStatus.NewRelease' is not assignable to parameter of type 'AlbumStatus'.
-```
-
-Because of this limitation, you might consider using a union of strings instead of multiple string enums. However, if you're dealing with a single enum, it can allow you to constrain values.
+#### How Enums Transpile
 
 Both numeric and string enums are transpiled into JavaScript. A variable with the enum's name is created, then assigned a function with numeric key properties with a reverse mapping to their values.
 
@@ -134,9 +151,26 @@ const AlbumStatus = {
 };
 ```
 
-While numeric and string enums are the most common, there is another type to be aware of.
+#### Only String Enums Behave Like Enums
 
-### `const` Enums
+There is a somewhat annoying side effect of string enums to be aware of. When you have two enums with the same values, they can't be used interchangeably. Even thought `BookStatus` has the same members as `AlbumStatus`, they are not compatible when calling teh `logStatus` function:
+
+```typescript
+enum BookStatus {
+  NewRelease = "NEW_RELEASE",
+  OnSale = "ON_SALE",
+  StaffPick = "STAFF_PICK"
+}
+
+logStatus(BookStatus.NewRelease); // red squiggly line under BookStatus.NewRelease
+
+// hovering over BookStatus.NewRelease shows:
+Argument of type 'BookStatus.NewRelease' is not assignable to parameter of type 'AlbumStatus'.
+```
+
+Because of this limitation, you might consider using a union of strings instead of multiple string enums. However, if you're dealing with a single enum, it can allow you to constrain values.
+
+#### `const` Enums
 
 A `const` enum is declared similarly to the other enums, but with the `const` keyword first:
 
@@ -148,9 +182,11 @@ const enum AlbumStatus {
 }
 ```
 
-The major difference is that `const` enums disappear when the TypeScript is transpiled to JavaScript. TypeScript will still perform type checking, but the enum will not be available at runtime.
+You can use `const` enums to declare numeric or string enums - they have the same behavior as regular enums.
 
-However, if an array is created that accesses the enum's values, the transpiled JavaScript will end up with those values:
+The major difference is that `const` enums disappear when the TypeScript is transpiled to JavaScript. Instead of creating an object with the enum's values, the transpiled JavaScript will use the enum's values directly.
+
+For instance, if an array is created that accesses the enum's values, the transpiled JavaScript will end up with those values:
 
 ```typescript
 let albumStatuses = [
@@ -160,17 +196,12 @@ let albumStatuses = [
 ];
 
 // the above transpiles to:
-("use strict");
 let albumStatuses = ["NEW_RELEASE", "ON_SALE", "STAFF_PICK"];
 ```
 
-### Trade-offs and Practical Use
+However, I don't recommend using `const` enums in your code. They work well when you're transpiling your code with `tsc`, because `tsc` understands what values are in the enum. But they can cause issues when using tools which don't run a typechecker, like ESBuild or SWC. Since most of the time you'll be using a bundler that doesn't run a typechecker, it's best to avoid `const` enums.
 
-Because `const` enums require the TypeScript compiler to understand the value of the constants during transpilation, there can be implications for code that runs under different tools like ESBuild or SWC. These tools do not have a full TypeScript compiler, and instead rely on the JavaScript Abstract Syntax Tree (AST) to understand the code. This can lead to unexpected behavior when using `const` enums.
-
-The TypeScript team suggests avoiding `const` enums in your library code. They might be useful in some application code, but in general their weirdness may not be worth the pain.
-
-If you're going to to use enums, stick with string or numeric enums, but even then they might not be worth it.
+Even the TypeScript team suggest avoiding `const` enums in your library code - I suggest avoiding them in your application code as well.
 
 ## Namespaces
 
