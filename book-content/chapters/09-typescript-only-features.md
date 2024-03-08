@@ -491,8 +491,6 @@ This is the world that TypeScript was born into. Module systems like CommonJS (`
 
 But now that ES modules are widely supported, you should use them over namespaces. Namespaces have very little relevance in modern TypeScript code, with some exceptions which we'll explore in our chapter on global scopes.
 
-<!-- CONTINUE -->
-
 ## When to Prefer ES vs. TS
 
 In this chapter we've looked at several TypeScript-only features. These features have two things in common. First, they don't exist in JavaScript. Second, they are _old_.
