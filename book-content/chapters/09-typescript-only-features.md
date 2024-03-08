@@ -300,23 +300,7 @@ let albumStatuses = [
 let albumStatuses = ["NEW_RELEASE", "ON_SALE", "STAFF_PICK"];
 ```
 
-However, I don't recommend using `const` enums in your code. They work well when you're transpiling your code with `tsc`, because `tsc` understands what values are in the enum. But they can cause issues when using tools which don't run a typechecker, like ESBuild or SWC. Since most of the time you'll be using a bundler that doesn't run a typechecker, it's best to avoid `const` enums.
-
-Even the TypeScript team suggest avoiding `const` enums in your library code - I suggest avoiding them in your application code as well.
-
-#### `isolatedModules`
-
-If you do choose to use `const` enums in your code, make sure you have `isolatedModules` set to `true` in your `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "isolatedModules": true
-  }
-}
-```
-
-We'll explain this in full later, but this ensures that `const` enums (and other behavior that relies on `tsc` transpiling your code) will work as expected.
+`const` enums do have some limitations, especially when declared in declaration files (which we'll cover later). The TypeScript team actually recommends avoiding `const` enums in your library code because they can behave unpredictably for consumers of your library.
 
 ### Should You Use Enums?
 
