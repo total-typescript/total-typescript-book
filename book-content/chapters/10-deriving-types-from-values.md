@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # Deriving Types from Values
 
 One of the most common pieces of advice for writing maintainable code is to "Keep code DRY", or more explicitly, "Don't Repeat Yourself".

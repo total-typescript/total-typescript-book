@@ -320,3 +320,91 @@ readOnlyGenresAsConst.indexOf("jazz"); // No error when `ts-reset` is imported
 ```
 
 The `ts-reset` library offers a way of balancing between the strictness and flexibility that TypeScript provides. While some developers might prefer TypeScript's stricter approach, if you ever find read-only arrays troublesome, this library is a useful addition to your toolkit to make the TypeScript experience smoother. Find out [more about `ts-reset` on GitHub](https://github.com/total-typescript/ts-reset).
+
+---
+
+### Enums vs Unions
+
+We've now seen two ways to represent a set of related values in TypeScript: enums and unions.
+
+For example, we could represent the status of an album as an enum:
+
+```typescript
+enum AlbumStatus {
+  NewRelease = "NewRelease",
+  OnSale = "OnSale",
+  StaffPick = "StaffPick",
+}
+```
+
+Or we could represent it as a union:
+
+```typescript
+type AlbumStatus = "NewRelease" | "OnSale" | "StaffPick";
+```
+
+With a union, you pass string values manually to the function. With an enum, you pass the enum member.
+
+```typescript
+logStatus("NewRelease"); // Union
+logStatus(AlbumStatus.NewRelease); // Album
+```
+
+So, when should you use an enum, and when should you use a union?
+
+#### Refactoring
+
+One of the main benefits of enums is that they can be refactored easily. If you need to change the name of a member, you only need to change it in one place.
+
+For instance, if we wanted to change `NewRelease` to `NewAlbum`, we only need to change the enum definition. We could even use TypeScript's refactoring tools to do this automatically via Rename Symbol.
+
+But if we wanted to change the string value in a union, we would need to change every place where it's used.
+
+```typescript
+// 3 Changes, one per function call
+
+logStatus("NewRelease");
+logStatus("NewRelease");
+logStatus("NewRelease");
+
+// 1 Change, in the enum definition
+
+logStatus(AlbumStatus.NewRelease);
+logStatus(AlbumStatus.NewRelease);
+logStatus(AlbumStatus.NewRelease);
+```
+
+#### Enum Members Can Have JSDoc Comments
+
+TypeScript supports enums having JSDoc comments, which can be useful for documenting the enum members.
+
+```typescript
+enum AlbumStatus {
+  /**
+   * A new release
+   */
+  NewRelease = "NewRelease",
+  /**
+   * An album that is on sale
+   */
+  OnSale = "OnSale",
+  /**
+   * An album that is a staff pick
+   */
+  StaffPick = "StaffPick",
+}
+```
+
+This can then be seen in the editor when you hover over the enum member:
+
+```typescript
+logStatus(AlbumStatus.NewRelease); // Hover over NewRelease to see the JSDoc comment
+```
+
+While you can add JSDoc comments to union members, they won't be displayed in the editor when you pass them to a function call.
+
+```typescript
+logStatus("NewRelease"); // No information provided when hovering over NewRelease
+```
+
+#### Enums Must Be Imported

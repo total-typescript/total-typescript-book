@@ -119,15 +119,67 @@ logStatus(AlbumStatus.NewRelease);
 
 ### Enums Are Strange
 
-<!-- CONTINUE -->
+There is no equivalent syntax in JavaScript to the `enum` keyword. So, TypeScript gets to make up the rules for how enums work. This means they have some slightly odd behavior.
 
-There is no equivalent syntax in JavaScript to the `enum` keyword. Since TypeScript gets to make up the rules for how enums work, they have some slightly odd behavior.
+#### How Numeric Enums Transpile
 
-#### How Enums Transpile
+The way enums are converted into JavaScript code can feel slightly unexpected.
 
-Both numeric and string enums are transpiled into JavaScript. A variable with the enum's name is created, then assigned a function with numeric key properties with a reverse mapping to their values.
+For example, the enum `AlbumStatus`:
 
-For example, the enum `AlbumStatus` would be transpiled into the following JavaScript:
+```typescript
+enum AlbumStatus {
+  NewRelease,
+  OnSale,
+  StaffPick,
+}
+```
+
+Would be transpiled into the following JavaScript:
+
+```javascript
+var AlbumStatus;
+(function (AlbumStatus) {
+  AlbumStatus[(AlbumStatus["NewRelease"] = 0)] = "NewRelease";
+  AlbumStatus[(AlbumStatus["OnSale"] = 1)] = "OnSale";
+  AlbumStatus[(AlbumStatus["StaffPick"] = 2)] = "StaffPick";
+})(AlbumStatus || (AlbumStatus = {}));
+```
+
+This rather opaque piece of JavaScript does several things in one go. It creates an object with properties for each enum value, and it also creates a reverse mapping of the values to the keys.
+
+The result would then be similar to the following:
+
+```javascript
+var AlbumStatus = {
+  0: "NewRelease",
+  1: "OnSale",
+  2: "StaffPick",
+  NewRelease: 0,
+  OnSale: 1,
+  StaffPick: 2,
+};
+```
+
+This reverse mapping means that there are more keys available on an enum than you might expect. So, performing an `Object.keys` call on an enum will return both the keys and the values.
+
+```typescript
+console.log(Object.keys(AlbumStatus)); // ["0", "1", "2", "NewRelease", "OnSale", "StaffPick"]
+```
+
+This can be a real gotcha if you're not expecting it.
+
+#### How String Enums Transpile
+
+String enums don't have the same behavior as numeric enums. When you specify string values, the transpiled JavaScript is much simpler:
+
+```typescript
+enum AlbumStatus {
+  NewRelease = "NEW_RELEASE",
+  OnSale = "ON_SALE",
+  StaffPick = "STAFF_PICK",
+}
+```
 
 ```javascript
 var AlbumStatus;
@@ -138,37 +190,86 @@ var AlbumStatus;
 })(AlbumStatus || (AlbumStatus = {}));
 ```
 
-The result would then be similar to the following:
-
-```javascript
-const AlbumStatus = {
-  NewRelease: "NEW_RELEASE",
-  NEW_RELEASE: "NewRelease",
-  OnSale: "ON_SALE",
-  ON_SALE: "OnSale",
-  StaffPick: "STAFF_PICK",
-  STAFF_PICK: "StaffPick",
-};
-```
-
-#### Only String Enums Behave Like Enums
-
-There is a somewhat annoying side effect of string enums to be aware of. When you have two enums with the same values, they can't be used interchangeably. Even thought `BookStatus` has the same members as `AlbumStatus`, they are not compatible when calling teh `logStatus` function:
+Now, there is no reverse mapping, and the object only contains the enum values. An `Object.keys` call will only return the keys, as you might expect.
 
 ```typescript
-enum BookStatus {
-  NewRelease = "NEW_RELEASE",
-  OnSale = "ON_SALE",
-  StaffPick = "STAFF_PICK"
-}
-
-logStatus(BookStatus.NewRelease); // red squiggly line under BookStatus.NewRelease
-
-// hovering over BookStatus.NewRelease shows:
-Argument of type 'BookStatus.NewRelease' is not assignable to parameter of type 'AlbumStatus'.
+console.log(Object.keys(AlbumStatus)); // ["NewRelease", "OnSale", "StaffPick"]
 ```
 
-Because of this limitation, you might consider using a union of strings instead of multiple string enums. However, if you're dealing with a single enum, it can allow you to constrain values.
+This difference between numeric and string enums feels inconsistent, and it can be a source of confusion.
+
+#### Numeric Enums Behave Like Union Types
+
+Another odd feature of enums is that string enums and numeric enums behave differently when used as types.
+
+Let's redefine our `logStatus` function with a numeric enum:
+
+```typescript
+enum AlbumStatus {
+  NewRelease = 0,
+  OnSale = 1,
+  StaffPick = 2,
+}
+
+function logStatus(genre: AlbumStatus) {
+  console.log(genre);
+}
+```
+
+Now, we can call `logStatus` with a member of the enum:
+
+```typescript
+logStatus(AlbumStatus.NewRelease);
+```
+
+But we can also call it with a plain number:
+
+```typescript
+logStatus(0);
+```
+
+If we call it with a number that isn't a member of the enum, TypeScript will report an error:
+
+```typescript
+logStatus(3); // Argument of type '3' is not assignable to parameter of type 'AlbumStatus'.
+```
+
+This is different from string enums, which only allow the enum members to be used as types:
+
+```typescript
+enum AlbumStatus {
+  NewRelease = "NEW_RELEASE",
+  OnSale = "ON_SALE",
+  StaffPick = "STAFF_PICK",
+}
+
+function logStatus(genre: AlbumStatus) {
+  console.log(genre);
+}
+
+logStatus(AlbumStatus.NewRelease);
+logStatus("NEW_RELEASE"); // Argument of type '"NEW_RELEASE"' is not assignable to parameter of type 'AlbumStatus'.
+```
+
+The way string enums behave feels more natural - it matches how enums work in other languages like C# and Java.
+
+But the fact that they're not consistent with numeric enums can be a source of confusion.
+
+In fact, string enums are unique in TypeScript because they're compared _nominally_. All other types in TypeScript are compared _structurally_, meaning that two types are considered the same if they have the same structure. But string enums are compared based on their name (nominally), not their structure.
+
+This means that two string enums with the same members are considered different types if they have different names:
+
+```typescript
+enum AlbumStatus2 {
+  NewRelease = "NEW_RELEASE",
+  OnSale = "ON_SALE",
+  StaffPick = "STAFF_PICK",
+}
+
+logStatus(AlbumStatus2.NewRelease); // Argument of type 'AlbumStatus2' is not assignable to parameter of type 'AlbumStatus'.
+```
+
+For those of us used to structural typing, this can be a bit of a surprise. But to developers used to enums in other languages, string enums will feel the most natural.
 
 #### `const` Enums
 
@@ -203,9 +304,33 @@ However, I don't recommend using `const` enums in your code. They work well when
 
 Even the TypeScript team suggest avoiding `const` enums in your library code - I suggest avoiding them in your application code as well.
 
+#### `isolatedModules`
+
+If you do choose to use `const` enums in your code, make sure you have `isolatedModules` set to `true` in your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "isolatedModules": true
+  }
+}
+```
+
+We'll explain this in full later, but this ensures that `const` enums (and other behavior that relies on `tsc` transpiling your code) will work as expected.
+
+### Should You Use Enums?
+
+Enums are a useful feature, but they have some quirks that can make them difficult to work with.
+
+There are some alternatives to enums that you might want to consider, such as plain union types. But my preferred alternative uses some syntax we haven't covered yet.
+
+We'll discuss whether you should use enums in general in the section on `as const`, in chapter 10.
+
 ## Namespaces
 
-Namespaces were an early feature of TypeScript that let you specify spaces where you could add functions and types. This allows you to use names that wouldn't conflict with other things declared in the global scope. These days namespaces should rarely be used, but it's still important to be aware of them.
+Namespaces were an early feature of TypeScript that tried to solve a big problem in JavaScript at the time - the lack of a module system. They were introduced before ES6 modules were standardized, and they were TypeScript's attempt to organize your code.
+
+Namespaces let you specify closures where you can export functions and types. This allows you to use names that wouldn't conflict with other things declared in the global scope.
 
 Consider a scenario where we are building a TypeScript application to manage a music collection. There could be functions to add an album, calculate sales, and generate reports. Using namespaces, we can group these functions logically:
 
@@ -254,11 +379,31 @@ const odelay: AlbumCollection.Album.Album = {
 AlbumCollection.Sales.recordSale("Odelay!", 1, 10.99);
 ```
 
-The behavior in the example above is very similar to modules, despite pre-dating their introduction to JavaScript.
+### How Namespaces Compile
 
-While modules have now become the standard for organizing your code, you will still encounter namespaces when dealing with global scope types that come from external libraries. We'll revisit this topic later.
+Namespaces compile into relatively simple JavaScript. For instance, a simpler version of the `RecordStoreUtils` namespace...
 
-When it comes to your own projects, you should stick with using modules.
+```typescript
+namespace RecordStoreUtils {
+  export function addAlbum(title: string, artist: string, year: number) {
+    // Implementation to add an album to the collection
+  }
+}
+```
+
+...would be transpiled into the following JavaScript:
+
+```javascript
+var RecordStoreUtils;
+(function (RecordStoreUtils) {
+  function addAlbum(title, artist, year) {
+    // Implementation to add an album to the collection
+  }
+  RecordStoreUtils.addAlbum = addAlbum;
+})(RecordStoreUtils || (RecordStoreUtils = {}));
+```
+
+Similarly to an enum, this code creates an object with properties for each function and type in the namespace. This means that the namespace can be accessed as an object, and its properties can be accessed as methods or properties.
 
 ### Merging Namespaces
 
@@ -307,8 +452,6 @@ const loaded: RecordStoreUtils.Album.Album = {
 RecordStoreUtils.Sales.calculateTotalSales("Loaded");
 ```
 
-There are some constraints to this merging. For example, either all or none of the declarations must be exported. If you try to export only one of them, you'll get an error. Also, if you try to export a function with the same name but different implementations in both namespaces, TypeScript will throw an error due to the conflict.
-
 #### Merging Interfaces within Namespaces
 
 It's also possible for interfaces within namespaces to be merged. If we had two different `RecordStoreUtils` each with their own `Album` interface, TypeScript would automatically merge them into a single `Album` interface that includes all the properties:
@@ -338,24 +481,34 @@ const madvillainy: RecordStoreUtils.Album = {
 };
 ```
 
-Understanding how namespaces and their interfaces merge will be useful when we look at global types later on, but again, in most cases you should stick with using modules.
+This information will become crucial later when we look at the namespace's key use case: globally scoped types.
+
+### Should You Use Namespaces?
+
+Imagine ES modules, with `import` and `export`, never existed. In this world, everything you declare is in the global scope. You'd have to be careful about naming things, and you'd have to come up with a way to organize your code.
+
+This is the world that TypeScript was born into. Module systems like CommonJS (`requre`) and ES Modules (`import`, `export`) weren't popular yet. So, namespaces were a crucial way to avoid naming conflicts and organize your code.
+
+But now that ES modules are widely supported, you should use them over namespaces. Namespaces have very little relevance in modern TypeScript code, with some exceptions which we'll explore in our chapter on global scopes.
+
+<!-- CONTINUE -->
 
 ## When to Prefer ES vs. TS
 
-In this chapter we looked at several TypeScript-only features, and how they are compiled into JavaScript.
+In this chapter we've looked at several TypeScript-only features. These features have two things in common. First, they don't exist in JavaScript. Second, they are _old_.
 
-Parameter properties are compiled to assignments in the constructor. Enums are compiled into an object with properties for each enum value, as well as a reverse mapping of the values to the keys. Namespaces are compiled into a similar shape.
+In 2010, when TypeScript was being built, JavaScript was seen as a problematic language that needed fixing. Enums, namespaces and class parameter properties were added in an atmosphere where new runtime additions to JavaScript were seen as a good thing.
 
-All of these features are useful in various situations, and it's good that they all compile to basic JavaScript.
+But now, JavaScript itself is in a much healthier place. The TC39 committee, the body that decides what features get added to JavaScript, is more active and efficient. New features are being added to the language every year, and the language is evolving rapidly.
 
-However, for the most part you should prefer using ES features over any of these TypeScript features.
+The TypeScript team themselves now see their role very differently. Instead of adding new features to TypeScript, they cleave to JavaScript as closely as possible. Daniel Rosenwasser, the program manager for TypeScript, is co-chair of the TC39 committee.
 
-Part of the reasoning behind this is that there are several efforts happening with the TC39 committee to bring JavaScript closer to TypeScript.
+The right way to think about TypeScript today is as "JavaScript with types".
 
-One of the most notable efforts is the "types as comments" proposal, which would allow TypeScript types to be used in JavaScript as comments. This would allow for a smoother transition from JavaScript to TypeScript, and would also allow for TypeScript types to be used in JavaScript documentation.
+Given this attitude, it's clear how we should treat these TypeScript-only features: as relics of the past. If enums, namespaces and class parameter properties were proposed today, they would not even be considered.
 
-There's also the idea of enums being brought into JavaScript, but this could potentially conflict with TypeScript's own spec. Perhaps TypeScript would add some sort of "experimental enums" flag if this proposal were to be accepted.
+But the question remains: should you use them? TypeScript will likely never stop supporting these features. To do so would break too much existing code. So, they're safe to continue using.
 
-Members of the TypeScript team have shared that their vision is to have type annotations become part of JavaScript, then work with TC39 to determine what other features should be included.
+But I prefer writing code in the spirit of the language I'm using. Writing "JavaScript with types" keeps the relationship between TypeScript and JavaScript crystal-clear.
 
-The big takeaway here is that you should avoid using any of the TypeScript-only features discussed in this chapter. If they're already present in your codebase, it's probably fine. But if you're starting a new project, you should stick with using ES features.
+However, this is my personal preference. If you're working on a large codebase that already uses these features, it is _not_ worth the effort to remove them. Reaching a decision as a team, and staying consistent, is the key.
