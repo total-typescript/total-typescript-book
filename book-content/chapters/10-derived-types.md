@@ -1,16 +1,22 @@
-<!-- CONTINUE -->
-
 # Derived Types
 
 One of the most common pieces of advice for writing maintainable code is to "Keep code DRY", or more explicitly, "Don't Repeat Yourself".
 
-Through clever combinations of TypeScript's operators and utility types, we can follow this advice by deriving types from other types. This allows us to make changes in one place, and have those changes propagate throughout our application without needing to manually update every instance of a type.
+One way to do this in JavaScript is to take repeating code and capture it in functions or variables. These variables and functions can be reused, composed and combined in different ways to create new functionality.
 
-In this chapter we will work through several different techniques of creating and manipulating types, as well as common conventions you can apply in your own projects.
+In TypeScript, we can apply this same principle to types.
+
+In this section, we're going to look at deriving types from other types. This lets us reduce repetition in our code, and create a single source of truth for our types.
+
+This allows us to make changes in one type, and have those changes propagate throughout our application without needing to manually update every instance.
+
+We'll even look at how we can derive types from _values_, so that our types always represent the runtime behavior of our application.
+
+<!-- CONTINUE -->
 
 ## The `keyof` Operator
 
-The `keyof` operator is a key tool for creating types from other types. It allows you to extract the keys from an object type into a union type.
+The `keyof` operator allows you to extract the keys from an object type into a union type.
 
 Starting with our familiar `Album` interface:
 
@@ -29,6 +35,17 @@ type AlbumKeys = keyof Album; // "title" | "artist" | "releaseYear"
 ```
 
 Since `keyof` dynamically extracts the keys from a source, any changes made to the interface will automatically be reflected in the `AlbumKeys` type.
+
+```tsx
+interface Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+  genre: string; // added 'genre'
+}
+
+type AlbumKeys = keyof Album; // "title" | "artist" | "releaseYear" | "genre"
+```
 
 The `AlbumKeys` type can then be used to help ensure a key being used to access a value in an `Album` is valid as seen in this function:
 

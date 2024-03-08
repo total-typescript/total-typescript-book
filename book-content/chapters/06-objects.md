@@ -632,6 +632,36 @@ type Album = {
 };
 ```
 
+### `object`
+
+Similar to `string`, `number`, and `boolean`, `object` is a global type in TypeScript.
+
+It represents more types than you might expect. Instead of representing only objects like `{}` or `new Object()`, `object` represents any non-primitive type. This includes arrays, functions, and objects.
+
+So a function like this:
+
+```typescript
+function acceptAllNonPrimitives(obj: object) {}
+```
+
+Would accept any non-primitive value:
+
+```typescript
+acceptAllNonPrimitives({});
+acceptAllNonPrimitives([]);
+acceptAllNonPrimitives(() => {});
+```
+
+But error on primitives:
+
+```typescript
+acceptAllNonPrimitives(1); // red squiggly line under 1
+acceptAllNonPrimitives("hello"); // red squiggly line under "hello"
+acceptAllNonPrimitives(true); // red squiggly line under true
+```
+
+This means that the `object` type is rarely useful by itself. Using `Record` is usually a better choice. For instance, if you want to accept any object type, you can use `Record<string, unknown>`.
+
 ### Exercises
 
 #### Exercise 1: Use an Index Signature for Dynamic Keys
