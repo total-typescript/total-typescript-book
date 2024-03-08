@@ -1,10 +1,10 @@
 <!-- CONTINUE -->
 
-# Deriving Types from Values
+# Derived Types
 
 One of the most common pieces of advice for writing maintainable code is to "Keep code DRY", or more explicitly, "Don't Repeat Yourself".
 
-Through clever combinations of TypeScript's operators and utility types, we can follow this advice by creating single sources of truth for our types, then deriving other types from them as needed. This allows us to make changes in one place, and have those changes propagate throughout our application without needing to manually update every instance of a type.
+Through clever combinations of TypeScript's operators and utility types, we can follow this advice by deriving types from other types. This allows us to make changes in one place, and have those changes propagate throughout our application without needing to manually update every instance of a type.
 
 In this chapter we will work through several different techniques of creating and manipulating types, as well as common conventions you can apply in your own projects.
 
