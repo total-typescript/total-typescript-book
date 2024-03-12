@@ -822,7 +822,7 @@ This behavior looks extremely odd at first - but we'll see later why it's useful
 
 Let's update our chart to include `never`:
 
-![](images/image2.png)
+![assignability chart with never](https://res.cloudinary.com/total-typescript/image/upload/v1706814786/067-introduction-to-never.explainer_ktradt.png)
 
 This gives us pretty much the full picture of TypeScript's type hierarchy.
 
