@@ -337,7 +337,7 @@ We've looked at a couple different options for creating types that are globally 
 
 Using a `.d.ts` declaration file is best suited for cases where you have several global definitions that need to be organized into a centralized location. This is especially useful in larger projects.
 
-The `declare global` syntax is more convenient when the global declarations are closely tied to the context of specific modules or files. This approach is useful when you want to keep the global declarations close to the code that uses them. The `declare module` syntax should be used when you need to define types for modules that don't have type definitions.
+The `declare global` syntax is more convenient when the global declarations are closely tied to the context of specific modules or files. This approach is useful when you want to keep the global declarations close to the code that uses them. The `declare module` syntax should be used when you need to define types for modules that don't have type definitions. It's also possible to use `declare namespace` to define types and modify existing types within a namespace through declaration merging.
 
 In general, it's best to limit global declarations to cases where they are absolutely necessary, such as when interacting with external libraries that don't include type definitions or when working with runtime environments that provide global variables.
 
