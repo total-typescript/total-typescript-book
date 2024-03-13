@@ -254,8 +254,6 @@ console.log(`Price: ${price}`);
 
 This process is the same for any JavaScript library or module that you want to use in a TypeScript project.
 
-
-
 ## The `declare` Keyword
 
 Earlier we saw an error when including a function implementation in a declaration file:
@@ -268,7 +266,7 @@ Ambient context is a term used to describe the global scope in TypeScript. As we
 
 Even though we can't include function implementations in declaration files, the error message above suggests that there is a way to declare global variables and types without providing actual implementations.
 
-This is done using the `declare` keyword, which can be used in a couple of different ways.
+This is done using the `declare` keyword, which can be used in a few different ways.
 
 ### `declare const`
 
@@ -307,13 +305,39 @@ declare global {
 
 Now the `MUSIC_API` variable could be used in a different file without being imported.
 
+### `declare module`
+
+There are some situations where you need to declare types for a module that either doesn't have type definitions or is not included in the project directly.
+
+In these cases, you can use the `declare module` syntax to define types for the module.
+
+For example, say we are working with a `duration-utils` module that doesn't have type definitions.
+
+The first step would be to create a new file named `duration-utils.d.ts`. Then at the top of the file, the `declare module` syntax is used to define the types for the module:
+
+```typescript
+declare module 'duration-utils' {
+  export function formatDuration(seconds: number): string;
+}
+```
+
+Like before, we are not including any implementation code in the `.d.ts` file– it's just the types that are being declared.
+
+Once the `duration-utils.d.ts` file is created, the module can be imported and used as usual:
+
+```typescript
+import { formatDuration, parseTrackData } from 'music-utils';
+
+const formattedTime = formatDuration(309);
+```
+
 ## Comparing Approaches
 
 We've looked at a couple different options for creating types that are globally accessible. Both declaration files and the `declare` keyword are valid approaches, but the one you choose depends on the context and the specific needs of your project.
 
 Using a `.d.ts` declaration file is best suited for cases where you have several global definitions that need to be organized into a centralized location. This is especially useful in larger projects.
 
-The `declare global` syntax is more convenient when the global declarations are closely tied to the context of specific modules or files. This approach is useful when you want to keep the global declarations close to the code that uses them.
+The `declare global` syntax is more convenient when the global declarations are closely tied to the context of specific modules or files. This approach is useful when you want to keep the global declarations close to the code that uses them. The `declare module` syntax should be used when you need to define types for modules that don't have type definitions. It's also possible to use `declare namespace` to define types and modify existing types within a namespace through declaration merging.
 
 In general, it's best to limit global declarations to cases where they are absolutely necessary, such as when interacting with external libraries that don't include type definitions or when working with runtime environments that provide global variables.
 
