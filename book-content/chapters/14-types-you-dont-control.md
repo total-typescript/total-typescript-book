@@ -40,23 +40,7 @@ In this case, changing the `target` to `ES2021` or later will allow you to use t
 
 ### `lib`
 
-The other suggestion in the error message was to update the `lib` compiler option. The `lib` option allows you to specify an array of the built-in type definitions that TypeScript should include during compilation, while still targeting a specific ECMAScript version.
-
-Continuing from the `replaceAll` example, we could keep the `target` set to `ES5` and add the `ES2021` library to the `lib` option array:
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES5",
-    "lib": ["ES2021"],
-    // other options...
-  }
-}
-```
-
-With this configuration, TypeScript will recognize the `replaceAll` method and provide type checking for it, even though the `target` is set to `ES5`.
-
-The `lib` setting allows you to specify more than just the ECMAScript version.
+The other suggestion in the error message was to update the `lib` compiler option. The `lib` option allows you to specify an array of the built-in type definitions that TypeScript should include during compilation, while still targeting a specific ECMAScript version. However, there's more that the `lib` setting will accept.
 
 For example, if you're building a web application, you'll want to include the `DOM` and `DOM.Iterable` options in the `lib` array:
 
@@ -74,6 +58,47 @@ For example, if you're building a web application, you'll want to include the `D
 The `DOM` option brings in type definitions from `lib.dom.d.ts` that correspond to the DOM API, while `DOM.Iterable` adds global interfaces that infuse `symbol.iterator` into DOM nodes to make them iterable:
 
 It's worth pointing out that by default, the `lib` option is set based on the `target` setting, but the TypeScript team recommends explicitly specifying all of the options as a best practice.
+
+#### `target` and `lib` Won't Polyfill
+
+With `target` specifying an ECMAScript version and `lib` specifying type definitions to include, it may seem like the following configuration would bring newer features to an older version of JavaScript:
+
+```tsx
+// inside tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "lib": ["ES5", "DOM", "DOM.Iterable"],
+    // other options...
+```
+
+However, TypeScript is not able to "down-level" or polyfill features that aren't supported in older environments.
+
+Consider this example, where we want to use newer JS features like `string.replaceAll`, optional chaining with `?.`, and nullish coalescing with `??`, while targeting `ES5`:
+
+```tsx
+// API's are NOT transformed
+const str = "Hello, world!";
+
+str.replaceAll("Hello,", "Goodbye, cruel");
+
+// Syntax IS transformed:
+const searchSongs = (input?: { search?: string }) => {
+  // Optional chaining
+  const search = input?.search;
+
+  // Nullish coalescing
+  const defaultedSearch = search ?? "Hello";
+};
+```
+
+When TypeScript transpiles this code, it will only transform the syntax– in this case, the optional chaining and nullish coalescing.
+
+API methods are not polyfilled or transformed in any way, and are left as is. This could lead to runtime errors if the code is run in an environment that doesn't support these features. In this case, `replaceAll` will not be transformed, and will throw an error in an ES5-only environment that doesn't support it.
+
+If you need to support older environments, you'll need to find your own polyfills or other tooling since TypeScript won't do it for you.
+
+As mentioned before, it's a good idea to keep your `target` and `lib` options in sync. This ensures that you're only using features that are available in your target environment and helps avoid potential issues with unsupported APIs.
 
 ### `skipLibCheck`
 
