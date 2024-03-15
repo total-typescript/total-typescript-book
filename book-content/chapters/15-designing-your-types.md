@@ -877,7 +877,7 @@ Your task is to refine the `AbsoluteRoute` type to accurately expect that string
 
 ### Exercise 7: Sandwich Permutations
 
-n this exercise, we want to build a `Sandwich` type.
+In this exercise, we want to build a `Sandwich` type.
 
 This `Sandwich` is expected to encompass all possible combinations of three types of bread (`"rye"`, `"brown"`, `"white"`) and three types of filling (`"cheese"`, `"ham"`, `"salami"`):
 
