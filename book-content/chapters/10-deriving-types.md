@@ -819,11 +819,71 @@ type AlbumPromise = Promise<Album>;
 type AlbumResolved = Awaited<AlbumPromise>;
 ```
 
-<!-- CONTINUE -->
-
 ### Why Derive Types From Functions?
 
-<!-- TODO -->
+Being able to derive types from functions might not seem very useful at first. After all, if we control the functions then we can just write the types ourselves, and reuse them as needed:
+
+```typescript
+type Album = {
+  title: string;
+  artist: string;
+  releaseYear: number;
+};
+
+const sellAlbum = (album: Album, price: number, quantity: number) => {
+  return price * quantity;
+};
+```
+
+There's no reason to use `Parameters` or `ReturnType` on `sellAlbum`, since we defined the `Album` type and the return type ourselves.
+
+But what about functions you don't control?
+
+A common example is a third-party library. A library might export a function that you can use, but might not export the accompanying types. An example I recently came across was a type from the library `@monaco-editor/react`.
+
+```tsx twoslash
+import { Editor } from "@monaco-editor/react";
+
+// This is JSX component, for our purposes equivalent to...
+<Editor
+  onMount={(editor) => {
+    // ...
+  }}
+/>;
+
+// ...calling the function directly with an object
+Editor({
+  onMount: (editor) => {
+    // ...
+  },
+});
+```
+
+In this case, I wanted to know the type of `editor` so I could reuse it in a function elsewhere. But the `@monaco-editor/react` library didn't export its type.
+
+First, I extracted the type of the object the component expected:
+
+```typescript
+type EditorProps = Parameters<typeof Editor>[0];
+```
+
+Then, I used an indexed access type to extract the type of the `onMount` property:
+
+```typescript
+type OnMount = EditorProps["onMount"];
+```
+
+Finally, I extracted the first parameter from the `OnMount` type to get the type of `editor`:
+
+```typescript
+type Editor = Parameters<OnMount>[0];
+```
+
+This allowed me to reuse the `Editor` type in a function elsewhere in my code.
+
+By combining indexed access types with TypeScript's utility types, you can work around the limitations of third-party libraries and ensure that your types stay in sync with the functions you're using.
+
+<!-- CONTINUE -->
 
 ## Exercises
 
