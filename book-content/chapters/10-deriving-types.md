@@ -622,8 +622,6 @@ const inputs: Record<
 
 Now, if the `FormValues` interface changes, the `inputs` Record will automatically be updated to reflect those changes. `inputs` is derived from `FormValues`.
 
-<!-- CONTINUE -->
-
 ### Solution 2: Derive a Type from a Value
 
 The solution is to use the `typeof` keyword in combination with `keyof` to create the `Environment` type.
@@ -753,13 +751,13 @@ type AllPrograms = (typeof programModes)[number];
 
 Now new items can be added to the `programModes` array without needing to update the `AllPrograms` type manually. This solution makes the test pass as expected, and is a great pattern to apply in your own projects.
 
-## Utility & Helper Types for Deriving Types
+## Deriving Types From Functions
 
-Throughout the book so far, you've seen examples of several utility types that TypeScript provides. Let's add a few more to the list that are especially useful when deriving types from other types.
+So far, we've only looked at deriving types from objects and arrays. But deriving types from functions can help solve some common problems in TypeScript.
 
 ### `Parameters`
 
-The `Parameters` utility type extracts the parameters from a given function type and returns them as a tuple type.
+The `Parameters` utility type extracts the parameters from a given function type and returns them as a tuple.
 
 For example, this `sellAlbum` function takes in an `Album`, a `price`, and a `quantity`, then returns a number representing the total price:
 
@@ -778,13 +776,23 @@ type SellAlbumParams = Parameters<typeof sellAlbum>;
 type SellAlbumParams = [Album, number, number];
 ```
 
+Note that we need to use `typeof` to create a type from the `sellAlbum` function. Passing `sellAlbum` directly to `Parameters` won't work on its own because `sellAlbum` is a value instead of a type:
+
+```typescript
+type SellAlbumParams = Parameters<sellAlbum>; // red squiggly line under sellAlbum
+```
+
 This `SellAlbumParams` type is a tuple type that holds the `Album`, `price`, and `quantity` parameters from the `sellAlbum` function.
 
-The `Parameters` utility type is great when you need to extract the parameters from a function that you don't have direct access to, like when working with third-party libraries.
+If we need to access a specific parameter from the `SellAlbumParams` type, we can use indexed access types:
+
+```typescript
+type Price = SellAlbumParams[1]; // number
+```
 
 ### `ReturnType`
 
-After seeing the `Parameters` type, it follows that the `ReturnType` utility type extracts the return type from a given function:
+The `ReturnType` utility type extracts the return type from a given function:
 
 ```typescript
 type SellAlbumReturn = ReturnType<typeof sellAlbum>;
@@ -793,20 +801,29 @@ type SellAlbumReturn = ReturnType<typeof sellAlbum>;
 type SellAlbumReturn = number;
 ```
 
-In this case, the `SellAlbumReturn` type is a number, which corresponds to the inferred return type of the `sellAlbum` function.
+In this case, the `SellAlbumReturn` type is a number, which derived from the `sellAlbum` function.
 
 ### `Awaited`
 
-Earlier in the book, we used the `Promise` type when working with asynchronous code. Recall that in TypeScript, the result of any async operation will be wrapped in a `Promise` object.
+Earlier in the book, we used the `Promise` type when working with asynchronous code.
 
 The `Awaited` utility type is used to unwrap the `Promise` type and provide the type of the resolved value. Think of it as a shortcut similar to using `await` or `.then()` methods.
+
+This can be particularly useful for deriving the return types of `async` functions.
 
 To use it, you would pass a `Promise` type to `Awaited` and it would return the type of the resolved value:
 
 ```typescript
 type AlbumPromise = Promise<Album>;
+
 type AlbumResolved = Awaited<AlbumPromise>;
 ```
+
+<!-- CONTINUE -->
+
+### Why Derive Types From Functions?
+
+<!-- TODO -->
 
 ## Exercises
 
