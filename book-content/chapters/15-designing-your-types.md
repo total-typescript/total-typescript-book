@@ -23,11 +23,11 @@ type StreamingPlaylist =
         name: string;
         tracks: string[];
       };
-    } 
+    }
   | {
       status: "unavailable";
       reason: string;
-  };
+    };
 type StreamingAlbum =
   | {
       status: "available";
@@ -41,12 +41,12 @@ type StreamingAlbum =
   | {
       status: "unavailable";
       reason: string;
-  };
+    };
 ```
 
 Both of these types represent a streaming resource that is either available with specific content or unavailable with a reason for its unavailability.
 
-The primary difference lies in the structure of the `content` object: the `StreamingPlaylist` type has a `name` property, while the `StreamingAlbum` type has a `title` and `artist` property. Despite this difference, the overall structure of the types is the same. 
+The primary difference lies in the structure of the `content` object: the `StreamingPlaylist` type has a `name` property, while the `StreamingAlbum` type has a `title` and `artist` property. Despite this difference, the overall structure of the types is the same.
 
 In order to reduce repetition, we can create a generic type called `ResourceStatus` that can represent both `StreamingPlaylist` and `StreamingAlbum`.
 
@@ -75,13 +75,12 @@ type Example = ResourceStatus<{
 type Example = unknown;
 ```
 
-Because `ResourceStatus` is currently typed as `unknown`, the `Example` type is also `unknown`. 
+Because `ResourceStatus` is currently typed as `unknown`, the `Example` type is also `unknown`.
 
 If we change `ResourceStatus` to be typed the same as the `TContent` that is passed in, we can see that `Example` will now be typed as the object type we provided as the type argument:
 
 ```tsx
 type ResourceStatus<TContent> = TContent;
-
 
 // hovering over Example shows
 type Example = {
@@ -131,17 +130,19 @@ Now if we hover over `StreamingPlaylist`, we will see that it has the same struc
 ```tsx
 // hovering over StreamingPlaylist shows:
 
-type StreamingPlaylist = {
-    status: "unavailable";
-    reason: string;
-} | {
-    status: "available";
-    content: {
+type StreamingPlaylist =
+  | {
+      status: "unavailable";
+      reason: string;
+    }
+  | {
+      status: "available";
+      content: {
         id: number;
         name: string;
         tracks: string[];
+      };
     };
-}
 ```
 
 Because the `ResourceStatus` type is generic, we can quickly and easily create new types of resources that maintain structure while accommodating different content shapes.
@@ -207,7 +208,7 @@ With the latest update to the `ResourceStatus` type, the second type parameter `
 For example, if we want to create a `ResourceStatus` type that doesn't include metadata, TypeScript gives us an error:
 
 ```tsx
-type StreamingPlaylist = ResourceStatus<{ 
+type StreamingPlaylist = ResourceStatus<{
   id: number;
   name: string;
   tracks: string[];
@@ -235,42 +236,49 @@ type ResourceStatus<TContent, TMetadata = {}> =
 With this change, the error under `StreamingPlaylist` as gone away. If we hover over it, we'll see that it's typed as expected, with `metadata` being an empty object:
 
 ```tsx
-type StreamingPlaylist = {
-    status: "unavailable";
-    reason: string;
-} | {
-    status: "available";
-    content: {
+type StreamingPlaylist =
+  | {
+      status: "unavailable";
+      reason: string;
+    }
+  | {
+      status: "available";
+      content: {
         id: number;
         name: string;
         tracks: string[];
+      };
+      metadata: {};
     };
-    metadata: {};
-}
 ```
 
 However, there's an interesting behavior here. Even though we've specified that `TMetadata` will be an empty object by default, we can still provide a different type for `TMetadata` if we want to:
 
 ```tsx
-type StreamingPlaylist = ResourceStatus<{
-  id: number;
-  name: string;
-  tracks: string[];
-}, number>;
+type StreamingPlaylist = ResourceStatus<
+  {
+    id: number;
+    name: string;
+    tracks: string[];
+  },
+  number
+>;
 
 // hovering over StreamingPlaylist shows:
-type StreamingPlaylist = {
-    status: "unavailable";
-    reason: string;
-} | {
-    status: "available";
-    content: {
+type StreamingPlaylist =
+  | {
+      status: "unavailable";
+      reason: string;
+    }
+  | {
+      status: "available";
+      content: {
         id: number;
         name: string;
         tracks: string[];
+      };
+      metadata: number;
     };
-    metadata: number;
-}
 ```
 
 It would probably be a good idea to add a constraints to ensure that the parameters to `ResourceStatus` are of the correct type.
@@ -380,7 +388,7 @@ Next, we'll write a function that checks if the `DownloadableAlbum` being passed
 ```tsx
 function checkRegionAvailability(
   album: DownloadableAlbum,
-  region: string
+  region: string,
 ): DownloadableAlbum {
   // Check if the album is available
   if (album.status === "available") {
@@ -480,7 +488,8 @@ Now when we type a new variable as `GreatestHitsAlbumTitle`, we can only assign 
 ```tsx
 type GreatestHitsAlbumTitle = `${string} Greatest Hits`;
 
-let dollyPartonsGreatestHits: GreatestHitsAlbumTitle = "Dolly Parton's Greatest Hits";
+let dollyPartonsGreatestHits: GreatestHitsAlbumTitle =
+  "Dolly Parton's Greatest Hits";
 ```
 
 When a string does not match the pattern defined in the `GreatestHitsAlbumTitle` type, TypeScript will raise an error:
@@ -501,14 +510,20 @@ Template literal types become even more powerful when combined with union types.
 For example, the artist John Mellencamp has released albums under several different names. We could create a `JohnMellencampNames` type by passing a union of last names into a template literal type:
 
 ```tsx
-type JohnMellencampNames = `John ${"Cougar" | "Cougar Mellencamp" | "Mellencamp"}`;
+type JohnMellencampNames = `John ${
+  | "Cougar"
+  | "Cougar Mellencamp"
+  | "Mellencamp"}`;
 ```
 
 Now when hovering over `JohnMellencampNames`, we'll see that it's a union of all possible combinations of the `JohnLastNames` union:
 
 ```tsx
 // hovering over JohnMellencampNames shows:
-type JohnMellencampNames = "John Cougar" | "John Cougar Mellencamp" | "John Mellencamp";
+type JohnMellencampNames =
+  | "John Cougar"
+  | "John Cougar Mellencamp"
+  | "John Mellencamp";
 ```
 
 Using template literals in this way allows you to quickly create unions based on combinations of other unions.
@@ -518,10 +533,19 @@ While this can be useful, it's a capability that should be used with caution. Ea
 For example, if we use another union for first names, the number of combinations would increase from three to six:
 
 ```tsx
-type JohnMellencampNames = `${"John" | "Johnny"} ${"Cougar" | "Cougar Mellencamp" | "Mellencamp"}`;
+type JohnMellencampNames = `${"John" | "Johnny"} ${
+  | "Cougar"
+  | "Cougar Mellencamp"
+  | "Mellencamp"}`;
 
 // hovering over JohnMellencampNames shows:
-type JohnMellencampNames = "John Cougar" | "John Cougar Mellencamp" | "John Mellencamp" | "Johnny Cougar" | "Johnny Cougar Mellencamp" | "Johnny Mellencamp";
+type JohnMellencampNames =
+  | "John Cougar"
+  | "John Cougar Mellencamp"
+  | "John Mellencamp"
+  | "Johnny Cougar"
+  | "Johnny Cougar Mellencamp"
+  | "Johnny Mellencamp";
 ```
 
 Despite the potential for overuse, template literal types combined with unions have legitimate use cases and can be a valuable tool in your TypeScript toolbox.
@@ -555,14 +579,13 @@ Here's what the syntax for the mapped type looks like:
 
 ```tsx
 type AlbumWithPlayableSongs = {
-  [K in keyof Album]: K extends 'songs' ? SongWithPlayingStatus[] : Album[K];
+  [K in keyof Album]: K extends "songs" ? SongWithPlayingStatus[] : Album[K];
 };
 ```
 
 In the above, the `[K in keyof Album]` part of the mapped type iterates over the keys of the `Album` interface. For each key, we check if the key is `'songs'`. If the key is `songs`, we replace its type with an array of `SongWithPlayingStatus` objects. Otherwise the original type of the property will stay the same.
 
 Now when typing something as `AlbumWithPlayableSongs`, each of the `songs` will need to follow the shape of `SongWithPlayingStatus` and include a boolean `nowPlaying` property.
-
 
 #### Key Remapping with `as`
 
@@ -572,7 +595,9 @@ By bringing the `as` keyword into the mapped type, we can rename the `songs` key
 
 ```tsx
 type AlbumWithPlayableSongs = {
-  [K in keyof Album as K extends 'songs' ? 'songsWithStatus' : K]: K extends 'songs' ? SongWithPlayingStatus[] : Album[K];
+  [K in keyof Album as K extends "songs"
+    ? "songsWithStatus"
+    : K]: K extends "songs" ? SongWithPlayingStatus[] : Album[K];
 };
 ```
 
@@ -643,17 +668,15 @@ type MappedExample = {
   [E in Example]: E;
 };
 
-
 // hovering over MappedExample shows:
 type MappedExample = {
-    a: "a";
-    b: "b";
-    c: "c";
-}
+  a: "a";
+  b: "b";
+  c: "c";
+};
 ```
 
 This chapter should help you start to understand how transforming objects into other shapes is a great way to derive types from other types while still retaining a single source of truth.
-
 
 ## Exercises
 
@@ -726,19 +749,20 @@ Here we have the `Result` type that will either give us a `success` or an `error
 ```tsx
 type Result<TResult, TError> =
   | {
-    success: true;
-    data: TResult;
-  }
+      success: true;
+      data: TResult;
+    }
   | {
-    success: false;
-    error: TError;
-  };
+      success: false;
+      error: TError;
+    };
 ```
 
 We also have the `createRandomNumber` function, but this time it only specifies a `number` to the `Result` type:
 
 ```tsx
-const createRandomNumber = (): Result<number> => { // red squiggly line under number
+const createRandomNumber = (): Result<number> => {
+  // red squiggly line under number
   const num = Math.random();
 
   if (num > 0.5) {
@@ -820,10 +844,8 @@ Type 'K' does not satisfy the constraint 'string | number | symbol'.
 Currently, the `StrictOmit` type behaves the same as a regular `Omit` as evidenced by this failing `@ts-expect-error` directive:
 
 ```tsx
-type ShouldFail = StrictOmit<
-  { a: string },
-  // @ts-expect-error // red squiggly line under @ts-expect-error
->;
+type ShouldFail = StrictOmit<{ a: string }>;
+// @ts-expect-error // red squiggly line under @ts-expect-error
 ```
 
 Your task is to update `StrictOmit` so that it only accepts keys that exist in the provided type `T`. If a non-valid key `K` is passed, TypeScript should return an error.
@@ -935,7 +957,8 @@ As seen in the tests, we expect `AttributeGetters` to be an object composed of f
 ```tsx
 type tests = [
   Expect<
-    Equal< // red squiggly line under Equal<>
+    Equal<
+      // red squiggly line under Equal<>
       AttributeGetters,
       {
         firstName: () => string;
@@ -971,7 +994,6 @@ type tests = [
 ```
 
 Your challenge is to adjust the `AttributeGetters` type to remap the keys as specified. You'll need to use the `as` keyword, as well as TypeScript's built-in `Capitalize<string>` type helper.
-
 
 ### Solution 1: Create a `DataShape` Type Helper
 
@@ -1082,7 +1104,7 @@ A runtime argument constraint would be limited only containing a `message` strin
 Here's the starting point of the `StrictOmit` type and the `ShouldFail` example that we need to fix:
 
 ```tsx
-type StrictOmit<T, K> = Omit<T, K>
+type StrictOmit<T, K> = Omit<T, K>;
 
 type ShouldFail = StrictOmit<
   { a: string },
@@ -1159,7 +1181,7 @@ With this change, the `somewhere` string will cause an error since it does not b
 
 ```tsx
 goToRoute(
-  // @ts-expect-error 
+  // @ts-expect-error
   "somewhere",
 );
 ```
@@ -1299,5 +1321,5 @@ type AttributeGetters = {
   getFirstName: () => string;
   getLastName: () => string;
   getAge: () => number;
-}
+};
 ```

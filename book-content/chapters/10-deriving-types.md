@@ -751,6 +751,24 @@ type AllPrograms = (typeof programModes)[number];
 
 Now new items can be added to the `programModes` array without needing to update the `AllPrograms` type manually. This solution makes the test pass as expected, and is a great pattern to apply in your own projects.
 
+<!-- CONTINUE -->
+
+## Transforming Derived Types
+
+<!-- TODO -->
+
+### `NonNullable`
+
+<!-- TODO -->
+
+### `Exclude`
+
+<!-- TODO -->
+
+### `Extract`
+
+<!-- TODO -->
+
 ## Deriving Types From Functions
 
 So far, we've only looked at deriving types from objects and arrays. But deriving types from functions can help solve some common problems in TypeScript.
@@ -882,8 +900,6 @@ type Editor = Parameters<OnMount>[0];
 This allowed me to reuse the `Editor` type in a function elsewhere in my code.
 
 By combining indexed access types with TypeScript's utility types, you can work around the limitations of third-party libraries and ensure that your types stay in sync with the functions you're using.
-
-<!-- CONTINUE -->
 
 ## Exercises
 
