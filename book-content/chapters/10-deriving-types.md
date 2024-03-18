@@ -283,11 +283,127 @@ This is a great pattern to use when you want to extract all of the values from a
 
 ## Using `as const` For JavaScript-Style Enums
 
-<!-- TODO -->`
+In our chapter on TypeScript-only features, we looked at the `enum` keyword. We saw that `enum` is a powerful way to create a set of named constants, but it has some downsides.
 
-## Deriving vs Decoupling
+We now have all the tools available to us to see an alternative approach to creating enum-like structures in TypeScript.
 
-<!-- TODO -->
+First, let's use the `as const` assertion we saw in the chapter on mutability. This forces an object to be treated as read-only, and infers literal types for its properties:
+
+```typescript
+const albumTypes = {
+  CD: "cd",
+  VINYL: "vinyl",
+  DIGITAL: "digital",
+} as const;
+```
+
+We can now _derive_ the types we need from `albumTypes` using `keyof` and `typeof`. For instance, we can grab the keys using `keyof`:
+
+```typescript
+type UppercaseAlbumType = keyof typeof albumTypes; // "CD" | "VINYL" | "DIGITAL"
+```
+
+We can also grab the values using `Obj[keyof Obj]`:
+
+```typescript
+type AlbumType = (typeof albumTypes)[keyof typeof albumTypes]; // "cd" | "vinyl" | "digital"
+```
+
+We can now use our `AlbumType` type to ensure that a function only accepts one of the values from `albumTypes`:
+
+```typescript
+function getAlbumType(type: AlbumType) {
+  // ...
+}
+```
+
+This approach is sometimes called a "POJO", or "Plain Old JavaScript Object". While it takes a bit of TypeScript magic to get the types set up, the result is simple to understand and easy to work with.
+
+Let's now compare this to the `enum` approach.
+
+### Enums Require You To Pass The Enum Value
+
+Our `getAlbumType` function behaves differently than if it accepted an `enum`. Because `AlbumType` is just a union of strings, we can pass a raw string to `getAlbumType`. But if we pass the incorrect string, TypeScript will show an error:
+
+```typescript
+getAlbumType(albumTypes.CD); // no error
+getAlbumType("vinyl"); // no error
+getAlbumType("cassette"); // red squiggly line under "cassette"
+```
+
+This is a tradeoff. With `enum`, you have to pass the enum value, which is more explicit. With our `as const` approach, you can pass a raw string. This can make refactoring a little harder.
+
+### Enums Have To Be Imported
+
+Another downside of `enum` is that they have to be imported into the module you're in to use them:
+
+```typescript
+import { AlbumType } from "./enums";
+
+getAlbumType(AlbumType.CD);
+```
+
+With our `as const` approach, we don't need to import anything. We can pass the raw string:
+
+```typescript
+getAlbumType("cd");
+```
+
+Fans of enums will argue that importing the enum is a good thing, because it makes it clear where the enum is coming from and makes refactoring easier.
+
+### Enums Are Nominal
+
+One of the biggest differences between `enum` and our `as const` approach is that `enum` is _nominal_, while our `as const` approach is _structural_.
+
+This means that with `enum`, the type is based on the name of the enum. This means that enums with the same values that come from different enums are not compatible:
+
+```typescript
+enum AlbumType {
+  CD = "cd",
+  VINYL = "vinyl",
+  DIGITAL = "digital",
+}
+
+enum MediaType {
+  CD = "cd",
+  VINYL = "vinyl",
+  DIGITAL = "digital",
+}
+
+getAlbumType(AlbumType.CD); // no error
+getAlbumType(MediaType.CD); // red squiggly line under MediaType.CD
+```
+
+If you're used to enums from other languages, this is probably what you expect. But for developers used to JavaScript, this can be surprising.
+
+With a POJO, where the value comes from doesn't matter. If two POJOs have the same values, they are compatible:
+
+```typescript
+const albumTypes = {
+  CD: "cd",
+  VINYL: "vinyl",
+  DIGITAL: "digital",
+} as const;
+
+const mediaTypes = {
+  CD: "cd",
+  VINYL: "vinyl",
+  DIGITAL: "digital",
+} as const;
+
+getAlbumType(albumTypes.CD); // no error
+getAlbumType(mediaTypes.CD); // no error
+```
+
+This is a tradeoff. Nominal typing can be more explicit and help catch bugs, but it can also be more restrictive and harder to work with.
+
+### Which Approach Should You Use?
+
+The `enum` approach is more explicit and can help you refactor your code. It's also more familiar to developers coming from other languages.
+
+The `as const` approach is more flexible and easier to work with. It's also more familiar to JavaScript developers.
+
+In general, if you're working with a team that's used to `enum`, you should use `enum`. But if I were starting a project today, I would use `as const` instead of enums.
 
 ## Exercises
 
@@ -332,7 +448,7 @@ Notice there is a lot of duplication here. Both the `FormValues` interface and `
 
 Your task is to modify the `inputs` Record so its keys are derived from the `FormValues` interface.
 
-### Exercise 2: Create a Type from a Value
+### Exercise 2: Derive a Type from a Value
 
 Here, we have an object named `configurations` that comprises a set of deployment environments for `development`, `production`, and `staging`.
 
@@ -365,8 +481,6 @@ We want to use the `Environment` type across our application. However, the `conf
 
 Your task is to update the `Environment` type so that it is derived from the `configurations` object.
 
-<!-- CONTINUE -->
-
 ### Exercise 3: Accessing Specific Values
 
 Here were have an `programModeEnumMap` object that keeps different groupings in sync. There is also a `ProgramModeMap` type that uses `typeof` to represent the entire enum mapping:
@@ -396,7 +510,7 @@ Your task is to find the proper way to type `Group` so the test passes as expect
 
 ### Exercise 4: Unions with Indexed Access Types
 
-This exercise starts with the same `programModeEnumMap` and `PropgramModeMap` as the previous exercise:
+This exercise starts with the same `programModeEnumMap` and `ProgramModeMap` as the previous exercise:
 
 ```typescript
 export const programModeEnumMap = {
@@ -489,7 +603,7 @@ type test = Expect<
 
 Your task is to determine how to create the `AllPrograms` type in order for the test to pass as expected.
 
-Note that just using `keyof` and `typeof` in an approach similar to the previous exercise's solution won't quite work to solve this one! As a hint, remember that primitive types can be passed into indexed access types.
+Note that just using `keyof` and `typeof` in an approach similar to the previous exercise's solution won't quite work to solve this one! This is tricky to find - but as a hint: you can pass primitive types to indexed access types.
 
 ### Solution 1: Reduce Key Repetition
 
@@ -506,7 +620,11 @@ const inputs: Record<
   };
 ```
 
-### Solution 2: Create a Type from a Value
+Now, if the `FormValues` interface changes, the `inputs` Record will automatically be updated to reflect those changes. `inputs` is derived from `FormValues`.
+
+<!-- CONTINUE -->
+
+### Solution 2: Derive a Type from a Value
 
 The solution is to use the `typeof` keyword in combination with `keyof` to create the `Environment` type.
 
@@ -880,3 +998,7 @@ type User = Awaited<ReturnType<typeof fetchUser>>;
 Like before, the `User` type is now a match for the expected type, which means our test will pass as expected.
 
 It would also be possible to create intermediate types, but combining operators and type derivation gives us a more succinct solution.
+
+## Deriving vs Decoupling
+
+<!-- TODO -->
