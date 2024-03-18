@@ -1,4 +1,4 @@
-# 15. Designing Your Types in TypeScript
+# 17. Designing Your Types in TypeScript
 
 The types you design are more than just a way to catch errors at compile time. They are a representation of your business logic. Your application's types will likely correspond closely to your database, and should also convey your app's logic.
 
