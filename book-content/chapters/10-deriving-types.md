@@ -753,22 +753,6 @@ Now new items can be added to the `programModes` array without needing to update
 
 <!-- CONTINUE -->
 
-## Transforming Derived Types
-
-<!-- TODO -->
-
-### `NonNullable`
-
-<!-- TODO -->
-
-### `Exclude`
-
-<!-- TODO -->
-
-### `Extract`
-
-<!-- TODO -->
-
 ## Deriving Types From Functions
 
 So far, we've only looked at deriving types from objects and arrays. But deriving types from functions can help solve some common problems in TypeScript.
@@ -1092,6 +1076,132 @@ Like before, the `User` type is now a match for the expected type, which means o
 
 It would also be possible to create intermediate types, but combining operators and type derivation gives us a more succinct solution.
 
+## Transforming Derived Types
+
+In the previous section we looked at how to derive types from functions you don't control. Sometimes, you'll also need to do the same with _types_ you don't control.
+
+### `Exclude`
+
+The `Exclude` utility type is used to remove types from a union. Let's imagine that we have a union of different states our album can be in:
+
+```typescript
+type AlbumState =
+  | {
+      type: "released";
+      releaseDate: string;
+    }
+  | {
+      type: "recording";
+      studio: string;
+    }
+  | {
+      type: "mixing";
+      engineer: string;
+    };
+```
+
+We want to create a type that represents the states that are not "released". We can use the `Exclude` utility type to achieve this:
+
+```typescript
+type UnreleasedState = Exclude<AlbumState, { type: "released" }>;
+// hovering over UnreleasedState shows:
+type UnreleasedState =
+  | {
+      type: "recording";
+      studio: string;
+    }
+  | {
+      type: "mixing";
+      engineer: string;
+    };
+```
+
+In this case, the `UnreleasedState` type is a union of the `recording` and `mixing` states, which are the states that are not "released". `Exclude` filters out any member of the union with a `type` of `released`.
+
+We could have done it by checking for a `releaseDate` property instead:
+
+```typescript
+type UnreleasedState = Exclude<AlbumState, { releaseDate: string }>;
+```
+
+This is because `Exclude` works by pattern matching. It will remove any type from the union that matches the pattern you provide.
+
+This means we can use it to remove all strings from a union:
+
+```typescript
+type Example = "a" | "b" | 1 | 2;
+
+type Numbers = Exclude<Example, string>;
+// hovering over Numbers shows:
+type Numbers = 1 | 2;
+```
+
+### `NonNullable`
+
+`NonNullable` is used to remove `null` and `undefined` from a type. This can be useful when extracting a type from a partial object:
+
+```typescript
+type Album = {
+  artist?: {
+    name: string;
+  };
+};
+
+type Artist = NonNullable<Album["artist"]>;
+// hovering over Artist shows:
+type Artist = {
+  name: string;
+};
+```
+
+This operates similarly to `Exclude`:
+
+```typescript
+type Artist = Exclude<Album["artist"], null | undefined>;
+```
+
+But `NonNullable` is more explicit and easier to read.
+
+### `Extract`
+
+`Extract` is the opposite of `Exclude`. It's used to extract types from a union. For example, we can use `Extract` to extract the `recording` state from the `AlbumState` type:
+
+```typescript
+type RecordingState = Extract<AlbumState, { type: "recording" }>;
+// hovering over RecordingState shows:
+type RecordingState = {
+  type: "recording";
+  studio: string;
+};
+```
+
+This is useful when you want to extract a specific type from a union you don't control.
+
+Similarly to `Exclude`, `Extract` works by pattern matching. It will extract any type from the union that matches the pattern you provide.
+
+This means that, to reverse our `Extract` example earlier, we can use it to extract all strings from a union:
+
+```typescript
+type Example = "a" | "b" | 1 | 2 | true | false;
+
+type Strings = Extract<Example, string>;
+// hovering over Strings shows:
+type Strings = "a" | "b";
+```
+
+It's worth noting the similarities between `Exclude`/`Extract` and `Omit/Pick`. A common mistake is to think that you can `Pick` from a union, or use `Exclude` on an object. Here's a little table to help you remember:
+
+| Name      | Used On | Action              | Example                     |
+| --------- | ------- | ------------------- | --------------------------- |
+| `Exclude` | Unions  | Excludes members    | `Exclude<'a' \| 1, string>` |
+| `Extract` | Unions  | Extracts members    | `Extract<'a' \| 1, string>` |
+| `Omit`    | Objects | Excludes properties | `Omit<UserObj, 'id'>`       |
+| `Pick`    | Objects | Extracts properties | `Pick<UserObj, 'id'>`       |
+
 ## Deriving vs Decoupling
 
 <!-- TODO -->
+
+```
+
+```
