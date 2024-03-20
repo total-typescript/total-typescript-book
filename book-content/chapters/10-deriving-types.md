@@ -1196,8 +1196,6 @@ It's worth noting the similarities between `Exclude`/`Extract` and `Omit/Pick`. 
 | `Omit`    | Objects | Excludes properties | `Omit<UserObj, 'id'>`       |
 | `Pick`    | Objects | Extracts properties | `Pick<UserObj, 'id'>`       |
 
-<!-- CONTINUE -->
-
 ## Deriving vs Decoupling
 
 Thanks to the tools in these chapters, we now know how to derive types from all sorts of sources: functions, objects and types. But there's a tradeoff to consider when deriving types: coupling.
@@ -1251,6 +1249,8 @@ type AvatarImageProps = {
 Now, `AvatarImageProps` is decoupled from `User`. We can move `User` around, split it into separate interfaces, or even delete it, and `AvatarImageProps` will be unaffected.
 
 In this particular case, decoupling feels like the right choice. This is because `User` and `AvatarImage` are separate concerns. `User` is a data type, while `AvatarImage` is a UI component. They have different responsibilities and different reasons to change. By decoupling them, `AvatarImage` becomes more portable and easier to maintain.
+
+What can make decoupling a difficult decision is that deriving can make you feel 'clever'. `Pick` tempts us because it uses a more advanced feature of TypeScript, which makes us feel good for applying the knowledge we've gained. But often, it's smarter to do the simple thing, and keep your types decoupled.
 
 ### When Deriving Makes Sense
 
