@@ -87,7 +87,7 @@ The error message is telling us that a string and a number don't share any commo
 const albumSales = "Heroes" as unknown as number; // no error
 ```
 
-When using `as` to assert as `unknown`, `any`, or `never` before adding `as number`, the red squiggly line goes away but that doesn't mean the operation is safe. There's just no way to convert `"Heroes"` into a number that would make sense.
+When using `as` to assert as `unknown as number`, the red squiggly line goes away but that doesn't mean the operation is safe. There's just no way to convert `"Heroes"` into a number that would make sense.
 
 The same behavior applies to other types as well.
 
@@ -121,101 +121,184 @@ Conversion of type 'Album' to type 'SalesData' may be a mistake because neither 
 Type 'Album' is missing the following properties from type 'SalesData': sales, certification.
 ```
 
-While `as` is great for telling TypeScript what you want to do, it's not a magic wand that can make any type be treated as any other type. Use it when you're sure that the type you're asserting is safe to use. When in doubt, use the most specific `as` assertion you can.
-
-<!-- CONTINUE -->
-
-### `as any`
+So, `as` does have some built-in safeguards. But by using `as unknown as X`, you can easily bypass them.
 
 ## The Non-null Assertion
 
 Another assertion we can use is the non-null assertion, which is specified by using the `!` operator. This provides a quick way to tell TypeScript that a value is not `null` or `undefined`.
 
-In this example, the `Album` interface has a `sales` property that is typed as either a number or `null`:
+Heading back to our `searchParams` example from earlier, we can use the non-null assertion to tell TypeScript that `id` will never be `null`:
 
-```tsx
-interface Album {
-  title: string;
-  artist: string;
-  releaseYear: number;
-  sales: number | null;
-}
+```typescript
+const searchParams = new URLSearchParams(window.location.search);
 
-const burgers: Album {
-  title: "Burgers",
-  artist: "Hot Tuna",
-  releaseYear: 1972,
-  sales: null
+const id = searchParams.get("id")!;
+```
+
+This forces TypeScript to treat `id` as a string, even though it could be `null` at runtime. It's the equivalent of using `as string`, but is a little more convenient.
+
+You can also use it when accessing a property which may or may not be defined:
+
+```typescript
+type User = {
+  name: string;
+  profile?: {
+    bio: string;
+  };
+};
+
+const logUserBio = (user: User) => {
+  console.log(user.profile!.bio);
 };
 ```
 
-Here we have an `addASale` function that will log out an album's sales with one added to it. However, there's an error because `album.sales` could be `null`:
+Or, when calling a function that might not be defined:
 
-```tsx
-function addASale(album: Album) {
-  console.log(album.sales + 1); // red squiggly line under album.sales
-}
-
-// hovering over album.sales shows:
-'album.sales' is possibly 'null'.
-```
-
-To fix this, we can update `album.sales` to use the non-null assertion:
-
-```tsx
-function addASale(album: Album) {
-  console.log(album.sales! + 1); // no error
-}
-
-addASale(burgers); // logs: 1
-```
-
-In this situation, we knew that using a non-null assertion was safe because even if `album.sales` was `null`, it would be coerced to `0` before adding `1` to it. However, runtime errors will still occur in many other cases.
-
-### Non-null Assertions with Optional Properties
-
-It's also possible to use non-null assertions when working with optional properties.
-
-Consider this `findSongsByArtist` function that accepts a `filterParams` object with an optional `artist` property, as well as an optional `songs` array:
-
-```tsx
-const findSongsByArtist = (
-  filterParams?: { artist?: string | null },
-  songs?: {
-    id: string;
-    title: string;
-    artist: string;
-  }[],
-) => {
-  if (filterParams.artist) { // red squiggly line under filterParams
-    // rest of implementation
-  }
-  // rest of implementation
+```typescript
+type Logger = {
+  log?: (message: string) => void;
 };
 
-// hovering over filterParams shows:
-'filterParams' is possibly 'undefined'.
+const main = (logger: Logger) => {
+  logger.log!("Hello, world!");
+};
 ```
 
-Even though the function isn't completely implemented, TypeScript is able to infer that `filterParams` could be `undefined`.
+Each of these fails at runtime if the value is not defined. But it's a convenient lie to TypeScript that we're sure it will be.
 
-One option to fix the error is to use the optional chaining operator:
+The non-null assertion, like other assertions, is a dangerous tool. It's particularly nasty because it's one character long, so easier to miss than `as`.
+
+For fun, I like to use at least three or four in a row to make sure developers know what I'm doing:
+
+```typescript
+// Yes, this syntax is legal
+const id = searchParams.get("id")!!!!;
+```
+
+## Error Suppression Directives
+
+The `as` and non-null assertion operators are not the only ways we can lie to TypeScript. There are several comment directives that can be used to suppress errors.
+
+### `@ts-expect-error`
+
+Throughout the book's exercises we've seen several examples of `@ts-expect-error`. This directive gives us a way to tell TypeScript that we expect an error to occur on the next line of code.
+
+In this example, we're creating an error by passing a string into a function that expects a number.
+
+```typescript
+function addOne(num: number) {
+  return num + 1;
+}
+
+// @ts-expect-error
+const result = addOne("one");
+```
+
+But the error doesn't show up in the editor, because we told TypeScript to expect it.
+
+However, if we pass a number into the function, the error will show up:
+
+```typescript
+// @ts-expect-error
+const result = addOne(1);
+
+// hovering over addOne(1) shows:
+// Unused @ts-expect-error directive.
+```
+
+So, TypeScript expects every `@ts-expect-error` directive to be _used_ - to be followed by an error.
+
+Frustratingly, `@ts-expect-error` doesn't let you expect a specific error, but only that an error will occur.
+
+### `@ts-ignore`
+
+The `@ts-ignore` directive behaves a bit differently than `@ts-expect-error`. Instead of _expecting_ an error, it _ignores_ any errors that do occur.
+
+Going back to our `addOne` example, we can use `@ts-ignore` to ignore the error that occurs when passing a string into the function:
+
+```typescript
+// @ts-ignore
+const result = addOne("one");
+```
+
+But if we later fix the error, `@ts-ignore` won't tell us that it's unused:
+
+```typescript
+// @ts-ignore
+const result = addOne(1); // No errors here!
+```
+
+In general, `@ts-expect-error` is more useful than `@ts-ignore`, because it tells you when you've fixed the error. This means you can get a warning to remove the directive.
+
+### `@ts-nocheck`
+
+Finally, The `@ts-nocheck` directive will completely remove type checking for a file.
+
+To use it, add the directive at the top of your file:
 
 ```tsx
-if (filterParams?.artist) {
-  // rest of implementation
-}
+// @ts-nocheck
 ```
 
-However, if we know that `filterParams` exists, we can use the non-null assertion to tell TypeScript that it's safe. We could also use the non-null assertion inside of the filter if we know that the `songs` array exists as well:
+With all checking disabled, TypeScript won't show you any errors, but it also won't be able to protect you from any runtime issues that might show up when you run your code.
+
+Generally speaking, you shouldn't use `@ts-nocheck`. I've personally lost hours of my life to working in large files where I didn't notice that `@ts-nocheck` was at the top.
+
+<!-- CONTINUE -->
+
+## When To Use Assertions
+
+### Error Directives Target The Whole Line
+
+<!-- TODO -->
+
+### `as any` vs Error Suppression Directives
+
+The `@ts-ignore` directive can also be thought of as a less-precise version of `as any` that doesn't provide any type checking or autocompletion features. Earlier we saw this example of using `as any` to bypass type errors when calling a function from a third-party library:
 
 ```tsx
-if (filterParams!.artist) {
-  return songs!.filter((song) => song.artist === filterParams!.artist);
-}
+const someValue = someJsLibrary.someFunction() as any;
 ```
 
-While the non-null assertion works in these cases, for the most part it would be better to rework your code to allow TypeScript to check for itself.
+The `@ts-ignore` directive could be used to achieve the same result:
+
+```tsx
+// @ts-ignore
+const someValue = someJsLibrary.someFunction();
+```
+
+In the above example, using `as any` would be a safer choice, but the `@ts-ignore` directive can be useful when you want to bypass type errors without any type checking or autocompletion features.
+
+### `as any`
+
+`as any` is a powerful and controversial tool in a TypeScript developer's toolkit. It tells TypeScript to override what it thinks about a value and treat it as `any`. As we've seen before, `any` disables type checking on anything it's applied to.
+
+Used incorrectly, this can lead to hard-to-debug runtime errors very quickly:
+
+```typescript
+const myLib = {} as any;
+
+myLib.someFunction(); // no error at compile time, but will crash at runtime
+```
+
+However, there are occasional times when `as any` is useful. Let's imagine you're working with two third-party libraries that are supposed to work together.
+
+One library has a `stringify` function that stringifies a value, which can then be un-stringified by passing to the `parse` function. Let's say that the types are out of date, and you can't pass the output of `stringify` directly to `parse`:
+
+```typescript
+import { stringify } from "fake-stringify-library";
+import { parse } from "fake-parse-library";
+
+const value = stringify({ foo: "bar" });
+
+const parsedValue = parse(value); // Red line under value
+```
+
+What do you do? You know it's working at runtime. You can turn off type checking by using `as any`:
+
+```typescript
+const parsedValue = parse(value as any);
+```
 
 ## The `satisfies` Operator
 
@@ -306,83 +389,6 @@ const album = {
 This fixes the error and allows the `album` object to be passed into the `printMediaInfo` function without issue.
 
 Again, there are other options for solving this problem, but using `satisfies` lets TypeScript infer literals where it matters.
-
-## Error Suppression Directives
-
-The `as` and non-null assertion operators give us options for telling TypeScript that we know what we are doing in our code. We can also use directives to directly tell the compiler to expect errors to occur, or to ignore certain lines of code altogether.
-
-### `@ts-expect-error`
-
-Throughout the book's exercises we've seen several examples of `@ts-expect-error`. This directive gives us a way to tell TypeScript that we expect an error to occur on the next line of code.
-
-If the line in question throws an error, TypeScript will be satisfied and won't throw any errors itself. However, if the line does not have an error, TypeScript will throw an error and fail compilation.
-
-In this example, there is no error for `result` because we told TypeScript that we know passing a string to the `addOne` function will throw an error. However, the `@ts-expect-error` directive above `result2` has a red squiggly line under it because TypeScript expected an error to occur that didn't:
-
-```tsx
-function addOne(num: number) {
-  return num + 1;
-}
-
-// @ts-expect-error
-const result = addOne("one");
-
-// @ts-expect-error // red squiggly line under @ts-expect-error
-const result2 = addOne(1);
-
-// hovering over @ts-expect-error shows:
-Unused '@ts-expect-error' directive.
-```
-
-Note that `@ts-expect-error` doesn't let you expect a specific error, but instead just that an error will occur.
-
-### `@ts-ignore`
-
-The `@ts-ignore` directive behaves a bit differently than `@ts-expect-error`. Where `@ts-expect-error` will let you know if the next line does not have an error, the `@ts-ignore` directive just ignores any non-syntax issues all together without feedback.
-
-When using `@ts-ignore` with the `addOne` function, we able to pass a string into the function that expects a number and the `result` variable ends up being concatenated:
-
-```tsx
-function addOne(num: number) {
-  return num + 1;
-}
-
-// @ts-ignore
-const result = addOne("one");
-
-console.log(result); // "one1"
-```
-
-The `@ts-ignore` directive can also be thought of as a less-precise version of `as any` that doesn't provide any type checking or autocompletion features. Earlier we saw this example of using `as any` to bypass type errors when calling a function from a third-party library:
-
-```tsx
-const someValue = someJsLibrary.someFunction() as any;
-```
-
-The `@ts-ignore` directive could be used to achieve the same result:
-
-```tsx
-// @ts-ignore
-const someValue = someJsLibrary.someFunction();
-```
-
-In the above example, using `as any` would be a safer choice, but the `@ts-ignore` directive can be useful when you want to bypass type errors without any type checking or autocompletion features.
-
-### `@ts-nocheck`
-
-Finally, The `@ts-nocheck` directive will completely remove type checking for a file.
-
-To use it, add the directive at the top of your file:
-
-```tsx
-// @ts-nocheck
-```
-
-With all checking disabled, TypeScript won't show you any errors, but it also won't be able to protect you from any runtime issues that might show up when you run your code.
-
-Generally speaking, you shouldn't use `@ts-nocheck`. It might be useful when incrementally migrating a large JavaScript codebase to TypeScript, but even then it would arguably be better to just keep the `.js` file until it can be rewritten all at once.
-
-Really, all of these directives should be used sparingly and with caution. The `@ts-expect-error` works well for testing and illustrating examples, but in a real codebase it's better to use `as` or non-null assertions when you're sure that you know what you're doing.
 
 ## Exercises
 
