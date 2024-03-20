@@ -1,165 +1,72 @@
-<!-- CONTINUE -->
-
 # Annotations and Assertions
 
-We've seen throughout the book that TypeScript is pretty good at inferring types on its own. However, there are times when it doesn't quite get what we want. In these cases, we can use annotations and assertions to tell TypeScript how we want it to interpret our code.
+Throughout this book, we've been using relatively simple type annotations. We've had a look at variable annotations, which help TypeScript know what type a variable should be:
 
-In this chapter, we'll go beyond the standard type annotations we've seen so far. We'll also go deeper into assertions, which we use to tell TypeScript "trust me, I know what I'm doing."
+```typescript
+let name: string;
 
-There's a balance to strike between using annotations and assertions and letting TypeScript do its thing. We'll explore when to use each and how to use them effectively, but first let's do a quick review.
-
-## Variable & Function Annotation Review
-
-In many cases, TypeScript can infer the types of our variables and function return values without us needing to explicitly annotate them.
-
-For example, in this code TypeScript is able to tell what's a number and what's a string:
-
-```tsx
-let albumSales = 5000000;
-let albumPrice = 19.99;
-let albumName = "Purple Rain";
+name = "Waqas";
 ```
 
-Each of these variables can be reassigned since they were declared with `let`, but they will only be able to hold the same type of value as their initial assignment.
+We've also seen how to type function parameters and return types:
 
-However, in this example the `albumSales` variable is declared but not immediately initialized, so it should have a type annotation added:
-
-```tsx
-let albumSales: number;
-albumSales = 5000000;
-albumSales = "a lot"; // Error: Type 'string' is not assignable to type 'number'
-```
-
-For function annotations, we do need to be a bit more explicit in order to avoid errors.
-
-Consider this `calculateTotalSales` function:
-
-```tsx
-function calculateTotalSales(quantity: number, price: number): number {
-  return quantity * price;
+```typescript
+function greet(name: string): string {
+  return `Hello, ${name}!`;
 }
 ```
 
-In this function, the `quantity` and `price` parameters are annotated with the `number` type, as is the return value of the function.
-
-This ensures that the function can only be called with numbers and will return a number, which prevents runtime errors that would occur from passing a different type.
-
-However, for this function TypeScript is smart enough to infer from the parameter types and the multiplication operation that the return type will be a number, so it's not strictly necessary to include the return type annotation:
-
-```tsx
-function calculateTotalSales(quantity: number, price: number) {
-  return quantity * price;
-}
-```
-
-The same is not true for this `findAlbumPrice` function:
-
-```tsx
-function findAlbumPrice(
-  albums: { name: string; price: number }[],
-  albumName: string,
-): number | null {
-  for (let album of albums) {
-    if (album.name === albumName) {
-      return album.price;
-    }
-  }
-  return null;
-}
-```
-
-Here, the `albums` parameter is an object with a `name` property of type `string` and a `price` property of type `number`. The `albumName` parameter is a `string`. The function returns a `number` if the album is found, or `null` if it's not.
-
-In this case, TypeScript isn't able to infer the return type from the function's implementation, so it's necessary to include the return type annotation.
-
-### General Rules for Annotations
-
-Here are some general rules for when you should use annotations:
-
-1. Add variable type annotations when it's declared but not immediately initialized.
-2. Function parameters should pretty much always have type annotations. This avoids `implicit any` errors and helps TypeScript infer the return type.
-3. Let TypeScript infer the return type of simple functions, but use annotations for more complex functions.
+In this chapter, we'll look at a couple more advanced annotations. We'll also go deeper into assertions, which we can use to _force_ TypeScript to treat a value as a different type. We'll also do a deeper investigation of `any`.
 
 ## The `as` Assertion
 
-In the last chapter we saw how to use `as const` to create a read-only array of literal types. It just so happens that the `as` keyword can also be combined with any other type, giving us a way to tell TypeScript that we want to treat one type as another type when it isn't able to infer it on its own.
-
-It's important to note that `as` doesn't actually cast or convert any types at runtime. It's just a way to tell TypeScript more about the type of a variable so that it can be inferred correctly.
+The `as` assertion is a way to tell TypeScript that you know more about a value than it does. It's a way to override TypeScript's type inference and tell it to treat a value as a different type.
 
 Let's look at an example.
 
-Here we have an `Album` interface with `title`, `artist`, and `releaseYear` properties, and an optional `sales` property. We then create a new album variable that we annotate as an `Album` type:
+Imagine that you're building a web page that has some information in the search query string of the URL.
 
-```tsx
-interface Album {
-  title: string;
-  artist: string;
-  releaseYear: number;
-  sales?: number;
-}
+You happen to know that the user can't navigate to this page without passing `?id=some-id` to the URL.
 
-const newTab: Album = {
-  title: "New Tab",
-  artist: "Khotin",
-  releaseYear: 2018,
-  sales: 1000,
-};
+```typescript
+const searchParams = new URLSearchParams(window.location.search);
+
+const id = searchParams.get("id");
+
+// Hovering over id shows:
+const id: string | null;
 ```
 
-Then we create a new `AlbumWithSales` type that intersects `Album` with an object that has a `sales` property. This will essentially make the `sales` property required:
+But TypeScript doesn't know that the `id` will always be a string. It thinks that `id` could be a string or `null`.
 
-```tsx
-type AlbumWithSales = Album & { sales: number };
+So, let's force it. We can use `as` on the result of `searchParams.get("id")` to tell TypeScript that we know it will always be a string:
+
+```typescript
+const id = searchParams.get("id") as string;
+
+// Hovering over id shows:
+const id: string;
 ```
 
-When we go to create a `newTabWithSales` variable from `newTab`, TypeScript doesn't know that `newTab` has a `sales` property. This results in several errors:
+Now TypeScript knows that `id` will always be a string, and we can use it as such.
 
-```tsx
-const newTabWithSales: AlbumWithSales = newTab; // red squiggly line under newTabWithSales
+This `as` is a little unsafe! If `id` is somehow not actually passed in the URL, it will be `null` at runtime but `string` at compile time. This means if we called `.toUpperCase()` on `id`, we'd crash our app.
 
-// hovering over newTabWithSales shows:
-Type 'Album' is not assignable to type 'AlbumWithSales'.
-Type 'Album' is not assignable to type '{ sales: number; }'.
-Types of property 'sales' are incompatible.
-Type 'number | undefined' is not assignable to type 'number'.
-Type 'undefined' is not assignable to type 'number'.
+But it's useful in cases where we truly know more than TypeScript can about the behavior of our code.
+
+### An Alternative Syntax
+
+As an alternative to `as`, you can prefix the value with the type wrapped in angle brackets:
+
+```typescript
+const id = <string>searchParams.get("id");
 ```
 
-However, since we know that `newTab` has a `sales` property, we can use the `as` assertion to tell TypeScript that it should be treated as an `AlbumWithSales`:
-
-```tsx
-const newTabWithSales: AlbumWithSales = newTab as AlbumWithSales;
-```
-
-By asserting that the `newTab` variable should be treated as an `AlbumWithSales`, the errors go away and we can safely access the `sales` property:
-
-```tsx
-console.log(newTabWithSales.sales); // 1000
-```
-
-### Asserting `as any`
-
-Many third-party libraries don't include type definitions, so it's common to see `as any` used to get around type errors.
-
-For example TypeScript might prevent you from calling a function that doesn't have type definitions. Adding `as any` to the end of the function call will tell TypeScript to treat the function as the `any` type, which will allow the call to go through:
-
-```tsx
-const someValue = someJsLibrary.someFunction() as any;
-
-someValue.someProperty; // No type errors
-```
-
-But on the other side of the coin, since using `as any` eliminates type checking and autocompletion features, it leaves you open to introducing runtime errors:
-
-```tsx
-someValue.someProperly; // typo will not be caught by TypeScript
-```
-
-The `as any` assertion should be used sparingly, and only when you're sure that the value you're asserting is safe to use as `any`. If you know what type something should be, it's better to use a more specific `as` assertion.
-
-However, even `as` has its limitations.
+This is less common than `as`, but behaves exactly the same way. `as` is more common, so it's better to use that.
 
 ### The Limits of `as`
+
+`as` has some limits on how it can be used. It can't be used to convert between unrelated types.
 
 Consider this example where `as` is used to assert that a string should be treated as a number:
 
@@ -178,13 +85,9 @@ The error message is telling us that a string and a number don't share any commo
 
 ```tsx
 const albumSales = "Heroes" as unknown as number; // no error
-
-// alternative syntax options for the above
-const albumSales = "Heroes" as any as number;
-const albumSales = "Heroes" as never as number;
 ```
 
-When using `as` to assert as `unknown`, `any`, or `never` before adding `as number`, the red squiggly line goes away but that doesn't mean the operation is safe. There's just no way to convert "Heroes" into a number that would make sense.
+When using `as` to assert as `unknown`, `any`, or `never` before adding `as number`, the red squiggly line goes away but that doesn't mean the operation is safe. There's just no way to convert `"Heroes"` into a number that would make sense.
 
 The same behavior applies to other types as well.
 
@@ -219,6 +122,10 @@ Type 'Album' is missing the following properties from type 'SalesData': sales, c
 ```
 
 While `as` is great for telling TypeScript what you want to do, it's not a magic wand that can make any type be treated as any other type. Use it when you're sure that the type you're asserting is safe to use. When in doubt, use the most specific `as` assertion you can.
+
+<!-- CONTINUE -->
+
+### `as any`
 
 ## The Non-null Assertion
 
