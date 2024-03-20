@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # Annotations and Assertions
 
 We've seen throughout the book that TypeScript is pretty good at inferring types on its own. However, there are times when it doesn't quite get what we want. In these cases, we can use annotations and assertions to tell TypeScript how we want it to interpret our code.
@@ -53,7 +55,10 @@ function calculateTotalSales(quantity: number, price: number) {
 The same is not true for this `findAlbumPrice` function:
 
 ```tsx
-function findAlbumPrice(albums: {name: string, price: number}[], albumName: string): number | null {
+function findAlbumPrice(
+  albums: { name: string; price: number }[],
+  albumName: string,
+): number | null {
   for (let album of albums) {
     if (album.name === albumName) {
       return album.price;
@@ -97,8 +102,8 @@ const newTab: Album = {
   title: "New Tab",
   artist: "Khotin",
   releaseYear: 2018,
-  sales: 1000
-}
+  sales: 1000,
+};
 ```
 
 Then we create a new `AlbumWithSales` type that intersects `Album` with an object that has a `sales` property. This will essentially make the `sales` property required:
@@ -134,7 +139,7 @@ console.log(newTabWithSales.sales); // 1000
 
 ### Asserting `as any`
 
-Many third-party libraries don't include type definitions, so it's common to see `as any` used to get around type errors.  
+Many third-party libraries don't include type definitions, so it's common to see `as any` used to get around type errors.
 
 For example TypeScript might prevent you from calling a function that doesn't have type definitions. Adding `as any` to the end of the function call will tell TypeScript to treat the function as the `any` type, which will allow the call to go through:
 
@@ -179,7 +184,7 @@ const albumSales = "Heroes" as any as number;
 const albumSales = "Heroes" as never as number;
 ```
 
-When using `as` to assert as `unknown`, `any`, or `never` before adding `as number`, the red squiggly line goes away but that doesn't mean the operation is safe. There's just no way to convert "Heroes" into a number that would make sense. 
+When using `as` to assert as `unknown`, `any`, or `never` before adding `as number`, the red squiggly line goes away but that doesn't mean the operation is safe. There's just no way to convert "Heroes" into a number that would make sense.
 
 The same behavior applies to other types as well.
 
@@ -200,8 +205,8 @@ interface SalesData {
 const paulsBoutique: Album = {
   title: "Paul's Boutique",
   artist: "Beastie Boys",
-  releaseYear: 1989
-}
+  releaseYear: 1989,
+};
 
 const paulsBoutiqueSales = paulsBoutique as SalesData; // red squiggly line under paulsBoutique as SalesData
 ```
@@ -299,7 +304,7 @@ However, if we know that `filterParams` exists, we can use the non-null assertio
 
 ```tsx
 if (filterParams!.artist) {
-  return songs!.filter((song) => song.artist === filterParams!.artist); 
+  return songs!.filter((song) => song.artist === filterParams!.artist);
 }
 ```
 
@@ -315,12 +320,12 @@ In this example, we have a `Song` type that has a `title` and `artist` property.
 type Song = {
   title: string;
   artist: string;
-}
+};
 
 const playlist = [
   { title: "Year of the Cat", artist: "Al Stewart" },
   { title: "Stop That Train", artist: "Keith & Tex" },
-  { title: "Magic Beams", artist: "Emperor Penguin" }
+  { title: "Magic Beams", artist: "Emperor Penguin" },
 ] satisfies Song[];
 ```
 
@@ -387,7 +392,7 @@ Using the `satisfies` operator, we can tell TypeScript that the `album` object m
 
 ```tsx
 const album = {
-  format: "Vinyl"
+  format: "Vinyl",
 } satisfies { format: AlbumFormat };
 ```
 
@@ -422,7 +427,7 @@ const result2 = addOne(1);
 Unused '@ts-expect-error' directive.
 ```
 
-Note that `@ts-expect-error` doesn't let you expect a specific error, but instead just that an error will occur. 
+Note that `@ts-expect-error` doesn't let you expect a specific error, but instead just that an error will occur.
 
 ### `@ts-ignore`
 
@@ -471,7 +476,7 @@ With all checking disabled, TypeScript won't show you any errors, but it also wo
 Generally speaking, you shouldn't use `@ts-nocheck`. It might be useful when incrementally migrating a large JavaScript codebase to TypeScript, but even then it would arguably be better to just keep the `.js` file until it can be rewritten all at once.
 
 Really, all of these directives should be used sparingly and with caution. The `@ts-expect-error` works well for testing and illustrating examples, but in a real codebase it's better to use `as` or non-null assertions when you're sure that you know what you're doing.
-  
+
 ## Exercises
 
 ### Exercise 1: Required vs. Unnecessary Annotations
@@ -496,7 +501,7 @@ const isProblemOrSolution = (filename: string): boolean => {
 };
 ```
 
-There is a return type annotation, as well as several variable type annotations on `splitFilename`, `finalIndex`, `extension`, `isProblem`, and `isSolution`. 
+There is a return type annotation, as well as several variable type annotations on `splitFilename`, `finalIndex`, `extension`, `isProblem`, and `isSolution`.
 
 Below the function are a `users` variable and `usersWithIds` variable with some annotations:
 
@@ -738,7 +743,7 @@ Your task is to determine an appropriate way to annotate our `configurations` ob
 
 ### Exercise 7: Variable Annotation vs. `as` vs. `satisfies`
 
-In this exercise, we are going to examine three different types of setups in TypeScript: variable annotations, `as`, and `satisfies`. 
+In this exercise, we are going to examine three different types of setups in TypeScript: variable annotations, `as`, and `satisfies`.
 
 The first scenario consists of declaring a `const obj` as an empty object and then applying the keys `a` and `b` to it. Using `as Record<string, number>`, we're expecting the type of `obj` or `a` to be a number:
 
@@ -803,14 +808,14 @@ In the third scenario, we're trying to use `satisfies` with `document.getElement
 
 ```typescript
 // Third Scenario
-const element = document.getElementById('app') satisfies HTMLElement; // red squiggly line under satisfies
+const element = document.getElementById("app") satisfies HTMLElement; // red squiggly line under satisfies
 
 type test3 = Expect<Equal<typeof element, HTMLElement>>; // red squiggly line under Equal<>
 ```
 
 Your job is to rearrange the annotations to correct these issues.
 
-At the end of this exercise, you should have used `as`, variable annotations, and `satisfies`  once each.
+At the end of this exercise, you should have used `as`, variable annotations, and `satisfies` once each.
 
 ### Exercise 8: Create a Deeply Read-Only Object
 
@@ -843,7 +848,7 @@ type tests = [
 ];
 ```
 
-Your task is to update the `routes` object typing so that all errors are resolved. This will require you to use `satisfies` as well as another annotation that ensures the object is deeply read-only. 
+Your task is to update the `routes` object typing so that all errors are resolved. This will require you to use `satisfies` as well as another annotation that ensures the object is deeply read-only.
 
 ### Solution 1: Required vs. Unnecessary Annotations
 
@@ -869,7 +874,7 @@ const isProblemOrSolution = (filename: string) => {
   ...
 ```
 
-We need this annotation because without it, TypeScript will give the "implicit `any`" error on the parameter, as well as an error on `filename.split()` inside of the function. 
+We need this annotation because without it, TypeScript will give the "implicit `any`" error on the parameter, as well as an error on `filename.split()` inside of the function.
 
 Remember, parameters should pretty much always be annotated.
 
@@ -890,8 +895,8 @@ const users = [
 
 // hovering over users shows:
 const users: {
-    name: string;
-}[]
+  name: string;
+}[];
 ```
 
 For the `usersWithIds` variable, we can remove the annotations because TypeScript is able to infer it from the return value of the `.map()` function:
@@ -925,7 +930,7 @@ First and foremost, it's necessary to ensure `e.target` is not null.
 
 #### Using `as`
 
-We can use the `as` keyword to recast `e.target` to a specific type. 
+We can use the `as` keyword to recast `e.target` to a specific type.
 
 However, if we recast it as `EventTarget`, an error will continue to occur:
 
@@ -965,13 +970,13 @@ const data = new FormData(e.target as any);
 
 While using `as any` can get us past the error message more quickly, it does have its drawbacks.
 
-For example, we wouldn't be able to leverage autocompletion or have type checking for other `e.target` properties that would come from the `HTMLFormElement` type. 
+For example, we wouldn't be able to leverage autocompletion or have type checking for other `e.target` properties that would come from the `HTMLFormElement` type.
 
 When faced with a situation like this, it's better to use the most specific `as` assertion you can. This communicates that you have a clear understanding of what `e.target` is not only to TypeScript, but to other developers who might read your code.
 
 ### Solution 3: Global Typings Introduce `any` Types
 
-Functions like `JSON.parse()` return `any` by default. This is why the `@ts-expect-error` directive doesn't find an error when trying to access `obj.c` in the test case. 
+Functions like `JSON.parse()` return `any` by default. This is why the `@ts-expect-error` directive doesn't find an error when trying to access `obj.c` in the test case.
 
 In order to solve this challenge, we need to make sure that the `any` type on `obj` is suppressed.
 
@@ -992,7 +997,7 @@ With this change, the test passes as expected.
 
 #### Using the `ts-reset` Library
 
-There are risks associated with the approach of adding type annotations to `obj`. For example, if `JSON.parse` is called on an object that doesn't include the properties in the `obj` type annotation, TypeScript wouldn't raise an error until runtime. 
+There are risks associated with the approach of adding type annotations to `obj`. For example, if `JSON.parse` is called on an object that doesn't include the properties in the `obj` type annotation, TypeScript wouldn't raise an error until runtime.
 
 To combat this issue, the `ts-reset` library can be used:
 
@@ -1048,7 +1053,7 @@ The `!` operater tells TypeScript to remove any `null` or `undefined` types from
 
 When starting on this challenge, you might have observed something interesting.
 
-Removing the `Record` annotation from `config` led to all of the errors disappearing: 
+Removing the `Record` annotation from `config` led to all of the errors disappearing:
 
 ```tsx
 type Color =
@@ -1098,7 +1103,7 @@ const configurations: Record<
   }
 > = {
   ...
-``` 
+```
 
 This change makes the `@ts-expect-error` directive work as expected, but we now have an error related to the `Environment` type not being inferred correctly:
 
@@ -1231,7 +1236,7 @@ By process of elimination, `as` is the correct choice for this scenario:
 const element = document.getElementById("app") as HTMLElement;
 ```
 
-With this change, `element` is inferred as `HTMLElement`. 
+With this change, `element` is inferred as `HTMLElement`.
 
 #### Using Variable Annotations
 
@@ -1265,14 +1270,14 @@ At the end of the `routes` object, add a `satisfies` that will be a `Record` of 
 
 ```tsx
 const routes = {
-   "/": {
-     component: "Home",
-   },
-   "/about": {
-     component: "About",
-     // @ts-expect-error
-     search: "?foo=bar",
-   },
+  "/": {
+    component: "Home",
+  },
+  "/about": {
+    component: "About",
+    // @ts-expect-error
+    search: "?foo=bar",
+  },
 } satisfies Record<
   string,
   {

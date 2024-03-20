@@ -751,8 +751,6 @@ type AllPrograms = (typeof programModes)[number];
 
 Now new items can be added to the `programModes` array without needing to update the `AllPrograms` type manually. This solution makes the test pass as expected, and is a great pattern to apply in your own projects.
 
-<!-- CONTINUE -->
-
 ## Deriving Types From Functions
 
 So far, we've only looked at deriving types from objects and arrays. But deriving types from functions can help solve some common problems in TypeScript.
@@ -1198,10 +1196,105 @@ It's worth noting the similarities between `Exclude`/`Extract` and `Omit/Pick`. 
 | `Omit`    | Objects | Excludes properties | `Omit<UserObj, 'id'>`       |
 | `Pick`    | Objects | Extracts properties | `Pick<UserObj, 'id'>`       |
 
+<!-- CONTINUE -->
+
 ## Deriving vs Decoupling
 
-<!-- TODO -->
+Thanks to the tools in these chapters, we now know how to derive types from all sorts of sources: functions, objects and types. But there's a tradeoff to consider when deriving types: coupling.
 
+When you derive a type from a source, you're coupling the derived type to that source. If you derive a type from another derived type, this can create long chains of coupling throughout your app that can be hard to manage.
+
+### When Decoupling Makes Sense
+
+Let's imagine we have a `User` type in a `db.ts` file:
+
+```typescript
+export type User = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  email: string;
+};
 ```
 
+We'll say for this example that we're using a component-based framework like React, Vue or Svelte. We have a `AvatarImage` component that renders an image of the user. We could pass in the `User` type directly:
+
+```tsx
+import { User } from "./db";
+
+export const AvatarImage = (props: { user: User }) => {
+  return <img src={props.user.imageUrl} alt={props.user.name} />;
+};
 ```
+
+But as it turns out, we're only using the `imageUrl` and `name` properties from the `User` type. It's a good idea to make your functions and components only require the data they need to run. This helps prevent you from passing around unnecessary data.
+
+Let's try deriving. We'll create a new type called `AvatarImageProps` that only includes the properties we need:
+
+```tsx
+import { User } from "./db";
+
+type AvatarImageProps = Pick<User, "imageUrl" | "name">;
+```
+
+But let's think for a moment. We've now coupled the `AvatarImageProps` type to the `User` type. `AvatarImageProps` now not only depends on the shape of `User`, but its _existence_ in the `db.ts` file. This means if we ever move the location of the `User` type, or split it into separate interfaces, we'll need to think about `AvatarImageProps`.
+
+Let's try the other way around. Instead of deriving `AvatarImageProps` from `User`, we'll decouple them. We'll create a new type which just has the properties we need:
+
+```tsx
+type AvatarImageProps = {
+  imageUrl: string;
+  name: string;
+};
+```
+
+Now, `AvatarImageProps` is decoupled from `User`. We can move `User` around, split it into separate interfaces, or even delete it, and `AvatarImageProps` will be unaffected.
+
+In this particular case, decoupling feels like the right choice. This is because `User` and `AvatarImage` are separate concerns. `User` is a data type, while `AvatarImage` is a UI component. They have different responsibilities and different reasons to change. By decoupling them, `AvatarImage` becomes more portable and easier to maintain.
+
+### When Deriving Makes Sense
+
+Deriving makes most sense when the code you're coupling shares a common concern. The examples in this chapter are good examples of this. Our `as const` object, for instance:
+
+```typescript
+const albumTypes = {
+  CD: "cd",
+  VINYL: "vinyl",
+  DIGITAL: "digital",
+} as const;
+
+type AlbumType = (typeof albumTypes)[keyof typeof albumTypes];
+```
+
+Here, `AlbumType` is derived from `albumTypes`. If we were to decouple it, we'd have to maintain two closely related sources of truth:
+
+```typescript
+type AlbumType = "cd" | "vinyl" | "digital";
+```
+
+Because both `AlbumType` and `albumTypes` are closely related, deriving `AlbumType` from `albumTypes` makes sense.
+
+Another example is when one type is directly related to another. For instance, our `User` type might have a `UserWithoutId` type derived from it:
+
+```typescript
+type User = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  email: string;
+};
+
+type UserWithoutId = Omit<User, "id">;
+
+const updateUser = (id: string, user: UserWithoutId) => {
+  // ...
+};
+```
+
+Again, these concerns are closely related. Decoupling them would make our code harder to maintain and introduce more busywork into our codebase.
+
+The decision to derive or decouple is all about reducing your future workload.
+
+Are the two types so related that updates to one will need to ripple to the other? Derive.
+
+Are they so unrelated that coupling them could result in more work down the line? Decouple.
