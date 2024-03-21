@@ -16,7 +16,131 @@ function greet(name: string): string {
 }
 ```
 
-In this chapter, we'll look at a couple more advanced annotations. We'll also go deeper into assertions, which we can use to _force_ TypeScript to treat a value as a different type. We'll also do a deeper investigation of `any`.
+These annotations are instructions to TypeScript to tell it what type something should be. If we return a `number` from our `greet` function, TypeScript will show an error. We've told TypeScript that we're returning a `string`, so it expects a `string`.
+
+But there are times when we _don't_ want to follow this pattern. Sometimes, we want to let TypeScript figure it out on its own.
+
+And sometimes, we want to lie to TypeScript.
+
+In this chapter, we'll look at more ways to communicate with TypeScript's compiler via annotations and assertions.
+
+## Annotation vs Inference
+
+Let's look again at the variable annotation we've seen throughout this book.
+
+In this example, we're declaring a variable `config` and annotating it as a `Record` with a string key and a `Color` value:
+
+```typescript
+type Color =
+  | string
+  | {
+      r: number;
+      g: number;
+      b: number;
+    };
+
+const config: Record<string, Color> = {
+  foreground: { r: 255, g: 255, b: 255 },
+  background: { r: 0, g: 0, b: 0 },
+  border: "transparent",
+};
+```
+
+This is useful, because if we specify a `Color` that doesn't match the type, TypeScript will show an error:
+
+```typescript
+const config: Record<string, Color> = {
+  border: { incorrect: 0, g: 0, b: 0 }, // red squiggly line under 'incorrect'
+};
+```
+
+But there's a problem with this approach. If we try to access any of the keys, TypeScript gets confused:
+
+```typescript
+config.foreground.r; // red squiggly line under 'foreground'
+```
+
+Firstly, it doesn't know that foreground is defined on the object. Secondly, it doesn't know whether foreground is the `string` version of the `Color` type or the object version.
+
+This is because we've told TypeScript that `config` is a `Record` with a any number of string keys. Because we used a variable annotation, it then threw away the actual keys we assigned to it.
+
+This has some benefits - we can add new keys to `config` and TypeScript won't complain:
+
+```typescript
+config.primary = "red";
+```
+
+But this isn't behavior we particularly want - this is a config object that shouldn't be changed.
+
+One way to get around this would be to drop the annotation:
+
+```typescript
+const config = {
+  foreground: { r: 255, g: 255, b: 255 },
+  background: { r: 0, g: 0, b: 0 },
+  border: "transparent",
+};
+```
+
+Now, TypeScript knows that `config` is an object with three keys, and it knows what those keys are.
+
+But now we've lost the ability to check that the `Color` type is correct. We can add a `number` to the `foreground` key and TypeScript won't complain:
+
+```typescript
+const config = {
+  foreground: 123,
+};
+```
+
+So it seems we're at an impasse. We both want to infer the type of the object, but also constrain it to be a certain shape.
+
+### `satisfies`
+
+The `satisfies` operator is a way to tell TypeScript that a value must satisfy certain criteria, but still allow TypeScript to infer the type.
+
+Let's use it to make sure our `config` object has the right shape:
+
+```typescript
+const config = {
+  foreground: { r: 255, g: 255, b: 255 },
+  background: { r: 0, g: 0, b: 0 },
+  border: "transparent",
+} satisfies Record<string, Color>;
+```
+
+Now, we get the best of both worlds. Using `satisfies` means that the value of the object is still inferred by TypeScript. This means we can access the keys without any issues:
+
+```typescript
+config.foreground.r;
+
+config.border.toUpperCase();
+```
+
+But we've also told TypeScript that `config` must be a `Record` with a string key and a `Color` value. If we try to add a key that doesn't match this shape, TypeScript will show an error:
+
+```typescript
+const config = {
+  primary: 123, // red squiggly line under 'primary'
+} satisfies Record<string, Color>;
+```
+
+Of course, we have now lost the ability to add new keys to `config` without TypeScript complaining:
+
+```typescript
+config.somethingNew = "red"; // red squiggly line under 'somethingNew'
+```
+
+Because TypeScript is now inferring `config` as _just_ an object with a fixed set of keys.
+
+This is a good lesson in TypeScript's inference system. Sometimes, you want to tell TypeScript what type something is. Sometimes, you want to let TypeScript figure it out on its own.
+
+But sometimes, you want to lie to TypeScript:
+
+## Lying To TypeScript
+
+<!-- CONTINUE -->
+
+<!-- TODO -->
 
 ## The `as` Assertion
 
@@ -243,8 +367,6 @@ To use it, add the directive at the top of your file:
 With all checking disabled, TypeScript won't show you any errors, but it also won't be able to protect you from any runtime issues that might show up when you run your code.
 
 Generally speaking, you shouldn't use `@ts-nocheck`. I've personally lost hours of my life to working in large files where I didn't notice that `@ts-nocheck` was at the top.
-
-<!-- CONTINUE -->
 
 ## When To Use Assertions
 
@@ -556,66 +678,6 @@ Previously we solved this challenge by extracting `searchParams.name` into a con
 However, this time you need to solve it two different ways: Once with `as` and once with non-null assertion.
 
 Note that this is slightly less safe than the previous solution, but it's still a good technique to learn.
-
-### Exercise 5: Improving Type Annotations with `satisfies`
-
-Here we have a `config` object, defined as a Record. The keys in this Record are strings, and the values are a `Color` that can either be a string or an object with red, green, and blue properties:
-
-```tsx
-type Color =
-  | string
-  | {
-      r: number;
-      g: number;
-      b: number;
-    };
-
-const config: Record<string, Color> = {
-  foreground: { r: 255, g: 255, b: 255 },
-  background: { r: 0, g: 0, b: 0 },
-  border: "transparent",
-};
-```
-
-However, TypeScript does not recognize that `border` is a string, so attempting string operations causes errors:
-
-```ts
-config.border.toUpperCase(); // red squiggly lines under config.border and toUpperCase()
-
-// hovering over config.border shows:
-'config.border' is possibly 'undefined'.ts(2532)
-
-// hovering over toUpperCase() shows:
-Property 'toUpperCase' does not exist on type 'Color'.
-Property 'toUpperCase' does not exist on type '{ r: number; g: number; b: number; }'.
-```
-
-Similarly, trying to access properties from `foreground` also results in errors because TypeScript wrongly infers `foreground` to be a string:
-
-```ts
-console.log(config.foreground.r); // red squiggly line under r
-
-// hovering over config.foreground shows:
-'config.foreground' is possibly 'undefined'.
-
-// hovering over r shows:
-Property 'r' does not exist on type 'Color'.
-Property 'r' does not exist on type 'string'.
-```
-
-Using the `@ts-expect-error` also directive does not work as expected:
-
-```ts
-// @ts-expect-error // red squiggly line under @ts-expect-error
-config.primary;
-
-// @ts-expect-error // red squiggly line under @ts-expect-error
-config.secondary;
-```
-
-Your challenge is to find a way to better annotate the `config` object so that it still gives us type checking when we add things to it.
-
-We should not be able to add numbers or objects without RGB values to the config object, and all tests should pass.
 
 ### Exercise 6: Enforcing Valid Configuration
 
@@ -961,45 +1023,6 @@ return users.filter((user) => user.name.includes(searchParams.name!));
 ```
 
 The `!` operater tells TypeScript to remove any `null` or `undefined` types from the variable. This would leave us with just `string`.
-
-### Solution 5: Improving Type Annotations with `satisfies`
-
-When starting on this challenge, you might have observed something interesting.
-
-Removing the `Record` annotation from `config` led to all of the errors disappearing:
-
-```tsx
-type Color =
-  | string
-  | {
-      r: number;
-      g: number;
-      b: number;
-    };
-const config = {
-  foreground: { r: 255, g: 255, b: 255 },
-  background: { r: 0, g: 0, b: 0 },
-  border: "transparent",
-};
-```
-
-This works because without an explicit annotation, TypeScript infers the value of `config` to be the value that's assigned to it. In turn, this allows access to all properties and methods using autocomplete.
-
-However, this raises a problem when `config` is required to meet a specific criteria but still be inferred as what's passed to it.
-
-Instead of annotating `config` as `Record<string, Color>`, we can use the `satisfies` operator to specify that `config` needs to satisfy the `Record<string, Color>` type constraint:
-
-```typescript
-const config = {
-  foreground: { r: 255, g: 255, b: 255 },
-  background: { r: 0, g: 0, b: 0 },
-  border: "transparent",
-} satisfies Record<string, Color>;
-```
-
-With this change, errors will appearing as required, ensuring that the value in `config` meets the necessary conditions.
-
-The `satisfies` operator is great for declaring configuration objects.
 
 ### Solution 6: Enforcing Valid Configuration
 
