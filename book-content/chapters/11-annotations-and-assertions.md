@@ -24,7 +24,11 @@ And sometimes, we want to lie to TypeScript.
 
 In this chapter, we'll look at more ways to communicate with TypeScript's compiler via annotations and assertions.
 
-## Annotation vs Inference
+## Annotating Variables vs Values
+
+There's a difference in TypeScript between annotating _variables_ and _values_. The way they conflict can be confusing.
+
+### When You Annotate A Variable, The Variable Wins
 
 Let's look again at the variable annotation we've seen throughout this book.
 
@@ -46,7 +50,7 @@ const config: Record<string, Color> = {
 };
 ```
 
-This is useful, because if we specify a `Color` that doesn't match the type, TypeScript will show an error:
+Here, we're annotating a variable. We're saying that `config` is a `Record` with a string key and a `Color` value. This is useful, because if we specify a `Color` that doesn't match the type, TypeScript will show an error:
 
 ```typescript
 const config: Record<string, Color> = {
@@ -62,7 +66,10 @@ config.foreground.r; // red squiggly line under 'foreground'
 
 Firstly, it doesn't know that foreground is defined on the object. Secondly, it doesn't know whether foreground is the `string` version of the `Color` type or the object version.
 
-This is because we've told TypeScript that `config` is a `Record` with a any number of string keys. Because we used a variable annotation, it then threw away the actual keys we assigned to it.
+This is because we've told TypeScript that `config` is a `Record` with a any number of string keys. We annotated the variable, but the actual _value_ got discarded. This is an important point - when you annotate a variable, TypeScript will:
+
+1. Ensure that the value passed to the variable matches the annotation.
+2. Forget about the value's type.
 
 This has some benefits - we can add new keys to `config` and TypeScript won't complain:
 
@@ -70,9 +77,11 @@ This has some benefits - we can add new keys to `config` and TypeScript won't co
 config.primary = "red";
 ```
 
-But this isn't behavior we particularly want - this is a config object that shouldn't be changed.
+But this isn't really what we want - this is a config object that shouldn't be changed.
 
-One way to get around this would be to drop the annotation:
+### With No Annotation, The Value Wins
+
+One way to get around this would be to drop the variable annotation.
 
 ```typescript
 const config = {
@@ -82,7 +91,7 @@ const config = {
 };
 ```
 
-Now, TypeScript knows that `config` is an object with three keys, and it knows what those keys are.
+Because there's no variable annotation, `config` is inferred as the type of the value provided.
 
 But now we've lost the ability to check that the `Color` type is correct. We can add a `number` to the `foreground` key and TypeScript won't complain:
 
@@ -92,9 +101,9 @@ const config = {
 };
 ```
 
-So it seems we're at an impasse. We both want to infer the type of the object, but also constrain it to be a certain shape.
+So it seems we're at an impasse. We both want to infer the type of the value, but also constrain it to be a certain shape.
 
-### `satisfies`
+### Annotating Values With `satisfies`
 
 The `satisfies` operator is a way to tell TypeScript that a value must satisfy certain criteria, but still allow TypeScript to infer the type.
 
@@ -108,7 +117,7 @@ const config = {
 } satisfies Record<string, Color>;
 ```
 
-Now, we get the best of both worlds. Using `satisfies` means that the value of the object is still inferred by TypeScript. This means we can access the keys without any issues:
+Now, we get the best of both worlds. This means we can access the keys without any issues:
 
 ```typescript
 config.foreground.r;
@@ -132,9 +141,11 @@ config.somethingNew = "red"; // red squiggly line under 'somethingNew'
 
 Because TypeScript is now inferring `config` as _just_ an object with a fixed set of keys.
 
-This is a good lesson in TypeScript's inference system. Sometimes, you want to tell TypeScript what type something is. Sometimes, you want to let TypeScript figure it out on its own.
+Let's recap:
 
-But sometimes, you want to lie to TypeScript:
+- When you use a variable annotation, the variable's type wins.
+- When you don't use a variable annotation, the value's type wins.
+- When you use `satisfies`, you can tell TypeScript that a value must satisfy certain criteria, but still allow TypeScript to infer the type.
 
 ## Lying To TypeScript
 
