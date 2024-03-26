@@ -147,13 +147,49 @@ Let's recap:
 - When you don't use a variable annotation, the value's type wins.
 - When you use `satisfies`, you can tell TypeScript that a value must satisfy certain criteria, but still allow TypeScript to infer the type.
 
-## Lying To TypeScript
+#### Narrowing Values With `satisfies`
 
-<!-- CONTINUE -->
+A common misconception about `satisfies` is that it doesn't affect the type of the value. This is not quite true - in certain situations, `satisfies` does help narrow down a value to a certain type.
 
-<!-- TODO -->
+Let's take this example:
 
-## The `as` Assertion
+```tsx
+const album = {
+  format: "Vinyl",
+};
+```
+
+Here, we have an `album` object with a `format` key. As we know from our chapter on mutability, TypeScript will infer `album.format` as `string`. We want to make sure that the `format` is one of three values: `CD`, `Vinyl`, or `Digital`.
+
+We could give it a variable annotation:
+
+```tsx
+type Album = {
+  format: "CD" | "Vinyl" | "Digital";
+};
+
+const album: Album = {
+  format: "Vinyl",
+};
+```
+
+But now, `album.format` is `"CD" | "Vinyl" | "Digital"`. This might be a problem if we want to pass it to a function that only accepts `"Vinyl"`.
+
+Instead, we can use `satisfies`:
+
+```typescript
+const album = {
+  format: "Vinyl",
+} satisfies Album;
+```
+
+Now, `album.format` is inferred as `"Vinyl"`, because we've told TypeScript that `album` satisfies the `Album` type. So, `satisfies` is narrowing down the value of `album.format` to a specific type.
+
+## Assertions: Forcing The Type Of Values
+
+Sometimes, the way TypeScript infers types isn't quite what we want. We can use assertions in TypeScript to force values to be inferred as a certain type.
+
+### The `as` Assertion
 
 The `as` assertion is a way to tell TypeScript that you know more about a value than it does. It's a way to override TypeScript's type inference and tell it to treat a value as a different type.
 
@@ -189,7 +225,7 @@ This `as` is a little unsafe! If `id` is somehow not actually passed in the URL,
 
 But it's useful in cases where we truly know more than TypeScript can about the behavior of our code.
 
-### An Alternative Syntax
+#### An Alternative Syntax
 
 As an alternative to `as`, you can prefix the value with the type wrapped in angle brackets:
 
@@ -199,7 +235,7 @@ const id = <string>searchParams.get("id");
 
 This is less common than `as`, but behaves exactly the same way. `as` is more common, so it's better to use that.
 
-### The Limits of `as`
+#### The Limits of `as`
 
 `as` has some limits on how it can be used. It can't be used to convert between unrelated types.
 
@@ -256,9 +292,9 @@ Conversion of type 'Album' to type 'SalesData' may be a mistake because neither 
 Type 'Album' is missing the following properties from type 'SalesData': sales, certification.
 ```
 
-So, `as` does have some built-in safeguards. But by using `as unknown as X`, you can easily bypass them.
+So, `as` does have some built-in safeguards. But by using `as unknown as X`, you can easily bypass them. And because `as` does nothing at runtime, it's a convenient way to lie to TypeScript about the type of a value.
 
-## The Non-null Assertion
+### The Non-null Assertion
 
 Another assertion we can use is the non-null assertion, which is specified by using the `!` operator. This provides a quick way to tell TypeScript that a value is not `null` or `undefined`.
 
@@ -303,7 +339,7 @@ Each of these fails at runtime if the value is not defined. But it's a convenien
 
 The non-null assertion, like other assertions, is a dangerous tool. It's particularly nasty because it's one character long, so easier to miss than `as`.
 
-For fun, I like to use at least three or four in a row to make sure developers know what I'm doing:
+For fun, I like to use at least three or four in a row to make sure developers know that what they're doing is dangerous:
 
 ```typescript
 // Yes, this syntax is legal
@@ -312,7 +348,7 @@ const id = searchParams.get("id")!!!!;
 
 ## Error Suppression Directives
 
-The `as` and non-null assertion operators are not the only ways we can lie to TypeScript. There are several comment directives that can be used to suppress errors.
+Assertions are not the only ways we can lie to TypeScript. There are several comment directives that can be used to suppress errors.
 
 ### `@ts-expect-error`
 
@@ -379,221 +415,124 @@ With all checking disabled, TypeScript won't show you any errors, but it also wo
 
 Generally speaking, you shouldn't use `@ts-nocheck`. I've personally lost hours of my life to working in large files where I didn't notice that `@ts-nocheck` was at the top.
 
-## When To Use Assertions
+### Suppressing Errors Vs `as any`
 
-### Error Directives Target The Whole Line
+There's one tool in a TypeScript developers' toolkit that _also_ suppresses errors, but isn't a comment directive - `as any`.
 
-<!-- TODO -->
+`as any` is an extremely powerful tool because it combines a lie to TypeScript (`as`) with a type that disables all type checking (`any`).
 
-### `as any` vs Error Suppression Directives
+This means that you can use it to suppress nearly any error. Our example above? No problem:
 
-The `@ts-ignore` directive can also be thought of as a less-precise version of `as any` that doesn't provide any type checking or autocompletion features. Earlier we saw this example of using `as any` to bypass type errors when calling a function from a third-party library:
-
-```tsx
-const someValue = someJsLibrary.someFunction() as any;
+```typescript
+const result = addOne({} as any);
 ```
 
-The `@ts-ignore` directive could be used to achieve the same result:
+`as any` turns the empty object into `any`, which disables all type checking. This means that `addOne` will happily accept it.
 
-```tsx
+#### `as any` vs Error Suppression Directives
+
+When there's a choice with how to suppress an error, I prefer using `as any`. Error suppression directives are too broad - they target the entire line of code. This can lead to accidentally suppressing errors that you didn't mean to:
+
+```typescript
 // @ts-ignore
-const someValue = someJsLibrary.someFunction();
+const result = addone("one");
 ```
 
-In the above example, using `as any` would be a safer choice, but the `@ts-ignore` directive can be useful when you want to bypass type errors without any type checking or autocompletion features.
+Here, we're calling `addone` instead of `addOne`. The error suppression directive will suppress the error, but it will also suppress any other errors that might occur on that line.
 
-### `as any`
-
-`as any` is a powerful and controversial tool in a TypeScript developer's toolkit. It tells TypeScript to override what it thinks about a value and treat it as `any`. As we've seen before, `any` disables type checking on anything it's applied to.
-
-Used incorrectly, this can lead to hard-to-debug runtime errors very quickly:
+Using `as any` instead is more precise:
 
 ```typescript
-const myLib = {} as any;
-
-myLib.someFunction(); // no error at compile time, but will crash at runtime
+const result = addone("one" as any); // red squiggly line under "addone"
+// Hovering over "addone" shows:
+// Cannot find name 'addone'.
 ```
 
-However, there are occasional times when `as any` is useful. Let's imagine you're working with two third-party libraries that are supposed to work together.
+Now, you'll only suppress the error that you intended to.
 
-One library has a `stringify` function that stringifies a value, which can then be un-stringified by passing to the `parse` function. Let's say that the types are out of date, and you can't pass the output of `stringify` directly to `parse`:
+## When To Suppress Errors
+
+Each of the error suppression tools we've looked at is a way of basically telling TypeScript to "keep quiet". TypeScript doesn't attempt to limit how often you try to silence it. It's perfectly possible that every time you encounter an error, you could suppress it with `@ts-ignore` or `as any`.
+
+Taking this approach limits how useful TypeScript can be. Your code will compile, but you will likely get many more runtime errors.
+
+But there are times when suppressing errors is a good idea. Let's explore a few different scenarios.
+
+### When You Know More Than TypeScript
+
+The important thing to remember about TypeScript is that really, you're writing JavaScript.
+
+This disconnect between compile time and runtime means that types _can sometimes be wrong_. This can mean you know more about the runtime code than TypeScript does.
+
+This can happen when third-party libraries don't have good type definitions, or when you're working with a complex pattern that TypeScript struggles to understand.
+
+Error suppression directives exist for this reason. They let you patch over the differences that sometimes crop up between TypeScript and the JavaScript it produces.
+
+But this feeling of superiority over TypeScript can be dangerous. So, let's compare it to a very similar feeling:
+
+### When TypeScript Is Being "Dumb"
+
+Some patterns lend themselves better to being typed than others. More dynamic patterns can be harder for TypeScript to understand, and will lead you to suppressing more errors.
+
+A simple example is constructing an object. In JavaScript, there's no real difference between these two patterns:
 
 ```typescript
-import { stringify } from "fake-stringify-library";
-import { parse } from "fake-parse-library";
-
-const value = stringify({ foo: "bar" });
-
-const parsedValue = parse(value); // Red line under value
-```
-
-What do you do? You know it's working at runtime. You can turn off type checking by using `as any`:
-
-```typescript
-const parsedValue = parse(value as any);
-```
-
-## The `satisfies` Operator
-
-The `satisfies` operator lets us specify that a value needs to meet certain criteria. However, it won't affect TypeScript's ability to infer types.
-
-In this example, we have a `Song` type that has a `title` and `artist` property. We can then create an array called `playlist` and use the `satisfies` operator to specify that each item in the array must be a `Song` type:
-
-```tsx
-type Song = {
-  title: string;
-  artist: string;
+// Static
+const obj = {
+  a: 1,
+  b: 2,
 };
 
-const playlist = [
-  { title: "Year of the Cat", artist: "Al Stewart" },
-  { title: "Stop That Train", artist: "Keith & Tex" },
-  { title: "Magic Beams", artist: "Emperor Penguin" },
-] satisfies Song[];
+// Dynamic
+const obj2 = {};
+
+obj2.a = 1;
+obj2.b = 2;
 ```
 
-Now if we try to add an item to the `playlist` array that doesn't meet the `Song` type criteria, TypeScript will throw an error:
+In the first, we construct an object by passing in the keys and values. In the second, we construct an empty object and add the keys and values later. The first pattern is static, the second is dynamic.
 
-```tsx
-playlist.push({ title: "Dreams" }); // red squiggly line under { title: "Dreams" }
+But in TypeScript, the first pattern is much easier to work with. TypeScript can infer the type of `obj` as `{ a: number, b: number }`. But it can't infer the type of `obj2` - it's just an empty object. In fact, you'll get errors when you try to do this:
 
-// hovering over title shows:
-Argument of type '{ title: string; }' is not assignable to parameter of type '{ title: string; artist: string; }'.
+```typescript
+obj2.a = 1; // red squiggly line under 'obj2'
+// Hovering over obj2 shows:
+// Property 'a' does not exist on type '{}'.
 ```
 
-### Comparing `satisfies` with Type Annotations
+But if you're used to constructing your objects in a dynamic way, this can be frustrating. You know that `obj2` will have an `a` and a `b` key, but TypeScript doesn't.
 
-Let's compare the `playlist` above that uses `satisfies` with this `playlist2` that specifies the `Song` type directly:
+In these cases, it's tempting to bend the rules a little by using an `as` to tell TypeScript that you know what you're doing:
 
-```tsx
-const playlist2: Song[] = [
-  { title: "Year of the Cat", artist: "Al Stewart" },
-  { title: "Stop That Train", artist: "Keith & Tex" },
-  { title: "Magic Beams", artist: "Emperor Penguin" }
-];
-
-playlist2.push({ title: "Dreams" }); // red squiggly line under { title: "Dreams" }
-
-// hovering over title shows:
-Argument of type '{ title: string; }' is not assignable to parameter of type 'Song'.
+```typescript
+const obj2 = {} as { a: number; b: number };
 ```
 
-Both `playlist` and `playlist2` are essentially the same, but reading the error messages when trying to add incompatible items illustrates the difference.
+This is subtly different from the first scenario, where you know more than TypeScript does. In this case, there's a simple runtime refactor you can make to make TypeScript happy and avoid suppressing errors.
 
-When using `satisfies`, the type of `playlist` is being inferred based on the existing items in the array– objects with a `title` and `artist`. By adding `satisfies Song[]`, TypeScript will check that the items it inferred inside the `playlist` array meet the `Song` type criteria.
+The more experienced you are with TypeScript, the more often you'll be able to spot these patterns. You'll be able to spot the times when TypeScript lacks crucial information, requiring an `as`, or when the patterns you're using aren't letting TypeScript do its job properly.
 
-On the other hand, when using a type annotation TypeScript will check that the items in the array meet the `Song` type criteria directly, without inferring the type from the existing items.
+So if you're tempted to suppress an error, see if there's a way you can refactor your code to a pattern that TypeScript understands better. After all, it's easier to swim with the current than against it.
 
-In many cases, using `satisfies` can be more flexible than using type annotations, particularly with more complex data structures.
+### When You Don't Understand The Error
 
-### Narrowing Literal Types with `satisfies`
+Let's say you've been coding for a few hours. An unread Slack message notification is blinking at you. The feature is all but finished, except for some types you need to add. You've got a call in 20 minutes. And then TypeScript shows an error that you don't understand.
 
-TypeScript does not automatically narrow down object properties to their literal types.
+TypeScript errors can be extremely hard to read. They can be long, multi-layered, and filled with references to types you've never heard of.
 
-For example, passing an object with a property `format: "Vinyl"` into a function expecting `"CD" | "Vinyl" | "Digital"` results in an error:
+It's at this moment that TypeScript can feel its most frustrating. It's enough to turn many developers off TypeScript for good.
 
-```tsx
-type AlbumFormat = "CD" | "Vinyl" | "Digital";
+So, you suppress the error. You add a `@ts-ignore` or an `as any` and move on.
 
-const printMediaInfo = (format: AlbumFormat) => {
-  console.log(`This album is available in ${format} format.`);
-}
+Weeks later, a bug gets reported. You end up back in the same area of the codebase. And you track the error down to the exact line you suppressed.
 
-const album = {
-  format: "Vinyl"
-};
+The time you save by suppressing errors will, eventually, come back to bite you. You're not saving time, but borrowing it.
 
-printMediaInfo(album); // red squiggly line under album
+It's this situation, when you don't understand the error, that I'd recommend sticking it out. TypeScript is attempting to communicate with you. Try refactoring your runtime code. Use all the tools mentioned in the IDE Superpowers chapter to investigate the types the errors mention.
 
-// hovering over album shows:
-Argument of type '{ format: string; }' is not assignable to parameter of type 'AlbumFormat'.
-```
-
-We get the error because TypeScript infers the `album` object's `format` property as a string, which isn't compatible with the `AlbumFormat` type.
-
-Using the `satisfies` operator, we can tell TypeScript that the `album` object must meet the `AlbumFormat` type criteria:
-
-```tsx
-const album = {
-  format: "Vinyl",
-} satisfies { format: AlbumFormat };
-```
-
-This fixes the error and allows the `album` object to be passed into the `printMediaInfo` function without issue.
-
-Again, there are other options for solving this problem, but using `satisfies` lets TypeScript infer literals where it matters.
+Think of the time you invest in fixing TypeScript errors as an investment in yourself. You're both fixing potential bugs in the future, and levelling up your own understanding.
 
 ## Exercises
-
-### Exercise 1: Required vs. Unnecessary Annotations
-
-There's a balance between not annotating enough and annotating too much. In this exercise, you'll be given a few examples of code and you'll need to decide whether the annotations are required or unnecessary.
-
-Here we have a function `isProblemOrSolution` that includes numerous annotations:
-
-```tsx
-const isProblemOrSolution = (filename: string): boolean => {
-  const splitFilename: string[] = filename.split(".");
-
-  const finalIndex: number = splitFilename.length - 1;
-
-  const extension: string | undefined = splitFilename[finalIndex];
-
-  const isProblem: boolean = extension === "problem";
-
-  const isSolution: boolean = extension === "solution";
-
-  return isProblem || isSolution;
-};
-```
-
-There is a return type annotation, as well as several variable type annotations on `splitFilename`, `finalIndex`, `extension`, `isProblem`, and `isSolution`.
-
-Below the function are a `users` variable and `usersWithIds` variable with some annotations:
-
-```tsx
-const users: {
-  name: string;
-}[] = [
-  {
-    name: "Waqas",
-  },
-  {
-    name: "Zain",
-  },
-];
-
-const usersWithIds: {
-  id: number;
-  name: string;
-}[] = users.map(
-  (
-    user: {
-      name: string;
-    },
-    index: number,
-  ) => ({
-    ...user,
-    id: index,
-  }),
-);
-```
-
-And finally, a test that checks the type of `usersWithIds`:
-
-```tsx
-type test2 = Expect<
-  Equal<
-    typeof usersWithIds,
-    {
-      id: number;
-      name: string;
-    }[]
-  >
->;
-```
-
-Determine how many annotations can be removed while still having the test pass successfully.
 
 ### Exercise 2: Provide Additional Info to TypeScript
 
@@ -620,36 +559,7 @@ Type 'null' is not assignable to type 'HTMLFormElement | undefined'.
 
 Your task is to provide TypeScript with additional information in order to resolve the error.
 
-### Exercise 3: Global Typings Introduce `any` Types
-
-In this exercise, we are working with a function named `getObj`. This function parses a JSON string and assigns the parsed object to `const obj`:
-
-```typescript
-const getObj = () => {
-  const obj = JSON.parse('{ "a": 123, "b": 456 }');
-
-  return obj;
-};
-```
-
-Currently the inferred type for `obj` is `any`.
-
-Down in the test case, there is an expectation that TypeScript should throw an error if we try to access `obj.c`. However, the `@ts-expect-error` directive is not working as expected:
-
-```typescript
-it("Should return an obj", () => {
-  const obj = getObj();
-
-  expect(obj.b).toEqual(456);
-
-  expect(
-    // @ts-expect-error c doesn't exist on obj // red squiggly line under @ts-expect-error line
-    obj.c,
-  ).toEqual(undefined);
-});
-```
-
-TypeScript isn't able to dynamically break down the JSON object to figure out exactly what's returned from it. Your task is to add an annotation to `obj` that will make the test case pass while ensuring we are only able to access existing properties.
+<!-- CONTINUE -->
 
 ### Exercise 4: Solving Issues with Assertions
 
@@ -836,70 +746,6 @@ type tests = [
 
 Your task is to update the `routes` object typing so that all errors are resolved. This will require you to use `satisfies` as well as another annotation that ensures the object is deeply read-only.
 
-### Solution 1: Required vs. Unnecessary Annotations
-
-#### Removing Function Annotations
-
-The first annotation we can remove is the `splitFilename` annotation. The `split()` function returns an array of strings, so the type is inferred as an array of strings whether we annotate it or not.
-
-The same is true for the `finalIndex` annotation. `splitFilename.length - 1` is always going to be a number, so the annotation is unnecessary.
-
-The `extension` annotation can also be removed. Since we're doing an indexed access, the extension might be a string or it might be undefined. TypeScript can infer this without an annotation.
-
-Similarly, in the case of logical comparators like the triple equals (`===`), the outcome will always be a boolean. This means we can remove the boolean annotation from `isSolution`.
-
-The return type annotation is also unnecessary, because TypeScript recognizes that when evaluating `isProblem || isSolution`, a boolean variable will be returned.
-
-The return type annotation could also be pruned while maintaining the correct inference. TypeScript recognizes that when evaluating `isProblem || isSolution`, a boolean variable will be returned, rendering the annotation needless.
-
-The only annotation that needs to say in the `isProblemOrSolution` function is the one for the function parameter:
-
-```typescript
-const isProblemOrSolution = (filename: string) => {
-  const splitFilename = filename.split(".");
-  ...
-```
-
-We need this annotation because without it, TypeScript will give the "implicit `any`" error on the parameter, as well as an error on `filename.split()` inside of the function.
-
-Remember, parameters should pretty much always be annotated.
-
-#### Removing Variable Annotations
-
-The `users` array is inferred as an array of objects with a `name` property even if we remove its annotation.:
-
-```typescript
-// removing the annotation from users:
-const users = [
-  {
-    name: "Waqas",
-  },
-  {
-    name: "Zain",
-  },
-];
-
-// hovering over users shows:
-const users: {
-  name: string;
-}[];
-```
-
-For the `usersWithIds` variable, we can remove the annotations because TypeScript is able to infer it from the return value of the `.map()` function:
-
-```typescript
-const usersWithIds = users.map((user, index) => ({
-  ...user,
-  id: index,
-}));
-```
-
-This now looks like regular JavaScript code, but our test passes as expected.
-
-Type annotations serve to guide the TypeScript interpreter. However, properly utilizing inference system can remove the need for most annotations.
-
-The big takeaway is to annotate with intention. You should provide annotations when necessary, and avoid them when TypeScript can figure things out on its own.
-
 ### Solution 2: Provide Additional Info to TypeScript
 
 The error we encountered in this challenge was that the `EventTarget | null` type was incompatible with the required parameter of type `HTMLFormElement`. The problem stems from the fact that these types don't match, and `null` is not permitted:
@@ -960,46 +806,23 @@ For example, we wouldn't be able to leverage autocompletion or have type checkin
 
 When faced with a situation like this, it's better to use the most specific `as` assertion you can. This communicates that you have a clear understanding of what `e.target` is not only to TypeScript, but to other developers who might read your code.
 
-### Solution 3: Global Typings Introduce `any` Types
+### Solution 4: Solving Issues with Assertions
 
-Functions like `JSON.parse()` return `any` by default. This is why the `@ts-expect-error` directive doesn't find an error when trying to access `obj.c` in the test case.
+Inside the `findUsersByName` function, TypeScript is complaining about `searchParams.name` because of a strange reason.
 
-In order to solve this challenge, we need to make sure that the `any` type on `obj` is suppressed.
+Imagine if `searchParams.name` was a getter that returned `string` or `undefined` at random:
 
-By adding a type annotation to `obj` inside of the `getObj` function, we can override the `any` type without any issues. In this case, `a` and `b` are both numbers:
-
-```tsx
-const getObj = () => {
-  const obj: {
-    a: number;
-    b: number;
-  } = JSON.parse('{ "a": 123, "b": 456 }');
-
-  return obj;
+```typescript
+const searchParams = {
+  get name() {
+    return Math.random() > 0.5 ? "John" : undefined;
+  },
 };
 ```
 
-With this change, the test passes as expected.
+Now, TypeScript can't be sure that `searchParams.name` will always be a `string`. This is why it's complaining inside the `filter` function.
 
-#### Using the `ts-reset` Library
-
-There are risks associated with the approach of adding type annotations to `obj`. For example, if `JSON.parse` is called on an object that doesn't include the properties in the `obj` type annotation, TypeScript wouldn't raise an error until runtime.
-
-To combat this issue, the `ts-reset` library can be used:
-
-```typescript
-import "@total-typescript/ts-reset";
-```
-
-This library overrides some global typings for various functions. With `ts-reset`, `JSON.parse()` now returns the `unknown` type instead of `any`. This forces you to narrow down the types before using the parsed data, preventing accidental `any` types from spreading in your application.
-
-The `ts-reset` library also works well with Zod, as well as plain old narrowing techniques, such as using an `if` statement with `in`.
-
-Whether you're using Zod or plain old narrowing techniques, the `ts-reset` library is a great way to keep your types under control.
-
-### Solution 4: Solving Issues with Assertion
-
-Inside the `findUsersByName` function, TypeScript is complaining about `searchParams.name` because it thinks we could be modifying it back to `undefined` inside the `filter` callback. This is why we were previously able to solve this problem by extracting `searchParams.name` into a constant variable and performing the check against that.
+This is why we were previously able to solve this problem by extracting `searchParams.name` into a constant variable and performing the check against that - this guarantees that the name will be a string.
 
 However, this time we will solve it differently.
 
@@ -1034,6 +857,12 @@ return users.filter((user) => user.name.includes(searchParams.name!));
 ```
 
 The `!` operater tells TypeScript to remove any `null` or `undefined` types from the variable. This would leave us with just `string`.
+
+Both of these solutions will remove the error and allow the code to work as expected. But neither protect us against the insidious `get` function that returns `string | undefined` at random.
+
+Since this is a pretty rare case, we might even say TypeScript is being a bit over-protective here. So, an assertion feels like the right choice.
+
+<!-- CONTINUE -->
 
 ### Solution 6: Enforcing Valid Configuration
 

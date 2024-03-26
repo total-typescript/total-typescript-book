@@ -408,3 +408,73 @@ logStatus("NewRelease"); // No information provided when hovering over NewReleas
 ```
 
 #### Enums Must Be Imported
+
+<!--  -->
+
+### Exercise 3: Global Typings Introduce `any` Types
+
+In this exercise, we are working with a function named `getObj`. This function parses a JSON string and assigns the parsed object to `const obj`:
+
+```typescript
+const getObj = () => {
+  const obj = JSON.parse('{ "a": 123, "b": 456 }');
+
+  return obj;
+};
+```
+
+Currently the inferred type for `obj` is `any`.
+
+Down in the test case, there is an expectation that TypeScript should throw an error if we try to access `obj.c`. However, the `@ts-expect-error` directive is not working as expected:
+
+```typescript
+it("Should return an obj", () => {
+  const obj = getObj();
+
+  expect(obj.b).toEqual(456);
+
+  expect(
+    // @ts-expect-error c doesn't exist on obj // red squiggly line under @ts-expect-error line
+    obj.c,
+  ).toEqual(undefined);
+});
+```
+
+TypeScript isn't able to dynamically break down the JSON object to figure out exactly what's returned from it. Your task is to add an annotation to `obj` that will make the test case pass while ensuring we are only able to access existing properties.
+
+### Solution 3: Global Typings Introduce `any` Types
+
+Functions like `JSON.parse()` return `any` by default. This is why the `@ts-expect-error` directive doesn't find an error when trying to access `obj.c` in the test case.
+
+In order to solve this challenge, we need to make sure that the `any` type on `obj` is suppressed.
+
+By adding a type annotation to `obj` inside of the `getObj` function, we can override the `any` type without any issues. In this case, `a` and `b` are both numbers:
+
+```tsx
+const getObj = () => {
+  const obj: {
+    a: number;
+    b: number;
+  } = JSON.parse('{ "a": 123, "b": 456 }');
+
+  return obj;
+};
+```
+
+With this change, the test passes as expected.
+
+#### Using the `ts-reset` Library
+
+There are risks associated with the approach of adding type annotations to `obj`. For example, if `JSON.parse` is called on an object that doesn't include the properties in the `obj` type annotation, TypeScript wouldn't raise an error until runtime.
+
+To combat this issue, the `ts-reset` library can be used:
+
+```typescript
+import "@total-typescript/ts-reset";
+```
+
+This library overrides some global typings for various functions. With `ts-reset`, `JSON.parse()` now returns the `unknown` type instead of `any`. This forces you to narrow down the types before using the parsed data, preventing accidental `any` types from spreading in your application.
+
+The `ts-reset` library also works well with Zod, as well as plain old narrowing techniques, such as using an `if` statement with `in`.
+
+Whether you're using Zod or plain old narrowing techniques, the `ts-reset` library is a great way to keep your types under control.
