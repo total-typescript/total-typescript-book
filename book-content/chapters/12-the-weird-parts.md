@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # TypeScript: The Weird Parts
 
 Now that we've seen several TypeScript-specific features and practiced with transforming types and values, it's time to take a look at some of the weird parts of TypeScript. Throughout this chapter we'll explore some quirks and nuances of the TypeScript compiler and type system, the warnings and errors it produces, and how to work with them (and around them).
@@ -14,7 +16,7 @@ To start, use `let` to declare the variable without a type, and TypeScript will 
 let metadata;
 
 // hovering over selectedAlbum shows:
-let metadata: any
+let metadata: any;
 ```
 
 Now the `metadata` variable will take on the inferred type of whatever is assigned to it.
@@ -43,7 +45,6 @@ evolvingArray.push({easy: true}; // (string | number | { easy: boolean })[];
 ```
 
 Even without specifying types, TypeScript is incredibly smart about picking up on your actions and the behavior you're pushing to evolving `any` types.
-
 
 ## The Empty Object Type
 
@@ -78,7 +79,7 @@ submit(null); // red squiggly line under null
 Argument of type 'undefined' is not assignable to parameter of type '{}'.
 ```
 
-So if the `{}` type doesn't represent an empty object, how do we *actually* represent an object that is truly empty?
+So if the `{}` type doesn't represent an empty object, how do we _actually_ represent an object that is truly empty?
 
 ## A Truly Empty Object Type
 
@@ -141,7 +142,7 @@ const rubberSoul = {
   title: "Rubber Soul",
   artist: "The Beatles",
   releaseYear: 1965,
-  label: "Parlophone"
+  label: "Parlophone",
 };
 ```
 
@@ -180,7 +181,7 @@ const rubberSoul = {
   title: "Rubber Soul",
   artist: "The Beatles",
   releaseYear: 1965,
-  label: "Parlophone" // red squiggly line under label
+  label: "Parlophone", // red squiggly line under label
 } satisfies Album; // or `as Album`
 ```
 
@@ -197,7 +198,7 @@ printAlbum({
   title: "Rubber Soul",
   artist: "The Beatles",
   releaseYear: 1965,
-  label: "Parlophone" // red squiggly line under label
+  label: "Parlophone", // red squiggly line under label
 });
 ```
 
@@ -223,7 +224,7 @@ interface Album {
 const yetiSeason: Album = {
   title: "Yeti Season",
   artist: "El Michels Affair",
-  releaseYear: 2021
+  releaseYear: 2021,
 };
 
 const keys = Object.keys(yetiSeason);
@@ -256,7 +257,7 @@ The `Song` class can be used as a type when declaring a variable and creating a 
 const song: Song = new Song("Beetlebum", "Blur");
 
 // hovering over song shows:
-const song: Song
+const song: Song;
 ```
 
 When we use an equals sign to assign the `Song` class to a new variable, we will end up with a description of the function that produces an instance of the class instead of the class instance itself. Hovering over the newly created variable will show it's typed as `typeof Song`:
@@ -265,7 +266,7 @@ When we use an equals sign to assign the `Song` class to a new variable, we will
 const functionThatProducesASong = Song;
 
 // hovering over functionThatProducesASong shows:
-const functionThatProducesASong: typeof Song
+const functionThatProducesASong: typeof Song;
 ```
 
 This means that we can create a new `Song` instance by calling `functionThatProducesASong` with the `new` keyword:
@@ -274,7 +275,7 @@ This means that we can create a new `Song` instance by calling `functionThatProd
 const song2 = new functionThatProducesASong("Song 2", "Blur");
 
 // hovering over song2 shows:
-const song2: Song
+const song2: Song;
 ```
 
 However, we can't use `functionThatProducesASong` as a type the same way that we could use `Song`:
@@ -308,7 +309,7 @@ enum AlbumStatus {
   NewRelease = 0,
   OnSale = 1,
   StaffPick = 2,
-  Clearance = 3
+  Clearance = 3,
 }
 
 function logAlbumStatus(status: AlbumStatus) {
@@ -376,10 +377,10 @@ export const Track = {
     console.log(`Playing: ${title}`);
   },
   pause: () => {
-    console.log('Song paused');
+    console.log("Song paused");
   },
   stop: () => {
-    console.log('Song stopped');
+    console.log("Song stopped");
   },
 };
 ```
@@ -424,7 +425,7 @@ Hovering over `Track` shows us that it is both a type and a value:
 
 This double-duty functionality can prove quite useful, especially when you have things that feel like types that you want to reuse elsewhere in your code.
 
-## `this` in Functions and Objects 
+## `this` in Functions and Objects
 
 When working with classes, `this` refers to the current instance of the class. It can also be used in a similar way for functions and objects.
 
@@ -438,10 +439,10 @@ const solidAir = {
   artist: "John Martyn",
   sales: 40000,
   price: 12.99,
-  sellAlbum: function() {
+  sellAlbum: function () {
     this.sales++;
     console.log(`${this.title} has sold ${this.sales} copies.`);
-  }
+  },
 };
 ```
 
@@ -466,7 +467,7 @@ const album = {
   artist: "John Martyn",
   sales: 40000,
   price: 12.99,
-  sellAlbum
+  sellAlbum,
 };
 ```
 
@@ -516,15 +517,14 @@ const solidAir = {
   applyDiscount(this: { price: number }) {
     const discount = 0.2;
     console.log(`The price is now $${this.price * (1 - discount)}`);
-    this.price *= (1 - discount);
-  }
+    this.price *= 1 - discount;
+  },
 };
 ```
 
 Notice that the above now looks a lot like a class, and is indeed an example of how they operate under the hood in TypeScript.
 
 Remember, when you're faced with a similar scenario, using `this` within your function parameters ensures that they're strongly typed with the correct context.
-
 
 ## Weird Function Stuff
 
@@ -542,12 +542,14 @@ function playMedia(callback: CallbackType) {
 type CallbackType = unknown;
 ```
 
-There are a few scenarios for the `playMedia` function that we need to account for. It should be able to accept a callback that has a single parameter for a `filename`, or a callback with a `filename` and `volume`, or a callback with an additional  `bassBoost` parameter:
+There are a few scenarios for the `playMedia` function that we need to account for. It should be able to accept a callback that has a single parameter for a `filename`, or a callback with a `filename` and `volume`, or a callback with an additional `bassBoost` parameter:
 
 ```tsx
 playMedia((filename: string) => console.log(`Playing ${filename}`));
 
-playMedia((filename: string, volume: number) => console.log(`Playing ${filename} at volume ${volume}`));
+playMedia((filename: string, volume: number) =>
+  console.log(`Playing ${filename} at volume ${volume}`),
+);
 
 playMedia((filename: string, volume: number, bassBoost: boolean) => {
   console.log(`Playing ${filename} at volume ${volume} with bass boost on!`);
@@ -579,7 +581,7 @@ playMedia((filename, volume, bassBoost) => {
 Parameter 'filename' implicitly has an 'any' type.
 ```
 
-Interestingly, the callback version with all three parameters works without an error. 
+Interestingly, the callback version with all three parameters works without an error.
 
 It turns out that the correct way to define the `CallbackType` type is to remove the first two members of the union and only include the member with all three parameters:
 
@@ -587,7 +589,7 @@ It turns out that the correct way to define the `CallbackType` type is to remove
 type CallbackType = (
   filename: string,
   volume: number,
-  bassBoost: boolean
+  bassBoost: boolean,
 ) => void;
 ```
 
@@ -598,7 +600,9 @@ This might seem weird at first, but think about how functions work in JavaScript
 To further illustrate, we can see this concept in action when calling `map` on an array:
 
 ```tsx
-["macarena.mp3", "scatman.wma", "cotton-eye-joe.ogg"].map((file) => file.toUpperCase());
+["macarena.mp3", "scatman.wma", "cotton-eye-joe.ogg"].map((file) =>
+  file.toUpperCase(),
+);
 ```
 
 The function passed into `map` only uses the `file` parameter, ignoring the `index` and full `array` parameters that could have been passed in.
@@ -615,7 +619,7 @@ Consider this `formatterFunctions` object that has keys corresponding to `Album`
 const formatterFunctions = {
   title: (album: Album) => `Title: ${input}`,
   artist: (album: Album) => `Artist: ${input}`,
-  releaseYear: (album: Album) => `Release Year: ${input}`
+  releaseYear: (album: Album) => `Release Year: ${input}`,
 };
 ```
 
@@ -633,7 +637,10 @@ Calling `getAlbumInfo` with a proper `Album` and valid `key` will work as expect
 
 ```tsx
 // hovering over functionToCall shows:
-const functionToCall: ((album: Album) => string) | ((album: Album) => string) | ((album: Album) => string)
+const functionToCall:
+  | ((album: Album) => string)
+  | ((album: Album) => string)
+  | ((album: Album) => string);
 ```
 
 The `functionToCall` variable is typed as a union of the three different functions from the `formatterFunctions` object, and each has the same signature of `(album: Album) => string`.
@@ -644,7 +651,7 @@ We can see this when hovering over the actual call to `functionToCall(album)` in
 
 ```tsx
 // hovering over functionToCall(album) shows:
-const albumFunction: (album: Album) => string
+const albumFunction: (album: Album) => string;
 ```
 
 Where the behavior of intersecting arguments and creating a union of return types becomes more obvious is when the functions have different signatures. For example, let's add an additional function to the `formatterFunctions` object that accepts and returns a number:
@@ -654,7 +661,7 @@ const formatterFunctions = {
   title: (album: Album) => `Title: ${album.title}`,
   artist: (album: Album) => `Artist: ${album.artist}`,
   releaseYear: (album: Album) => `Release Year: ${album.releaseYear}`,
-  salesUntilPlatinum: (sales: number) => 1000000 - sales
+  salesUntilPlatinum: (sales: number) => 1000000 - sales,
 };
 ```
 
@@ -673,7 +680,7 @@ We can see that `functionToCall` indeed has arguments typed with an intersection
 
 ```tsx
 // hovering over functionToCall(album) shows:
-const functionToCall: (arg0: Album & number) => string | number
+const functionToCall: (arg0: Album & number) => string | number;
 ```
 
 In this case, we could fix the error by adding a type assertion to `functionToCall` to intersect `Album & number`:
@@ -693,7 +700,7 @@ Recall that in TypeScript the `never` type represents a value that can never occ
 type StringAndNumber = string & number;
 
 // hovering over StringAndNumber shows:
-type StringAndNumber = never
+type StringAndNumber = never;
 ```
 
 When we create a new variable that's typed as `StringAndNumber`, TypeScript will show an error that `string` is not assignable to `never`. However, there won't be an error at runtime and we can successfully call `console.log` with the `StringAndNumber` variable:
@@ -725,7 +732,7 @@ Here we have a function `acceptAnythingExceptNullOrUndefined` that hasn't been a
 const acceptAnythingExceptNullOrUndefined = (input) => {}; // red squiggly line under input
 ```
 
-This function can be called with a variety of inputs: strings, numbers, boolean expressions, symbols, objects, arrays, functions, regex, and an `Error` class instance: 
+This function can be called with a variety of inputs: strings, numbers, boolean expressions, symbols, objects, arrays, functions, regex, and an `Error` class instance:
 
 ```typescript
 acceptAnythingExceptNullOrUndefined("hello");
@@ -754,7 +761,7 @@ acceptAnythingExceptNullOrUndefined(
 );
 ```
 
-Your task is to add a type annotation to the `acceptAnythingExceptNullOrUndefined` function that will allow it to accept any value except `null` or `undefined`. 
+Your task is to add a type annotation to the `acceptAnythingExceptNullOrUndefined` function that will allow it to accept any value except `null` or `undefined`.
 
 ### Exercise 2: Detecting Excess Properties in an Object
 
@@ -888,7 +895,8 @@ listenToEvent(() => {});
 Alternatively, we could pass a function that expects a single parameter, `event`:
 
 ```typescript
-listenToEvent((event) => { // red squiggly line under event
+listenToEvent((event) => {
+  // red squiggly line under event
   type tests = [Expect<Equal<typeof event, Event>>]; // red squiggly line under Equal<>
 });
 ```
@@ -896,7 +904,8 @@ listenToEvent((event) => { // red squiggly line under event
 Stepping up in complexity, we could call it with an `event`, `x`, and `y`:
 
 ```typescript
-listenToEvent((event, x, y) => { // red squiggly line under event, x, and y
+listenToEvent((event, x, y) => {
+  // red squiggly line under event, x, and y
   type tests = [
     Expect<Equal<typeof event, Event>>, // red squiggly line under Equal<>
     Expect<Equal<typeof x, number>>, // red squiggly line under Equal<>
@@ -908,7 +917,8 @@ listenToEvent((event, x, y) => { // red squiggly line under event, x, and y
 Finally, the function could take parameters `event`, `x`, `y`, and `screenID`:
 
 ```typescript
-listenToEvent((event, x, y, screenId) => { // red squiggly line under event, x, y, and screenId
+listenToEvent((event, x, y, screenId) => {
+  // red squiggly line under event, x, y, and screenId
   type tests = [
     Expect<Equal<typeof event, Event>>, // red squiggly line under Equal<>
     Expect<Equal<typeof x, number>>, // red squiggly line under Equal<>
@@ -920,7 +930,7 @@ listenToEvent((event, x, y, screenId) => { // red squiggly line under event, x, 
 
 In almost every case, TypeScript is giving us errors.
 
-Your task is to update the `CallbackType` to ensure that it can handle all of these cases. 
+Your task is to update the `CallbackType` to ensure that it can handle all of these cases.
 
 ### Exercise 6: Unions of Functions with Object Params
 
@@ -943,7 +953,8 @@ const loggers = [logId, logName];
 Inside a `logAll` function, a currently untyped object is passed as a parameter. Each logger function from the `loggers` array is then invoked with this object:
 
 ```typescript
-const logAll = (obj) => { // red squiggly line under obj
+const logAll = (obj) => {
+  // red squiggly line under obj
   loggers.forEach((func) => func(obj));
 };
 ```
@@ -979,7 +990,10 @@ The `formatter` which is extracted from `objOfFunctions` ends up typed as a unio
 
 ```tsx
 // hovering over formatter shows:
-const formatter: ((input: string) => string) | ((input: number) => string) | ((input: boolean) => "true" | "false")
+const formatter:
+  | ((input: string) => string)
+  | ((input: number) => string)
+  | ((input: boolean) => "true" | "false");
 ```
 
 Currently there's an error on `input` in the return statement of the `format` function:
@@ -1006,7 +1020,7 @@ const getUserFromLocalStorage = (id: string) => {
 };
 ```
 
-This function can throw errors in either of two scenarios: First, an error will be thrown when there's a `SyntaxError` due to the data retrieved from `localStorage` being incorrectly formatted. Second, if there's a `DOMException` that occurs from an abnormal DOM event. 
+This function can throw errors in either of two scenarios: First, an error will be thrown when there's a `SyntaxError` due to the data retrieved from `localStorage` being incorrectly formatted. Second, if there's a `DOMException` that occurs from an abnormal DOM event.
 
 We have tried to encapsulate these possible errors by defining a type `PossibleErrors` as follows:
 
@@ -1016,7 +1030,7 @@ type PossibleErrors = SyntaxError | DOMException;
 
 Ideally, we should be able to annotate that `getUserFromLocalStorage` will either return a `user` or throw one of the errors represented by the `PossibleErrors` type.
 
-In practice, however, when we wrap this function call in a `try-catch` block, the `catch` block's error parameter `e` is typed as `unknown`. 
+In practice, however, when we wrap this function call in a `try-catch` block, the `catch` block's error parameter `e` is typed as `unknown`.
 
 ```typescript
 // outside of the function
@@ -1126,12 +1140,14 @@ In this case, the mapping function will take in a `user` that is an object with 
 Then for the return type, we'll specify that it must return a `User` object.
 
 ```tsx
-const usersWithIds: User[] = users.map((user, index): User => ({
-  ...user,
-  id: index,
-  // @ts-expect-error
-  age: 30,
-}));
+const usersWithIds: User[] = users.map(
+  (user, index): User => ({
+    ...user,
+    id: index,
+    // @ts-expect-error
+    age: 30,
+  }),
+);
 ```
 
 With this setup, there will be an error on `age` because it is not part of the `User` type.
@@ -1141,12 +1157,15 @@ With this setup, there will be an error on `age` because it is not part of the `
 For this solution, we'll use the `satisfies` keyword to ensure that the object returned from the map function satisfies the `User` type:
 
 ```tsx
-const usersWithIds: User[] = users.map((user, index) => ({
-  ...user,
-  id: index,
-  // @ts-expect-error
-  age: 30,
-} satisfies User));
+const usersWithIds: User[] = users.map(
+  (user, index) =>
+    ({
+      ...user,
+      id: index,
+      // @ts-expect-error
+      age: 30,
+    } satisfies User),
+);
 ```
 
 TypeScript's excess property checks can sometimes lead to unexpected behavior, especially when dealing with function returns. To avoid this issue, always declare the types for variables that may contain excess properties or indicate the expected return types in your functions.
@@ -1235,7 +1254,7 @@ type CallbackType = (
   event: Event,
   x: number,
   y: number,
-  screenId: number
+  screenId: number,
 ) => void;
 ```
 
@@ -1261,7 +1280,7 @@ const logAll = (obj) => { // red squiggly line under obj
 }) => void)
 ```
 
-One function takes in an `id` string, and the other takes in a `name` string. 
+One function takes in an `id` string, and the other takes in a `name` string.
 
 This makes sense because when we call the array, we don't know which one we're getting at which time.
 
@@ -1287,7 +1306,7 @@ When typing the parameter to be a union, the `func`'s type has changed a single 
 }) => void)
 ```
 
-In other words, the combined function needs to satisfy all the potential inputs– in this case, it must contain both an `id` string and a `name` string. 
+In other words, the combined function needs to satisfy all the potential inputs– in this case, it must contain both an `id` string and a `name` string.
 
 Using a union type isn't an option.
 
@@ -1364,7 +1383,7 @@ Unlike some languages, TypeScript doesn't employ the `throws` syntax that could 
 // This won't work!
 const getUserFromLocalStorage = (id: string): throws PossibleErrors => {
   // ...
-}; 
+};
 ```
 
 Additionally, TypeScript does not allow for the annotation of the catch clause. You can't directly annotate that `e`, must be a specific type of error:
@@ -1400,7 +1419,6 @@ if (e instanceof DOMException) {
 
 This solution will work, but it requires the user of your function to handle the error instead of the function itself.
 
-
 #### Using a Type to Handle Errors
 
 The better solution is to use a type to capture the necessary information inside the function.
@@ -1408,21 +1426,21 @@ The better solution is to use a type to capture the necessary information inside
 The `Result` type is a discriminated union that includes a `success` property that is `true` when the function is successful, and `false` when it's not. When the function is successful, the `data` property will contain the data. When it's not, the `error` property will contain the specific error:
 
 ```tsx
-type Result = {
-  success: true;
-  data: any;
-} | {
-  success: false;
-  error: SyntaxError | DOMException;
-};
+type Result =
+  | {
+      success: true;
+      data: any;
+    }
+  | {
+      success: false;
+      error: SyntaxError | DOMException;
+    };
 ```
 
 With the `Result` type created, we can use it to annotate the return type of the `getUserFromLocalStorage` function. Inside the function, we can add a `try-catch` block that will safely access the `localStorage` and handle success and error cases appropriately:
 
 ```typescript
-const getUserFromLocalStorage = (
-  id: string,
-): Result => {
+const getUserFromLocalStorage = (id: string): Result => {
   try {
     const user = localStorage.getItem(id);
     if (!user) {

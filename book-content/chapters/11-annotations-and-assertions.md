@@ -559,8 +559,6 @@ Type 'null' is not assignable to type 'HTMLFormElement | undefined'.
 
 Your task is to provide TypeScript with additional information in order to resolve the error.
 
-<!-- CONTINUE -->
-
 ### Exercise 4: Solving Issues with Assertions
 
 Here we'll revisit a previous exercise, but solve it in a different way.
