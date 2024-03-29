@@ -875,11 +875,7 @@ const formatted = getAlbumInfo(
 );
 ```
 
-This situation is relatively easy to resolve because each parameter is compatible with the others. But when dealing with incompatible parameters, things can get a bit more complicated.
-
-<!-- CONTINUE -->
-
-#### Handling Incompatible Parameters In Unions Of Functions
+This situation is relatively easy to resolve because each parameter is compatible with the others. But when dealing with incompatible parameters, things can get a bit more complicated. We'll investigate that more in the exercises.
 
 ## Exercises
 
@@ -958,6 +954,8 @@ myFetch(options);
 ```
 
 Your challenge is to determine why the `@ts-expect-error` directive isn't working, and restructure the code so that it does. Try to solve it multiple ways!
+
+<!-- CONTINUE -->
 
 ### Exercise 3: Detecting Excess Properties in a Function
 
@@ -1120,7 +1118,7 @@ const logAll = (obj) => {
 
 Your task is to determine how to type the `obj` parameter to the `logAll` function. Look closely at the type signatures for the individual logger functions to understand what type this object should be.
 
-### Exercise 7: Union of Functions
+### Exercise 7: Union of Functions With Incompatible Parameters
 
 Here we're working with an object called `objOfFunctions`, which contains functions keyed by `string`, `number`, or `boolean`. Each key has an associated function to process an input of that type:
 
@@ -1500,7 +1498,7 @@ In both cases, the result is `func` being a function that contains all of the po
 
 This behavior makes sense, and this pattern is useful when working with functions that have varied requirements.
 
-### Solution 7: Union of Functions
+### Solution 7: Union of Functions With Incompatible Parameters
 
 Hovering over the `formatter` variable shows us that its `input` is typed as `never` because it's a union of incompatible types:
 
