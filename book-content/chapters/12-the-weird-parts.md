@@ -360,64 +360,43 @@ In this case, TypeScript suggests using `typeof processAlbum` instead of `proces
 
 These boundaries are very clear - except in a few cases. Some entities can exist in both the type and value worlds.
 
-<!-- CONTINUE -->
-
 ### Classes
 
 Consider this `Song` class that uses the shortcut of declaring properties in the constructor:
 
 ```tsx
 class Song {
-  constructor(public title: string, public artist: string) {}
+  title: string;
+  artist: string;
+
+  constructor(title: string, artist: string) {
+    this.title = title;
+    this.artist = artist;
+  }
 }
 ```
 
-The `Song` class can be used as a type when declaring a variable and creating a new `Song` instance directly. Here the `song` variable is typed as `Song`:
+We can use the `Song` class as a type, for instance to type a function's parameter:
 
 ```tsx
-const song: Song = new Song("Beetlebum", "Blur");
-
-// hovering over song shows:
-const song: Song;
+const playSong = (song: Song) =>
+  console.log(`Playing ${song.title} by ${song.artist}`);
 ```
 
-When we use an equals sign to assign the `Song` class to a new variable, we will end up with a description of the function that produces an instance of the class instead of the class instance itself. Hovering over the newly created variable will show it's typed as `typeof Song`:
+This type refers to an _instance_ of the `Song` class, not the class itself:
 
 ```tsx
-const functionThatProducesASong = Song;
+const song1 = new Song("Song 1", "Artist 1");
 
-// hovering over functionThatProducesASong shows:
-const functionThatProducesASong: Song;
+playSong(song1);
+
+playSong(Song); // red squiggly line under Song
+// Argument of type 'typeof Song' is not assignable to parameter of type 'Song'.
 ```
 
-This means that we can create a new `Song` instance by calling `functionThatProducesASong` with the `new` keyword:
+In this case, TypeScript shows an error when we try to pass the `Song` class itself to the `playSong` function. This is because `Song` is a class, and not an instance of the class.
 
-```tsx
-const song2 = new functionThatProducesASong("Song 2", "Blur");
-
-// hovering over song2 shows:
-const song2: Song;
-```
-
-However, we can't use `functionThatProducesASong` as a type the same way that we could use `Song`:
-
-```tsx
-const yourSong: functionThatProducesASong = new Song("Your Song", "Elton John"); // red squiggly line under functionThatProducesASong
-
-// hovering over functionThatProducesASong shows:
-'functionThatProducesASong' refers to a value, but is being used as a type here. Did you mean 'typeof functionThatProducesASong'?
-```
-
-It turns out that TypeScript's suggestion to use `typeof functionThatProducesASong` won't work in this case because `typeof functionThatProducesASong` is the type of the function that produces a `Song` instance, rather than an instance of `Song`:
-
-```tsx
-const yourSong: typeof functionThatProducesASong = new Song("Your Song", "Elton John");
-
-// hovering over yourSong shows:
-Property 'prototype' is missing in type 'Song' but required in type 'typeof Song'.
-```
-
-While this might be a bit confusing at first, the big takeaway here is that classes can exist in both the value world and the type world, and can be used in both contexts.
+So, classes exists in both the type and value worlds, and represents an instance of the class when used as a type.
 
 ### Enums
 
@@ -442,28 +421,38 @@ function logAlbumStatus(status: AlbumStatus) {
 }
 ```
 
-The enum is used as a type for the `status` parameter, without needing to use `typeof`. TypeScript will prevent us from passing in a value that isn't part of it:
+You could use `typeof AlbumStatus` to refer to the entire structure of the enum itself:
 
-```tsx
-logAlbumStatus(4); // red squiggly line under 4
+```typescript
+function logAlbumStatus(status: typeof AlbumStatus) {
+  // ...implementation
+}
 ```
 
-Inside of the function, we use the enum directly as a value for comparing against the `status` parameter.
+But then you'd need to pass in a structure matching the enum to the function:
+
+```typescript
+logAlbumStatus({
+  NewRelease: 0,
+  OnSale: 1,
+  StaffPick: 2,
+  Clearance: 3,
+});
+```
+
+When used as a type, enums refer to the members of the enum, not the entire enum itself.
 
 ### The `this` Keyword
 
-Like classes and enums, the `this` keyword can also cross between the type and value worlds.
+The `this` keyword can also cross between the type and value worlds.
 
 To illustrate, we'll work with this `Song` class that has a slightly different implementation than the one we saw earlier:
 
 ```typescript
 class Song {
-  title: string;
-  artist: string;
   playCount: number;
 
-  constructor(title: string, artist: string) {
-    this.title = title;
+  constructor(title: string) {
     this.playCount = 0;
   }
 
@@ -474,9 +463,9 @@ class Song {
 }
 ```
 
-Inside of the `play` method, `this.playCount` uses `this` as a value to access the `playCount` property of the current instance.
+Inside of the `play` method, `this.playCount` uses `this` as a value, to access the `this.playCount` property, but also as a type, to type the return value of the method.
 
-When the `play` method returns `this`, in the type world it signifies that the method returns an instance of the class itself.
+When the `play` method returns `this`, in the type world it signifies that the method returns an instance of the current class.
 
 This means that we can create a new `Song` instance and chain multiple calls to the `play` method:
 
@@ -484,7 +473,22 @@ This means that we can create a new `Song` instance and chain multiple calls to 
 const earworm = new Song("Mambo No. 5", "Lou Bega").play().play().play();
 ```
 
-The structure of this example is the basis of the Builder Pattern, which is a common pattern for object-oriented development in TypeScript and other languages. By using `this` as a type and a value, we can create and interact with class instances in a readable and flexible way. In this case, creating an `earworm` and incrementing its play count to three.
+`this` is a rare case where `this` and `typeof this` are the same thing. We could replace the `this` return type with `typeof this` and the code would still work the same way:
+
+```typescript
+class Song {
+  // ...implementation
+
+  play(): typeof this {
+    this.playCount += 1;
+    return this;
+  }
+}
+```
+
+Both point to the current instance of the class.
+
+<!-- CONTINUE -->
 
 ### Naming Types & Values the Same
 
