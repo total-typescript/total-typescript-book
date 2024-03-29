@@ -955,11 +955,9 @@ myFetch(options);
 
 Your challenge is to determine why the `@ts-expect-error` directive isn't working, and restructure the code so that it does. Try to solve it multiple ways!
 
-<!-- CONTINUE -->
-
 ### Exercise 3: Detecting Excess Properties in a Function
 
-Here's another exercise where TypeScript does not trigger access property warnings as we might expect.
+Here's another exercise where TypeScript does not trigger access property warnings where we might expect.
 
 Here we have a `User` interface with `id` and `name` properties, and a `users` array containing two user objects, "Waqas" and "Zain".
 
@@ -1023,7 +1021,7 @@ it("Should log all the keys of the user", () => {
 });
 ```
 
-Your task is to fill out the skeleton of the `printUser` function so that the test case passes as expected.
+Your task is to implement the `printUser` function so that the test case passes as expected.
 
 Obviously, you could manually log the properties inside of the `printUser` function, but the goal here is to iterate over every property of the object.
 
@@ -1130,12 +1128,14 @@ const objOfFunctions = {
 };
 ```
 
-A `format` function accepts an input that can either be a `string`, `number`, or `boolean`. From this input, it extracts the type via the regular `typeof` operator, but it constrains the operator to `string`, `number`, or `boolean`.
+A `format` function accepts an input that can either be a `string`, `number`, or `boolean`. From this input, it extracts the type via the regular `typeof` operator, but it asserts the operator to `string`, `number`, or `boolean`.
 
 Here's how it looks:
 
 ```typescript
 const format = (input: string | number | boolean) => {
+  // 'typeof' isn't smart enough to know that
+  // it can only be 'string', 'number', or 'boolean'
   const inputType = typeof input as "string" | "number" | "boolean";
   const formatter = objOfFunctions[inputType];
 
@@ -1162,49 +1162,7 @@ Argument of type 'string | number | boolean' is not assignable to parameter of t
 
 Your challenge is to resolve this error on the type level, even though the code works at runtime. Try to use an assertion for one solution, and a type guard for another.
 
-### Exercise 8: Annotating a Function's Errors
-
-Consider a function named `getUserFromLocalStorage` that takes an `id` and returns a user object from `localStorage`:
-
-```typescript
-const getUserFromLocalStorage = (id: string) => {
-  const user = localStorage.getItem(id);
-  if (!user) {
-    return undefined;
-  }
-
-  return JSON.parse(user);
-};
-```
-
-This function can throw errors in either of two scenarios: First, an error will be thrown when there's a `SyntaxError` due to the data retrieved from `localStorage` being incorrectly formatted. Second, if there's a `DOMException` that occurs from an abnormal DOM event.
-
-We have tried to encapsulate these possible errors by defining a type `PossibleErrors` as follows:
-
-```typescript
-type PossibleErrors = SyntaxError | DOMException;
-```
-
-Ideally, we should be able to annotate that `getUserFromLocalStorage` will either return a `user` or throw one of the errors represented by the `PossibleErrors` type.
-
-In practice, however, when we wrap this function call in a `try-catch` block, the `catch` block's error parameter `e` is typed as `unknown`.
-
-```typescript
-// outside of the function
-
-try {
-  const user = getUserFromLocalStorage("user-1");
-} catch (
-  // How do we make this typed as PossibleErrors?
-  e
-) {}
-```
-
-Your challenge is to determine how to type `e` as one of the types represented by `PossibleErrors`. Note that there isn't a specific annotation, so there are different approaches to solving this problem.
-
-The best solution involves implementing a type that will either return `data` or the specific `error`, and updating the implementation of `getUserFromLocalStorage` to include its own try-catch.
-
-This exercise is challenging, and might require you to revisit what you've learned in previous chapters!
+A useful tidbit - `any` is not assignable to `never`.
 
 ### Solution 1: Accept Anything Except `null` and `undefined`
 
@@ -1218,11 +1176,11 @@ Since the `input` parameter is typed as an empty object, it will accept any valu
 
 ### Solution 2: Detecting Excess Properties in an Object
 
-We aren't seeing an error in the starting point of the exercise because of TypeScript's structural type model. The `options` object has all of the required properties of the `FetchOptions` interface, so TypeScript considers it to be of type `FetchOptions` and doesn't care that additional properties were added.
+We aren't seeing an error in the starting point of the exercise because TypeScript's objects are open, not closed. The `options` object has all of the required properties of the `FetchOptions` interface, so TypeScript considers it to be assignable to `FetchOptions` and doesn't care that additional properties were added.
 
 Let's look at a few ways to make the excess property error work as expected:
 
-#### Option 1: Add a Type Annotation to `options`
+#### Option 1: Add a Type Annotation
 
 Adding a type annotation to the `options` object will result in an error for the excess property:
 
@@ -1239,6 +1197,8 @@ const options: FetchOptions = {
   }),
 };
 ```
+
+This triggers the excess property error because TypeScript is comparing an object literal to a type directly.
 
 #### Option 2: Use the `satisfies` Keyword
 
@@ -1257,6 +1217,8 @@ const options = {
   }),
 } satisfies FetchOptions;
 ```
+
+This works for the same reason.
 
 #### Option 3: Inline the Variable
 
@@ -1280,15 +1242,13 @@ myFetch({
 
 In this case, TypeScript will provide an error because it knows that `search` is not part of the `FetchOptions` interface.
 
-Excess property checking turns out to be more useful than may initially seem. If excess property checking was performed all the time, as is the case with flow, it could be a hassle since you'd have to remove the `search` manually before passing it to fetch.
-
-Generally, it's good practice to inline your variables most of the time. Even if TypeScript doesn't always behave as expected, adapting to inlining variables gives better error warnings when transferring objects around.
+Open objects turn out to be more useful than they may initially seem. If excess property checking was performed all the time, as is the case with Flow, it could be a hassle since you'd have to remove the `search` manually before passing it to fetch.
 
 ### Solution 3: Detecting Excess Properties in a Function
 
 There are two solutions that we'll look at for this exercise.
 
-#### Option 1: Annotate the Mapping Function
+#### Option 1: Give the Mapping Function A Return Type
 
 The first way to solve this issue is to annotate the map function.
 
@@ -1350,17 +1310,7 @@ This change will have the test case passing, but TypeScript raises a type error 
 Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'User'.
 ```
 
-The issue is that the `User` interface doesn't have an index signature. Adding one would solve the issue, but for the challenge we were only supposed to update the `printUser` function:
-
-```tsx
-interface User {
-  id: number;
-  name: string;
-  [index: string]: any;
-}
-```
-
-In order to get around the type error without modifying the `User` interface, we can use a type assertion on `key` to tell TypeScript that it is of type `keyof User`:
+The issue is that the `User` interface doesn't have an index signature. In order to get around the type error without modifying the `User` interface, we can use a type assertion on `key` to tell TypeScript that it is of type `keyof User`:
 
 ```tsx
 console.log(user[key as keyof User]);
@@ -1368,11 +1318,11 @@ console.log(user[key as keyof User]);
 
 The `keyof User` will be a union of the property names, such as `id` or `name`. And by using `as`, we are telling TypeScript that `key` is a like a more precise string.
 
-With this change, the error goes away.
+With this change, the error goes away - but our code is a little less safe. If our object has an unexpected key, we might get some odd behavior.
 
 #### Option 2: Using a `for` Loop
 
-The `for` loop approach is similar to the `Object.keys().forEach()` approach, but it's a bit more generic. We can use a `for` loop and pass in an object instead of a `user`:
+The `for` loop approach is similar to the `Object.keys().forEach()` approach. We can use a `for` loop and pass in an object instead of a `user`:
 
 ```tsx
 function printUser(user: User) {
@@ -1386,12 +1336,12 @@ Like before, we need to use `keyof typeof` because of how TypeScript handles exc
 
 #### Option 3: Widening the Type
 
-Another approach is to widen the type inside the `printUser` function. In this case, we'll specify that the `user` being passed in is a `Record` with a `string` key and an `any` value.
+Another approach is to widen the type inside the `printUser` function. In this case, we'll specify that the `user` being passed in is a `Record` with a `string` key and an `unknown` value.
 
 In this case, the object being passed in doesn't have to be a `user` since we're just going to be mapping over every key that it receives:
 
 ```tsx
-function printUser(obj: Record<string, any>) {
+function printUser(obj: Record<string, unknown>) {
   Object.keys(obj).forEach((key) => {
     console.log(obj[key]);
   });
@@ -1400,7 +1350,19 @@ function printUser(obj: Record<string, any>) {
 
 This works on both the runtime and type levels without error.
 
-When it comes to iterating over object keys, there are two main choices for handling this issue: you can either make the key access slightly unsafe and patch it that way, or you can make the type that's being indexed into looser. Both approaches will work, so it's up to you to decide which one is best for your use case.
+#### Option 4: `Object.values`
+
+Another way to iterate over the object is to use `Object.values`:
+
+```tsx
+function printUser(user: User) {
+  Object.values(user).forEach(console.log);
+}
+```
+
+This approach avoids the whole issue with the keys, because `Object.values` will return an array of the values of the object. When this option is available, it's a nice way to avoid needing to deal with issue of loosely typed keys.
+
+When it comes to iterating over object keys, there are two main choices for handling this issue: you can either make the key access slightly unsafe via `as keyof typeof`, or you can make the type that's being indexed into looser. Both approaches will work, so it's up to you to decide which one is best for your use case.
 
 ### Solution 5: Function Parameter Comparisons
 
@@ -1415,7 +1377,7 @@ type CallbackType = (
 ) => void;
 ```
 
-Recall that when implementing a function, it doesn't have to pay attention to everything that has been passed in. However, it can't use a parameter that doesn't exist in its definition.
+Recall that when implementing a function, it doesn't have to pay attention to every argument that has been passed in. However, it can't use a parameter that doesn't exist in its definition.
 
 By typing `CallbackType` with each of the possible parameters, the test cases will pass regardless of how many parameters are passed in.
 
@@ -1441,35 +1403,7 @@ One function takes in an `id` string, and the other takes in a `name` string.
 
 This makes sense because when we call the array, we don't know which one we're getting at which time.
 
-#### Attempting to Pass in a Union Won't Work
-
-It may be tempting to pass in a union of objects like `{ id: string } | { name: string}`, but this won't work:
-
-```tsx
-// this won't work!
-const logAll = (obj: { id: string } | { name: string }) => {
-  loggers.forEach((func) => func(obj)); // red squiggly line under obj
-};
-```
-
-When typing the parameter to be a union, the `func`'s type has changed a single function that takes in an object with an `id` string and a `name` string.
-
-```tsx
-// hovering over `func` in the non-working example above shows:
-(parameter) func: ((obj: {
-  id: string;
-} & {
-  name: string;
-}) => void)
-```
-
-In other words, the combined function needs to satisfy all the potential inputs– in this case, it must contain both an `id` string and a `name` string.
-
-Using a union type isn't an option.
-
-#### Passing in an Intersection or Object Type
-
-Instead of a union, we can use an intersection type with objects for `id` and `name`:
+We can use an intersection type with objects for `id` and `name`:
 
 ```tsx
 const logAll = (obj: { id: string } & { name: string }) => {
@@ -1500,7 +1434,7 @@ This behavior makes sense, and this pattern is useful when working with function
 
 ### Solution 7: Union of Functions With Incompatible Parameters
 
-Hovering over the `formatter` variable shows us that its `input` is typed as `never` because it's a union of incompatible types:
+Hovering over the `formatter` function shows us that its `input` is typed as `never` because it's a union of incompatible types:
 
 ```tsx
 // hovering over formatter shows:
@@ -1514,9 +1448,17 @@ In order to fix the type-level issue, we can use the `as never` assertion to tel
 return formatter(input as never);
 ```
 
-This is a quick fix to this problem.
+This is a little unsafe, but we know from the runtime behavior that `input` will always be a `string`, `number`, or `boolean`.
 
-Another way to solve this issue is to use a type guard for narrowing the type of `input`:
+Funnily enough, `as any` won't work here because `any` is not assignable to `never`:
+
+```tsx
+// inside the format function
+return formatter(input as any); // red squiggly line under input
+// Argument of type 'any' is not assignable to parameter of type 'never'.
+```
+
+Another way to solve this issue is to give up on our union of functions by narrowing down the type of `input` before calling `formatter`:
 
 ```tsx
 const format = (input: string | number | boolean) => {
@@ -1531,102 +1473,3 @@ const format = (input: string | number | boolean) => {
 ```
 
 This solution is more verbose and won't compile down as nicely as `as never`, but it will fix the error as expected.
-
-### Solution 8: Annotating a Function's Errors
-
-Unlike some languages, TypeScript doesn't employ the `throws` syntax that could describe potential errors. There's currently no way to specifically annotate what kind of errors a function might throw:
-
-```tsx
-// This won't work!
-const getUserFromLocalStorage = (id: string): throws PossibleErrors => {
-  // ...
-};
-```
-
-Additionally, TypeScript does not allow for the annotation of the catch clause. You can't directly annotate that `e`, must be a specific type of error:
-
-```typescript
-// This won't work!
-
-try {
-  const user = getUserFromLocalStorage("user-1");
-} catch (e) {
-  // You can't annotate 'e' like this
-  e: PossibleErrors; // red squiggly line under PossibleErrors
-}
-```
-
-That means we have to do some extra work to handle the errors in a recognizable pattern.
-
-#### Using `instanceof` to Handle Errors
-
-One approach to solving this problem is to use `instanceof` to check if the error is of a specific type:
-
-```tsx
-// inside the `catch` block
-
-if (e instanceof SyntaxError) {
-  // Handle SyntaxError
-}
-
-if (e instanceof DOMException) {
-  // Handle DOMException
-}
-```
-
-This solution will work, but it requires the user of your function to handle the error instead of the function itself.
-
-#### Using a Type to Handle Errors
-
-The better solution is to use a type to capture the necessary information inside the function.
-
-The `Result` type is a discriminated union that includes a `success` property that is `true` when the function is successful, and `false` when it's not. When the function is successful, the `data` property will contain the data. When it's not, the `error` property will contain the specific error:
-
-```tsx
-type Result =
-  | {
-      success: true;
-      data: any;
-    }
-  | {
-      success: false;
-      error: SyntaxError | DOMException;
-    };
-```
-
-With the `Result` type created, we can use it to annotate the return type of the `getUserFromLocalStorage` function. Inside the function, we can add a `try-catch` block that will safely access the `localStorage` and handle success and error cases appropriately:
-
-```typescript
-const getUserFromLocalStorage = (id: string): Result => {
-  try {
-    const user = localStorage.getItem(id);
-    if (!user) {
-      return {
-        success: true,
-        data: undefined,
-      };
-    }
-
-    return {
-      success: true,
-      data: JSON.parse(user),
-    };
-  } catch (e) {
-    if (e instanceof DOMException) {
-      return {
-        success: false,
-        error: e,
-      };
-    }
-    if (e instanceof SyntaxError) {
-      return {
-        success: false,
-        error: e,
-      };
-    }
-    throw e;
-  }
-};
-```
-
-While this is a verbose solution, it provides a better experience to the users. The function is less likely to throw an error, and if it does, the error will be handled. This `Result` type pattern is a good one to adopt in your own applications!

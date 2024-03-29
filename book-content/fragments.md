@@ -478,3 +478,148 @@ This library overrides some global typings for various functions. With `ts-reset
 The `ts-reset` library also works well with Zod, as well as plain old narrowing techniques, such as using an `if` statement with `in`.
 
 Whether you're using Zod or plain old narrowing techniques, the `ts-reset` library is a great way to keep your types under control.
+
+<!--  -->
+
+### Exercise 8: Annotating a Function's Errors
+
+Consider a function named `getUserFromLocalStorage` that takes an `id` and returns a user object from `localStorage`:
+
+```typescript
+const getUserFromLocalStorage = (id: string) => {
+  const user = localStorage.getItem(id);
+  if (!user) {
+    return undefined;
+  }
+
+  return JSON.parse(user);
+};
+```
+
+This function can throw errors in either of two scenarios: First, an error will be thrown when there's a `SyntaxError` due to the data retrieved from `localStorage` being incorrectly formatted. Second, if there's a `DOMException` that occurs from an abnormal DOM event.
+
+We have tried to encapsulate these possible errors by defining a type `PossibleErrors` as follows:
+
+```typescript
+type PossibleErrors = SyntaxError | DOMException;
+```
+
+Ideally, we should be able to annotate that `getUserFromLocalStorage` will either return a `user` or throw one of the errors represented by the `PossibleErrors` type.
+
+In practice, however, when we wrap this function call in a `try-catch` block, the `catch` block's error parameter `e` is typed as `unknown`.
+
+```typescript
+// outside of the function
+
+try {
+  const user = getUserFromLocalStorage("user-1");
+} catch (
+  // How do we make this typed as PossibleErrors?
+  e
+) {}
+```
+
+Your challenge is to determine how to type `e` as one of the types represented by `PossibleErrors`. Note that there isn't a specific annotation, so there are different approaches to solving this problem.
+
+The best solution involves implementing a type that will either return `data` or the specific `error`, and updating the implementation of `getUserFromLocalStorage` to include its own try-catch.
+
+This exercise is challenging, and might require you to revisit what you've learned in previous chapters!
+
+### Solution 8: Annotating a Function's Errors
+
+Unlike some languages, TypeScript doesn't employ the `throws` syntax that could describe potential errors. There's currently no way to specifically annotate what kind of errors a function might throw:
+
+```tsx
+// This won't work!
+const getUserFromLocalStorage = (id: string): throws PossibleErrors => {
+  // ...
+};
+```
+
+Additionally, TypeScript does not allow for the annotation of the catch clause. You can't directly annotate that `e`, must be a specific type of error:
+
+```typescript
+// This won't work!
+
+try {
+  const user = getUserFromLocalStorage("user-1");
+} catch (e) {
+  // You can't annotate 'e' like this
+  e: PossibleErrors; // red squiggly line under PossibleErrors
+}
+```
+
+That means we have to do some extra work to handle the errors in a recognizable pattern.
+
+#### Using `instanceof` to Handle Errors
+
+One approach to solving this problem is to use `instanceof` to check if the error is of a specific type:
+
+```tsx
+// inside the `catch` block
+
+if (e instanceof SyntaxError) {
+  // Handle SyntaxError
+}
+
+if (e instanceof DOMException) {
+  // Handle DOMException
+}
+```
+
+This solution will work, but it requires the user of your function to handle the error instead of the function itself.
+
+#### Using a Type to Handle Errors
+
+The better solution is to use a type to capture the necessary information inside the function.
+
+The `Result` type is a discriminated union that includes a `success` property that is `true` when the function is successful, and `false` when it's not. When the function is successful, the `data` property will contain the data. When it's not, the `error` property will contain the specific error:
+
+```tsx
+type Result =
+  | {
+      success: true;
+      data: any;
+    }
+  | {
+      success: false;
+      error: SyntaxError | DOMException;
+    };
+```
+
+With the `Result` type created, we can use it to annotate the return type of the `getUserFromLocalStorage` function. Inside the function, we can add a `try-catch` block that will safely access the `localStorage` and handle success and error cases appropriately:
+
+```typescript
+const getUserFromLocalStorage = (id: string): Result => {
+  try {
+    const user = localStorage.getItem(id);
+    if (!user) {
+      return {
+        success: true,
+        data: undefined,
+      };
+    }
+
+    return {
+      success: true,
+      data: JSON.parse(user),
+    };
+  } catch (e) {
+    if (e instanceof DOMException) {
+      return {
+        success: false,
+        error: e,
+      };
+    }
+    if (e instanceof SyntaxError) {
+      return {
+        success: false,
+        error: e,
+      };
+    }
+    throw e;
+  }
+};
+```
+
+While this is a verbose solution, it provides a better experience to the users. The function is less likely to throw an error, and if it does, the error will be handled. This `Result` type pattern is a good one to adopt in your own applications!

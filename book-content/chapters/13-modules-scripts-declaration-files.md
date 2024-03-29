@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # Modules, Scripts, and Declaration Files
 
 TypeScript code can be organized into modules, scripts, and declaration files. In this chapter, we will discuss their distinctions and best practices for using them in your projects.
@@ -19,7 +21,7 @@ export class MusicPlayer {
   private currentTrack: string;
 
   constructor() {
-    this.currentTrack = '';
+    this.currentTrack = "";
   }
 
   play(track: string) {
@@ -29,7 +31,7 @@ export class MusicPlayer {
 
   stop() {
     console.log(`${this.currentTrack} stopped playing`);
-    this.currentTrack = '';
+    this.currentTrack = "";
   }
 }
 ```
@@ -48,7 +50,7 @@ In order to use the `MusicPlayer` class, it needs to be explicitly imported. The
 
 ```typescript
 // inside of index.ts
-import { MusicPlayer } from './musicPlayer';
+import { MusicPlayer } from "./musicPlayer";
 
 const player = new MusicPlayer(); // no errors
 player.play(`Tragic Monsters`);
@@ -62,7 +64,11 @@ Here's an example of a script file `songLibrary.ts` that contains an array of tr
 
 ```typescript
 // songLibrary.ts
-const fishTracks = ['John the Fisherman', 'Two Fish and an Elephant', 'Weird Fishes/Arpeggi'];
+const fishTracks = [
+  "John the Fisherman",
+  "Two Fish and an Elephant",
+  "Weird Fishes/Arpeggi",
+];
 
 function getRandomTrack(tracks) {
   const randomIndex = Math.floor(Math.random() * tracks.length);
@@ -172,7 +178,7 @@ Then we can import and use `Track` and `playTrack` in a separate file with full 
 
 ```tsx
 // inside of app.ts
-import { Track, playTrack } from './musicPlayer';
+import { Track, playTrack } from "./musicPlayer";
 
 const othaFish: Track = {
   title: "Otha Fish",
@@ -237,12 +243,12 @@ With the declaration file in place, we can now import and use the JavaScript mod
 
 ```typescript
 // app.ts
-import { listAlbum, sellAlbum, getPrice, Album } from './sellMusic';
+import { listAlbum, sellAlbum, getPrice, Album } from "./sellMusic";
 
 const dinosaurL: Album = {
-  title: '24-24 Music',
-  artist: 'Dinosaur L',
-  year: 1981
+  title: "24-24 Music",
+  artist: "Dinosaur L",
+  year: 1981,
 };
 
 listAlbum(myAlbum);
@@ -316,7 +322,7 @@ For example, say we are working with a `duration-utils` module that doesn't have
 The first step would be to create a new file named `duration-utils.d.ts`. Then at the top of the file, the `declare module` syntax is used to define the types for the module:
 
 ```typescript
-declare module 'duration-utils' {
+declare module "duration-utils" {
   export function formatDuration(seconds: number): string;
 }
 ```
@@ -326,7 +332,7 @@ Like before, we are not including any implementation code in the `.d.ts` file–
 Once the `duration-utils.d.ts` file is created, the module can be imported and used as usual:
 
 ```typescript
-import { formatDuration, parseTrackData } from 'music-utils';
+import { formatDuration, parseTrackData } from "music-utils";
 
 const formattedTime = formatDuration(309);
 ```
@@ -390,7 +396,7 @@ As seen in the test, we expect `state` to be an object with an `id` of type `str
 
 ```tsx
 // hovering over state shows:
-const state: any
+const state: any;
 ```
 
 Your task is to specify that `DEBUG` is available in this module without needing to provide its implementation. This will help TypeScript understand the type of `state` and provide the expected type checking.
