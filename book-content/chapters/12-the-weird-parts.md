@@ -488,11 +488,9 @@ class Song {
 
 Both point to the current instance of the class.
 
-<!-- CONTINUE -->
-
 ### Naming Types & Values the Same
 
-Finally, it's possible for you to make anything you want work as both a type and a value.
+Finally, it's possible to name types and values the same thing. This can be useful when you want to use a type as a value, or a value as a type.
 
 Consider this `Track` object that has been created as a constant, and note the capital "T":
 
@@ -516,7 +514,7 @@ Next, we'll create a `Track` type that mirrors the `Track` constant:
 export type Track = typeof Track;
 ```
 
-We now have two entities being exported with the same name: one is a constant, and the other is a type. This allows `Track` to serve as both when we go to use it in another file.
+We now have two entities being exported with the same name: one is a value, and the other is a type. This allows `Track` to serve as both when we go to use it.
 
 Pretending we are in a different file, we can import `Track` and use it in a function that only plays "Mambo No. 5":
 
@@ -529,6 +527,8 @@ const mamboNumberFivePlayer = (track: Track) => {
 
 mamboNumberFivePlayer(Track);
 ```
+
+Here, we've used `Track` as a type to type the `track` parameter, and as a value to pass into the `mamboNumberFivePlayer` function.
 
 Hovering over `Track` shows us that it is both a type and a value:
 
@@ -549,6 +549,8 @@ Hovering over `Track` shows us that it is both a type and a value:
 ```
 
 This double-duty functionality can prove quite useful, especially when you have things that feel like types that you want to reuse elsewhere in your code.
+
+<!-- CONTINUE -->
 
 ## `this` in Functions and Objects
 
