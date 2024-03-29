@@ -665,34 +665,32 @@ const sellAlbum = (this: { title: string; sales: number }) => {
 
 This is because arrow functions can't inherit `this` from the scope where they're called. Instead, they inherit `this` from the scope where they're _defined_. This means they can only access `this` when defined inside classes.
 
-<!-- CONTINUE -->
-
 ## Function Assignability
 
-There are a number of quirks to be aware of when it comes to working with functions.
+Let's dive deeper into how functions are compared in TypeScript.
 
 ### Comparing Function Parameters
 
-Imagine that we're building a media player application. A function called `playMedia` is defined that accepts a callback function that can handle a varying number of parameters based on how it's called. For now, we'll have `CallbackType` typed as `unknown`, and iteratively make our way to the correct type:
+When checking if a function is assignable to another function, not all function parameters need to be implemented. This can be a little surprising.
 
-```tsx
-function playMedia(callback: CallbackType) {
-  // implementation here
-}
+Imagine that we're building a `handlePlayer` function. This function listens to a music player and calls a user-defined callback when certain events occur. It should be able to accept a callback that has a single parameter for a `filename`:
 
-type CallbackType = unknown;
+```typescript
+handlePlayer((filename: string) => console.log(`Playing ${filename}`));
 ```
 
-There are a few scenarios for the `playMedia` function that we need to account for. It should be able to accept a callback that has a single parameter for a `filename`, or a callback with a `filename` and `volume`, or a callback with an additional `bassBoost` parameter:
+It should also handle a callback with a `filename` and `volume`:
 
 ```tsx
-playMedia((filename: string) => console.log(`Playing ${filename}`));
-
-playMedia((filename: string, volume: number) =>
+handlePlayer((filename: string, volume: number) =>
   console.log(`Playing ${filename} at volume ${volume}`),
 );
+```
 
-playMedia((filename: string, volume: number, bassBoost: boolean) => {
+Finally, it should be able to handle a callback with a `filename`, `volume`, and `bassBoost`:
+
+```tsx
+handlePlayer((filename: string, volume: number, bassBoost: boolean) => {
   console.log(`Playing ${filename} at volume ${volume} with bass boost on!`);
 });
 ```
@@ -704,16 +702,20 @@ type CallbackType =
   | (filename: string) => void
   | (filename: string, volume: number) => void
   | (filename: string, volume: number, bassBoost: boolean) => void;
+
+const handlePlayer = (callback: CallbackType) => {
+  // implementation
+}
 ```
 
-However, this would result in an implicit `any` error when calling `playMedia` with both the single and double parameter callbacks:
+However, this would result in an implicit `any` error when calling `handlePlayer` with both the single and double parameter callbacks:
 
 ```tsx
-playMedia((filename) => console.log(`Playing ${filename}`)); // red squiggly line under filename
+handlePlayer((filename) => console.log(`Playing ${filename}`)); // red squiggly line under filename
 
-playMedia((filename, volume) => console.log(`Playing ${filename} at volume ${volume}`)); // red squiggly line under filename and volume
+handlePlayer((filename, volume) => console.log(`Playing ${filename} at volume ${volume}`)); // red squiggly line under filename and volume
 
-playMedia((filename, volume, bassBoost) => {
+handlePlayer((filename, volume, bassBoost) => {
   console.log(`Playing ${filename} at volume ${volume} with bass boost on!`);
 }); // no errors
 
@@ -722,9 +724,9 @@ playMedia((filename, volume, bassBoost) => {
 Parameter 'filename' implicitly has an 'any' type.
 ```
 
-Interestingly, the callback version with all three parameters works without an error.
+This union of functions obviously isn't working. There's a simpler solution.
 
-It turns out that the correct way to define the `CallbackType` type is to remove the first two members of the union and only include the member with all three parameters:
+You can actually remove the first two members of the union and only include the member with all three parameters:
 
 ```tsx
 type CallbackType = (
@@ -736,9 +738,32 @@ type CallbackType = (
 
 Once this change has been made, the implicit `any` errors with the other two callback versions will disappear.
 
-This might seem weird at first, but think about how functions work in JavaScript. When you call a function with fewer parameters than it expects, the extra parameters are just `undefined`. This is why the callback with all three parameters works without an error, but the other two don't. However, a function can't use a parameter that doesn't exist in its definition, because that would cause an error. This is why we needed to delete the first two members of the `CallbackType` union.
+```typescript
+handlePlayer((filename) => console.log(`Playing ${filename}`)); // No error
 
-To further illustrate, we can see this concept in action when calling `map` on an array:
+handlePlayer((filename, volume) =>
+  console.log(`Playing ${filename} at volume ${volume}`),
+); // No error
+```
+
+This might seem weird at first - surely these functions are under-specified?
+
+Let's break it down. The callback passed to `handlePlayer` will be called with three arguments. If the callback only accepts one or two arguments, this is fine! No runtime bugs will be caused by the callback ignoring the arguments.
+
+If the callback accepts more arguments than are passed, TypeScript would show an error:
+
+```tsx
+handlePlayer((filename, volume, bassBoost, extra) => {
+  console.log(`Playing ${filename} at volume ${volume} with bass boost on!`);
+}); // red squiggly line under filename, volume, bassBoost, extra
+
+// hovering over filename shows:
+// Target signature provides too few arguments. Expected 4 or more, but got 3.
+```
+
+Since `extra` will never be passed to the callback, TypeScript shows an error.
+
+But again, implementing fewer parameters than expected is fine. To further illustrate, we can see this concept in action when calling `map` on an array:
 
 ```tsx
 ["macarena.mp3", "scatman.wma", "cotton-eye-joe.ogg"].map((file) =>
@@ -746,9 +771,11 @@ To further illustrate, we can see this concept in action when calling `map` on a
 );
 ```
 
-The function passed into `map` only uses the `file` parameter, ignoring the `index` and full `array` parameters that could have been passed in.
+`.map` is always called with three arguments: the current element, the index, and the full array. But we don't have to use all of them. In this case, we only care about the `file` parameter.
 
-Just because a function can receive a certain number of parameters doesn't mean it has to use them all. This is crucial to understand when working with callbacks!
+So, just because a function can receive a certain number of parameters doesn't mean it has to use them all in its implementation.
+
+<!-- CONTINUE -->
 
 ### Unions of Functions
 
