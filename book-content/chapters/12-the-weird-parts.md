@@ -1,37 +1,37 @@
-<!-- CONTINUE -->
+# The Weird Parts
 
-# TypeScript: The Weird Parts
-
-Now that we've seen several TypeScript-specific features and practiced with transforming types and values, it's time to take a look at some of the weird parts of TypeScript. Throughout this chapter we'll explore some quirks and nuances of the TypeScript compiler and type system, the warnings and errors it produces, and how to work with them (and around them).
+We've now got a good understanding of most of TypeScript's features. Let's take it to the next level. By exploring some of the more unusual and lesser-known parts of TypeScript, we'll gain a deeper understanding of how it works.
 
 ## The Evolving `any` Type
 
 While most of the time we want to have our types remain static, it is possible to create variables that can dynamically change their type like in JavaScript. This can be done with a technique called the "evolving `any`" which takes advantage of how variables are declared and inferred when no type is specified.
 
-Consider a scenario where you are in the early stages of prototyping an application and you haven't yet decided what type to use for a `metadata` variable.
-
 To start, use `let` to declare the variable without a type, and TypeScript will infer it as `any`:
 
 ```tsx
-let metadata;
+let myVar;
 
-// hovering over selectedAlbum shows:
-let metadata: any;
+// hovering over myVar shows:
+let myVar: any;
 ```
 
-Now the `metadata` variable will take on the inferred type of whatever is assigned to it.
+Now the `myVar` variable will take on the inferred type of whatever is assigned to it.
 
 For example, we can assign it a number then call number methods like `toExponential()` on it. Later, we could change it to a string and convert it to all caps:
 
 ```tsx
-metadata = 659457206512;
+myVar = 659457206512;
 
-console.log(metadata.toExponential()); // logs "6.59457206512e+11"
+console.log(myVar.toExponential()); // logs "6.59457206512e+11"
 
-metadata = "mf doom";
+myVar = "mf doom";
 
-console.log(metadata.toUpperCase()); // logs "MF DOOM"
+console.log(myVar.toUpperCase()); // logs "MF DOOM"
 ```
+
+This is like an advanced form of narrowing, where the type of the variable is narrowed based on the value assigned to it.
+
+### Evolving `any` Arrays
 
 This technique of using the evolving `any` also works with arrays. When you declare an array without a specific type, you can push various types of elements to it:
 
@@ -46,9 +46,227 @@ evolvingArray.push({easy: true}; // (string | number | { easy: boolean })[];
 
 Even without specifying types, TypeScript is incredibly smart about picking up on your actions and the behavior you're pushing to evolving `any` types.
 
+## Excess Property Warnings
+
+A deeply confusing part of TypeScript is how it handles excess properties in objects. In many situations, TypeScript won't show errors you might expect when working with objects.
+
+Let's create an `Album` interface that includes `title` and `releaseYear` properties:
+
+```tsx
+interface Album {
+  title: string;
+  releaseYear: number;
+}
+```
+
+Here we create an untyped `rubberSoul` object that includes an excess `label` property:
+
+```tsx
+const rubberSoul = {
+  title: "Rubber Soul",
+  releaseYear: 1965,
+  label: "Parlophone",
+};
+```
+
+Now if we create a `processAlbum` function that accepts an `Album` and logs it, we can pass in the `rubberSoul` object without any issues:
+
+```tsx
+const processAlbum = (album: Album) => console.log(album);
+
+processAlbum(rubberSoul); // No error!
+```
+
+This seems strange! We would expect TypeScript to show an error for the excess `label` property, but it doesn't.
+
+Even more strangely, when we pass the object _inline_, we do get an error:
+
+```tsx
+processAlbum({
+  title: "Rubber Soul",
+  releaseYear: 1965,
+  label: "Parlophone", // red squiggly line under label
+});
+```
+
+Why the different behavior?
+
+### No Excess Property Checks On Variables
+
+In the first example, we assigned the album to a variable, then passed the variable into our function. In this situation, TypeScript won't check for excess properties.
+
+The reason is that we might be using that variable in other places where the excess property is needed. TypeScript doesn't want to get in the way of that.
+
+But when we inline the object, TypeScript knows that we're not going to use it elsewhere, so it checks for excess properties.
+
+This can make you _think_ that TypeScript cares about excess properties - but it doesn't. It only checks for them in certain situations.
+
+This behavior can be frustrating when you misspell the names of an optional parameter. Imagine you misspell `timeout` as `timeOut`:
+
+```typescript
+const fetch = (options: { timeout?: number }) => {
+  // Implementation
+};
+
+const options = {
+  timeOut: 1000,
+};
+
+fetch(options); // No error!
+```
+
+In this case, TypeScript won't show an error, and you won't get the runtime behavior you expect. The only way to source the error would be to provide a type annotation for the `options` object:
+
+```tsx
+const options: { timeout?: number } = {
+  timeOut: 1000, // red squiggly line under timeOut
+};
+```
+
+Now, we're comparing an inline object to a type, and TypeScript will check for excess properties.
+
+### No Excess Property Checks When Comparing Functions
+
+Another situation where TypeScript won't check for excess properties is when comparing functions.
+
+Let's imagine we have a `remapAlbums` function that itself accepts a function:
+
+```tsx
+const remapAlbums = (albums: Album[], remap: (album: Album) => Album) => {
+  return albums.map(remap);
+};
+```
+
+This function takes an array of `Album`s and a function that remaps each `Album`. This can be used to change the properties of each `Album` in the array.
+
+We can call it like this to increment the `releaseYear` of each album by one:
+
+```tsx
+const newAlbums = remapAlbums(albums, (album) => ({
+  ...album,
+  releaseYear: album.releaseYear + 1,
+}));
+```
+
+But as it turns out, we can pass an excess property to the return type of the function without TypeScript complaining:
+
+```tsx
+const newAlbums = remapAlbums(albums, (album) => ({
+  ...album,
+  releaseYear: album.releaseYear + 1,
+  strangeProperty: "This is strange",
+}));
+```
+
+Now, our `newAlbums` array will have an excess `strangeProperty` property on each `Album` object, without TypeScript even knowing about it. It thinks that the return type of the function is `Album[]`, but it's actually `(Album & { strangeProperty: string })[]`.
+
+The way we'd get this 'working' is to add a return type annotation to our inline function:
+
+```tsx
+const newAlbums = remapAlbums(
+  albums,
+  (album): Album => ({
+    ...album,
+    releaseYear: album.releaseYear + 1,
+    strangeProperty: "This is strange", // red squiggly line under strangeProperty
+  }),
+);
+```
+
+This will cause TypeScript to show an error for the excess `strangeProperty` property.
+
+This works because in this situation, we're comparing an inline object (the value we're returning) directly to a type. TypeScript will check for excess properties in this case.
+
+Without a return type annotation, TypeScript ends up trying to compare two functions, and it doesn't really mind if a function returns too many properties.
+
+### Open vs Closed Object Types
+
+TypeScript, by default, treats all objects as _open_. At any time, it expects that other properties might be present on objects.
+
+Other languages, like Flow, treat objects as _closed_ by default. Flow is Meta's internal type system, and by default requires objects to be exact (their term for 'closed').
+
+```js
+function method(obj: { foo: string }) {
+  /* ... */
+}
+
+method({ foo: "test", bar: 42 }); // Error!
+```
+
+You can opt in to open (or inexact) objects in Flow with a `...` syntax:
+
+```js
+function method(obj: { foo: string, ... }) {
+  /* ... */
+}
+
+method({ foo: "test", bar: 42 }); // No more error!
+```
+
+But Flow recommends you use closed objects by default. They think that, especially when working with spread operators, it's better to err on the side of caution.
+
+### Why Does TypeScript Treat Objects As Open?
+
+Open objects more closely reflect how JavaScript actually works. Any type system for JavaScript - a very dynamic lanugage - has to be relatively cautious about how 'safe' it can truly be.
+
+So, TypeScript's decision to treat objects as open by default is a reflection of the language it's trying to type. It also more closely reflects how objects work in other languages.
+
+The issue is that the excess properties warning can often make you think TypeScript uses closed objects.
+
+But really, the excess properties warning is more like a courtesy. It's only used in cases where the object can't be modified elsewhere.
+
+## Object Keys Are Loosely Typed
+
+A consequence of TypeScript having open object types is that iterating over the keys of an object can be frustrating.
+
+In JavaScript, calling `Object.keys` with an object will return an array of strings representing the keys.
+
+```tsx
+const yetiSeason = {
+  title: "Yeti Season",
+  artist: "El Michels Affair",
+  releaseYear: 2021,
+};
+
+const keys = Object.keys(yetiSeason); // string[]
+```
+
+In theory, you can then use those keys to access the values of the object:
+
+```tsx
+keys.forEach((key) => {
+  console.log(yetiSeason[key]); // Red squiggly line under key
+});
+
+// hovering over key shows:
+// Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ title: string; artist: string; releaseYear: number; }'.
+```
+
+But we're getting an error. TypeScript is telling us that we can't use `string` to access the properties of `yetiSeason`.
+
+The only way this would work would be if `key` was typed as `'title' | 'artist' | 'releaseYear'`. In other words, as `keyof typeof yetiSeason`. But it's not - it's typed as `string`.
+
+The reason for this comes back to `Object.keys` - it returns `string[]`, not `(keyof typeof obj)[]`.
+
+```tsx
+const keys = Object.keys(yetiSeason); // string[]
+```
+
+By the way, the same behavior happens with `for ... in` loops:
+
+```tsx
+for (const key in yetiSeason) {
+  console.log(yetiSeason[key]); // Red squiggly line under key
+}
+```
+
+This is a consequence of TypeScript's open object types. TypeScript can't know the exact keys of an object at compile time, so it has to assume that there are unspecified keys on every object. The safest thing for it to do is, when you're enumerating the keys of an object, to treat them all as `string`.
+
+We'll look at a few ways to work around this in the exercises below.
+
 ## The Empty Object Type
 
-The empty object type `{}` doesn't behave the way you might expect.
+Another consequence of open object types is that the empty object type `{}` doesn't behave the way you might expect.
 
 To set the stage, let's revisit the type assignability chart:
 
@@ -56,17 +274,17 @@ To set the stage, let's revisit the type assignability chart:
 
 At the top of the chart is the `unknown` type, which can accept all other types. At the bottom is the `never` type, which no other type can be assigned to, but the `never` type itself can be assigned to any other type.
 
-Between the `never` and `unknown` types is a universe of assignable types. Since the empty object type `{}` represents an object with zero properties, it can accept a number of other types: string, number, boolean, function, symbol, and objects containing properties.
+Between the `never` and `unknown` types is a universe of types. The empty object type `{}` has a unique place in this universe. Instead of representing an empty object, as you might imagine, it actually represents _anything that isn't `null` or `undefined`_.
 
-In other words, any type in TypeScript or JavaScript that isn't `null` or `undefined` can be assigned to the empty object type `{}`.
+This means that it can accept a number of other types: string, number, boolean, function, symbol, and objects containing properties.
 
 All of the following are valid assignments:
 
 ```typescript
 const coverArtist: {} = "Guy-Manuel De Homem-Christo";
 const upcCode: {} = 724384260910;
-const submit = (homework: {}) => console.log(homework);
 
+const submit = (homework: {}) => console.log(homework);
 submit("Oh Yeah");
 ```
 
@@ -79,163 +297,24 @@ submit(null); // red squiggly line under null
 Argument of type 'undefined' is not assignable to parameter of type '{}'.
 ```
 
-So if the `{}` type doesn't represent an empty object, how do we _actually_ represent an object that is truly empty?
-
-## A Truly Empty Object Type
-
-When you want to type something as an object that doesn't contain any properties, there are a couple of different approaches you can take.
-
-### Using a Record
-
-We've used the `Record` type several times now for creating types with specific key and value pairs. By using the `PropertyKey` type helper, we have a shorthand for saying the key will be `string | number | symbol`. Then for the value, we'll use `never`:
+This might feel a bit strange. But it makes sense when you remember that TypeScript's objects are _open_. Imagine our success function actually took an object containing `message`. TypeScript would be happy if we passed it an excess property:
 
 ```tsx
-type EmptyObject = Record<PropertyKey, never>;
+const success = (response: { message: string }) =>
+  console.log(response.message);
+
+const messageWithExtra = { message: "Success!", extra: "This is extra" };
+
+success(messageWithExtra); // No Error!
 ```
 
-Now when we create a new object typed as `EmptyObject`, we will get an error when trying to assign any properties to it:
+An empty object is really the 'most open' object. Strings, numbers, booleans can all be considered objects in JavaScript. They each have properties, and methods. So TypeScript is happy to assign them to an empty object type.
 
-```tsx
-const emptyObject: EmptyObject = {};
-emptyObject.title = "Best Dressed Chicken in Town"; // red squiggly line under emptyObject.title
+The only things in JavaScript that don't have properties are `null` and `undefined`. Attempting to access a property on either of these will result in a runtime error. So, they don't fit the definition of an object in TypeScript.
 
-// hovering over emptyObject.title shows:
-Type 'string' is not assignable to type 'never'.
-```
+When you consider this, the empty object type `{}` is a rather elegant solution to the problem of representing anything that isn't `null` or `undefined`.
 
-### The `EmptyObject` from `type-fest`
-
-Another option for creating an empty object is to use the `EmptyObject` type from Sindre Sorhus's `type-fest` library. Here's how it's defined:
-
-```tsx
-declare const tag: unique symbol;
-type EmptyObject = {
-  [tag]: never;
-};
-```
-
-In the above, a `tag` is created that is typed as a `unique symbol`, which is a symbol that is guaranteed to be unique. The the `EmptyObject` type is defined as an object where the `tag` has a value of type `never`.
-
-The `Record<PromptKey, never>` approach should work for most use-cases, but if you hit edge cases where it doesn't, the `EmptyObject` type from `type-fest` is a good alternative. The library also features several other types worth checking out!
-
-## Excess Property Warnings
-
-Moving on from empty objects, let's take a look at what happens when trying to add additional properties to an object beyond what it was originally typed to have.
-
-TypeScript has a structural type system, which means that it focuses on the shape that values have. This means that when you have two objects with the same properties, TypeScript will consider them to be the same type.
-
-For example, this `Album` interface that includes an optional `genre` property:
-
-```tsx
-interface Album {
-  title: string;
-  artist: string;
-  releaseYear: number;
-  genre?: string[];
-}
-```
-
-Here we create an untyped `rubberSoul` object that includes all of the required properties from the `Album` interface, but also includes an additional `label` property:
-
-```tsx
-const rubberSoul = {
-  title: "Rubber Soul",
-  artist: "The Beatles",
-  releaseYear: 1965,
-  label: "Parlophone",
-};
-```
-
-Now when we create a `sixthAlbum` variable that is typed as `Album`, we can assign the `rubberSoul` object to it without any errors:
-
-```tsx
-const sixthAlbum: Album = rubberSoul; // no error!
-```
-
-This example shows one of the quirks of the structural type system. Because the `rubberSoul` object includes the required properties of the `Album` interface, TypeScript considers it to be of type `Album`, even though it has an additional property.
-
-By default, TypeScript won't check for excess properties, but there are a few ways to enforce it.
-
-### Adding a Type Annotation
-
-Updating the `rubberSoul` object to have a type annotation of `Album` will result in an error before we get to the point of assigning it to `sixthAlbum`:
-
-```tsx
-const rubberSoul: Album = {
-  title: "Rubber Soul",
-  artist: "The Beatles",
-  releaseYear: 1965,
-  label: "Parlophone" // red squiggly line under label
-};
-
-// hovering over label shows:
-Object literal may only specify known properties, and 'label' does not exist in type 'Album'.
-```
-
-### Using Assertions
-
-Another way to trigger excess property checking is with the `satisfies` keyword or asserting `as Album`:
-
-```tsx
-const rubberSoul = {
-  title: "Rubber Soul",
-  artist: "The Beatles",
-  releaseYear: 1965,
-  label: "Parlophone", // red squiggly line under label
-} satisfies Album; // or `as Album`
-```
-
-Both `satisfies` and `as Album` cause TypeScript to check for excess properties, and will result in an error for the additional `label` property.
-
-### Inlining the Variable
-
-If `rubberSoul` was going to be passed into a function that accepted an `Album`, inlining the variable would also trigger an error for having the additional property:
-
-```tsx
-const printAlbum = (album: Album) => console.log(album);
-
-printAlbum({
-  title: "Rubber Soul",
-  artist: "The Beatles",
-  releaseYear: 1965,
-  label: "Parlophone", // red squiggly line under label
-});
-```
-
-If the object wasn't inlined into the function call or declared with an annotation that satisfies the contract, TypeScript will ignore the excess property. Generally, it's a good idea to inline variables in order to have TypeScript check for issues.
-
-Excess property checking turns out to be more useful than you might think, but it's probably best that it's off by default. If checking was on by default, it could be a hassle to work with objects from third-party libraries or APIs that might have additional properties.
-
-## `Object.keys` and `Object.entries` are Loosely Typed
-
-The `Object.keys` and `Object.entries` methods are useful when working with object properties.
-
-In JavaScript, calling `Object.keys` with an object will return an array of strings representing the keys, and `Object.entries` will return an array where each member is an array of the key-value pairs.
-
-Let's look at how these are typed in TypeScript:
-
-```tsx
-interface Album {
-  title: string;
-  artist: string;
-  releaseYear: number;
-}
-
-const yetiSeason: Album = {
-  title: "Yeti Season",
-  artist: "El Michels Affair",
-  releaseYear: 2021,
-};
-
-const keys = Object.keys(yetiSeason);
-const entries = Object.entries(yetiSeason);
-```
-
-In the above example, `keys` is typed as `string[]` as expected, but `entries` is typed as `[string, any][]`.
-
-Even though `yetiSeason` is typed as `Album`, TypeScript won't guarantee the specific type of the values in the object when using `Object.entries`.
-
-If you find yourself needing to work with specific types when iterating over objects, you can use assertions and other techniques from this book to help.
+<!-- CONTINUE -->
 
 ## Crossing the Type and Value Worlds
 
@@ -833,7 +912,7 @@ const usersWithIds: User[] = users.map((user, index) => ({
 }));
 ```
 
-Despite TypeScript not expecting an `age` on `User`, it doesn't throw an error, and at runtime the object will indeed contain an `age` property.
+Despite TypeScript not expecting an `age` on `User`, it doesn't show an error, and at runtime the object will indeed contain an `age` property.
 
 Your task is to determine why TypeScript isn't raising an error in this case, and find two different solutions to make it error appropriately when an unexpected property is added.
 

@@ -860,8 +860,6 @@ Both of these solutions will remove the error and allow the code to work as expe
 
 Since this is a pretty rare case, we might even say TypeScript is being a bit over-protective here. So, an assertion feels like the right choice.
 
-<!-- CONTINUE -->
-
 ### Solution 6: Enforcing Valid Configuration
 
 The first step is to determine the structure of our `configurations` object.
