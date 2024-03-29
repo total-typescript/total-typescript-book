@@ -314,11 +314,53 @@ The only things in JavaScript that don't have properties are `null` and `undefin
 
 When you consider this, the empty object type `{}` is a rather elegant solution to the problem of representing anything that isn't `null` or `undefined`.
 
+## The Type and Value Worlds
+
+For the most part, TypeScript can be separated into two syntatical spaces: the type world and the value world. These two worlds can live side-by-side in the same line of code:
+
+```tsx
+const myNumber: number = 42;
+//    ^^^^^^^^  ^^^^^^   ^^
+//    value     type     value
+```
+
+This can be confusing, especially because TypeScript likes to reuse the same keywords across both worlds:
+
+```tsx
+if (typeof key === "string" && (key as keyof typeof obj)) {
+  //^^^^^^^^^^^^^^^^^^^^^^          ^^^^^^^^^^^^^^^^^^^
+  //value                           type
+}
+```
+
+But TypeScript treats this boundary very strictly. For instance, you can't use a type in the value world:
+
+```tsx
+type Album = {
+  title: string;
+  artist: string;
+};
+
+processAlbum(Album); // red squiggly line under Album
+// Hovering over Album shows:
+// Cannot find name 'Album'.
+```
+
+As you can see, `Album` doesn't even exist in the value world, so TypeScript shows an error when we try to use it as one.
+
+Another common example is trying to pass a value directly to a type:
+
+```tsx
+type Album = ReturnType<processAlbum>; // red squiggly line under processAlbum
+// Hovering over processAlbum shows:
+// 'processAlbum' refers to a value, but is being used as a type here. Did you mean 'typeof processAlbum'?
+```
+
+In this case, TypeScript suggests using `typeof processAlbum` instead of `processAlbum` to fix the error.
+
+These boundaries are very clear - except in a few cases. Some entities can exist in both the type and value worlds.
+
 <!-- CONTINUE -->
-
-## Crossing the Type and Value Worlds
-
-For the most part, TypeScript can be separated into two worlds: the type world and the value world. However, there are a few instances where these worlds intersect.
 
 ### Classes
 
@@ -345,7 +387,7 @@ When we use an equals sign to assign the `Song` class to a new variable, we will
 const functionThatProducesASong = Song;
 
 // hovering over functionThatProducesASong shows:
-const functionThatProducesASong: typeof Song;
+const functionThatProducesASong: Song;
 ```
 
 This means that we can create a new `Song` instance by calling `functionThatProducesASong` with the `new` keyword:
@@ -605,7 +647,7 @@ Notice that the above now looks a lot like a class, and is indeed an example of 
 
 Remember, when you're faced with a similar scenario, using `this` within your function parameters ensures that they're strongly typed with the correct context.
 
-## Weird Function Stuff
+## Function Assignability
 
 There are a number of quirks to be aware of when it comes to working with functions.
 
