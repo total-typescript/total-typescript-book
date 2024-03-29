@@ -548,15 +548,25 @@ Hovering over `Track` shows us that it is both a type and a value:
 }
 ```
 
+As we can see, TypeScript has aliased `Track` to both the type and the value. This means it's available in both worlds.
+
+A simple example would be to assert `Track as Track`:
+
+```tsx
+console.log(Track as Track);
+//          ^^^^^    ^^^^^
+//          value    type
+```
+
+TypeScript can seamlessly switch between the two, and this can be quite useful when you want to reuse types as values, or values as types.
+
 This double-duty functionality can prove quite useful, especially when you have things that feel like types that you want to reuse elsewhere in your code.
 
-<!-- CONTINUE -->
+## `this` in Functions
 
-## `this` in Functions and Objects
+We've seen how `this` can be used in classes to refer to the current instance of the class. But `this` can also be used in functions and objects.
 
-When working with classes, `this` refers to the current instance of the class. It can also be used in a similar way for functions and objects.
-
-### The `function` Keyword
+### `this` with `function`
 
 Here we have an object representing an album that includes a `sellAlbum` function written with the `function` keyword:
 
@@ -598,7 +608,9 @@ const album = {
 };
 ```
 
-While the `sellAlbum` function works, currently the `this.title` and `this.sales` properties are typed as any. We could add type annotations to the `album` object to make it more specific:
+While the `sellAlbum` function works, currently the `this.title` and `this.sales` properties are typed as any. So we need to find some way to type `this` in our function:
+
+Fortunately, we can type `this` as a parameter in the function signature:
 
 ```tsx
 function sellAlbum(this: { title: string; sales: number }) {
@@ -607,51 +619,53 @@ function sellAlbum(this: { title: string; sales: number }) {
 }
 ```
 
-In this case, the `this` parameter is typed as an object with a `title` property of type `string` and a `sales` property of type `number`. Note that `this` is not a parameter that needs to be passed in when calling the function, but is just a type annotation instead.
+Note that `this` is not a parameter that needs to be passed in when calling the function. It just refers to the object that the function is a part of.
+
+Now, we can pass the `sellAlbum` function to the `album` object:
+
+```tsx
+const album = {
+  sellAlbum,
+};
+```
+
+The type checking works in an odd way here - instead of checking `this` immediately, it checks it when the function is called:
+
+```tsx
+album.sellAlbum(); // Red squiggly line under album
+// Hovering over album shows:
+// The 'this' context of type '{ sellAlbum: (this: { title: string; sales: number; }) => void; }' is not assignable to method's 'this' of type '{ title: string; sales: number; }'.
+```
+
+We can fix this by adding the `title` and `sales` properties to the `album` object:
+
+```tsx
+const album = {
+  title: "Solid Air",
+  sales: 40000,
+  sellAlbum,
+};
+```
 
 Now when we call the `sellAlbum` function, TypeScript will know that `this` refers to an object with a `title` property of type `string` and a `sales` property of type `number`.
 
 ### Arrow Functions
 
-Arrow functions behave differently than functions declared with the `function` keyword. When inside of a class, an arrow function's `this` will be automatically bound to the class instance. However, this is not the case outside of a class.
+Arrow functions, unlike, `function` keyword functions, can't be annotated with a `this` parameter:
 
-Consider this `applyDiscount` function that is written as an arrow function:
-
-```tsx
-const applyDiscount = (this: { price: number }) => { // red squiggly line under this: { price: number }
-  const discount = 0.2;
-  console.log(`The price has been reduced to $${this.price * (1 - discount)}`);
-}
-
-// hovering over `this` shows:
-An arrow function cannot have a 'this' parameter.
-```
-
-The error message plainly tells us that an arrow function cannot have a `this` parameter.
-
-In order to make the `applyDiscount` function work, we would either need to refactor it to use the `function` keyword and include it as a method on the `solidAir` object. Alternatively, we could just inline both the `sellAlbum` and `applyDiscount` into the object when it's created:
-
-```tsx
-const solidAir = {
-  title: "Solid Air",
-  artist: "John Martyn",
-  sales: 40000,
-  price: 12.99,
-  sellAlbum(this: { title: string; sales: number }) {
-    this.sales++;
-    console.log(`${this.title} has sold ${this.sales} copies.`);
-  },
-  applyDiscount(this: { price: number }) {
-    const discount = 0.2;
-    console.log(`The price is now $${this.price * (1 - discount)}`);
-    this.price *= 1 - discount;
-  },
+```typescript
+const sellAlbum = (this: { title: string; sales: number }) => {
+  this.sales++;
+  console.log(`${this.title} has sold ${this.sales} copies.`);
 };
+
+// red squiggly line under 'this' parameter
+// An arrow function cannot have a 'this' parameter.
 ```
 
-Notice that the above now looks a lot like a class, and is indeed an example of how they operate under the hood in TypeScript.
+This is because arrow functions can't inherit `this` from the scope where they're called. Instead, they inherit `this` from the scope where they're _defined_. This means they can only access `this` when defined inside classes.
 
-Remember, when you're faced with a similar scenario, using `this` within your function parameters ensures that they're strongly typed with the correct context.
+<!-- CONTINUE -->
 
 ## Function Assignability
 
