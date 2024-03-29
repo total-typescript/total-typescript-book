@@ -775,120 +775,111 @@ But again, implementing fewer parameters than expected is fine. To further illus
 
 So, just because a function can receive a certain number of parameters doesn't mean it has to use them all in its implementation.
 
-<!-- CONTINUE -->
-
 ### Unions of Functions
 
-When creating a union of functions, TypeScript will intersect the arguments and create a union of the return types.
+When creating a union of functions, TypeScript will do something that might be unexpected. It will create an intersection of the parameters.
 
-Consider this `formatterFunctions` object that has keys corresponding to `Album` properties, and values that are functions that format the `input` into strings:
+Consider this `formatterFunctions` object:
 
 ```tsx
 const formatterFunctions = {
-  title: (album: Album) => `Title: ${input}`,
-  artist: (album: Album) => `Artist: ${input}`,
-  releaseYear: (album: Album) => `Release Year: ${input}`,
+  title: (album: { title: string }) => `Title: ${album.title}`,
+  artist: (album: { artist: string }) => `Artist: ${album.artist}`,
+  releaseYear: (album: { releaseYear: number }) =>
+    `Release Year: ${album.releaseYear}`,
 };
 ```
 
-A `getAlbumInfo` function accepts an `Album`, along with a specific `key` from the `formatterFunctions` that we'll get with the `keyof typeof` trick. The function then retrieves the appropriate function from the `formatterFunctions` object and calls it with the `album`:
+Each function in the `formatterFunctions` object accepts an `album` object with a specific property and returns a string.
+
+Now, let's create a `getAlbumInfo` function that accepts an `album` object and a `key` that will be used to call the appropriate function from the `formatterFunctions` object:
 
 ```tsx
-const getAlbumInfo = (album: Album, key: keyof typeof albumFunctions) => {
+const getAlbumInfo = (album: any, key: keyof typeof formatterFunctions) => {
   const functionToCall = formatterFunctions[key];
 
   return functionToCall(album);
 };
 ```
 
-Calling `getAlbumInfo` with a proper `Album` and valid `key` will work as expected, but the interesting thing here is how `functionToCall` ends up being typed:
+We've annotated `album` as `any` for now, but let's take a moment to think: what should it be annotated with?
+
+We can get a clue by hovering over `functionToCall`:
 
 ```tsx
 // hovering over functionToCall shows:
 const functionToCall:
-  | ((album: Album) => string)
-  | ((album: Album) => string)
-  | ((album: Album) => string);
+  | ((album: { title: string }) => string)
+  | ((album: { artist: string }) => string)
+  | ((album: { releaseYear: number }) => string);
 ```
 
-The `functionToCall` variable is typed as a union of the three different functions from the `formatterFunctions` object, and each has the same signature of `(album: Album) => string`.
+`functionToCall` is being inferred as a union of the three different functions from the `formatterFunctions` object.
 
-Even though hovering over `functionToCall` shows us a union of the three functions, since they are identical they collapse into a single signature that intersects the arguments and unions the return types.
-
-We can see this when hovering over the actual call to `functionToCall(album)` in the return statement of `getAlbumInfo`:
+Surely, this means we should call it with a union of the three different types of `album` objects, right?
 
 ```tsx
-// hovering over functionToCall(album) shows:
-const albumFunction: (album: Album) => string;
+const getAlbumInfo = (
+  album: { title: string } | { artist: string } | { releaseYear: number },
+  key: keyof typeof formatterFunctions,
+) => {
+  const functionToCall = formatterFunctions[key];
+
+  return functionToCall(album); // red squiggly line under album
+};
+
+// hovering over album shows:
+// Argument of type '{ title: string; } | { artist: string; } | { releaseYear: number; }' is not assignable to parameter of type '{ title: string; } & { artist: string; } & { releaseYear: number; }'.
 ```
 
-Where the behavior of intersecting arguments and creating a union of return types becomes more obvious is when the functions have different signatures. For example, let's add an additional function to the `formatterFunctions` object that accepts and returns a number:
+We can see where we've gone wrong from the error. Instead of needing to be called with a union of the three different types of `album` objects, `functionToCall` actually needs to be called with an _intersection_ of them.
+
+This makes sense. In order to satisfy every function, we need to provide an object that has all three properties: `title`, `artist`, and `releaseYear`. If we miss off one of the properties, we'll fail to satisfy one of the functions.
+
+So, we can provide a type that is an intersection of the three different types of `album` objects:
 
 ```tsx
-const formatterFunctions = {
-  title: (album: Album) => `Title: ${album.title}`,
-  artist: (album: Album) => `Artist: ${album.artist}`,
-  releaseYear: (album: Album) => `Release Year: ${album.releaseYear}`,
-  salesUntilPlatinum: (sales: number) => 1000000 - sales,
+const getAlbumInfo = (
+  album: { title: string } & { artist: string } & { releaseYear: number },
+  key: keyof typeof formatterFunctions,
+) => {
+  const functionToCall = formatterFunctions[key];
+
+  return functionToCall(album);
 };
 ```
 
-Now our return statement with the call to `functionToCall(album)` shows us an error below `album`:
+Which can itself be simplified to a single object type:
 
 ```tsx
-// inside of getAlbumInfo
-return functionToCall(album); // red squiggly line under album
+const getAlbumInfo = (
+  album: { title: string; artist: string; releaseYear: number },
+  key: keyof typeof formatterFunctions,
+) => {
+  const functionToCall = formatterFunctions[key];
 
-// hovering over album shows:
-Argument of type 'Album' is not assignable to parameter of type 'Album & number'.
-Type 'Album' is not assignable to type 'number'.
+  return functionToCall(album);
+};
 ```
 
-We can see that `functionToCall` indeed has arguments typed with an intersection of `Album` and `number`, and a return type of `string | number`:
+Now, when we call `getAlbumInfo`, TypeScript will know that `album` is an object with a `title`, `artist`, and `releaseYear` property.
 
 ```tsx
-// hovering over functionToCall(album) shows:
-const functionToCall: (arg0: Album & number) => string | number;
+const formatted = getAlbumInfo(
+  {
+    title: "Solid Air",
+    artist: "John Martyn",
+    releaseYear: 1973,
+  },
+  "title",
+);
 ```
 
-In this case, we could fix the error by adding a type assertion to `functionToCall` to intersect `Album & number`:
+This situation is relatively easy to resolve because each parameter is compatible with the others. But when dealing with incompatible parameters, things can get a bit more complicated.
 
-```tsx
-// inside of getAlbumInfo
-return functionToCall(album as Album & number);
-```
+<!-- CONTINUE -->
 
-However, it's important to remember that not all types can intersect so cleanly.
-
-#### Asserting `as never`
-
-Recall that in TypeScript the `never` type represents a value that can never occur. Earlier in the book we saw that creating an intersection of incompatible types resulted in `never`:
-
-```tsx
-type StringAndNumber = string & number;
-
-// hovering over StringAndNumber shows:
-type StringAndNumber = never;
-```
-
-When we create a new variable that's typed as `StringAndNumber`, TypeScript will show an error that `string` is not assignable to `never`. However, there won't be an error at runtime and we can successfully call `console.log` with the `StringAndNumber` variable:
-
-```tsx
-const stringAndNumber: StringAndNumber = "Hello"; // red squiggly line under stringAndNumber
-
-// hovering over stringAndNumber shows:
-Type 'string' is not assignable to type 'never'.
-
-console.log(stringAndNumber); // logs "Hello"
-```
-
-In order to resolve the error from TypeScript, we can add the `as never` assertion when creating the `stringAndNumber` variable:
-
-```tsx
-const stringAndNumber: StringAndNumber = "Hello" as never;
-```
-
-While this assertion is a little bit strange, it does show up in the wild when dealing with unions of functions that accept incompatible types.
+#### Handling Incompatible Parameters In Unions Of Functions
 
 ## Exercises
 
