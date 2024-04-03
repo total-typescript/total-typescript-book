@@ -126,39 +126,63 @@ Updating `tsconfig.json` to specify `moduleDetection` to `force` is straightforw
 
 After this change, all files in the project will be treated as modules, and you will need to use `import` and `export` statements to access functions and variables across files. This helps align your development environment more closely with real-world scenarios while reducing unexpected errors.
 
-<!-- CONTINUE -->
-
 ## Declaration Files
 
-Declaration files play an important role in TypeScript. These `.d.ts` files are where the types and structures of external libraries are defined, and in turn power TypeScript's type checking and autocompletion features. Whether you're working with your own code, a JavaScript library, or a third-party module, declaration files provide the type information for your project.
+Declaration files are files in TypeScript which have a special extension: `.d.ts`. These files are used for two main purposes in TypeScript: describing JavaScript code, and adding types to the global scope. We'll explore both below.
 
-For example, say we are working with a JavaScript library called `musicPlayer.js` that we want to use in our TypeScript project. We would create a corresponding declaration file `musicPlayer.d.ts` that describes the types and structure of the exported functions.
+### Declaration Files Describe JavaScript
 
-### Type Declarations
+Let's say part of our codebase is written in JavaScript, and we want to keep it that way. We have a `musicPlayer.js` file that exports a `playTrack` function:
 
-Say there is a `playTrack` function in the `musicPlayer.js` library that we want to type in the `musicPlayer.d.ts` file:
+```javascript
+// musicPlayer.js
 
-```tsx
-// inside of musicPlayer.d.ts
+export const playTrack = (track) => {
+  // Complicated logic to play the track...
+  console.log(`Playing: ${track.title}`);
+};
+```
 
-export const playTrack = (track: string) => { // red squiggly line under (track: string) => {}
-  console.log(`Playing: ${track}`);
+If we try to import this file into a TypeScript file, we'll get an error:
+
+```typescript
+// inside of app.ts
+
+import { playTrack } from "./musicPlayer"; // red squiggly line under ./musicPlayer
+// Hovering over the error shows:
+// Could not find a declaration file for module './musicPlayer'.
+```
+
+This error occurs because TypeScript doesn't have any type information for the `musicPlayer.js` file. To fix this, we can create a declaration file with the same name as the JavaScript file, but with a `.d.ts` extension:
+
+```typescript
+// musicPlayer.d.ts
+export function playTrack(track: {
+  title: string;
+  artist: string;
+  duration: number;
+}): void;
+```
+
+It's important to notice that this file doesn't contain any implementation code. It only describes the types of the functions and variables in the JavaScript file.
+
+Now, when we import the `musicPlayer.js` file into a TypeScript file, the error will be resolved, and we can use the `playTrack` function as expected:
+
+```typescript
+// inside of app.ts
+
+import { playTrack } from "./musicPlayer";
+
+const track = {
+  title: "Otha Fish",
+  artist: "The Pharcyde",
+  duration: 322,
 };
 
-// hovering over the error shows:
-A 'const' initializer in an ambient context must be a string or numeric literal or literal enum reference.
+playTrack(track);
 ```
 
-We'll discuss the actual error message later, but for now the important takeaway from it is that declaration files are not allowed to include any runtime code or implementations. They contain just the type declarations.
-
-Here's how the `musicPlayer.d.ts` file should look instead:
-
-```tsx
-// inside of musicPlayer.d.ts
-export function playTrack(track: string): void;
-```
-
-Types and interfaces can also be declared and exported in declaration files. For example, we can declare an interface `Track` and export it from the `musicPlayer.d.ts` file, and update the `playTrack` function to accept a `Track` object instead of a string:
+Types and interfaces can also be declared and exported in declaration files:
 
 ```tsx
 // inside of musicPlayer.d.ts
@@ -171,91 +195,33 @@ export interface Track {
 export function playTrack(track: Track): void;
 ```
 
-Then we can import and use `Track` and `playTrack` in a separate file with full type checking and code completion:
+Just like in `.ts` files, these can also be imported and used in other TypeScript files:
 
 ```tsx
 // inside of app.ts
+
 import { Track, playTrack } from "./musicPlayer";
-
-const othaFish: Track = {
-  title: "Otha Fish",
-  artist: "The Pharcyde",
-  duration: 322,
-};
-
-playTrack(othaFish);
 ```
 
-### Declaration Files Can Be Modules or Scripts
+It's important to note that declaration files are not checked against the JavaScript files they describe. We can very easily make a mistake in our declaration file, such as changing `playTrack` to `playTRACK`, and TypeScript won't complain.
+
+So, describing JavaScript files by hand can be error-prone - and not usually recommended.
+
+<!-- CONTINUE -->
+
+### Declaration Files Can Add To The Global Scope
 
 Just like regular TypeScript files, declaration files can be treated as either modules or scripts based on whether or not the `export` keyword is used.
 
-In the example above, `musicPlayer.d.ts` is treated as a module because it includes the `export` keyword before the `Track` interface and the `playTrack` function, which were then imported into `app.ts`.
+In the example above, `musicPlayer.d.ts` is treated as a module because it includes the `export` keyword.
 
-When a declaration file does not include `export` statements, TypeScript treats it as a script. This means that the declarations will be available globally throughout the project without the need for explicit imports, but as we saw earlier, this can lead to unexpected errors.
+When a declaration file does not include `import` or `export` statements, TypeScript treats it as a script. This means that the declarations will be available globally throughout the project without the need for explicit imports, but as we saw earlier, this can lead to unexpected errors.
 
 It's important to note that the `moduleDetection` setting in `tsconfig.json` does not apply to declaration files– the decision is made based on whether or not there are `export` statements within the `.d.ts` files themselves.
 
-### Typing JavaScript with Declaration Files
+### Declaration Files Can't Contain Implementations
 
-Declaration files can be used to define types for JavaScript files and libraries. This is useful when migrating from JavaScript to TypeScript or when working with existing JavaScript codebases.
-
-Consider a JavaScript library called `sellMusic.js` that provides functionality for selling music:
-
-```javascript
-// sellMusic.js
-export function listAlbum(album) {
-  console.log(`Listing: ${album.title} by ${album.artist}`);
-}
-
-export function sellAlbum(album) {
-  console.log(`Selling: ${album.title} by ${album.artist}`);
-}
-
-export function getPrice() {
-  return 15.99;
-}
-```
-
-The first step to integrating this JS library with TypeScript is to create a `.d.ts` declaration file with a matching name– in this case `sellMusic.d.ts`.
-
-Inside of the declaration file, we declare the exported functions and variables with their respective types that match the implementation in the JavaScript file. We'll also include an `Album` interface to keep the types organized:
-
-```typescript
-// sellMusic.d.ts
-export interface Album {
-  title: string;
-  artist: string;
-  year: number;
-}
-
-export function listAlbum(album: Album): void;
-export function sellAlbum(album: Album): void;
-export function getPrice(): number;
-
-export {};
-```
-
-With the declaration file in place, we can now import and use the JavaScript module as expected:
-
-```typescript
-// app.ts
-import { listAlbum, sellAlbum, getPrice, Album } from "./sellMusic";
-
-const dinosaurL: Album = {
-  title: "24-24 Music",
-  artist: "Dinosaur L",
-  year: 1981,
-};
-
-listAlbum(myAlbum);
-sellAlbum(myAlbum);
-
-const price = getPrice();
-console.log(`Price: ${price}`);
-```
-
-This process is the same for any JavaScript library or module that you want to use in a TypeScript project.
+<!-- TODO -->
 
 ## The `declare` Keyword
 
