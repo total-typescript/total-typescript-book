@@ -1,121 +1,116 @@
-<!-- CONTINUE -->
-
 # Modules, Scripts, and Declaration Files
 
-TypeScript code can be organized into modules, scripts, and declaration files. In this chapter, we will discuss their distinctions and best practices for using them in your projects.
+In this chapter, we'll be diving deeper into modules. First, we'll look at how TypeScript understands global scope by looking at the distinction between 'modules' and 'scripts'. Second, we'll look at declaration files - `.d.ts files` - and introduce the `declare` keyword.
 
 ## Understanding Modules and Scripts
 
-Modules and scripts are TypeScript's two primary ways of organizing code. Each approach has its own characteristics and implications for code organization, execution, and scope.
+TypeScript has two ways of understanding what a `.ts` file is. It can be treated either as a module, containing imports and exports, or a script, which executes in the global scope.
 
 ### Modules Have Local Scope
 
-A module is a file that contains code that is executed within its own local scope. This means that variables, functions, and types defined inside a module are not accessible from outside the module unless they are explicitly exported.
+A module is an isolated piece of code which can be imported to other modules as needed. Modules have their own scope, meaning that variables, functions, and types defined within a module are not accessible from other files unless they are explicitly exported.
 
-Consider this `musicPlayer.ts` module that defines a `MusicPlayer` class:
+Consider this `constants.ts` module that defines a `DEFAULT_VOLUME` constant:
 
 ```typescript
-// musicPlayer.ts
-
-export class MusicPlayer {
-  private currentTrack: string;
-
-  constructor() {
-    this.currentTrack = "";
-  }
-
-  play(track: string) {
-    this.currentTrack = track;
-    console.log(`Now playing: ${this.currentTrack}`);
-  }
-
-  stop() {
-    console.log(`${this.currentTrack} stopped playing`);
-    this.currentTrack = "";
-  }
-}
+const DEFAULT_VOLUME = 90;
 ```
 
-Without being imported, the `MusicPlayer` class is not accessible from other files:
-
-```tsx
-// inside of index.ts
-const player = new MusicPlayer(); // red squiggly line under MusicPlayer
-
-// hovering over MusicPlayer shows:
-Cannot find name 'MusicPlayer'.
-```
-
-In order to use the `MusicPlayer` class, it needs to be explicitly imported. Then it can be used as expected:
+Without being imported, the `DEFAULT_VOLUME` constant is not accessible from other files:
 
 ```typescript
 // inside of index.ts
-import { MusicPlayer } from "./musicPlayer";
-
-const player = new MusicPlayer(); // no errors
-player.play(`Tragic Monsters`);
+console.log(DEFAULT_VOLUME); // red squiggly line under DEFAULT_VOLUME
 ```
+
+In order to use the `DEFAULT_VOLUME` constant in the `index.ts` file, it must be imported from the `constants.ts` module:
+
+```typescript
+// inside of index.ts
+import { DEFAULT_VOLUME } from "./constants";
+
+console.log(DEFAULT_VOLUME); // 90
+```
+
+TypeScript has a built-in understanding of modules and, by default, will treat any file that contains an `import` or `export` statement as a module.
 
 ### Scripts Have Global Scope
 
-Scripts, on the other hand, execute in the global scope. Any variables, functions, or types defined in a script file are accessible from anywhere in the project without the need for explicit imports. This behavior is similar to traditional JavaScript, where scripts are included in HTML files and have global accessibility.
+Scripts, on the other hand, execute in the global scope. Any variables, functions, or types defined in a script file are accessible from anywhere in the project without the need for explicit imports. This behavior is similar to traditional JavaScript, where scripts are included in HTML files and executed in the global scope.
 
-Here's an example of a script file `songLibrary.ts` that contains an array of track names and a function to select a random track:
+If a file does not contain any `import` or `export` statements, TypeScript will treat it as a script. If we remove the `export` keyword from the `DEFAULT_VOLUME` constant in the `constants.ts` file, it will be treated as a script:
 
 ```typescript
-// songLibrary.ts
-const fishTracks = [
-  "John the Fisherman",
-  "Two Fish and an Elephant",
-  "Weird Fishes/Arpeggi",
-];
-
-function getRandomTrack(tracks) {
-  const randomIndex = Math.floor(Math.random() * tracks.length);
-  return tracks[randomIndex];
-}
+// inside of constants.ts
+const DEFAULT_VOLUME = 90;
 ```
 
-The `fishTracks` array and `getRandomTrack` function are defined in the global scope and can be accessed from any other script file without the need for imports. VS Code also supports holding the `CMD` key and clicking to jump to their definitions:
+Now, we no longer need to import the `DEFAULT_VOLUME` constant in the `index.ts` file:
 
-```tsx
+```typescript
 // inside of index.ts
 
-const randomTrack = getRandomTrack(fishTracks); // no errors
+console.log(DEFAULT_VOLUME); // 90
 ```
 
-### TypeScript Knows the Difference
+This behavior might be surprising to you - let's figure out why TypeScript does this.
 
-Did you spot the difference between the `musicPlayer.ts` module and the `songLibrary.ts` script?
+### TypeScript Has To Guess
 
-The module uses the `export` keyword, while the script does not. This is how TypeScript knows the difference between modules and scripts. If a file contains an `import` or `export` statement, TypeScript treats it as a module. Otherwise, it is considered a script.
+TypeScript is, at this point, pretty old. It's actually older than `import` and `export` statements being part of JavaScript. When TypeScript was first created, it was mostly used to create _scripts_, not modules.
 
-If you were to remove the `export` from the `MusicPlayer` class in `musicPlayer.ts`, it would be treated as a script, and become globally available. Likewise, adding `export` to the function or variable in the `songLibrary.ts` script would convert it into a module.
+So TypeScript's default behavior is to _guess_ whether your file is supposed to be treated like a module or script. As we've seen, it does this by looking for `import` and `export` statements.
 
-But just because TypeScript isn't showing errors in the script doesn't mean the code will run as expected. Running the `index.ts` script in a Node.js environment will result in an error:
+But whether your code is treated like a module or a script is not actually decided by TypeScript - it's decided by the environment in which the code executes.
 
-```bash
-$ npx tsx index.ts
+Even in the browser, you can opt in to using modules by adding the `type="module"` attribute to your script tag:
 
-index.ts:1
-const randomTrack = getRandomTrack(fishTracks);
-                  ^
-                  ReferenceError: getRandomTrack is not defined
+```html
+<script type="module" src="index.js"></script>
 ```
 
-However, running the same code in a browser environment will work as expected because TSX compiles code into modules.
+This means your JavaScript file will be treated as a module. But remove the `type="module"` attribute, and your JavaScript file will be treated as a script.
 
-Understanding the distinction between modules and scripts in TypeScript is fundamental for managing scope and ensuring the accessibility of functions and types throughout your codebase.
+So, TypeScript's default is relatively sensible, seeing as it can't know how your code will be executed.
 
-### Enforcing Module Usage
+But these days, 99% of the code you'll be writing will be in modules. So this automatic detection can lead to frustrating situations:
 
-By default, TypeScript looks for the `import` and `export` keywords to determine whether a file should be treated as a module or a script. However, most of the applications being built today tend to use modules to avoid the pitfalls that come with using scripts with their global scope.
+### "Cannot redeclare block-scoped variable"
 
-In order to force TypeScript to treat all files as modules, regardless of the presence of `import` or `export` statements, you can update settings in the `tsconfig.json` file.
+Let's imagine you create a new TypeScript file, `utils.ts`, and add a `name` constant:
+
+```typescript
+const name = "Alice"; // red squiggly line under name
+
+// Hovering over the error shows:
+// Cannot redeclare block-scoped variable 'name'.
+```
+
+You'll be greeted with a surprising error. This error is telling you that you can't declare `name`, because it's already been declared.
+
+A curious way to fix this is to add an empty export statement at the end of the file:
+
+```typescript
+const name = "Alice";
+
+export {};
+```
+
+The error disappears. Why?
+
+Let's use what we've already learned to figure this out. We don't have any `import` or `export` statements in `utils.ts`, so TypeScript treats it as a script. This means that `name` is declared in the global scope.
+
+It turns out that in the DOM, there is already a global variable called [`name`](https://developer.mozilla.org/en-US/docs/Web/API/Window/name). This lets you set targets for hyperlinks and forms. So when TypeScript sees `name` in a script, it gives you an error because it thinks you're trying to redeclare the global `name` variable.
+
+By adding the `export {}` statement, you're telling TypeScript that `utils.ts` is a module, and `name` is now scoped to the module, not the global scope.
+
+This accidental collision is a good example of why it's a good idea to treat all your files as modules. Fortunately, TypeScript gives us a way to do it.
+
+### Forcing Modules With `moduleDetection`
 
 The `moduleDetection` setting determines how functions and variables are scoped in your project. There are three different options available: `auto`, `force`, and `legacy`.
 
-By default, it's set to `auto` which corresponds to the keyword searching behavior. The `force` setting will treat all files as modules, regardless of the presence of `import` or `export` statements. The `legacy` setting is a backwards-compatible mode that may not apply modern scoping rules.
+By default, it's set to `auto` which corresponds to the behavior we've seen above. The `force` setting will treat all files as modules, regardless of the presence of `import` or `export` statements. `legacy` can be safely ignored, as it's only used for compatibility with older versions of TypeScript.
 
 Updating `tsconfig.json` to specify `moduleDetection` to `force` is straightforward:
 
@@ -129,7 +124,9 @@ Updating `tsconfig.json` to specify `moduleDetection` to `force` is straightforw
 }
 ```
 
-After this change, all files in the project will be treated as modules, and you will need to use `import` and `export` statements to access functions and variables across files. This helps align your development environment more closely with real-world scenarios while reducing unexpected errors, particularly in projects where new files are frequently created.
+After this change, all files in the project will be treated as modules, and you will need to use `import` and `export` statements to access functions and variables across files. This helps align your development environment more closely with real-world scenarios while reducing unexpected errors.
+
+<!-- CONTINUE -->
 
 ## Declaration Files
 
