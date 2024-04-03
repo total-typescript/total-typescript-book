@@ -398,12 +398,6 @@ const state: any;
 
 Your task is to specify that `DEBUG` is available in this module without needing to provide its implementation. This will help TypeScript understand the type of `state` and provide the expected type checking.
 
-### Exercise 4: Global Declarations
-
-Picking up where the previous exercise left off, `DEBUG` is only available in the file it was declared in. How would the definition need to change in order to make it available across multiple files in the project?
-
-### Exercise 5: Modularizing a Declaration File
-
 ### Solution 1: Typing a JavaScript Module
 
 The solution is to create a declaration file with a name that matches the JavaScript file. In this case, the declaration file should be named `example.d.ts`. Inside of the declaration file, we declare the `myFunc` function with its type signature:
