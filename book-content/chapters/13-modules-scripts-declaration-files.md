@@ -561,11 +561,78 @@ But TypeScript only ships one set of DOM types. So how does it know what to incl
 
 TypeScript's policy is that if a feature is supported in two major browsers, it's included in the DOM types. This is a good balance between including everything and including nothing.
 
-<!-- CONTINUE -->
-
 ### Types That Ship With Libraries
 
+When you install a library with npm, you're downloading JavaScript to your file system. To make that JavaScript work with TypeScript, authors will often include declaration files alongside them.
+
+For example, we'll look at Zod – a popular library that allows for validating data at runtime.
+
+After running the installation command `pnpm i zod`, a new `zod` subdirectory will be created inside of `node_modules`. Inside, you'll find a `package.json` file with a `types` key that points to the type definitions for the library:
+
+```tsx
+// inside node_modules/zod/package.json
+{
+  "types": "index.d.ts",
+  // other keys...
+}
+```
+
+Inside of `index.d.ts` are the type definitions for the `zod` library:
+
+```tsx
+// inside node_modules/zod/index.d.ts
+import * as z from "./external";
+export * from "./external";
+export { z };
+export default z;
+```
+
+Additionally, every `.js` file inside of the `lib` folder has a corresponding `.d.ts` file that contains the type definitions for the JavaScript code.
+
+Just like the DOM types, you can use 'go to definition' to explore the types that ship with libraries. Understanding these types can help you use the library more effectively.
+
 ### DefinitelyTyped
+
+Not every library bundles `.d.ts` files alongside the JavaScript you download. This was a big issue in TypeScript's early days, when most open source packages weren't written in TypeScript.
+
+The [`DefinitelyTyped` GitHub repository](https://github.com/DefinitelyTyped/DefinitelyTyped) was built to house high-quality type definitions for numerous popular JavaScript libraries that didn't ship definitions of their own. It's now one of the largest open source repositories on GitHub.
+
+By installing a package with `@types/*` and your library as a dev dependency, you can add type definitions that TypeScript will be able to use immediately.
+
+For example, say you're using the `diff` library to check for the difference between two strings:
+
+```tsx
+import Diff from "diff"; // red squiggly line under "diff"
+
+const message1 = "Now playing: 'Run Run Run'";
+const message2 = "Now playing: 'Bye Bye Bye'";
+
+const differences = Diff.diffChars(message1, message2);
+```
+
+TypeScript reports an error underneath the `import` statement because it can't find type definitions, even though the library is installed over 40 million times a week from NPM:
+
+```tsx
+// hovering over "diff" shows:
+// Could not find a declaration file for module 'diff'. Try `npm install --save-dev @types/diff` if it exists or add a new declaration (.d.ts) file containing `declare module 'diff';`
+```
+
+Since we're using `pnpm` instead of `npm`, our installation command looks like this:
+
+```bash
+pnpm i -D @types/diff
+```
+
+Once the type definitions from DefinitelyTyped are installed, TypeScript will recognize the `diff` library and provide type checking and autocompletion for it:
+
+```tsx
+// hovering over differences shows:
+const differences: Diff.Change[];
+```
+
+This is a great solution for libraries that haven't been updated in a while, or for more commonly-used libraries (like, say, React) that don't ship with type definitions.
+
+<!-- CONTINUE -->
 
 ### `skipLibCheck`
 
