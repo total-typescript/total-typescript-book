@@ -363,8 +363,6 @@ declare global {
 
 Now the `ALBUM_API` variable has been put into the global scope.
 
-<!-- CONTINUE -->
-
 ### `declare module`
 
 There are some situations where you need to declare types for a module that either doesn't have type definitions or is not included in the project directly.
@@ -391,6 +389,69 @@ import { formatDuration, parseTrackData } from "music-utils";
 const formattedTime = formatDuration(309);
 ```
 
+Just like normal declaration files, the types you add are not checked against the actual module - so it's important to keep them up to date.
+
+### Module Augmentation vs Module Overriding
+
+When using `declare module`, you can either augment an existing module or override it completely. Augmenting a module means appending new types to an existing module. Overriding a module means replacing the existing types with new ones.
+
+Choosing which you're doing depends on whether you're inside a module or a script.
+
+#### Inside a Module, `declare module` Augments
+
+If you're inside a module, `declare module` will augment the targeted module. For instance, you can add a new type to the `express` module:
+
+```typescript
+// inside express.d.ts
+declare module "express" {
+  export interface MyType {
+    hello: string;
+  }
+}
+
+export {}; // Adding an export turns this .d.ts file into a module
+```
+
+Now, across our project, we can import `MyType` from the `express` module:
+
+```typescript
+// anywhere.ts
+import { MyType } from "express";
+```
+
+We don't need to put this in a declaration file. We can get exactly the same behavior by changing `express.d.ts` to `express.ts`.
+
+This example is a little bit silly - there's no real use case for adding your own type to a module. But we'll see later that augmenting the types of modules can be extremely useful.
+
+#### Inside a Script, `declare module` Overrides
+
+Let's go back to our `express.d.ts` file. If we remove the `export {}` statement, it will be treated as a script:
+
+```typescript
+// inside express.d.ts
+
+declare module "express" {
+  export interface MyType {
+    hello: string;
+  }
+}
+```
+
+Now, we've completely overridden the `express` module. This means that the `express` module no longer has any exports except for `MyType`:
+
+```typescript
+// anywhere.ts
+import { express } from "express"; // red squiggly line under "express"
+```
+
+Just like module augmentation, we can get the same behavior by changing `express.d.ts` to `express.ts` (if `moduleDetection` is set to `auto`).
+
+So, just the presence or absence of an `export` statement can radically change the behavior of `declare module`.
+
+Overriding is occasionally useful when you want to completely replace the types of a module, perhaps when a third-party library has incorrect types.
+
+<!-- CONTINUE -->
+
 ## Declaration Files You Don't Control
 
 ### TypeScript's Global Types
@@ -403,7 +464,7 @@ const formattedTime = formatDuration(309);
 
 ### `skipLibCheck`
 
-## Writing Your Own Declaration Files
+## Authoring Declaration Files
 
 ### Augmenting Global Types
 
