@@ -15,7 +15,7 @@ For example, if you are working on building a web application that must support 
 ```json
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES5"
     // other options...
   }
 }
@@ -44,12 +44,11 @@ The other suggestion in the error message was to update the `lib` compiler optio
 
 For example, if you're building a web application, you'll want to include the `DOM` and `DOM.Iterable` options in the `lib` array:
 
-
 ```json
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
     // other options...
   }
 }
@@ -104,14 +103,14 @@ As mentioned before, it's a good idea to keep your `target` and `lib` options in
 
 Even if you exclude `node_modules` from being checked by TypeScript, the compiler will still check the type definitions for the libraries that you're using.
 
-This behavior is controlled by the `skipLibCheck` option in the `tsconfig.json` file. By default, `skipLibCheck` is set to `false`, which means that TypeScript will perform type checking for all of the `.d.ts` files in your project. 
+This behavior is controlled by the `skipLibCheck` option in the `tsconfig.json` file. By default, `skipLibCheck` is set to `false`, which means that TypeScript will perform type checking for all of the `.d.ts` files in your project.
 
 However, it's a good idea to set it for `true` in your TypeScript projects:
 
 ```json
 {
   "compilerOptions": {
-    "skipLibCheck": true,
+    "skipLibCheck": true
     // other options...
   }
 }
@@ -144,7 +143,7 @@ TypeScript reports an error underneath the `import` statement because it can't f
 
 ```tsx
 // hovering over "diff" shows:
-Could not find a declaration file for module 'diff'. Try `npm install --save-dev @types/diff` if it exists or add a new declaration (.d.ts) file containing `declare module 'diff';` 
+Could not find a declaration file for module 'diff'. Try `npm install --save-dev @types/diff` if it exists or add a new declaration (.d.ts) file containing `declare module 'diff';`
 ```
 
 Since we're using `pnpm` instead of `npm`, our installation command looks like this:
@@ -157,7 +156,7 @@ Once the type definitions from DefinitelyTyped are installed, TypeScript will re
 
 ```tsx
 // hovering over differences shows:
-const differences: Diff.Change[]
+const differences: Diff.Change[];
 ```
 
 ### Typing Node.js with `@types/node`
@@ -193,7 +192,7 @@ Inside of `index.d.ts` are the type definitions for the `zod` library:
 ```tsx
 // inside node_modules/zod/index.d.ts
 import * as z from "./external";
-export * from './external';
+export * from "./external";
 export { z };
 export default z;
 ```
@@ -228,7 +227,7 @@ To add support for the `.png` imports, create a new file `png.d.ts`. Inside of t
 // inside png.d.ts
 declare module "*.png" {
   const png: string;
-  
+
   export default png;
 }
 ```
@@ -248,7 +247,6 @@ There's a common misconception that TypeScript projects should have all of their
 import { Example } from "./types";
 
 type Example2 = Example;
-
 
 // types.d.ts
 export type Example = string;
@@ -300,7 +298,8 @@ const elements = document.querySelectorAll("div");
 Next, we attempt to loop over each element within `elements`:
 
 ```tsx
-for (const element of elements) { // red squiggly line under elements
+for (const element of elements) {
+  // red squiggly line under elements
   element.innerHTML = "Hello World!";
 }
 ```
@@ -327,11 +326,8 @@ Currently, the configuration appears as follows:
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "lib": [
-      "ES2022",
-      "DOM",
-    ]
-  },
+    "lib": ["ES2022", "DOM"]
+  }
 }
 ```
 
@@ -369,7 +365,7 @@ Inside the file, we'll create a new `interface` named `Window` that extends the 
 interface Window {
   DEBUG: {
     getState: () => {
-      id: string 
+      id: string;
     };
   };
 }
@@ -383,7 +379,7 @@ An alternative solution would be to use `declare global` with the interface dire
 
 ```tsx
 // index.ts
-const state  = window.DEBUG.getState();
+const state = window.DEBUG.getState();
 
 type test = Expect<Equal<typeof state, { id: string }>>;
 
@@ -391,7 +387,7 @@ declare global {
   interface Window {
     DEBUG: {
       getState: () => {
-        id: string 
+        id: string;
       };
     };
   }
@@ -417,12 +413,8 @@ TypeScript was giving us an error since it does not recognize `elements` as an i
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ]
-  },
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  }
 }
 ```
 

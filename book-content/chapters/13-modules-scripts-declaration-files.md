@@ -211,7 +211,7 @@ So, describing JavaScript files by hand can be error-prone - and not usually rec
 
 Just like regular TypeScript files, declaration files can be treated as either modules or scripts based on whether or not the `export` keyword is used. In the example above, `musicPlayer.d.ts` is treated as a module because it includes the `export` keyword.
 
-This means that without an `export`, declaration files can be used to add types to the global scope. Even setting `moduleDetection` to `force` won't change this behavior - `moduleDetection` doesn't affect `.d.ts` files.
+This means that without an `export`, declaration files can be used to add types to the global scope. Even setting `moduleDetection` to `force` won't change this behavior - `moduleDetection` is always set to `auto` for `.d.ts` files.
 
 For example, we could create an `Album` type that we want to be used across the entire project:
 
@@ -249,46 +249,38 @@ export function playTrack(track: {
 
 We get an error! TypeScript doesn't allow us to include any implementation code inside a declaration file. Declaration files completely disappear at runtime, so they can't contain any code that would be executed.
 
-<!-- CONTINUE -->
+#### What Is An "Ambient Context"?
 
-### `skipLibCheck`
-
-### Is Using Global Types A Good Idea?
-
-<!-- TODO -->
-
-Global variables have a reputation for causing issues in codebases. They can be extremely difficult to debug when things go wrong, and can make changing code more troublesome.
-
-Global types are a little different. Because their usage is limited to type-checking, they don't have the same potential for causing bugs as global variables.
-
-However, I don't recommend you put your types in the global scope. It's better to keep your types close to where they're used, making it easier to see what part of your codebase 'owns' a particular type.
-
-### Should You Store Your Types In Declaration Files?
+The phrase 'ambient' might be confusing. TypeScript uses it to mean ['without implementation'](https://github.com/Microsoft/TypeScript-Handbook/issues/180#issuecomment-195446760). Since declaration files can't contain implementations, everything inside is considered 'ambient'. We'll dive deeper into this in the next section.
 
 ## The `declare` Keyword
 
-Earlier we saw an error when including a function implementation in a declaration file:
+The `declare` keyword lets you define ambient values in TypeScript. It can be used to declare variables, define a global scope with `declare global` or augment module types with `declare module`.
 
-```tsx
-A 'const' initializer in an ambient context must be a string or numeric literal or literal enum reference.
+### `declare const/var/let/function`
+
+`declare` can be used to define values which don't have an implementation. This can be useful in a variety of ways. Let's look at how it can help with typing.
+
+#### Typing Global Variables
+
+Let's say we have a global variable `MUSIC_API`. This isn't defined in our code, but it's available in the environment via a script tag:
+
+```html
+<script src="/music-api.js"></script>
 ```
 
-Ambient context is a term used to describe the global scope in TypeScript. As we've been defining types in declaration files, we've been adding them to the ambient context and making them globally available.
+This variable is available anywhere in our codebase. So, let's put it in a declaration file.
 
-Even though we can't include function implementations in declaration files, the error message above suggests that there is a way to declare global variables and types without providing actual implementations.
-
-This is done using the `declare` keyword, which can be used in a few different ways.
-
-### `declare const`
-
-Occasionally, you may encounter global variables that come from external libraries or tools that you don't have control over. In situations like these, using `declare const` will allow you to tell TypeScript about the variable's type without providing an actual implementation.
-
-The `declare` keyword simulates a global variable within the local scope of a module. The variable will be available throughout the file it's declared in without polluting the global namespace.
-
-For example, say we have a global variable `MUSIC_API` that is introduced by an external library. We could add the following declaration directly into our `searchMusic.ts` file like so:
+We can create a `musicApi.d.ts` file and declare the `MUSIC_API` variable:
 
 ```typescript
-// inside searchMusic.ts
+// inside musicApi.d.ts
+
+type Album = {
+  title: string;
+  artist: string;
+  releaseDate: string;
+};
 
 declare const ALBUM_API: {
   getAlbumInfo(upc: string): Promise<Album>;
@@ -296,25 +288,82 @@ declare const ALBUM_API: {
 };
 ```
 
-Using `declare const` acts similarly to a `.d.ts` file, except that it's scoped only to the file it is declared in.
+Because we haven't included any imports or exports, this file is treated as a script. This means that the `ALBUM_API` variable is now available globally in our project.
+
+#### Scoping Global Variables To One File
+
+What if we want to limit the scope of `MUSIC_API` to a single file, `musicUtils.ts`? We can actually move the `declare const` statement inside the file:
+
+```typescript
+// inside musicUtils.ts
+
+type Album = {
+  title: string;
+  artist: string;
+  releaseDate: string;
+};
+
+declare const ALBUM_API: {
+  getAlbumInfo(upc: string): Promise<Album>;
+  searchAlbums(query: string): Promise<Album[]>;
+};
+
+export function getAlbumTitle(upc: string) {
+  return ALBUM_API.getAlbumInfo(upc).then((album) => album.title);
+}
+```
+
+Now, `ALBUM_API` is only available in the `musicUtils.ts` file. `declare` defines the value within the scope it's currently in. So, because we're now inside a module (due to the `export` statement), `ALBUM_API` is scoped to this module.
+
+#### `declare const`, `declare var`, `declare let`, `declare function`
+
+You might have noticed that we used `declare const` in the examples above. But you can also use `declare var`, `declare let`, and `declare function`. They all do the same thing - declare a value without an implementation.
+
+Here are some examples of the syntax:
+
+```typescript
+declare const MY_CONSTANT: number;
+declare var MY_VARIABLE: string;
+declare let MY_LET: boolean;
+declare function myFunction(): void;
+```
 
 ### `declare global`
 
-Using `declare global` behaves similarly to `declare const`, but allows for the types and variables to be accessible across multiple files in your project.
+`declare global` lets you add things to the global scope from within modules. This can be useful when you want to colocate global types with the code that uses them.
 
-Here's how the `MUSIC_API` global variable could be declared using `declare global`:
+To do this, we can wrap our `declare const` statement in a `declare global` block:
 
 ```typescript
 // inside musicUtils.ts
 declare global {
-  const MUSIC_API: {
-    searchTracks(query: string): Promise<Track[]>;
-    getAlbumInfo(albumId: string): Promise<Album>;
+  declare const ALBUM_API: {
+    // red squiggly line under declare
+    getAlbumInfo(upc: string): Promise<Album>;
+    searchAlbums(query: string): Promise<Album[]>;
+  };
+}
+
+// Hovering over the error shows:
+// A 'declare' modifier cannot be used in an already ambient context.
+```
+
+This almost works, except for the error. We can't use `declare` inside an ambient context: the `declare global` block is already ambient. So, we can remove the `declare` keyword:
+
+```typescript
+// inside musicUtils.ts
+
+declare global {
+  const ALBUM_API: {
+    getAlbumInfo(upc: string): Promise<Album>;
+    searchAlbums(query: string): Promise<Album[]>;
   };
 }
 ```
 
-Now the `MUSIC_API` variable could be used in a different file without being imported.
+Now the `ALBUM_API` variable has been put into the global scope.
+
+<!-- CONTINUE -->
 
 ### `declare module`
 
@@ -342,9 +391,41 @@ import { formatDuration, parseTrackData } from "music-utils";
 const formattedTime = formatDuration(309);
 ```
 
-## Comparing Approaches
+## Declaration Files You Don't Control
 
-We've looked at a couple different options for creating types that are globally accessible. Both declaration files and the `declare` keyword are valid approaches, but the one you choose depends on the context and the specific needs of your project.
+### TypeScript's Global Types
+
+#### `lib` and `target`
+
+### Types That Ship With Libraries
+
+### DefinitelyTyped
+
+### `skipLibCheck`
+
+## Writing Your Own Declaration Files
+
+### Augmenting Global Types
+
+### Typing Non-Code Files
+
+### Should You Store Your Types In Declaration Files?
+
+<!-- TODO -->
+
+### Is Using Global Types A Good Idea?
+
+<!-- TODO -->
+
+Global variables have a reputation for causing issues in codebases. They can be extremely difficult to debug when things go wrong, and can make changing code more troublesome.
+
+Global types are a little different. Because their usage is limited to type-checking, they don't have the same potential for causing bugs as global variables.
+
+However, I don't recommend you put your types in the global scope. It's better to keep your types close to where they're used, making it easier to see what part of your codebase 'owns' a particular type.
+
+### Declaration Files vs `declare global`
+
+We've looked at a couple different options for creating types that are globally accessible. Both declaration files and the `declare global` keyword are valid approaches, but the one you choose depends on the context and the specific needs of your project.
 
 Using a `.d.ts` declaration file is best suited for cases where you have several global definitions that need to be organized into a centralized location. This is especially useful in larger projects.
 
