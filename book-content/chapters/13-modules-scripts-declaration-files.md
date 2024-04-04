@@ -207,21 +207,63 @@ It's important to note that declaration files are not checked against the JavaSc
 
 So, describing JavaScript files by hand can be error-prone - and not usually recommended.
 
-<!-- CONTINUE -->
-
 ### Declaration Files Can Add To The Global Scope
 
-Just like regular TypeScript files, declaration files can be treated as either modules or scripts based on whether or not the `export` keyword is used.
+Just like regular TypeScript files, declaration files can be treated as either modules or scripts based on whether or not the `export` keyword is used. In the example above, `musicPlayer.d.ts` is treated as a module because it includes the `export` keyword.
 
-In the example above, `musicPlayer.d.ts` is treated as a module because it includes the `export` keyword.
+This means that without an `export`, declaration files can be used to add types to the global scope. Even setting `moduleDetection` to `force` won't change this behavior - `moduleDetection` doesn't affect `.d.ts` files.
 
-When a declaration file does not include `import` or `export` statements, TypeScript treats it as a script. This means that the declarations will be available globally throughout the project without the need for explicit imports, but as we saw earlier, this can lead to unexpected errors.
+For example, we could create an `Album` type that we want to be used across the entire project:
 
-It's important to note that the `moduleDetection` setting in `tsconfig.json` does not apply to declaration files– the decision is made based on whether or not there are `export` statements within the `.d.ts` files themselves.
+```tsx
+// inside of global.d.ts
+
+type Album = {
+  title: string;
+  artist: string;
+  releaseDate: string;
+};
+```
+
+Now, the `Album` type is available globally and can be used in any TypeScript file without needing to import it. We'll discuss whether this is a good idea later in this chapter.
 
 ### Declaration Files Can't Contain Implementations
 
+What would happen if we tried to write normal TypeScript inside our `.d.ts` file?
+
+```tsx
+// musicPlayer.d.ts
+
+export function playTrack(track: {
+  title: string;
+  artist: string;
+  duration: number;
+}) {
+  // red squiggly line under {
+  console.log(`Playing: ${track.title}`);
+}
+
+// Hovering over the error shows:
+// An implementation cannot be declared in ambient contexts.
+```
+
+We get an error! TypeScript doesn't allow us to include any implementation code inside a declaration file. Declaration files completely disappear at runtime, so they can't contain any code that would be executed.
+
+<!-- CONTINUE -->
+
+### `skipLibCheck`
+
+### Is Using Global Types A Good Idea?
+
 <!-- TODO -->
+
+Global variables have a reputation for causing issues in codebases. They can be extremely difficult to debug when things go wrong, and can make changing code more troublesome.
+
+Global types are a little different. Because their usage is limited to type-checking, they don't have the same potential for causing bugs as global variables.
+
+However, I don't recommend you put your types in the global scope. It's better to keep your types close to where they're used, making it easier to see what part of your codebase 'owns' a particular type.
+
+### Should You Store Your Types In Declaration Files?
 
 ## The `declare` Keyword
 
