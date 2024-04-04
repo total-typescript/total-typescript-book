@@ -2,7 +2,7 @@
 
 # 15. Configuring TypeScript
 
-We've dipped into TypeScript's `tsconfig.json` configuration file a few times in this book, but we haven't really gone deep into the configuration options and what they do. This chapter will focus on the `tsconfig.json` file and the various options you can use to configure TypeScript for your projects.
+We've dipped into TypeScript's `tsconfig.json` configuration file a few times in this book. Let's go deep, and give you a full understanding of what you can do with it.
 
 ## Recommended Configuration
 
@@ -27,11 +27,11 @@ To start, here's a recommended base `tsconfig.json` configuration with options a
 We've seen most of these settings before, but it wouldn't hurt to do a quick rundown of what each option does:
 
 - `skipLibCheck`: Skips type checking of declaration files, which improves compilation speed.
-- `target`: Specifies the ECMAScript target version for the compiled JavaScript code. Targeting `ES2022` provides access to the most recent JavaScript features.
+- `target`: Specifies the ECMAScript target version for the compiled JavaScript code. Targeting `es2022` provides access to the most recent JavaScript features.
 - `esModuleInterop`: Enables better compatibility between CommonJS and ES modules.
 - `allowJs`: Allows JavaScript files to be imported into the TypeScript project.
 - `resolveJsonModule`: Allows JSON files to be imported into your TypeScript project.
-- `moduleDetection`: The `force` option tells TypeScript to treat all `.ts` files as a module.
+- `moduleDetection`: The `force` option tells TypeScript to treat all `.ts` files as a module, instead of a script.
 - `isolatedModules`: Ensures that each file can be independently transpiled without relying on information from other files.
 - `strict`: Enables a set of strict type checking options that catch more errors and generally promote better code quality.
 - `noUncheckedIndexedAccess`: Enforces stricter type checking for indexed access operations, catching potential runtime errors.
@@ -43,16 +43,16 @@ Once these base options are set, there are several more to add depending on the 
 After setting the base `tsconfig.json` settings, there are several questions to ask yourself to determine which additional options to include.
 
 **Are you transpiling your code with TypeScript?**
-If yes, set `moduleResolution` to `nodeNext` and `module` to `nodeNext`.
+If yes, set `module` to `NodeNext`.
 
 **Are you building for a library?**
 If you're building for a library, set `declaration` to `true`. If you're building for a library in a monorepo, set `composite` to `true` and `declarationMap` to `true`.
 
 **Are you not transpiling with TypeScript?**
-If you're using a different tool to transpile your code, such as ES build or Babel, set `moduleResolution` to `bundler`, `module` to `ESNext`, and `noEmit` to `true`.
+If you're using a different tool to transpile your code, such as ESbuild or Babel, set `module` to `Preserve`, and `noEmit` to `true`.
 
 **Does your code run in the DOM?**
-If yes, set `lib` to `["DOM", "ES2022"]`. If not, set it to `["ES2022"]`.
+If yes, set `lib` to `["dom", "dom.iterable", "es2022"]`. If not, set it to `["es2022"]`.
 
 ### The Complete Base Configuration
 
@@ -88,8 +88,7 @@ Based on your answers to the above questions, here's how the complete `tsconfig.
     "declarationMap": true,
 
     /* If NOT transpiling with TypeScript: */
-    "moduleResolution": "Bundler",
-    "module": "ESNext",
+    "module": "Preserve",
     "noEmit": true,
 
     /* If your code runs in the DOM: */
@@ -271,13 +270,12 @@ The `Bundler` module resolution strategy is designed to work with bundler tools 
 
 This strategy assumes that the bundler will handle module resolution and provides a more flexible and lenient approach to importing modules.
 
-To use `Bundler` module resolution, set the `moduleResolution` option to `"Bundler"` and the `module` option to `"ESNext"` in your `tsconfig.json`:
+To use `Bundler` module resolution, set the `moduleResolution` option to `"Bundler"` and the `module` option to `"Preserve"` in your `tsconfig.json`:
 
 ```json
 {
   "compilerOptions": {
-    "moduleResolution": "Bundler",
-    "module": "ESNext"
+    "module": "Preserve"
     // ... other options ...
     ...
 ```
@@ -434,8 +432,8 @@ Recall that when building web applications, it's recommended to include `dom` an
 ```tsx
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.Iterable"]
     // ... other options ...
 
 ```
@@ -565,18 +563,17 @@ When you have multiple `tsconfig.json` files, it's common to have shared setting
 // client/tsconfig.json
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "es2022",
+    "module": "Preserve",
     "esModuleInterop": true,
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
+      "es2022",
+      "dom",
+      "dom.Iterable"
     ],
     "jsx": "react-jsx",
   }
@@ -585,16 +582,15 @@ When you have multiple `tsconfig.json` files, it's common to have shared setting
 // server/tsconfig.json
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "es2022",
+    "module": "Preserve",
     "esModuleInterop": true,
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "lib": [
-      "ES2022"
+      "es2022"
     ]
   },
 }
@@ -608,9 +604,8 @@ The common settings can be moved to `tsconfig.base.json`:
 // tsconfig.base.json
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "es2022",
+    "module": "Preserve",
     "esModuleInterop": true,
     "noEmit": true,
     "strict": true,
@@ -628,9 +623,9 @@ Then, the `client/tsconfig.json` would extend the base configuration wit the `ex
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
+      "es2022",
+      "dom",
+      "dom.Iterable"
     ],
     "jsx": "react-jsx"
   }
@@ -645,7 +640,7 @@ The `server/tsconfig.json` would do the same:
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "lib": [
-      "ES2022"
+      "es2022"
     ]
   }
 }
@@ -720,9 +715,8 @@ We would also need to add the `composite` option to the `tsconfig.base.json` fil
 // tsconfig.base.json
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "es2022",
+    "module": "Preserve",
     "esModuleInterop": true,
     "noEmit": true,
     "strict": true,
