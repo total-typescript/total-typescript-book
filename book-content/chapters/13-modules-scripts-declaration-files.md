@@ -379,6 +379,8 @@ declare module "duration-utils" {
 }
 ```
 
+We use `export` to define what is being exported from the module.
+
 Like before, we are not including any implementation code in the `.d.ts` file– it's just the types that are being declared.
 
 Once the `duration-utils.d.ts` file is created, the module can be imported and used as usual:
@@ -632,15 +634,102 @@ const differences: Diff.Change[];
 
 This is a great solution for libraries that haven't been updated in a while, or for more commonly-used libraries (like, say, React) that don't ship with type definitions.
 
-<!-- CONTINUE -->
-
 ### `skipLibCheck`
+
+As we've seen, your project can contain hundreds of declaration files. By default, TypeScript considers these files as part of your project. So, it checks them for type errors every single time.
+
+This can result in extremely frustrating situations where a type error in a third-party library can prevent your project from compiling.
+
+To avoid this, TypeScript has a `skipLibCheck` setting. When set to `true`, TypeScript will skip checking declaration files for type errors.
+
+```json
+{
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}
+```
+
+This is a must-have in any TypeScript project because of the sheer number of declaration files that are included. Adding this setting speeds up compilation and prevents unnecessary errors.
+
+#### The Downsides of `skipLibCheck`
+
+`skipLibCheck` comes with one enormous downside, though. It doesn't just skip declaration files in `node_modules` - it skips _all_ declaration files.
+
+This means that if you make a mistake authoring a declaration file, TypeScript won't catch it. This can lead to bugs that are difficult to track down.
+
+This is one of my main gripes with TypeScript - `skipLibCheck` is a must-have, because of the danger of incorrect third-party declaration files. But it also makes authoring your own declaration files much harder.
 
 ## Authoring Declaration Files
 
+Now we know how to use declaration files, and their downsides (thanks to `skipLibCheck`), let's look at their use cases.
+
 ### Augmenting Global Types
 
-### Typing Non-Code Files
+The most common use for declaration files is describing the global scope of your project. We've seen how you can use `declare const` in a script file to add a global variable.
+
+You can also use declaration merging, a feature we saw earlier, to append to existing interfaces and namespaces.
+
+As a reminder, declaration merging is when you define a type or interface with the same name as an existing type or interface. TypeScript will merge the two together.
+
+This means that any interface declared in a declaration file is fair game for augmentation. For example, `lib.dom.d.ts` contains a `Document` interface. Let's imagine we want to add a `foo` property to it.
+
+We can create a `global.d.ts` file and declare a new `Document` interface:
+
+```tsx
+// inside global.d.ts
+
+interface Document {
+  foo: string;
+}
+```
+
+This declaration file is being treated as a script, so the `Document` interface merges with the existing one.
+
+Now, across our project, the `Document` interface will have a `foo` property:
+
+```tsx
+// inside app.ts
+
+document.foo = "hello"; // No error!
+```
+
+This can be extremely useful for describing JavaScript globals that TypeScript doesn't know about.
+
+We'll see more examples of these in the exercises section.
+
+### Typing Non-JavaScript Files
+
+In some environments like Webpack, it's possible to import files like images that will end up being incorporated into the bundle with a string identifier.
+
+Consider this example where several `.png` images are imported. TypeScript doesn't typically recognize PNG files as modules, so it reports an error underneath each import statement:
+
+```tsx
+import pngUrl1 from "./example1.png"; // red squiggly line under "./example1.png"
+import pngUrl2 from "./example2.png"; // red squiggly line under "./example2.png"
+import pngUrl3 from "./example3.png"; // red squiggly line under "./example3.png"
+import pngUrl4 from "./example4.png"; // red squiggly line under "./example4.png"
+
+// hovering over "./example1.png" shows:
+Cannot find module './example1.png' or its corresponding type declarations.
+```
+
+The `declare module` syntax can help. We can use it to declare types for non-JavaScript files.
+
+To add support for the `.png` imports, create a new file `png.d.ts`. Inside of the file, we'll start with `declare module` but since we can't use relative module names, we'll use a wildcard `*` to match any `*.png` file. Inside of the declaration, we'll say that `png` is a string and export it as the default:
+
+```tsx
+// inside png.d.ts
+declare module "*.png" {
+  const png: string;
+
+  export default png;
+}
+```
+
+With the `png.d.ts` file in place, TypeScript will recognize the imported `.png` files as strings without reporting any errors.
+
+<!-- CONTINUE -->
 
 ### Should You Store Your Types In Declaration Files?
 
