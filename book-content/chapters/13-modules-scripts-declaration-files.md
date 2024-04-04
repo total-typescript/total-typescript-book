@@ -450,13 +450,118 @@ So, just the presence or absence of an `export` statement can radically change t
 
 Overriding is occasionally useful when you want to completely replace the types of a module, perhaps when a third-party library has incorrect types.
 
-<!-- CONTINUE -->
-
 ## Declaration Files You Don't Control
 
-### TypeScript's Global Types
+You might think that declaration files are a relatively niche feature of TypeScript. But in every project you create, you're likely using hundreds of declaration files. They either ship with libraries, or come bundled with TypeScript itself.
 
-#### `lib` and `target`
+### TypeScript's Types
+
+Whenever you use TypeScript, you're also using JavaScript. JavaScript has many built-in constants, functions and objects that TypeScript needs to know about. A classic example are the array methods.
+
+```ts
+const numbers = [1, 2, 3];
+
+numbers.map((n) => n * 2);
+```
+
+Let's step back for a minute. How does TypeScript know that `.map` exists on an array? How does it know that `.map` exists, but `.transform` doesn't? Where is this defined
+
+As it turns out, TypeScript ships with a bunch of declaration files that describe the JavaScript environment. We can do a 'go to definition' on `.map` to see where that is:
+
+```ts
+// inside lib.es5.d.ts
+
+interface Array<T> {
+  // ... other methods ...
+  map<U>(
+    callbackfn: (value: T, index: number, array: T[]) => U,
+    thisArg?: any,
+  ): U[];
+}
+```
+
+We've ended up in a file called `lib.es5.d.ts`. This file is part of TypeScript, and describes what JavaScript looked like in ES5, a version of JavaScript from 2009. This is when `.map` was introduced to JavaScript.
+
+Another example would be `.replaceAll` on strings:
+
+```ts
+const str = "hello world";
+
+str.replaceAll("hello", "goodbye");
+```
+
+Doing a 'go to definition' on `.replaceAll` will take you to a file called `lib.es2021.string.d.ts`. This file describes the string methods that were introduced in ES2021.
+
+Looking at the code in `node_modules/typescript/lib`, you'll see dozens of declaration files that describe the JavaScript environment.
+
+Understanding how to navigate these declaration files can be very useful for fixing type errors. Take a few minutes to explore what's in `lib.es5.d.ts` by using 'go to definition' to navigate around.
+
+<!-- TODO - add a section on the most common global types -->
+
+#### Choosing Your JavaScript Version With `lib`
+
+The `lib` setting in `tsconfig.json` lets you choose which `.d.ts` files are included in your project. Choosing `es2022` will give you all the JavaScript features up to ES2022. Choosing `es5` will give you all the features up to ES5.
+
+```json
+{
+  "compilerOptions": {
+    "lib": ["es2022"]
+  }
+}
+```
+
+By default, this inherits from the `target` setting, which we'll look at in the chapter on configuring TypeScript.
+
+#### DOM Types
+
+Another set of declaration files that ship with TypeScript are the DOM types. These describe the browser environment, and include types for `document`, `window`, and all the other browser globals.
+
+```ts
+document.querySelector("h1");
+```
+
+If you do a 'go to definition' on `document`, you'll end up in a file called `lib.dom.d.ts`.
+
+```ts
+declare var document: Document;
+```
+
+This file declares the `document` variable as type `Document`, using the `declare` keyword we saw earlier.
+
+To include these in your project, you can specify them in the `lib` setting, along with the JavaScript version:
+
+```json
+{
+  "compilerOptions": {
+    "lib": ["es2022", "dom", "dom.iterable"]
+  }
+}
+```
+
+`dom.iterable` includes the types for the iterable DOM collections, like `NodeList`.
+
+If you don't specify `lib`, TypeScript will include `dom` by default alongside the JavaScript version chosen in `target`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "es2022"
+    // "lib": ["es2022", "dom", "dom.iterable"] is implied
+  }
+}
+```
+
+Just like the JavaScript versions, you can use 'go to definition' to explore the DOM types and see what's available. At the time of writing, it's over 28,000 lines long - but understanding what's in there over a period of time can be very useful.
+
+#### Which DOM Types Get Included?
+
+Different browsers support different features. A quick browse of [caniuse.com](https://caniuse.com/) will show how patchy browser support can be for certain features.
+
+But TypeScript only ships one set of DOM types. So how does it know what to include?
+
+TypeScript's policy is that if a feature is supported in two major browsers, it's included in the DOM types. This is a good balance between including everything and including nothing.
+
+<!-- CONTINUE -->
 
 ### Types That Ship With Libraries
 
