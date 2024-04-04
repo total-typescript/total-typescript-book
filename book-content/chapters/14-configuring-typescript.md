@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # 15. Configuring TypeScript
 
 We've dipped into TypeScript's `tsconfig.json` configuration file a few times in this book, but we haven't really gone deep into the configuration options and what they do. This chapter will focus on the `tsconfig.json` file and the various options you can use to configure TypeScript for your projects.
@@ -20,7 +22,7 @@ To start, here's a recommended base `tsconfig.json` configuration with options a
     "strict": true,
     "noUncheckedIndexedAccess": true
 }
-``` 
+```
 
 We've seen most of these settings before, but it wouldn't hurt to do a quick rundown of what each option does:
 
@@ -107,7 +109,7 @@ However, you'll gain a deeper understanding of TypeScript by seeing how these op
 
 The `strict` option in `tsconfig.json` acts as shorthand for enabling several different type checking options all at once, including catching potential `null` or `undefined` issues and stronger checks for function parameters, among others. However, there isn't additional index-based checking included.
 
-This is why `noUncheckedIndexedAccess` is recommended as part of the base `tsconfig.json` configuration. When enabled, it helps catch potential runtime errors by detecting cases where accessing an array or object index  might return `undefined`.
+This is why `noUncheckedIndexedAccess` is recommended as part of the base `tsconfig.json` configuration. When enabled, it helps catch potential runtime errors by detecting cases where accessing an array or object index might return `undefined`.
 
 Consider this example of a `VinylSingle` interface with an array of `tracks`:
 
@@ -119,9 +121,9 @@ interface VinylSingle {
 }
 
 const egoMirror: VinylSingle = {
-  title: 'Ego / Mirror',
-  artist: 'Burial / Four Tet / Thom Yorke',
-  tracks: ['Ego', 'Mirror']
+  title: "Ego / Mirror",
+  artist: "Burial / Four Tet / Thom Yorke",
+  tracks: ["Ego", "Mirror"],
 };
 ```
 
@@ -174,13 +176,12 @@ console.log(mirror?.toUpperCase()); // no error
 console.log(nonExistentTrack?.toUpperCase()); // no error
 
 // running the code results in:
-EGO
-MIRROR
-undefined
+EGO;
+MIRROR;
+undefined;
 ```
 
 Even with this simple example of logging strings to the console, the value of having `noUncheckedIndexedAccess` enabled is clear when it comes to indexing into arrays or objects.
-
 
 ## The Role of `isolatedModules`
 
@@ -196,7 +197,7 @@ Consider this example of an `AlbumFormat` enum that has been created with `decla
 declare const enum AlbumFormat {
   CD,
   Vinyl,
-  Digital
+  Digital,
 }
 
 const largestPhysicalSize = AlbumFormat.Vinyl; // red squiggly line under AlbumFormat when isolatedModules is enabled
@@ -256,10 +257,10 @@ When using `NodeNext`, you can import modules using the familiar CommonJS or ECM
 
 ```typescript
 // CommonJS syntax
-const { Album } = require('./album.js');
+const { Album } = require("./album.js");
 
 // ECMAScript module syntax
-import { Album } from './album.js';
+import { Album } from "./album.js";
 ```
 
 The `NodeNext` strategy is particularly useful when you are developing Node.js applications or libraries that will be consumed by Node.js environments.
@@ -285,10 +286,10 @@ With `Bundler` module resolution, TypeScript assumes that the bundler will handl
 
 ```typescript
 // Relative path import
-import { Album } from './album';
+import { Album } from "./album";
 
 // Alias import (assuming 'src' is configured as an alias in the bundler)
-import { Album } from 'src/album';
+import { Album } from "src/album";
 ```
 
 If you're using tools other than the TypeScript compiler to transpile your code, choose `Bundler` module resolution. Otherwise, choose `NodeNext`.
@@ -352,7 +353,11 @@ export interface Album {
   year: number;
 }
 
-export function createAlbum(title: string, artist: string, year: number): Album {
+export function createAlbum(
+  title: string,
+  artist: string,
+  year: number,
+): Album {
   return { title, artist, year };
 }
 ```
@@ -370,7 +375,11 @@ export interface Album {
   year: number;
 }
 
-export declare function createAlbum(title: string, artist: string, year: number): Album;
+export declare function createAlbum(
+  title: string,
+  artist: string,
+  year: number,
+): Album;
 ```
 
 And the `album.js` file transpiled from TypeScript:
@@ -381,7 +390,7 @@ And the `album.js` file transpiled from TypeScript:
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAlbum = void 0;
 function createAlbum(title, artist, year) {
-    return { title, artist, year };
+  return { title, artist, year };
 }
 exports.createAlbum = createAlbum;
 ```
@@ -391,9 +400,9 @@ Once the declaration files are generated, they can be imported and used in separ
 ```tsx
 // inside app.js
 
-import { createAlbum } from 'dist/album';
+import { createAlbum } from "dist/album";
 
-const album = createAlbum('Go Forth', 'Les Savy Fav', 2001);
+const album = createAlbum("Go Forth", "Les Savy Fav", 2001);
 ```
 
 At this point, we could use `CMD + click` to go to the definition of `createAlbum` in VS Code, but it would take us to `album.d.ts`.
@@ -402,7 +411,7 @@ Depending on your use case, it may be more useful to go to the actual implementa
 
 ### Declaration Maps
 
-Declaration maps are generated files that provide a mapping between the generated `.d.ts` and the original `.ts` source files. 
+Declaration maps are generated files that provide a mapping between the generated `.d.ts` and the original `.ts` source files.
 
 In order to create them, the `declarationMap` setting should be added to your `tsconfig.json` file:
 
@@ -456,13 +465,13 @@ Note that if you're bundling your TypeScript code into a library for others to u
 The `react` option transforms the JSX syntax into `React.createElement` calls:
 
 ```tsx
-jsx: "react"
+jsx: "react";
 ```
 
 However, this option assumes that `React` is in scope, which can lead to errors if `React` isn't imported. For our example code to run without errors, we would need to import `React` at the top of our file:
 
 ```tsx
-import React from 'react';
+import React from "react";
 
 const MyComponent = () => {
   return <div />;
@@ -473,9 +482,9 @@ The transpiled code would then look like this:
 
 ```js
 // dist/index.js
-import React from 'react';
+import React from "react";
 const MyComponent = () => {
-  return React.createElement('div', null);
+  return React.createElement("div", null);
 };
 ```
 
@@ -488,7 +497,7 @@ The `react-jsx` option is designed for version 17 of React and beyond, and doesn
 Instead, it uses a newer JSX transform that transforms the JSX elements into `_jsx` calls instead of `React.createElement` calls. This option requires you to import `JSX` from `react/jsx-runtime`:
 
 ```tsx
-import { JSX } from 'react/jsx-runtime';
+import { JSX } from "react/jsx-runtime";
 
 const MyComponent = () => {
   return <div />;
@@ -690,7 +699,7 @@ What we could do here is have a single `tsconfig.json` file at the root of the p
 }
 ```
 
-Note that there is also an empty `files` array in the configuration above. This is because the `tsconfig.json` file in the root directory is not responsible for type checking any files. Instead, it serves as a reference  `tsconfig.json` to run the client and server `tsconfig.json` files in a specific order.
+Note that there is also an empty `files` array in the configuration above. This is because the `tsconfig.json` file in the root directory is not responsible for type checking any files. Instead, it serves as a reference `tsconfig.json` to run the client and server `tsconfig.json` files in a specific order.
 
 Then inside of the `package.json` file, the `dev` script command would be updated to use the `-b` flag. This flag tells TypeScript to build the project references as well, in turn allowing us to check the entire repo with a single command:
 

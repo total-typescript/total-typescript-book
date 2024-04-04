@@ -767,8 +767,6 @@ As your project grows, you'll get naming conflicts between types. Two different 
 
 Instead, I recommend you import types explicitly. This makes it clear where a type is coming from, makes your system more portable, and makes refactoring easier.
 
-<!-- CONTINUE -->
-
 ## Exercises
 
 ### Exercise 1: Typing a JavaScript Module
