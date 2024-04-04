@@ -1,6 +1,8 @@
+<!-- CONTINUE -->
+
 # 16. CommonJS vs. ESM Module Systems
 
-The two primary module systems in the JavaScript ecosystem are CommonJS (CJS) and ECMAScript Modules (ESM). 
+The two primary module systems in the JavaScript ecosystem are CommonJS (CJS) and ECMAScript Modules (ESM).
 
 While both serve the purpose of organizing and sharing code, they were created under different circumstances and are often seen as competing standards. However, understanding their differences and knowing when to use each is crucial for effective JavaScript and TypeScript development.
 
@@ -10,20 +12,20 @@ CommonJS was the first to appear and was created for use with Node.js. It introd
 
 ```javascript
 // an import statement in CommonJS:
-const module = require('module');
+const module = require("module");
 
 // an export statement in CommonJS:
-module.exports = 'Hello, world!';
+module.exports = "Hello, world!";
 ```
 
 ECMAScript Modules, often referred to as ES Modules or ESM, arrived later as part of the ECMAScript standard. ESM introduced a more declarative syntax using `import` and `export` statements:
 
 ```javascript
 // an import statement in ESM:
-import module from 'module';
+import module from "module";
 
 // an export statement in ESM:
-export default 'Hello, world!';
+export default "Hello, world!";
 ```
 
 The ESM system was designed to work seamlessly in both browser and Node.js environments, providing a unified module system for JavaScript.
@@ -61,7 +63,7 @@ const main = async () => {
 main();
 ```
 
-A `package.json` file with a `dev` script is also present. The script calls `nodemon`, a tool that automatically reruns our application whenever there's a modification in our files. 
+A `package.json` file with a `dev` script is also present. The script calls `nodemon`, a tool that automatically reruns our application whenever there's a modification in our files.
 
 However, when the script is run with the `npm run dev` command, we get an error from the `esm-module.js` file:
 
@@ -71,13 +73,13 @@ export default hello;
 SyntaxError: Unexpected token 'export'
 ```
 
-The issue is that the `index.js` file is written with CommonJS syntax, and it attempting to import something that's exported with the ES Module syntax `export default`. 
+The issue is that the `index.js` file is written with CommonJS syntax, and it attempting to import something that's exported with the ES Module syntax `export default`.
 
 Here's a simplified view of these files:
 
 ```javascript
 // index.js
-const esModule = require('./es-module.js');
+const esModule = require("./es-module.js");
 
 // esm-module.js
 export default "Hello, world!";
@@ -107,7 +109,7 @@ However, this modification alone doesn't eliminate the error. The `await import`
 We need to tell Node.js explicitly that our file is an ES module. We can do this by changing the file extension to `.mjs`:
 
 ```tsx
-const esModule = await import('./esm-module.mjs');
+const esModule = await import("./esm-module.mjs");
 ```
 
 By using the `.mjs` extension, Node.js recognizes that the file is an ES module. This allows us to utilize `import` and `export` statements within it.
@@ -172,7 +174,7 @@ TypeScript knows that `esModule` is being imported from a module, as seen when h
 // hovering over esModule shows:
 const esModule: {
   default: typeof import("src/esm-module");
-}
+};
 ```
 
 Inside of the `esm-module.ts` file, we have a function called `hello` that we are exporting as the default export:
@@ -273,7 +275,7 @@ Now when reloading the page in the browser, `hello` is printed to the console as
 
 ## Enforcing Correct Module Syntax
 
-As we've seen in the above examples, it can be confusing to know whether the code you're emitting in TypeScript is going to be CommonJS or ESM code. 
+As we've seen in the above examples, it can be confusing to know whether the code you're emitting in TypeScript is going to be CommonJS or ESM code.
 
 It's not sufficient to just write `export default` or `export =`, because TypeScript conforms to Node's framework, which has its distinct interpretation of what a CommonJS or an ESM module is.
 
@@ -411,7 +413,7 @@ However, with these changes when we hover over `otherModule` in `index.ts`, we c
 
 ```tsx
 // hovering over otherModule shows:
-const otherModule: any
+const otherModule: any;
 ```
 
 This is because TypeScript treats `require` as a function that returns `any`:
@@ -478,7 +480,7 @@ This syntax might seem odd at first, but it's part of TypeScript's strategy to b
 
 As we've seen, TypeScript will directly compile a `.cts` file into a `.cjs` file with the correct imports and exports. Similarly, an `.mts` file with ESM imports and exports will be compiled into an `.mjs` file. If your project only has `.ts` files, TypeScript will check `package.json` for the `"type": module` setting. If there isn't one, it will default to treating the file as a CommonJS file, which results in a `.cjs` file.
 
-However, when working on a Node.js project, it's important that your files are all compiled into `.js` files with the correct module syntax. 
+However, when working on a Node.js project, it's important that your files are all compiled into `.js` files with the correct module syntax.
 
 This is where it's important to use the `NodeNext` option for both the `module` and `moduleResolution` settings in the `tsconfig.json` file:
 
@@ -491,11 +493,11 @@ This is where it's important to use the `NodeNext` option for both the `module` 
     ...
 ```
 
-Using `NodeNext` for the `module` and `moduleResolution` options guarantees that TypeScript will generate `.js` files that are compatible with Node.js. 
+Using `NodeNext` for the `module` and `moduleResolution` options guarantees that TypeScript will generate `.js` files that are compatible with Node.js.
 
 The `module` option tells TypeScript the to emit ESM syntax, and the `moduleResolution` option tells TypeScript to resolve modules using the ESM resolution algorithm.
 
-This resolution algorithm tells TypeScript where to look for modules that are being imported. Inside of the file doing the importing, if the import points to a relative or absolute path, it will be resolved the path directly. Otherwise, the import will be treated as a package name and be looked for in the `node_modules` directory, moving into parent directories as necessary. If the module isn't found at all, the resolution will fail and TypeScript will throw an error. 
+This resolution algorithm tells TypeScript where to look for modules that are being imported. Inside of the file doing the importing, if the import points to a relative or absolute path, it will be resolved the path directly. Otherwise, the import will be treated as a package name and be looked for in the `node_modules` directory, moving into parent directories as necessary. If the module isn't found at all, the resolution will fail and TypeScript will throw an error.
 
 These `NodeNext` settings also play nice with the `verbatimModuleSyntax` `tsconfig.json` option we enabled in earlier examples. This tells TypeScript to enforce proper import syntax and throws errors if your TypeScript files are not recognized as ESM.
 
@@ -503,7 +505,7 @@ In short, for Node.js applications, set `ModuleNodeNext`, `ModuleResolutionNodeN
 
 ## Importing Types in ESM
 
-When the `verbatimModuleSyntax` option is enabled, you need to use a specific syntax to import types from a module. 
+When the `verbatimModuleSyntax` option is enabled, you need to use a specific syntax to import types from a module.
 
 Consider this `module-containing-types.ts` file that exports an `Example` type, along with having a `console.log` side effect:
 
@@ -551,27 +553,27 @@ type Example2 = string;
 console.log("Hello from ESM Module");
 ```
 
-To summarize, the `import type` syntax in TypeScript allows you to expressly control what's included in the emitted  by only bringing in types that disappear from the transpiled code. . If a line has nothing specific to runtime, you can immediately tell that it will be erased at runtime. On the other hand, a standard import statement will always persist at runtime.
+To summarize, the `import type` syntax in TypeScript allows you to expressly control what's included in the emitted by only bringing in types that disappear from the transpiled code. . If a line has nothing specific to runtime, you can immediately tell that it will be erased at runtime. On the other hand, a standard import statement will always persist at runtime.
 
 This is an interesting quirk of using the `verbatimModuleSyntax` in TypeScript.
 
 ## Choosing Between CJS and ESM
 
-We've talked a lot about using CommonJS and ESM, and how to configure TypeScript so that errors are presented early and the correct code is emitted. 
+We've talked a lot about using CommonJS and ESM, and how to configure TypeScript so that errors are presented early and the correct code is emitted.
 
-But the question remains: *Which one should you choose?*
+But the question remains: _Which one should you choose?_
 
-Your goal should be to use and emit ESM. 
+Your goal should be to use and emit ESM.
 
 ES Modules are the future direction of how JavaScript code is to be written. The ESM system works seamlessly, whether it's in the browser, Node.js, or in experimental runtimes like Bun and Deno. It's a universally accepted standard.
 
-However, some developers like to stick with CommonJS. Their reasons often revolve around how CommonJS resolves modules. 
+However, some developers like to stick with CommonJS. Their reasons often revolve around how CommonJS resolves modules.
 
 For example, CommonJS doesn't require you to specify the file extension when importing a file, but ESM does. However, CommonJS is harder to bundle split than ESM, which can result in obstacles when minimizing packages for production.
 
-Given the choice and an understanding of what you're shipping, you should be shipping ESM. Add `"type": "module"` to your `package.json` if your chosen framework permits it.  
+Given the choice and an understanding of what you're shipping, you should be shipping ESM. Add `"type": "module"` to your `package.json` if your chosen framework permits it.
 
-Embracing ESM now will simplify your life in the future, especially when developing libraries for distribution on NPM. 
+Embracing ESM now will simplify your life in the future, especially when developing libraries for distribution on NPM.
 
 By now you should feel comfortable with both CommonJS (CJS) and ECMAScript Modules (ESM) enough to debug issues and configure TypeScript for smooth operation from the application development side.
 

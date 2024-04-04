@@ -729,31 +729,45 @@ declare module "*.png" {
 
 With the `png.d.ts` file in place, TypeScript will recognize the imported `.png` files as strings without reporting any errors.
 
-<!-- CONTINUE -->
-
 ### Should You Store Your Types In Declaration Files?
 
-<!-- TODO -->
+A common misconception among TypeScript developers is that declaration files are where you store your types. You'd create a `types.d.ts` file:
+
+```tsx
+// types.d.ts
+export type Example = string;
+```
+
+Then you'd import this file in your TypeScript files:
+
+```tsx
+// index.ts
+import { Example } from "./types";
+
+const myFunction = (example: Example) => {
+  console.log(example);
+};
+```
+
+This is a relatively natural thing to get wrong. A 'declaration file'? Sounds like where you put your type declarations.
+
+But this is a bad idea. `skipLibCheck` will ignore these files, meaning you won't get type checking on them. This means that you should use as few declaration files as possible to mitigate the risk of bugs.
+
+Instead, put your types in regular TypeScript files.
 
 ### Is Using Global Types A Good Idea?
 
-<!-- TODO -->
+Across your project, you'll end up with several commonly-used types. For example, you might have a `User` type that's used in many different files.
 
-Global variables have a reputation for causing issues in codebases. They can be extremely difficult to debug when things go wrong, and can make changing code more troublesome.
+One option is to put these into the global scope to avoid importing them everywhere. This can be done by using a `.d.ts` file as a script, or using `declare global` in a `.ts` file.
 
-Global types are a little different. Because their usage is limited to type-checking, they don't have the same potential for causing bugs as global variables.
+However, I don't recommend you do this. Polluting the global scope with types can turn your project into a mess of implicit dependencies. It can be hard to know where a type is coming from, and can make refactoring difficult.
 
-However, I don't recommend you put your types in the global scope. It's better to keep your types close to where they're used, making it easier to see what part of your codebase 'owns' a particular type.
+As your project grows, you'll get naming conflicts between types. Two different parts of your system might define a `User` type, leading to confusion.
 
-### Declaration Files vs `declare global`
+Instead, I recommend you import types explicitly. This makes it clear where a type is coming from, makes your system more portable, and makes refactoring easier.
 
-We've looked at a couple different options for creating types that are globally accessible. Both declaration files and the `declare global` keyword are valid approaches, but the one you choose depends on the context and the specific needs of your project.
-
-Using a `.d.ts` declaration file is best suited for cases where you have several global definitions that need to be organized into a centralized location. This is especially useful in larger projects.
-
-The `declare global` syntax is more convenient when the global declarations are closely tied to the context of specific modules or files. This approach is useful when you want to keep the global declarations close to the code that uses them. The `declare module` syntax should be used when you need to define types for modules that don't have type definitions. It's also possible to use `declare namespace` to define types and modify existing types within a namespace through declaration merging.
-
-In general, it's best to limit global declarations to cases where they are absolutely necessary, such as when interacting with external libraries that don't include type definitions or when working with runtime environments that provide global variables.
+<!-- CONTINUE -->
 
 ## Exercises
 
@@ -788,7 +802,7 @@ Your task is to create a declaration file for the `example.js` file.
 
 ### Exercise 2: Ambient Context
 
-Consider a variable called `state` that is resolved by `DEBUG.getState()`:
+Consider a variable called `state` that is returned from a global `DEBUG.getState()` function:
 
 ```tsx
 const state = DEBUG.getState(); // red squiggly line under DEBUG
@@ -796,7 +810,7 @@ const state = DEBUG.getState(); // red squiggly line under DEBUG
 type test = Expect<Equal<typeof state, { id: string }>>;
 ```
 
-Here, `DEBUG` acts like a global variable. In our hypothetical project, `DEBUG` is only referenced in this file and is introduced into the global scope by an external tool that we don't have control over.
+Here, `DEBUG` acts like a global variable. In our hypothetical project, `DEBUG` is only referenced in this file and is introduced into the global scope by an external script that we don't have control over.
 
 Currently, there is an error below `DEBUG` because TypeScript cannot resolve the type of `state` returned by `DEBUG.getState()`.
 
@@ -807,11 +821,56 @@ As seen in the test, we expect `state` to be an object with an `id` of type `str
 const state: any;
 ```
 
-Your task is to specify that `DEBUG` is available in this module without needing to provide its implementation. This will help TypeScript understand the type of `state` and provide the expected type checking.
+Your task is to specify that `DEBUG` is available in this module (and this module only) without needing to provide its implementation. This will help TypeScript understand the type of `state` and provide the expected type checking.
+
+### Exercise 3: Modifying `window`
+
+Let's imagine now that we want our `DEBUG` object to only be accessible through the `window` object:
+
+```tsx
+// inside index.ts
+
+const state = window.DEBUG.getState(); // red squiggly line under DEBUG
+
+type test = Expect<Equal<typeof state, { id: string }>>;
+```
+
+We expect `state` to be an object with an `id` string property, but it is currently typed as `any`.
+
+There's also an error on `DEBUG` that tells us TypeScript doesn't see the `DEBUG` type:
+
+```tsx
+// hovering over DEBUG shows:
+// Property 'DEBUG' does not exist on type 'Window & typeof globalThis'.
+```
+
+Your task is to specify that `DEBUG` is available on the `window` object. This will help TypeScript understand the type of `state` and provide the expected type checking.
+
+### Exercise 4: Modifying `process.env`
+
+Node.js introduces a global entity called `process`, which includes several properties that are typed with `@types/node`.
+
+The `env` property is an object encapsulating all the environment variables that have been incorporated into the current running process. This can come in handy for feature flagging or for pinpointing different APIs across various environments.
+
+Here's an example of using an `envVariable`, along with a test that checks to see if it is a string:
+
+```tsx
+const envVariable = process.env.MY_ENV_VAR;
+
+type test = Expect<Equal<typeof envVariable, string>>; // red squiggly line under Equal
+```
+
+TypeScript isn't aware of the `MY_ENV_VAR` environment variable, so it can't be certain that it will be a string. Thus, the `Equal` test fails because `envVariable` is typed as `string | undefined` instead of just `string`.
+
+Your task is to determine how to specify the `MY_ENV_VAR` environment variable as a string in the global scope. This will be slightly different than the solution for modifying `window` in the first exercise.
+
+Here are a couple of hints to help you out:
+
+Inside of `@types/node` from DefinitelyTyped, the `ProcessEnv` interface is responsible for environment variables. It can be found inside of the `NodeJS` namespace. You might need to revisit previous chapters to refresh your memory on declaration merging of types and namespaces in order to solve this exercise.
 
 ### Solution 1: Typing a JavaScript Module
 
-The solution is to create a declaration file with a name that matches the JavaScript file. In this case, the declaration file should be named `example.d.ts`. Inside of the declaration file, we declare the `myFunc` function with its type signature:
+The solution is to create a declaration file alongside the JavaScript file with a matching name. In this case, the declaration file should be named `example.d.ts`. Inside of the declaration file, we declare the `myFunc` function with its type signature:
 
 ```tsx
 // example.d.ts
@@ -850,25 +909,68 @@ declare const DEBUG: {
 
 With this change, our errors have been resolved!
 
-### Solution 3: Global Declarations
+### Solution 3: Modifying `window`
 
-To update the definition of `DEBUG` to make it available across multiple files in the project, we can use the `declare global` syntax:
+The first thing we'll do is create a new `window.d.ts` declaration file in the `src` directory. We need this file to be treated as a script in order to access the global scope, so we will not include the `export` keyword.
+
+Inside the file, we'll create a new `interface` named `Window` that extends the built-in `Window` interface in `lib.dom.d.ts`. This will allow us to add new properties to the `Window` interface. In this case, the `DEBUG` property with the `getState` method:
 
 ```tsx
-declare global {
-  const DEBUG: {
-    getState(): { id: string };
+// window.d.ts
+interface Window {
+  DEBUG: {
+    getState: () => {
+      id: string;
+    };
   };
 }
 ```
 
-Alternatively, a new declaration file `global.d.ts` could be created to hold the global declarations:
+With this change, the errors have been resolved.
+
+#### Alternative Solution
+
+An alternative solution would be to use `declare global` with the interface directly in the `index.ts` file:
 
 ```tsx
-// global.d.ts
-declare const DEBUG: {
-  getState(): { id: string };
-};
+// index.ts
+const state = window.DEBUG.getState();
+
+type test = Expect<Equal<typeof state, { id: string }>>;
+
+declare global {
+  interface Window {
+    DEBUG: {
+      getState: () => {
+        id: string;
+      };
+    };
+  }
+}
 ```
 
-Then `DEBUG` would be available across the project without needing to import it.
+Either approach will work, but often keeping the global types in a separate file can make them easier to find.
+
+### Solution 4: Modifying `process.env`
+
+There are two options for modifying the global scope in TypeScript: using `declare global` or creating a `.d.ts` declaration file.
+
+For this solution, we'll create a `process.d.ts` file in the `src` directory. It doesn't matter what we call it, but `process.d.ts` indicates that we're modifying the `process` object.
+
+Since we know that `ProcessEnv` is inside of the `NodeJS` namespace, we'll use `declare namespace` to add our own properties to the `ProcessEnv` interface.
+
+In this case, we'll declare a namespace `NodeJS` that contains an interface `ProcessEnv`. Inside will be our property `MY_ENV_VAR` of type `string`:
+
+```tsx
+// src/process.d.ts
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    MY_ENV_VAR: string;
+  }
+}
+```
+
+With this new file in place, we can see that `MY_ENV_VAR` is now recognized as a string in `index.ts`. The error is resolved, and we have autocompletion support for the variable.
+
+Remember, just because the error is resolved, it doesn't mean that `MY_ENV_VAR` will actually be a string at runtime. This update is merely a contract we're setting up with TypeScript. We still need to make sure that this contract is respected in our runtime environment.

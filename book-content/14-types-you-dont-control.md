@@ -262,31 +262,6 @@ The rule of thumb to remember is that you should keep type definitions in `.ts` 
 
 ## Exercises
 
-### Exercise 1: Modifying `window`
-
-Consider a global `DEBUG` that's attached to the `window` object, allowing us to call `getState` on it:
-
-```tsx
-// inside index.ts
-
-const state = window.DEBUG.getState(); // red squiggly line under DEBUG
-
-type test = Expect<Equal<typeof state, { id: string }>>;
-```
-
-We expect `state` to be an object with an `id` string property, but it is currently typed as `any`.
-
-There's also an error on `DEBUG` that tells us TypeScript doesn't see the `DEBUG` type:
-
-```tsx
-// hovering over DEBUG shows:
-Property 'DEBUG' does not exist on type 'Window & typeof globalThis'.
-```
-
-Your task is to compose a declaration file that specifies a new `window` interface in the global scope that includes `DEBUG`. The new interface you create should include a `getState` method that returns an object with an `id` string property.
-
-Hint: You might recall that `window` is an interface in the global scope, so properties can be appended to it through declaration merging (creating an interface with a matching name within the same scope).
-
 ### Exercise 2: Iterating DOM Nodes
 
 Here we're selecting all the `div` elements present on a page with `document.querySelectorAll`. This results in a `NodeList` comprising `HTMLDivElement`:
@@ -333,71 +308,6 @@ Currently, the configuration appears as follows:
 
 Your task is to determine the cause behind this error, and update tsconfig.json to get the code running as intended.
 
-### Exercise 3: Modifying `process.env`
-
-Node.js introduces a global entity called `process`, which includes several properties that are typed with `@types/node`.
-
-The `env` property is an object encapsulating all the environment variables that have been incorporated into the current running process. This can come in handy for feature flagging or for pinpointing different APIs across various environments.
-
-Here's an example of using an `envVariable`, along with a test that checks to see if it is a string:
-
-```tsx
-const envVariable = process.env.MY_ENV_VAR;
-
-type test = Expect<Equal<typeof envVariable, string>>; // red squiggly line under Equal
-```
-
-TypeScript isn't aware of the `MY_ENV_VAR` environment variable, so it can't be certain that it will be a string. Thus, the `Equal` test fails because `envVariable` is typed as `string | undefined` instead of just `string`.
-
-Your task is to determine how to specify the `MY_ENV_VAR` environment variable as a string in the global scope. This will be slightly different than the solution for modifying `window` in the first exercise.
-
-Here are a couple of hints to help you out:
-Inside of `@types/node` from DefinitelyTyped, the `ProcessEnv` interface is responsible for environment variables. It can be found inside of the `NodeJS` namespace. You might need to revisit previous chapters to refresh your memory on modifying global types and namespaces in order to solve this exercise.
-
-### Solution 1: Modifying `window`
-
-The first thing we'll do is create a new `window.d.ts` declaration file in the `src` directory. We need this file to be treated as a script in order to access the global scope, so we will not include the `export` keyword.
-
-Inside the file, we'll create a new `interface` named `Window` that extends the built-in `Window` interface. This will allow us to add new properties to the `Window` interface. In this case, the `DEBUG` property with the `getState` method:
-
-```tsx
-// window.d.ts
-interface Window {
-  DEBUG: {
-    getState: () => {
-      id: string;
-    };
-  };
-}
-```
-
-With this change, the errors have been resolved.
-
-#### Alternative Solution
-
-An alternative solution would be to use `declare global` with the interface directly in the `index.ts` file:
-
-```tsx
-// index.ts
-const state = window.DEBUG.getState();
-
-type test = Expect<Equal<typeof state, { id: string }>>;
-
-declare global {
-  interface Window {
-    DEBUG: {
-      getState: () => {
-        id: string;
-      };
-    };
-  }
-}
-```
-
-While this works, creating a separate `window.d.ts` file is the preferred approach.
-
-Generally, it's not a great idea to add types to the global scope, but if you need to do it, this is the way to go.
-
 ### Solution 2: Iterating DOM Nodes
 
 TypeScript was giving us an error since it does not recognize `elements` as an iterable object. In order to make DOM nodes iterable, we need to explicitly include `DOM.Iterable` in the `lib` option:
@@ -419,27 +329,3 @@ TypeScript was giving us an error since it does not recognize `elements` as an i
 ```
 
 It's worth noting that `DOM.Iterable` is included by default if you don't specify the `lib` option. However, explicitly stating which libraries are included can help ward off potential problems later on, particularly when operating in diverse environments like Node.js. By including `ES2022`, `DOM`, and `DOM.Iterable` in your TypeScript configuration, you'll be adequately prepared to handle DOM iteration in your web development projects.
-
-### Solution 3: Modifying `process.env`
-
-There are two options for modifying the global scope in TypeScript: using `declare global` or creating a `.d.ts` declaration file.
-
-For this solution, we'll create a `process.d.ts` file in the `src` directory.
-
-Since we know that `ProcessEnv` is inside of the `NodeJS` namespace, we'll use `declare namespace` to add our own properties to the `ProcessEnv` interface.
-
-In this case, we'll declare a namespace `NodeJS` that contains an interface `ProcessEnv`. Inside will be our property `MY_ENV_VAR` of type `string`:
-
-```tsx
-// src/process.d.ts
-
-declare namespace NodeJS {
-  interface ProcessEnv {
-    MY_ENV_VAR: string;
-  }
-}
-```
-
-With this new file in place, we can see that `MY_ENV_VAR` is now recognized as a string in `index.ts`. The error is resolved, and we have autocompletion support for the variable.
-
-Remember, just because the error is resolved, it doesn't mean that `MY_ENV_VAR` will actually be a string at runtime. This update is merely a contract we're setting up with TypeScript. We still need to make sure that this contract is respected in our runtime environment.
