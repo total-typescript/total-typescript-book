@@ -534,124 +534,71 @@ With this option in place, the TypeScript compiler will generate `.d.ts.map` fil
 
 This is less useful when your library is on `npm`, unless you also ship your source files - but that's a little outside the scope of this book. In a monorepo, however, declaration maps are a great quality-of-life improvement.
 
-<!-- CONTINUE -->
-
-### Which `module` Should You Choose?
-
-<!-- TODO -->
-
-- If you don't know where your project will be consumed, use `module: "NodeNext"`.
-- If you know it'll always be consumed by a bundler, use `module: "Preserve"`.
-
 ## `jsx`
 
-Recall that when building web applications, it's recommended to include `dom` and `dom.iterable` in the `lib` options of your `tsconfig.json` file:
+TypeScript has built-in support for transpiling JSX syntax, which is a syntax extension for JavaScript that allows you to write HTML-like code in your JavaScript files. In TypeScript, these need to be written in files with a `.tsx` extension:
 
 ```tsx
-{
-  "compilerOptions": {
-    "target": "es2022",
-    "lib": ["es2022", "dom", "dom.Iterable"]
-    // ... other options ...
-
-```
-
-If you're using React or another framework that uses JSX, you'll need to use the aptly-named `jsx` option in your `tsconfig.json` file.
-
-The `jsx` option tells TypeScript how to handle JSX syntax during compilation, and has five possible values. However, the most common values are `preserve`, `react`, and `react-jsx`.
-
-### `preserve`
-
-When `jsx` is set to `preserve`, TypeScript leaves the JSX syntax as it is and doesn't transform it.
-
-```tsx
-// inside tsconfig.json
-{
-  "compilerOptions": {
-    "jsx": "preserve",
-    ...
-```
-
-When TypeScript compiles your code with this setting, the output will be a `.jsx` file, not a `.js` file. In our example, the output would be a `dist/index.jsx` file, with the `<div />` JSX syntax unchanged.
-
-Note that if you're bundling your TypeScript code into a library for others to use, this option is not recommended.
-
-### `react`
-
-The `react` option transforms the JSX syntax into `React.createElement` calls:
-
-```tsx
-jsx: "react";
-```
-
-However, this option assumes that `React` is in scope, which can lead to errors if `React` isn't imported. For our example code to run without errors, we would need to import `React` at the top of our file:
-
-```tsx
-import React from "react";
-
-const MyComponent = () => {
+// Component.tsx
+const Component = () => {
   return <div />;
 };
 ```
 
-The transpiled code would then look like this:
+The `jsx` option tells TypeScript how to handle JSX syntax, and has five possible values. The most common are `preserve`, `react`, and `react-jsx`. Here's what each of them does:
 
-```js
-// dist/index.js
-import React from "react";
-const MyComponent = () => {
-  return React.createElement("div", null);
-};
-```
+- `preserve`: Keeps JSX syntax as-is.
+- `react`: Transforms JSX into `React.createElement` calls. Useful for React 16 and earlier.
+- `react-jsx`: Transforms JSX into `_jsx` calls, and automatically imports from `react/jsx-runtime`. Useful for React 17 and later.
 
-This option is best for legacy React projects.
-
-### `react-jsx`
-
-The `react-jsx` option is designed for version 17 of React and beyond, and doesn't require you to import `React`.
-
-Instead, it uses a newer JSX transform that transforms the JSX elements into `_jsx` calls instead of `React.createElement` calls. This option requires you to import `JSX` from `react/jsx-runtime`:
-
-```tsx
-import { JSX } from "react/jsx-runtime";
-
-const MyComponent = () => {
-  return <div />;
-};
-```
-
-If you're building a library for others to use, this is the recommended option to use.
+<!-- CONTINUE -->
 
 ## Managing Multiple TypeScript Configurations
 
 As projects grow in size and complexity, it's common to have different environments or targets within the same project.
 
-For example, your single repo might include both a client-side application and a server-side API, each with different requirements and configurations. For example, DOM APIs like `document` are not available on the server-side, and Node.js APIs like `fs` are not available on the client-side.
+For example, your single repo might include both a client-side application and a server-side API, each with different requirements and configurations.
 
-In situations like these, it becomes necessary to have multiple `tsconfig.json` files.
+This means you might want different `tsconfig.json` settings for different parts of your project. In this section, we'll look at how multiple `tsconfig.json` files can be composed together.
 
-### Structuring a Project with Multiple TypeScript Configurations
+### How TypeScript Finds `tsconfig.json`
 
-By default, TypeScript determines which `tsconfig.json` to use by looking for the closest one to the current `.ts` file in question. If there are no other `tsconfig.json` files present, TypeScript defaults to using the one in the root of the repo.
+In a project with multiple `tsconfig.json` files, your IDE will need to know which one to use for each file. It determines which `tsconfig.json` to use by looking for the closest one to the current `.ts` file in question.
 
-To structure a project with multiple TypeScript configurations for `client` and `server`, you can create separate directories with `tsconfig.json` files for each. Here's an example of what that might look like:
+For example, given this file structure:
 
 ```
-project/
-src/
-  ├── client/
-  │   ├── src/
-  │   │   └── ...
+project
+  ├── client
   │   └── tsconfig.json
-  ├── server/
-  │   ├── src/
-  │   │   └── ...
+  ├── server
   │   └── tsconfig.json
-  ├── shared/
-      └── ...
+  └── tsconfig.json
 ```
 
-The `client/tsconfig.json` file could include DOM libs and `jsx` options, while the `server/tsconfig.json` file could include Node.js libs and `module` options.
+A file inside the `client` directory will use the `client/tsconfig.json` file, while a file inside the `server` directory will use the `server/tsconfig.json` file. Anything inside the `project` directory that isn't in `client` or `server` will use the `tsconfig.json` file in the root of the project.
+
+This means that `client/tsconfig.json` can contain settings specific to the client-side application, such as adding the `dom` types:
+
+```json
+{
+  "compilerOptions": {
+    // ...other options
+    "lib": ["es2022", "dom", "dom.iterable"]
+  }
+}
+```
+
+But `server/tsconfig.json` can contain settings specific to the server-side application, such as removing the `dom` types:
+
+```json
+{
+  "compilerOptions": {
+    // ...other options
+    "lib": ["es2022"]
+  }
+}
+```
 
 #### Globals with Multiple `tsconfig.json` Files
 
@@ -691,7 +638,7 @@ When you have multiple `tsconfig.json` files, it's common to have shared setting
     "lib": [
       "es2022",
       "dom",
-      "dom.Iterable"
+      "dom.iterable"
     ],
     "jsx": "react-jsx",
   }
@@ -768,160 +715,81 @@ This approach is particularly useful for monorepos, where many different `tsconf
 
 Any changes to the base configuration will be automatically inherited by the `client` and `server` configurations. However, it's important to note that using `extends` will only copy over `compilerOptions` from the base configuration, and not other settings like `include` or `exclude` (which are used to specify which files to include or exclude from compilation).
 
-### Project References
-
-Continuing with our multi-config example, consider this `package.json` file that defines `dev` scripts for both the client and server projects, as well as both simultaneously:
-
 ```json
 {
-  "name": "exercise",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "dev": "run-p dev:*",
-    "dev:client": "tsc --project ./src/client/tsconfig.json --watch",
-    "dev:server": "tsc --project ./src/server/tsconfig.json --watch"
-  }
+  "compilerOptions": {}, // Will be inherited by 'extends'
+  "include": [], // Will NOT be inherited by 'extends'
+  "exclude": [] // Will NOT be inherited by 'extends'
 }
 ```
 
-In its current state, there's a lot of plumbing going on with hardcoded filepaths. If the file structure changes, the `package.json` file will need to be updated.
+### `--project`
 
-Fortunately, `tsconfig.json` files allow us to configure project references to clean this up.
+Now we have a set of `tsconfig.json` files that are organized and share common settings. This works OK in the IDE, which automatically detects which `tsconfig.json` file to use based on the file's location.
 
-Let's look at a few approaches to organizing TypeScript configurations using project references.
+But what if we want to run a command that checks the entire project at once?
 
-#### Option 1: Referencing Existing Configurations
+To do this, we'd need to run `tsc` using the `--project` flag and point it to each `tsconfig.json` file:
 
-For this approach, we'll assume that the `client` and `server` directories still have their own `tsconfig.json` files that extend the `tsconfig.base.json` file.
+```bash
+tsc --project ./client/tsconfig.json
+tsc --project ./server/tsconfig.json
+```
 
-What we could do here is have a single `tsconfig.json` file at the root of the project that has references to the `client` and `server` configurations:
+This can work OK for a small amount of configurations, but it can quickly become unwieldy as the number of configurations grows.
+
+### Project References
+
+To simplify this process, TypeScript has a feature called project references. This allows you to specify a list of projects that depend on each other, and TypeScript will build them in the correct order.
+
+You can configure a single `tsconfig.json` file at the root of the project that references the `client` and `server` configurations:
 
 ```tsx
 // tsconfig.json
 {
   "references": [
     {
-      "path": "./src/client/tsconfig.json"
+      "path": "./client/tsconfig.json"
     },
     {
-      "path": "./src/server/tsconfig.json"
+      "path": "./server/tsconfig.json"
     }
   ],
   "files": []
 }
 ```
 
-Note that there is also an empty `files` array in the configuration above. This is because the `tsconfig.json` file in the root directory is not responsible for type checking any files. Instead, it serves as a reference `tsconfig.json` to run the client and server `tsconfig.json` files in a specific order.
+Note that there is also an empty `files` array in the configuration above. This is to prevent the root `tsconfig.json` from checking any files itself - it just references the other configurations.
 
-Then inside of the `package.json` file, the `dev` script command would be updated to use the `-b` flag. This flag tells TypeScript to build the project references as well, in turn allowing us to check the entire repo with a single command:
-
-```tsx
-{
-  "name": "exercise",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "dev": "tsc -b --watch"
-  }
-}
-```
-
-We would also need to add the `composite` option to the `tsconfig.base.json` file. This option tells TypeScript that it is a child project configuration that needs to be run with project references:
+Next, we need to add the `composite` option to the `tsconfig.base.json` file. This option tells TypeScript that `client` and `server` are child project configurations that needs to be run with project references:
 
 ```tsx
 // tsconfig.base.json
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "Preserve",
-    "esModuleInterop": true,
-    "noEmit": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
+    // ...other options
     "composite": true
   },
 }
 ```
 
-While this approach works, it might not be ideal to have several `tsconfig.json` files present in different directories.
+Now, from the root, we can run `tsc` with the `-b` flag to run each of the projects:
 
-#### Option 2: Root Level Organization
-
-Renaming and moving all of the `tsconfig.json` files to the root directory is the next approach:
-
-```tsx
-project/
-  ├── src/
-  │   ├── client/
-  │   │   └── ...
-  │   ├── server/
-  │   │   └── ...
-  │   └── shared/
-  │       └── ...
-  ├── tsconfig.base.json
-  ├── tsconfig.client.json
-  ├── tsconfig.server.json
-  ├── tsconfig.json
-  └── package.json
+```bash
+tsc -b
 ```
 
-With this structure, it's more clear that the `tsconfig.json` file belongs to the entire project instead of just a single part of it.
+The `-b` flag tells TypeScript to run the project references. This will typecheck and build the `client` and `server` configurations in the correct order.
 
-Like before, the client and server configurations would extend `tsconfig.base.json`, and the `tsconfig.json` file would then reference the client and server configurations:
+When we run this for the first time, some `.tsbuildinfo` files will be created in the `client` and `server` directories. These files are used by TypeScript to cache information about the project, and speed up subsequent builds.
 
-```tsx
-// tsconfig.json
-{
-  "references": [
-    {
-      "path": "./tsconfig.client.json"
-    },
-    {
-      "path": "./tsconfig.server.json"
-    }
-  ],
-  "files": []
-}
-```
+So, to sum up:
 
-Again, this solution will work, but it might feel like clutter to have so many `tsconfig.json` files in the root directory.
+- Project references allow you to run several `tsconfig.json` files in a single `tsc` command.
+- Each sub-configuration should have `composite: true` in its `tsconfig.json` file.
+- The root `tsconfig.json` file should have a `references` array that points to each sub-configuration, and `files: []` to prevent it from checking any files itself.
+- Run `tsc -b` from the root to build all the configurations.
+- Each `tsconfig.json` will have its own global scope, and globals will not be shared between configurations.
+- `.tsbuildinfo` files will be created in each sub-configuration to speed up subsequent builds.
 
-#### Option 3: Separate Configuration Folder
-
-An emerging pattern for having multiple `tsconfig.json` files in a project is to place them into a separate `.config` directory:
-
-```tsx
-project/
-  ├── src/
-  │   ├── .config/
-  │   │   ├── tsconfig.base.json
-  │   │   ├── tsconfig.client.json
-  │   │   ├── tsconfig.server.json
-  │   │   └── tsconfig.json
-  │   ├── client/
-  │   │   └── ...
-  │   ├── server/
-  │   │   └── ...
-  │   └── shared/
-  │       └── ...
-  └── package.json
-```
-
-Each of the `tsconfig.json` files would be updated to reference the other configurations, but the fundamental structure of the project would remain the same.
-
-The the `dev` script inside of `package.json` is now simplified to just one line:
-
-```tsx
-{
-  "name": "exercise",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "dev": "tsc -b --watch"
-  }
-}
-```
-
-Whichever approach you choose, project references and extending configuration files are great for keeping your TypeScript configurations organized and maintainable. Choose whichever approach makes the most sense for your project.
+Project references can be used in all sorts of ways to manage complex TypeScript projects. They're especially useful when you only want globals to affect a certain part of your project, like types from the `dom` or test frameworks which add functions to the global scope.
