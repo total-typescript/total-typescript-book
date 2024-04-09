@@ -292,85 +292,94 @@ I tend to configure my `tsconfig.json` no stricter than `strict` and `noUnchecke
 - `noUnusedLocals`: Errors when a local variable is declared but never used.
 - `noUnusedParameters`: Errors when a function parameter is declared but never used.
 
-<!-- CONTINUE -->
-
 ## The Two Choices For `module`
 
-The `module` setting specifies what kind of module code you want TypeScript to emit, and the `moduleResolution` setting determines how TypeScript should resolve imports throughout your application.
+The `module` setting in `tsconfig.json` specifies how TypeScript should treat your imports and exports. There are two main choices: `NodeNext` and `Preserve`.
 
-There are several options to choose from, but as mentioned at the beginning of this chapter, it was mentioned that `NodeNext` and `Bundler` are the two primary module resolution strategies you should be choosing from.
+- When you want to transpile your TypeScript code with the TypeScript compiler, choose `NodeNext`.
+- When you're using an external bundler like Webpack or Parcel, choose `Preserve`.
 
-Let's take a closer look at each of these options and when you should choose them.
+### `NodeNext`
 
-### `NodeNext` Module Resolution
+If you are transpiling your TypeScript code using the TypeScript compiler, you should choose `module: "NodeNext"` in your `tsconfig.json` file:
 
-If you are transpiling your TypeScript code using the TypeScript compiler, you should choose `module: "NodeNext"` and `moduleResolution: "NodeNext"` in your `tsconfig.json` file:
-
-```tsx
-// inside tsconfig.json
-"compilerOptions": {
-  "moduleResolution": "NodeNext",
-  "module": "NodeNext"
-  // ...other options...
+```json
+{
+  "compilerOptions": {
+    "module": "NodeNext"
+  }
+}
 ```
 
-When using `NodeNext` module resolution, TypeScript emulates Node's module resolution behavior, which includes support for features like `package.json`'s `"exports"` field and automatic file extension resolution.
+`module: "NodeNext"` also implies `moduleResolution: "NodeNext"`, so I'll discuss their behavior together.
 
-You will also be required to add the `.js` extension to local file imports. This might seem strange when you're importing a `.ts` file, but it's necessary because TypeScript targets the compiled JavaScript file. Because TypeScript doesn't want to change runtime behavior by altering import paths and Node.js will be executing the code, you need to use `.js` when importing when using `NodeNext` module resolution.
+When using `NodeNext`, TypeScript emulates Node's module resolution behavior, which includes support for features like `package.json`'s `"exports"` field. Code emitted using `module: NodeNext` will be able to be run in a Node.js environment without any additional processing.
 
-When using `NodeNext`, you can import modules using the familiar CommonJS or ECMAScript module syntax:
+One thing you'll notice when using `module: NodeNext` is that you'll need to use `.js` extensions when importing TypeScript files:
 
 ```typescript
-// CommonJS syntax
-const { Album } = require("./album.js");
-
-// ECMAScript module syntax
+// Importing from album.ts
 import { Album } from "./album.js";
 ```
 
-The `NodeNext` strategy is particularly useful when you are developing Node.js applications or libraries that will be consumed by Node.js environments.
+This can feel strange at first, but it's necessary because TypeScript doesn't transform your imports. This is how the import will look when it's transpiled to JavaScript - and TypeScript prefers for the code you write to match the code you'll run.
 
-### `Bundler` Module Resolution
+#### `Node16`
 
-The `Bundler` module resolution strategy is designed to work with bundler tools like Webpack or Parcel. It also a good choice when building with web frameworks like Vite or Next.js.
+`NodeNext` is a shorthand for 'the most up-to-date Node.js module behavior'. If you prefer to pin your TypeScript to a specific Node version, you can use `Node16` instead:
 
-This strategy assumes that the bundler will handle module resolution and provides a more flexible and lenient approach to importing modules.
+```json
+{
+  "compilerOptions": {
+    "module": "Node16"
+  }
+}
+```
 
-To use `Bundler` module resolution, set the `moduleResolution` option to `"Bundler"` and the `module` option to `"Preserve"` in your `tsconfig.json`:
+At the time of writing, Node.js 16 is now end-of-life, but each Node version after it copied its module resolution behavior. This may change in the future, so it's worth checking the TypeScript documentation for the most up-to-date information - or sticking to `NodeNext`.
+
+### `Preserve`
+
+If you're using a bundler like Webpack, Rollup, or Parcel to transpile your TypeScript code, you should choose `module: "Preserve"` in your `tsconfig.json` file:
 
 ```json
 {
   "compilerOptions": {
     "module": "Preserve"
-    // ... other options ...
-    ...
+  }
+}
 ```
 
-With `Bundler` module resolution, TypeScript assumes that the bundler will handle module resolution, so it is more flexible when it comes to import statements. For example, you can import modules using relative paths or aliases defined in your bundler configuration:
+This implies `moduleResolution: "Bundler"`, which I'll discuss together.
+
+When using `Preserve`, TypeScript assumes that the bundler will handle module resolution. This means that you don't have to include `.js` extensions when importing TypeScript files:
 
 ```typescript
-// Relative path import
+// Importing from album.ts
 import { Album } from "./album";
-
-// Alias import (assuming 'src' is configured as an alias in the bundler)
-import { Album } from "src/album";
 ```
 
-If you're using tools other than the TypeScript compiler to transpile your code, choose `Bundler` module resolution. Otherwise, choose `NodeNext`.
+This is because the bundler will take care of resolving the file paths and extensions for you.
 
-## Configuring TypeScript as a Linter
+This means that if you're using an external bundler or transpiler, you should use `module: "Preserve"` in your `tsconfig.json` file. This is also true if you're using a frontend framework like Next.js, Remix, Vite, or SvelteKit - it will handle the bundling for you.
 
-When using the `Bundler` module resolution strategy in `tsconfig.json`, an additional suggestion is to set the `noEmit` setting to `true`.
+## `noEmit`
 
-The `noEmit` setting tells TypeScript not to emit any JavaScript files during compilation, because the bundler tool will be taking care of this responsibility.
+The `noEmit` option in `tsconfig.json` tells TypeScript not to emit any JavaScript files when transpiling your TypeScript code.
 
-Without any `.js` files to produce, TypeScript will only have to perform type checking and report any type-related errors or warnings. Essentially, it will become a linting tool.
+```json
+{
+  "compilerOptions": {
+    "noEmit": true
+  }
+}
+```
 
-This is particularly useful when you have a separate build process handled by tools like Babel, webpack, or Rollup, and you want TypeScript to focus solely on type checking and linting.
+This pairs well with `module: "Preserve"` - in both cases, you're telling TypeScript that an external tool will handle the transpilation for you.
 
-Any errors or warnings will be reported in the terminal as well as in your editor.
+TypeScript's default for this option is `false` - so if you're finding that running `tsc` emits JavaScript files when you don't want it to, set `noEmit` to `true`.
 
-By treating TypeScript as a linter, you'll be able to use external tools without losing type-checking and autocompletion features.
+<!-- CONTINUE -->
 
 ## Transpiling Code for Library Use
 
@@ -484,6 +493,13 @@ In order to create them, the `declarationMap` setting should be added to your `t
 With this option in place, the TypeScript compiler will generate `.d.ts.map` files alongside the `.d.ts` files. Now when `CMD + click`ing on the `createAlbum` import in `app.js`, you'll be taken to the original `album.ts` file instead of the type definitions.
 
 Declaration maps are most useful when you're building locally in a monorepo or other project where changes to the source code directly affect the generated `.d.ts` files. If you are building a library for npm, it's likely that you won't need declaration maps since the end users will be using the built code instead of the original source.
+
+### Which `module` Should You Choose?
+
+<!-- TODO -->
+
+- If you don't know where your project will be consumed, use `module: "NodeNext"`.
+- If you know it'll always be consumed by a bundler, use `module: "Preserve"`.
 
 ## `jsx`
 
