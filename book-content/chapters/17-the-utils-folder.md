@@ -33,7 +33,7 @@ const numbers = [1, 2, 3];
 const firstNumber = getFirstElement(numbers);
 
 // hovering over firstNumber shows:
-const firstNumber: any
+const firstNumber: any;
 ```
 
 By making the `getFirstElement` function generic, we can capture the type of the array and use it to define the return type.
@@ -56,11 +56,12 @@ const firstNumber = getFirstElement(numbers);
 const firstString = getFirstElement(strings);
 
 // hovering over firstNumber shows:
-const firstNumber: number
+const firstNumber: number;
 
 // hovering over firstString shows:
-const firstString: string
+const firstString: string;
 ```
+
 By making the function generic, we've ensured that the return type matches the type of the elements in the array.
 
 ### Inference in Generic Functions
@@ -71,7 +72,7 @@ This generic `wrapInObject` function takes in an optional `arg` typed as `T`, an
 
 ```typescript
 const wrapInObject = <T>(arg?: T) => {
-  return { value: arg ?? '' as T };
+  return { value: arg ?? ("" as T) };
 };
 ```
 
@@ -83,13 +84,13 @@ const numberValue = wrapInObject(42);
 
 // hovering over stringValue shows:
 const stringValue: {
-    value: string;
-}
+  value: string;
+};
 
 // hovering over numberValue shows:
 const numberValue: {
-    value: number;
-}
+  value: number;
+};
 ```
 
 If we call `wrapInObject` without passing in an argument, TypeScript will infer the type of `T` as `unknown`:
@@ -99,8 +100,8 @@ const unknownValue = wrapInObject();
 
 // hovering over unknownValue shows:
 const unknownValue: {
-    value: unknown;
-}
+  value: unknown;
+};
 ```
 
 ### Default Type Arguments
@@ -109,7 +110,7 @@ To change the default type for `T`, we can update `wrapInObject` to specify a de
 
 ```typescript
 const wrapInObject = <T = string>(arg?: T) => {
-  return { value: arg ?? '' as T };
+  return { value: arg ?? ("" as T) };
 };
 ```
 
@@ -120,8 +121,8 @@ const valueWithoutArgument = wrapInObject();
 
 // hovering over valueWithoutArgument shows:
 const valueWithoutArgument: {
-    value: string;
-}
+  value: string;
+};
 ```
 
 ### Overriding Defaults and Type Inference
@@ -131,12 +132,16 @@ It's also possible to explicitly specify the type argument when calling a generi
 For example, we can call `wrapInObject` with `<Album>` to return an object with a `value` typed as `Album`:
 
 ```typescript
-const albumValue = wrapInObject<Album>({ title: "Some Cold Rock Stuff", artist: "J Rocc", year: 2011 });
+const albumValue = wrapInObject<Album>({
+  title: "Some Cold Rock Stuff",
+  artist: "J Rocc",
+  year: 2011,
+});
 
 // hovering over albumValue shows:
 const albumValue: {
-    value: Album;
-}
+  value: Album;
+};
 ```
 
 ### Applying Type Constraints
@@ -147,7 +152,7 @@ For example, if we didn't want to allow for an `Album` to be used as a type argu
 
 ```tsx
 const wrapInObject = <T extends string | number = string>(arg?: T) => {
-  return { value: arg ?? '' as T };
+  return { value: arg ?? ("" as T) };
 };
 ```
 
@@ -199,7 +204,6 @@ async function fetchSong(id: number): Promise<Song> {
   const response = await fetch(`https://api.example.com/songs/${id}`);
   return response.json();
 }
-
 
 async function fetchPlaylist(id: number): Promise<Playlist> {
   const response = await fetch(`https://api.example.com/playlists/${id}`);
@@ -262,7 +266,7 @@ Each function will return the fetched data of the specified type, and the `ApiRe
 
 A type predicate is a special return type that tells TypeScript that a function returns a Boolean value that says something about the type of one of its parameters.
 
-For example, say we want to ensure that a variable is an `Album` before we try accessing its properties or passing it to a function that requires an `Album`. 
+For example, say we want to ensure that a variable is an `Album` before we try accessing its properties or passing it to a function that requires an `Album`.
 
 We can write an `isAlbum` function that takes in an input, and specifies a return type of `input is Album`. The body of the function will check that the `input` passed in is a non-null object with the required properties of an `Album`:
 
@@ -299,7 +303,12 @@ function getAlbumTitle(item: unknown) {
 In this case, the `getAlbumTitle` function takes an `item` of type `unknown`. Inside the function, we use the `isAlbum` type predicate to check if the `item` is an `Album`. If it is, TypeScript narrows the type of `item` to `Album` within the conditional block, allowing us to access the `title` property without any type errors:
 
 ```tsx
-let title = getAlbumTitle({ id: 1, title: "Dummy", artist: "Portishead", year: 1994 });
+let title = getAlbumTitle({
+  id: 1,
+  title: "Dummy",
+  artist: "Portishead",
+  year: 1994,
+});
 
 console.log(title); // "Dummy"
 
@@ -379,7 +388,11 @@ Here's how we could define these function overload signatures:
 
 ```tsx
 function searchMusic(query: string): void;
-function searchMusic(criteria: { artist?: string; genre?: string; year?: number }): void;
+function searchMusic(criteria: {
+  artist?: string;
+  genre?: string;
+  year?: number;
+}): void;
 ```
 
 With the overloads in place, we can now define the implementation signature.
@@ -392,21 +405,32 @@ In this case, the implementation signature will take in a parameter called `quer
 
 ```tsx
 function searchMusic(query: string): void;
-function searchMusic(criteria: { artist?: string; genre?: string; year?: number }): void;
-function searchMusic(queryOrCriteria: string | { artist?: string; genre?: string; year?: number }): void {
+function searchMusic(criteria: {
+  artist?: string;
+  genre?: string;
+  year?: number;
+}): void;
+function searchMusic(
+  queryOrCriteria: string | { artist?: string; genre?: string; year?: number },
+): void {
   if (typeof queryOrCriteria === "string") {
     console.log(`Searching for music with query: ${queryOrCriteria}`);
     // general search logic
   } else {
     const { artist, genre, year } = queryOrCriteria;
-    console.log(`Searching for music with criteria: ${JSON.stringify({ artist, genre, year })}`);
+    console.log(
+      `Searching for music with criteria: ${JSON.stringify({
+        artist,
+        genre,
+        year,
+      })}`,
+    );
     // specific search logic
   }
 }
 ```
 
 Now we can call the `searchMusic` function with the different arguments defined in the overloads:
-
 
 ```tsx
 searchMusic("King Gizzard and the Lizard Wizard"); // Valid
@@ -424,7 +448,7 @@ No overload matches this call.
     Argument of type 'number' is not assignable to parameter of type 'string'.
   Overload 2 of 2, '(criteria: { artist?: string | undefined; genre?: string | undefined; year?: number | undefined; }): void', gave the following error.
     Type '1337' has no properties in common with type '{ artist?: string | undefined; genre?: string | undefined; year?: number | undefined; }'.
-``` 
+```
 
 While there aren't too many use cases for function overloads in typical application development, it can be useful for adding support for multiple arguments to your utilities and libraries. However, you'll want to use them sparingly since too many overloads can make a function difficult to understand and maintain. If you get to a point where a function has too many overloads, look into refactoring it into more focused functions or using other patterns like optional parameters or union types.
 
@@ -448,7 +472,6 @@ For example, if we pass in `number` as the type argument, the function should re
 
 ```tsx
 const numberMap = createStringMap<number>(); // red squiggly line under number
-
 
 numberMap.set("foo", 123);
 numberMap.set(
@@ -490,7 +513,7 @@ After making the `createStringMap` function generic in Exercise 1, calling it wi
 const stringMap = createStringMap();
 
 // hovering over stringMap shows:
-const stringMap: Map<string, unknown>
+const stringMap: Map<string, unknown>;
 ```
 
 Your goal is to add a default type argument to the `createStringMap` function so that it defaults to `string` if no type argument is provided. Note that you will still be able to override the default type by providing a type argument when calling the function.
@@ -527,7 +550,7 @@ it("should work on strings", () => {
 });
 ```
 
-Your task is to boost the type safety of the `uniqueArray` function. To accomplish this, you'll need to incorporate a type parameter into the function. 
+Your task is to boost the type safety of the `uniqueArray` function. To accomplish this, you'll need to incorporate a type parameter into the function.
 
 Note that in the tests, we do not explicitly provide type arguments when invoking the function. TypeScript should be able to deduce the type from the argument.
 
@@ -612,7 +635,7 @@ const safeFunction = (func: PromiseFunc) => async () => {
 };
 ```
 
-In short, the thing that we get back from `safeFunction` should either be the thing that's returned from `func` or an `Error`. 
+In short, the thing that we get back from `safeFunction` should either be the thing that's returned from `func` or an `Error`.
 
 However, there are some issues with the current type definitions.
 
@@ -661,17 +684,17 @@ After making the `safeFunction` generic in Exercise 5, it's been updated to allo
 
 ```tsx
 // inside of safeFunction
-  async (...args: any[]) => {
-    try {
-      const result = await func(...args);
-      return result;
-    } catch (e) {
-      if (e instanceof Error) {
-        return e;
-      }
-      throw e;
+async (...args: any[]) => {
+  try {
+    const result = await func(...args);
+    return result;
+  } catch (e) {
+    if (e instanceof Error) {
+      return e;
     }
-  };
+    throw e;
+  }
+};
 ```
 
 Since the thing being passed into `safeFunction` can receive arguments, the function we get back should also contain those arguments and require you to pass them in.
@@ -693,10 +716,10 @@ For example, in the above test the `name` isn't being inferred as a parameter of
 
 ```tsx
 // hovering over func shows:
-const func: (...args: any[]) => Promise<string | Error>
+const func: (...args: any[]) => Promise<string | Error>;
 ```
 
-Your task is to add a second type parameter to `PromiseFunc` and `safeFunction` to infer the argument types accurately. 
+Your task is to add a second type parameter to `PromiseFunc` and `safeFunction` to infer the argument types accurately.
 
 As seen in the tests, there are cases where no parameters are necessary, and others where a single parameter is needed:
 
@@ -763,12 +786,12 @@ We end up with an array of empty objects instead, because an empty object is bei
 
 ```tsx
 // hovering over stringsOnly shows:
-const stringsOnly: {}[]
+const stringsOnly: {}[];
 ```
 
 In order to make `isString` function as we expect, we need to use a type guard function and add a type predicate to it.
 
-Your task is to adjust the `isString` function to incorporate a type  guard and type predicate that will ensure the `filter` function correctly identifies strings as well as assigning the accurate type to the output array.
+Your task is to adjust the `isString` function to incorporate a type guard and type predicate that will ensure the `filter` function correctly identifies strings as well as assigning the accurate type to the output array.
 
 ### Exercise 8: Assertion Functions
 
@@ -827,7 +850,7 @@ Your task is to update the `assertIsAdminUser` function with the proper type ass
 The first thing we'll do to make this function generic is to add a type parameter `T`:
 
 ```tsx
-const createStringMap = <T>() => {
+const createStringMap = <T,>() => {
   return new Map();
 };
 ```
@@ -840,7 +863,7 @@ The error has disappeared from the `numberMap` variable, but the function is sti
 const numberMap = createStringMap<number>();
 
 // hovering over createStringMap shows:
-const createStringMap: <number>() => Map<any, any>
+const createStringMap: <number>() => Map<any, any>;
 ```
 
 We need to specify the types for the map entries.
@@ -848,7 +871,7 @@ We need to specify the types for the map entries.
 Since we know that the keys will always be strings, we'll set the first type argument of `Map` to `string`. For the values, we'll use our type parameter `T`:
 
 ```tsx
-const createStringMap = <T>() => {
+const createStringMap = <T,>() => {
   return new Map<string, T>();
 };
 ```
@@ -861,7 +884,7 @@ If we don't pass in a type argument, the function will default to `unknown`:
 const objMap = createStringMap();
 
 // hovering over objMap shows:
-const objMap: Map<string, unknown>
+const objMap: Map<string, unknown>;
 ```
 
 Through these steps, we've successfully transformed `createStringMap` from a regular function into a generic function capable of handling type arguments.
@@ -871,7 +894,7 @@ Through these steps, we've successfully transformed `createStringMap` from a reg
 The syntax for setting default types for generic functions is the same as for generic types:
 
 ```tsx
-const createStringMap = <T = string>() => {
+const createStringMap = <T = string,>() => {
   return new Map<string, T>();
 };
 ```
@@ -884,7 +907,7 @@ Now when we call `createStringMap()` without a type argument, we end up with a `
 const stringMap = createStringMap();
 
 // hovering over stringMap shows:
-const stringMap: <string>() => Map<string, string>
+const stringMap: <string>() => Map<string, string>;
 ```
 
 If we attempt to assign a number as a value, TypeScript gives us an error because it expects a string:
@@ -918,7 +941,7 @@ numberMap.set(
 The first step is to add a type parameter onto `uniqueArray`. This turns `uniqueArray` into a generic function that can receive type arguments:
 
 ```tsx
-const uniqueArray = <T>(arr: any[]) => {
+const uniqueArray = <T,>(arr: any[]) => {
   return Array.from(new Set(arr));
 };
 ```
@@ -929,7 +952,7 @@ Now when we hover over a call to `uniqueArray`, we can see that it is typed as u
 const result = uniqueArray([1, 1, 2, 3, 4, 4, 5]);
 
 // hovering over uniqueArray shows:
-const uniqueArray: <unknown>(arr: any[]) => any[]
+const uniqueArray: <unknown>(arr: any[]) => any[];
 ```
 
 This is because we haven't passed any type arguments to it. If there's no type argument and no default, it defaults to unknown.
@@ -949,7 +972,7 @@ Now the call to `uniqueArray` is inferred as returning an `unknown` array:
 const result = uniqueArray([1, 1, 2, 3, 4, 4, 5]);
 
 // hovering over uniqueArray shows:
-const uniqueArray: <unknown>(arr: any[]) => unknown[]
+const uniqueArray: <unknown>(arr: any[]) => unknown[];
 ```
 
 Again, the reason for this is that we haven't passed any type arguments to it. If there's no type argument and no default, it defaults to unknown.
@@ -960,12 +983,12 @@ If we add a `<number>` type argument to the call, the `result` will now be infer
 const result = uniqueArray<number>([1, 1, 2, 3, 4, 4, 5]);
 
 // hovering over uniqueArray shows:
-const uniqueArray: <number>(arr: any[]) => number[]
+const uniqueArray: <number>(arr: any[]) => number[];
 ```
 
 However, at this point there's no relationship between the things we're passing in and the thing we're getting out. Adding a type argument to the call returns an array of that type, but the `arr` parameter in the function itself is still typed as `any[]`.
 
-What we need to do is tell TypeScript that the type of the `arr` parameter is the same type as what is passed in. 
+What we need to do is tell TypeScript that the type of the `arr` parameter is the same type as what is passed in.
 
 To do this, we'll replace `arr: any[]` with `arr: T[]`:
 
@@ -1100,12 +1123,14 @@ type PromiseFunc<TResult> = (...args: any[]) => Promise<TResult>;
 
 The first thing to do is figure out the types of the arguments being passed in. Currently, they're set to one value, but they need to be different based on the type of function being passed in.
 
-Instead of having `args` be of type `any[]`, we want to spread in all of the `args` and capture the entire array. 
+Instead of having `args` be of type `any[]`, we want to spread in all of the `args` and capture the entire array.
 
 To do this, we'll update the type to be `TArgs`. Since `args` needs to be an array, we'll say that `TArgs extends any[]`. Note that this doesn't mean that `TArgs` will be typed as `any`, but rather that it will accept any kind of array:
 
 ```tsx
-type PromiseFunc<TArgs extends any[], TResult> = (...args: TArgs) => Promise<TResult>;
+type PromiseFunc<TArgs extends any[], TResult> = (
+  ...args: TArgs
+) => Promise<TResult>;
 ```
 
 Now we need to update the `safeFunction` so that it has the same arguments as `PromiseFunc`. To do this, we'll add `TArgs` to its type parameters.
@@ -1125,7 +1150,7 @@ const safeFunction =
 
 This change is necessary in order to make sure the function returned by `safeFunction` has the same typed arguments as the original function.
 
-With these changes, all of our tests pass as expected. 
+With these changes, all of our tests pass as expected.
 
 The big takeaway is that when you're doing inference with function parameters, you want to make sure that you're capturing the entire arguments as a tuple with `TArgs extends any[]` instead of using just an array `TArgs[]`. Otherwise, you won't get the correct type inference.
 
@@ -1138,6 +1163,7 @@ const isString = (input: unknown): input is string => {
   return typeof input === "string";
 };
 ```
+
 With this change, the `isString` function can be used with `filter` and the test passes as expected:
 
 ```tsx
@@ -1159,7 +1185,8 @@ The solution is to add a type annotation onto the return type of `assertIsAdminU
 If it was a type predicate, we would say `user is AdminUser`:
 
 ```tsx
-function assertIsAdminUser(user: User): user is AdminUser { // red squiggly line under user is AdminUser
+function assertIsAdminUser(user: User): user is AdminUser {
+  // red squiggly line under user is AdminUser
   if (!("roles" in user)) {
     throw new Error("User is not an admin");
   }
@@ -1201,5 +1228,5 @@ const handleRequest = (user: User | AdminUser) => {
 };
 
 // hovering over roles shows:
-user: AdminUser
+user: AdminUser;
 ```

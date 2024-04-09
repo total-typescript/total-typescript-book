@@ -192,8 +192,6 @@ function add(a, b) {
 
 So, when you're declaring a named function, their parameters always need annotations in TypeScript.
 
-<!-- TODO - maybe add a caveat to talk about anonymous functions -->
-
 ### The `any` Type
 
 The error we encountered in the 'Function Parameters Always Need Annotations' section was pretty scary:
