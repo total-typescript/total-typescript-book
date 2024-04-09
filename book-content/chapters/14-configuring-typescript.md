@@ -148,15 +148,11 @@ If you're not sure what to specify for `target`, keep it up to date with the ver
 
 You can read the [release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html#support-for-import-d-from-cjs-from-commonjs-modules-with---esmoduleinterop) for more details. Suffice to say, when you're building an application, `esModuleInterop` should always be turned on. There's even a proposal to make it the default in TypeScript 6.0.
 
-<!-- CONTINUE -->
-
 ### `isolatedModules`
 
-Earlier we discussed that `moduleDetection` should be set to `force` in the `tsconfig.json` file because it tells TypeScript to treat all non-declaration `.ts` files as modules. Another recommended module-related setting to enable is `isolatedModules`.
+`isolatedModules` prevents some TypeScript language features that single-file transpilers can't handle.
 
-As the JavaScript ecosystem has evolved, TypeScript has had to adapt to its changes. One of the significant changes was the addition of `import` and `export` statements to JavaScript, which in turn caused some unexpected behavior on the TypeScript side of things.
-
-This led to the introduction of the `isolatedModules` setting, which disables TypeScript features that could be unsafe in an `import-export` environment.
+Sometimes you'll be using other tools than `tsc` to turn your TypeScript into JavaScript. These tools, like `esbuild`, `babel` or `swc`, can't handle all TypeScript features. `isolatedModules` disables these features, making it easier to use these tools.
 
 Consider this example of an `AlbumFormat` enum that has been created with `declare const`:
 
@@ -186,13 +182,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const largestPhysicalSize = AlbumFormat.Vinyl;
 ```
 
-When using `declare`, it's possible for variables to leak out of the file and into the global scope. This would cause issues during single-file transpilation.
+This is because only `tsc` has enough context to understand what value `AlbumFormat.Vinyl` should have. TypeScript checks your entire project at once, and stores the values for `AlbumFormat` in memory.
 
-### Single-file Transpilation
+When using a single-file transpiler like `esbuild`, it doesn't have this context, so it can't know what `AlbumFormat.Vinyl` should be. So, `isolatedModules` is a way to make sure you're not using TypeScript features that can be difficult to transpile.
 
-Single-file transpilation is a feature of tools like ESBuild, SWC, and Babel. This process is often faster with third-party tools when compared to the TypeScript compiler, because they don't need to check the entire project before compiling. However, these tools also don't understand the entire environment your code is being executed in.
+`isolatedModules` is a sensible default because it makes your code more portable if you ever need to switch to a different transpiler - and it disables so few patterns that it's worth the trade-off.
 
-When `isolatedModules` is enabled, TypeScript enables single-file transpilation while preventing unexpected scope issues and increasing the portability of your code across different environments.
+<!-- CONTINUE -->
 
 ## Strictness
 
