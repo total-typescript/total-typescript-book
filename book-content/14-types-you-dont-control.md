@@ -95,8 +95,6 @@ When TypeScript transpiles this code, it will only transform the syntax– in th
 
 API methods are not polyfilled or transformed in any way, and are left as is. This could lead to runtime errors if the code is run in an environment that doesn't support these features. In this case, `replaceAll` will not be transformed, and will throw an error in an ES5-only environment that doesn't support it.
 
-If you need to support older environments, you'll need to find your own polyfills or other tooling since TypeScript won't do it for you.
-
 As mentioned before, it's a good idea to keep your `target` and `lib` options in sync. This ensures that you're only using features that are available in your target environment and helps avoid potential issues with unsupported APIs.
 
 ### `skipLibCheck`

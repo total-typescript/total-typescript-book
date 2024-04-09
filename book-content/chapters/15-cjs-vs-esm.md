@@ -1,5 +1,3 @@
-<!-- CONTINUE -->
-
 # 16. CommonJS vs. ESM Module Systems
 
 The two primary module systems in the JavaScript ecosystem are CommonJS (CJS) and ECMAScript Modules (ESM).

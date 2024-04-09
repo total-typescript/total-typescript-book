@@ -1,12 +1,10 @@
-<!-- CONTINUE -->
-
 # 15. Configuring TypeScript
 
-We've dipped into TypeScript's `tsconfig.json` configuration file a few times in this book. Let's go deep, and give you a full understanding of what you can do with it.
+We've dipped into TypeScript's `tsconfig.json` configuration file a few times in this book. Let's take a deeper look. We won't cover every option in `tsconfig.json` - many of them are old and rarely used - but we'll cover the most important ones.
 
 ## Recommended Configuration
 
-To start, here's a recommended base `tsconfig.json` configuration with options appropriate for any application you're building:
+To start, here's a recommended base `tsconfig.json` configuration with options appropriate for most applications you're building:
 
 ```json
 {
@@ -24,14 +22,14 @@ To start, here's a recommended base `tsconfig.json` configuration with options a
 }
 ```
 
-We've seen most of these settings before, but it wouldn't hurt to do a quick rundown of what each option does:
+Here's what each setting does:
 
-- `skipLibCheck`: Skips type checking of declaration files, which improves compilation speed.
-- `target`: Specifies the ECMAScript target version for the compiled JavaScript code. Targeting `es2022` provides access to the most recent JavaScript features.
+- `skipLibCheck`: Skips type checking of declaration files, which improves compilation speed. We covered this in the previous chapter.
+- `target`: Specifies the ECMAScript target version for the compiled JavaScript code. Targeting `es2022` provides access to some relatively recent JavaScript features - but by the time you read this book, you might want to target a newer version.
 - `esModuleInterop`: Enables better compatibility between CommonJS and ES modules.
 - `allowJs`: Allows JavaScript files to be imported into the TypeScript project.
 - `resolveJsonModule`: Allows JSON files to be imported into your TypeScript project.
-- `moduleDetection`: The `force` option tells TypeScript to treat all `.ts` files as a module, instead of a script.
+- `moduleDetection`: The `force` option tells TypeScript to treat all `.ts` files as a module, instead of a script. We covered this in the previous chapter.
 - `isolatedModules`: Ensures that each file can be independently transpiled without relying on information from other files.
 - `strict`: Enables a set of strict type checking options that catch more errors and generally promote better code quality.
 - `noUncheckedIndexedAccess`: Enforces stricter type checking for indexed access operations, catching potential runtime errors.
@@ -75,7 +73,6 @@ Based on your answers to the above questions, here's how the complete `tsconfig.
     "noUncheckedIndexedAccess": true,
 
     /* If transpiling with TypeScript: */
-    "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "outDir": "dist",
     "sourceMap": true,
@@ -100,15 +97,132 @@ Based on your answers to the above questions, here's how the complete `tsconfig.
 }
 ```
 
-At this point, it would be safe for you to just skip the rest of the chapter and just use the above configuration for all of your projects.
+Now that we understand the lay of the land, let's take a look at each of these options in more detail.
 
-However, you'll gain a deeper understanding of TypeScript by seeing how these options work and why the recommended configuration is set up the way it is.
+## Base Options
 
-## Stricter Checking with `noUncheckedIndexedAccess`
+### `target`
 
-The `strict` option in `tsconfig.json` acts as shorthand for enabling several different type checking options all at once, including catching potential `null` or `undefined` issues and stronger checks for function parameters, among others. However, there isn't additional index-based checking included.
+The `target` option specifies the ECMAScript version that TypeScript should target when generating JavaScript code.
 
-This is why `noUncheckedIndexedAccess` is recommended as part of the base `tsconfig.json` configuration. When enabled, it helps catch potential runtime errors by detecting cases where accessing an array or object index might return `undefined`.
+For example, setting `target` to `ES5` will attempt to transform your code to be compatible with ECMAScript 5.
+
+Language features like optional chaining and nullish coalescing, which were introduced later than ES5, are still available:
+
+```tsx
+// Optional chaining
+const search = input?.search;
+
+// Nullish coalescing
+const defaultedSearch = search ?? "Hello";
+```
+
+But when they are turned into JavaScript, they'll be transformed into code that works in ES5 environments:
+
+```javascript
+// Optional chaining
+var search = input === null || input === void 0 ? void 0 : input.search;
+// Nullish coalescing
+var defaultedSearch = search !== null && search !== void 0 ? search : "Hello";
+```
+
+#### `target` Doesn't Polyfill
+
+While `target` can transpile newer syntaxes into older environments, it won't do the same with API's that don't exist in the target environment.
+
+For example, if you're targeting a version of JavaScript that doesn't support `.replaceAll` on strings, TypeScript won't polyfill it for you:
+
+```tsx
+const str = "Hello, world!";
+
+str.replaceAll("Hello,", "Goodbye, cruel");
+```
+
+This code will error in your target environment, because `target` won't transform it for you. If you need to support older environments, you'll need to find your own polyfills. You configure the environment your code executes in with `lib`, as we saw in a previous chapter.
+
+If you're not sure what to specify for `target`, keep it up to date with the version you have specified in `lib`.
+
+### `esModuleInterop`
+
+`esModuleInterop` is an old flag, released in 2018. It helps with interoperability between CommonJS and ES modules. At the time, TypeScript had deviated slightly from commonly-used tools like Babel in how it handled wildcard imports and default exports. `esModuleInterop` brought TypeScript in line with these tools.
+
+You can read the [release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html#support-for-import-d-from-cjs-from-commonjs-modules-with---esmoduleinterop) for more details. Suffice to say, when you're building an application, `esModuleInterop` should always be turned on. There's even a proposal to make it the default in TypeScript 6.0.
+
+<!-- CONTINUE -->
+
+### `isolatedModules`
+
+Earlier we discussed that `moduleDetection` should be set to `force` in the `tsconfig.json` file because it tells TypeScript to treat all non-declaration `.ts` files as modules. Another recommended module-related setting to enable is `isolatedModules`.
+
+As the JavaScript ecosystem has evolved, TypeScript has had to adapt to its changes. One of the significant changes was the addition of `import` and `export` statements to JavaScript, which in turn caused some unexpected behavior on the TypeScript side of things.
+
+This led to the introduction of the `isolatedModules` setting, which disables TypeScript features that could be unsafe in an `import-export` environment.
+
+Consider this example of an `AlbumFormat` enum that has been created with `declare const`:
+
+```tsx
+declare const enum AlbumFormat {
+  CD,
+  Vinyl,
+  Digital,
+}
+
+const largestPhysicalSize = AlbumFormat.Vinyl; // red squiggly line under AlbumFormat when isolatedModules is enabled
+```
+
+Recall that the `declare` keyword will place `const enum` in an ambient context, which means that it would be erased at runtime.
+
+When `isolatedModules` is disabled, this code will compile without any errors.
+
+However, when `isolatedModules` is enabled, the `AlbumFormat` enum will not be erased and TypeScript will raise an error:
+
+```tsx
+// hovering over AlbumFormat.Vinyl shows:
+Cannot access ambient const enums when 'isolatedModules' is enabled.
+
+// index.js after transpilation
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const largestPhysicalSize = AlbumFormat.Vinyl;
+```
+
+When using `declare`, it's possible for variables to leak out of the file and into the global scope. This would cause issues during single-file transpilation.
+
+### Single-file Transpilation
+
+Single-file transpilation is a feature of tools like ESBuild, SWC, and Babel. This process is often faster with third-party tools when compared to the TypeScript compiler, because they don't need to check the entire project before compiling. However, these tools also don't understand the entire environment your code is being executed in.
+
+When `isolatedModules` is enabled, TypeScript enables single-file transpilation while preventing unexpected scope issues and increasing the portability of your code across different environments.
+
+## Strictness
+
+### `strict`
+
+The `strict` option in `tsconfig.json` acts as shorthand for enabling several different type checking options all at once, including catching potential `null` or `undefined` issues and stronger checks for function parameters, among others.
+
+Setting `strict` to `false` makes TypeScript behave in ways which are much less safe. Without `strict`, TypeScript will allow you to assign `null` to a variable that is supposed to be a string:
+
+```tsx
+let name: string = null; // no error
+```
+
+With `strict` enabled, TypeScript will, of course, catch this error.
+
+In fact, I've written this entire book on the premise that you have `strict` enabled in your codebase. It's the baseline for all modern TypeScript apps.
+
+#### Should You Start With `strict: false`?
+
+One argument you often hear for turning `strict` off is that it's a good on-ramp for beginners. You can get a project up and running faster without having to worry about all the strictness rules.
+
+However, I don't think this is a good idea. A lot of prominent TypeScript libraries, like `zod`, `trpc`, `@redux/toolkit` and `xstate`, won't behave how you expect when `strict` is off. Most community resources, like StackOverflow and React TypeScript Cheatsheet, assume you have `strict` enabled.
+
+Not only that, but a project that starts with `strict: false` is likely to stay that way. On a mature codebase, it can be very time-consuming to turn `strict` on and fix all of the errors.
+
+So, I consider `strict: false` a fork of TypeScript. It means you can't work with many libraries, makes seeking help harder, and leads to more runtime errors.
+
+### `noUncheckedIndexedAccess`
+
+One strictness rule which isn't part of `strict` is `noUncheckedIndexedAccess`. When enabled, it helps catch potential runtime errors by detecting cases where accessing an array or object index might return `undefined`.
 
 Consider this example of a `VinylSingle` interface with an array of `tracks`:
 
@@ -167,66 +281,15 @@ console.log(ego.toUpperCase()); // red squiggly line under ego
 
 This means that we have to handle the possibility of `undefined` values when accessing array or object indices.
 
-For this example, a quick way would be to add the optional chaining operator (`?.`) to the `toUpperCase` method, but depending on the context, you might want to handle `undefined` cases differently:
+So `noUncheckedIndexedAccess` makes TypeScript more strict, but at the cost of having to handle `undefined` values more carefully.
 
-```tsx
-console.log(ego?.toUpperCase()); // no error
-console.log(mirror?.toUpperCase()); // no error
-console.log(nonExistentTrack?.toUpperCase()); // no error
+Usually, this is a good trade-off, as it helps catch potential runtime errors early in the development process. But I wouldn't blame you if you end up turning it off in some cases.
 
-// running the code results in:
-EGO;
-MIRROR;
-undefined;
-```
+### Other Strictness Options
 
-Even with this simple example of logging strings to the console, the value of having `noUncheckedIndexedAccess` enabled is clear when it comes to indexing into arrays or objects.
+<!-- TODO -->
 
-## The Role of `isolatedModules`
-
-Earlier we discussed that `moduleDetection` should be set to `force` in the `tsconfig.json` file because it tells TypeScript to treat all non-declaration `.ts` files as modules. Another recommended module-related setting to enable is `isolatedModules`.
-
-As the JavaScript ecosystem has evolved, TypeScript has had to adapt to its changes. One of the significant changes was the addition of `import` and `export` statements to JavaScript, which in turn caused some unexpected behavior on the TypeScript side of things.
-
-This led to the introduction of the `isolatedModules` setting, which disables TypeScript features that could be unsafe in an `import-export` environment.
-
-Consider this example of an `AlbumFormat` enum that has been created with `declare const`:
-
-```tsx
-declare const enum AlbumFormat {
-  CD,
-  Vinyl,
-  Digital,
-}
-
-const largestPhysicalSize = AlbumFormat.Vinyl; // red squiggly line under AlbumFormat when isolatedModules is enabled
-```
-
-Recall that the `declare` keyword will place `const enum` in an ambient context, which means that it would be erased at runtime.
-
-When `isolatedModules` is disabled, this code will compile without any errors.
-
-However, when `isolatedModules` is enabled, the `AlbumFormat` enum will not be erased and TypeScript will raise an error:
-
-```tsx
-// hovering over AlbumFormat.Vinyl shows:
-Cannot access ambient const enums when 'isolatedModules' is enabled.
-
-// index.js after transpilation
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const largestPhysicalSize = AlbumFormat.Vinyl;
-```
-
-When using `declare`, it's possible for variables to leak out of the file and into the global scope. This would cause issues during single-file transpilation.
-
-### Single-file Transpilation
-
-Single-file transpilation is a feature of tools like ESBuild, SWC, and Babel. This process is often faster with third-party tools when compared to the TypeScript compiler, because they don't need to check the entire project before compiling. However, these tools also don't understand the entire environment your code is being executed in.
-
-When `isolatedModules` is enabled, TypeScript enables single-file transpilation while preventing unexpected scope issues and increasing the portability of your code across different environments.
-
-## Module Resolution Strategies
+## `module` and `moduleResolution`
 
 Speaking of modules and transpiling with different tools, the `module` and `moduleResolution` settings in `tsconfig.json` will change depending on your project.
 
@@ -302,17 +365,11 @@ Without any `.js` files to produce, TypeScript will only have to perform type ch
 
 This is particularly useful when you have a separate build process handled by tools like Babel, webpack, or Rollup, and you want TypeScript to focus solely on type checking and linting.
 
-In addition to being a `tsconfig.json` setting, you can also run TypeScript as a linter from the command line by using the `--noEmit` flag:
-
-```bash
-tsc --watch --noEmit
-```
-
 Any errors or warnings will be reported in the terminal as well as in your editor.
 
 By treating TypeScript as a linter, you'll be able to use external tools without losing type-checking and autocompletion features.
 
-## Bundling Code for Library Use
+## Transpiling Code for Library Use
 
 If you're building a library either for publishing on npm or using in your own projects, there are a few important settings you'll need to include in your `tsconfig.json` file.
 
@@ -425,7 +482,7 @@ With this option in place, the TypeScript compiler will generate `.d.ts.map` fil
 
 Declaration maps are most useful when you're building locally in a monorepo or other project where changes to the source code directly affect the generated `.d.ts` files. If you are building a library for npm, it's likely that you won't need declaration maps since the end users will be using the built code instead of the original source.
 
-## Configuring JSX Support
+## `jsx`
 
 Recall that when building web applications, it's recommended to include `dom` and `dom.iterable` in the `lib` options of your `tsconfig.json` file:
 
@@ -770,7 +827,7 @@ Like before, the client and server configurations would extend `tsconfig.base.js
 
 Again, this solution will work, but it might feel like clutter to have so many `tsconfig.json` files in the root directory.
 
-### Option 3: Separate Configuration Folder
+#### Option 3: Separate Configuration Folder
 
 An emerging pattern for having multiple `tsconfig.json` files in a project is to place them into a separate `.config` directory:
 
