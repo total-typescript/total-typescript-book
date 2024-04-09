@@ -379,27 +379,62 @@ This pairs well with `module: "Preserve"` - in both cases, you're telling TypeSc
 
 TypeScript's default for this option is `false` - so if you're finding that running `tsc` emits JavaScript files when you don't want it to, set `noEmit` to `true`.
 
-<!-- CONTINUE -->
+## Source Maps
+
+TypeScript can generate source maps which link your compiled JavaScript code back to your original TypeScript code. You can enable them by setting `sourceMap` to `true` in your `tsconfig.json` file:
+
+```json
+{
+  "compilerOptions": {
+    "sourceMap": true
+  }
+}
+```
+
+When you run your code with Node, you can add the flag `--enable-source-maps`:
+
+```bash
+node --enable-source-maps dist/index.js
+```
+
+Now, when an error occurs in your compiled JavaScript code, the stack trace will point to the original TypeScript file.
 
 ## Transpiling Code for Library Use
 
-If you're building a library either for publishing on npm or using in your own projects, there are a few important settings you'll need to include in your `tsconfig.json` file.
+A very common way of using TypeScript is to build a library that others can use in their projects. When building a library, there are a few additional settings you should consider in your `tsconfig.json` file.
+
+### `outDir`
+
+The `outDir` option in `tsconfig.json` specifies the directory where TypeScript should output the transpiled JavaScript files.
+
+When building a library, it's common to set `outDir` to a `dist` directory in the root of your project:
+
+```json
+{
+  "compilerOptions": {
+    "outDir": "dist"
+  }
+}
+```
+
+This can be combined with `rootDir` to specify the root directory of your TypeScript files:
+
+```json
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  }
+}
+```
+
+Now, a file at `src/index.ts` will be transpiled to `dist/index.js`.
 
 ### Creating Declaration Files
 
 We've already discussed how `.d.ts` declaration files are used to provide type information for JavaScript code, but so far we've only created them manually.
 
-By setting `"declaration": true` in your `tsconfig.json` file, TypeScript will automatically generate `.d.ts` files and save them alongside your compiled JavaScript files in the specified `outDir`:
-
-```json
-{
-  "compilerOptions": {
-    "declaration": true,
-    "outDir": "dist"
-    // ... other options ...
-```
-
-When you run the TypeScript compiler, it will generate `.d.ts` files for each TypeScript file in your project. These declaration files will contain type information for the corresponding JavaScript files, allowing other developers to use your library with TypeScript and benefit from type checking and autocompletion features.
+By setting `"declaration": true` in your `tsconfig.json` file, TypeScript will automatically generate `.d.ts` files and save them alongside your compiled JavaScript files.
 
 ```json
 {
@@ -462,37 +497,44 @@ function createAlbum(title, artist, year) {
 exports.createAlbum = createAlbum;
 ```
 
-Once the declaration files are generated, they can be imported and used in separate files:
-
-```tsx
-// inside app.js
-
-import { createAlbum } from "dist/album";
-
-const album = createAlbum("Go Forth", "Les Savy Fav", 2001);
-```
-
-At this point, we could use `CMD + click` to go to the definition of `createAlbum` in VS Code, but it would take us to `album.d.ts`.
-
-Depending on your use case, it may be more useful to go to the actual implementation in `album.js`. This is where declaration maps come in.
+Now, anyone who uses your library will have access to the type information in the `.d.ts` files.
 
 ### Declaration Maps
 
-Declaration maps are generated files that provide a mapping between the generated `.d.ts` and the original `.ts` source files.
+One common use case for libraries is inside monorepos. A monorepo is a collection of libraries, each with their own `package.json`, that can be shared across different applications. This means that you'll often be developing the library and the application that uses it side-by-side.
 
-In order to create them, the `declarationMap` setting should be added to your `tsconfig.json` file:
+For example, a monorepo might look like this:
+
+```
+monorepo
+  ├── apps
+  │   └── my-app
+  │       └── package.json
+  └── packages
+      └── my-library
+          └── package.json
+```
+
+However, if you're working on code inside `my-app` that imports from `my-library`, you'll be working with the compiled JavaScript code, not the TypeScript source code. This means that when you `CMD + click` on an import, you'll be taken to the `.d.ts` file instead of the original TypeScript source.
+
+This is where declaration maps come in. They provide a mapping between the generated `.d.ts` and the original `.ts` source files.
+
+In order to create them, the `declarationMap` setting should be added to your `tsconfig.json` file, as well as the `sourceMap` setting:
 
 ```json
 {
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true
-    // ... other options ...
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}
 ```
 
-With this option in place, the TypeScript compiler will generate `.d.ts.map` files alongside the `.d.ts` files. Now when `CMD + click`ing on the `createAlbum` import in `app.js`, you'll be taken to the original `album.ts` file instead of the type definitions.
+With this option in place, the TypeScript compiler will generate `.d.ts.map` files alongside the `.d.ts` files. Now, when you `CMD + click` on an import in `my-app`, you'll be taken to the original TypeScript source file in `my-library`.
 
-Declaration maps are most useful when you're building locally in a monorepo or other project where changes to the source code directly affect the generated `.d.ts` files. If you are building a library for npm, it's likely that you won't need declaration maps since the end users will be using the built code instead of the original source.
+This is less useful when your library is on `npm`, unless you also ship your source files - but that's a little outside the scope of this book. In a monorepo, however, declaration maps are a great quality-of-life improvement.
+
+<!-- CONTINUE -->
 
 ### Which `module` Should You Choose?
 
