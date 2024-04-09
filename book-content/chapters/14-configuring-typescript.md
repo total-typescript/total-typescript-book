@@ -551,8 +551,6 @@ The `jsx` option tells TypeScript how to handle JSX syntax, and has five possibl
 - `react`: Transforms JSX into `React.createElement` calls. Useful for React 16 and earlier.
 - `react-jsx`: Transforms JSX into `_jsx` calls, and automatically imports from `react/jsx-runtime`. Useful for React 17 and later.
 
-<!-- CONTINUE -->
-
 ## Managing Multiple TypeScript Configurations
 
 As projects grow in size and complexity, it's common to have different environments or targets within the same project.
