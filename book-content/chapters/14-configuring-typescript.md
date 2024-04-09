@@ -186,9 +186,7 @@ This is because only `tsc` has enough context to understand what value `AlbumFor
 
 When using a single-file transpiler like `esbuild`, it doesn't have this context, so it can't know what `AlbumFormat.Vinyl` should be. So, `isolatedModules` is a way to make sure you're not using TypeScript features that can be difficult to transpile.
 
-`isolatedModules` is a sensible default because it makes your code more portable if you ever need to switch to a different transpiler - and it disables so few patterns that it's worth the trade-off.
-
-<!-- CONTINUE -->
+`isolatedModules` is a sensible default because it makes your code more portable if you ever need to switch to a different transpiler. It disables so few patterns that it's worth always turning on.
 
 ## Strictness
 
@@ -283,11 +281,20 @@ Usually, this is a good trade-off, as it helps catch potential runtime errors ea
 
 ### Other Strictness Options
 
-<!-- TODO -->
+I tend to configure my `tsconfig.json` no stricter than `strict` and `noUncheckedIndexedAccess`. If you want to go further, there are several other strictness options you can enable:
 
-## `module` and `moduleResolution`
+- `allowUnreachableCode`: Errors when unreachable code is detected, like code after a `return` statement.
+- `exactOptionalPropertyTypes`: Requires that optional properties are exactly the type they're declared as, instead of allowing `undefined`.
+- `noFallthroughCasesInSwitch`: Ensures that any non-empty `case` block in a `switch` statement ends with a `break`, `return`, or `throw` statement.
+- `noImplicitOverride`: Requires that `override` is used when overriding a method from a base class.
+- `noImplicitReturns`: Ensures that every code path in a function returns a value.
+- `noPropertyAccessFromIndexSignature`: Forces you to use `example['access']` when accessing a property on an object with an index signature.
+- `noUnusedLocals`: Errors when a local variable is declared but never used.
+- `noUnusedParameters`: Errors when a function parameter is declared but never used.
 
-Speaking of modules and transpiling with different tools, the `module` and `moduleResolution` settings in `tsconfig.json` will change depending on your project.
+<!-- CONTINUE -->
+
+## The Two Choices For `module`
 
 The `module` setting specifies what kind of module code you want TypeScript to emit, and the `moduleResolution` setting determines how TypeScript should resolve imports throughout your application.
 
