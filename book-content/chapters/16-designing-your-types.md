@@ -1,16 +1,22 @@
-# 17. Designing Your Types in TypeScript
+# 16. Designing Your Types in TypeScript
 
-The types you design are more than just a way to catch errors at compile time. They are a representation of your business logic. Your application's types will likely correspond closely to your database, and should also convey your app's logic.
+As you build out your TypeScript applications, you're going to notice something. The way you design your types will significantly change how easy your application is to maintain.
 
-We've seen syntax like `interface extends` and type helpers like `Pick` and `Omit` that allow us to create new types based on existing ones, but it's time to go further.
+Your types are more than just a way to catch errors at compile time. They help reflect and communicate the business logic they represent.
 
-In this chapter, we add several more techniques for composing and transforming types. We'll work with generics, which add a ton of flexibility by allowing you to parameterize your types. We'll also introduce template literal types for defining and enforcing specific string formats, as well as mapped types for deriving the shape of one type from another.
+We've seen syntax like `interface extends` and type helpers like `Pick` and `Omit`. We understand the benefits and trade-offs of deriving types from other types. In this chapter, we'll dive deeper into designing your types in TypeScript.
 
-Designing types is a non-trivial task, but with these techniques, you'll be able to create and compose types that accurately represent your business domain.
+We'll add several more techniques for composing and transforming types. We'll work with generic types, which can turn your types into 'type functions'. We'll also introduce template literal types for defining and enforcing specific string formats, as well as mapped types for deriving the shape of one type from another.
 
 ## Generic Types
 
-Generic types allow you to provide parameters that are used to create types, similar to how functions are provided arguments. This means you can write reusable type definitions that can work with a variety of data types.
+Generic types let you turn a type into a 'type function' which can receive arguments. We've seen generic types before, like `Pick` and `Omit`. These types take in a type and a key, and return a new type based on that key:
+
+```tsx
+type Example = Pick<{ a: string; b: number }, "a">;
+```
+
+Now, we're going to be creating our own generic types. These are most useful for reducing repetition in your code.
 
 Consider these `StreamingPlaylist` and `StreamingAlbum` types, which share similar structures:
 
@@ -28,6 +34,7 @@ type StreamingPlaylist =
       status: "unavailable";
       reason: string;
     };
+
 type StreamingAlbum =
   | {
       status: "available";
@@ -50,19 +57,21 @@ The primary difference lies in the structure of the `content` object: the `Strea
 
 In order to reduce repetition, we can create a generic type called `ResourceStatus` that can represent both `StreamingPlaylist` and `StreamingAlbum`.
 
-### Creating a Generic Type
+To create a generic type, we use a _type parameter_ that declares what type of arguments the type must receive.
 
-To create a generic type, we use a type parameter that acts as a placeholder for the actual type. This allows us to define a type that can work with different data types.
-
-To specify the parameter, we use the angle bracket syntax that will look familiar from working with the various type helpers we've seen earlier in the book. Often type parameters are named with single-letter names like `T`, `K`, or `V`, but you can name them anything you like.
-
-Our `ResourceStatus` type will take in a parameter of `TContent`, which will represent the shape of the `content` object that is specific to each resource. For now, we'll set the type to `unknown`:
+To specify the parameter, we use the angle bracket syntax that will look familiar from working with the various type helpers we've seen earlier in the book:
 
 ```tsx
 type ResourceStatus<TContent> = unknown;
 ```
 
-Let's create an `Example` type to demonstrate how the generic `ResourceStatus` type works, and provide an object type as the type argument for `TContent`:
+Our `ResourceStatus` type will take in a type parameter of `TContent`, which will represent the shape of the `content` object that is specific to each resource. For now, we'll set the resolved type to `unknown`.
+
+Often type parameters are named with single-letter names like `T`, `K`, or `V`, but you can name them anything you like.
+
+Now we've declared `ResourceStatus` as a generic type, we can pass it a _type argument_.
+
+Let's create an `Example` type, and provide an object type as the type argument for `TContent`:
 
 ```tsx
 type Example = ResourceStatus<{
@@ -70,31 +79,29 @@ type Example = ResourceStatus<{
   name: string;
   tracks: string[];
 }>;
+```
 
+Just like with `Pick` and `Omit`, the type argument is passed in as an argument to the generic type.
+
+But what type will `Example` be?
+
+```tsx
 // hovering over Example shows
 type Example = unknown;
 ```
 
-Because `ResourceStatus` is currently typed as `unknown`, the `Example` type is also `unknown`.
-
-If we change `ResourceStatus` to be typed the same as the `TContent` that is passed in, we can see that `Example` will now be typed as the object type we provided as the type argument:
+We set the result of `ResourceStatus` to be `unknown`. Why is this happening? We can get a clue by hovering over the `TContent` parameter in the `ResourceStatus` type:
 
 ```tsx
-type ResourceStatus<TContent> = TContent;
+type ResourceStatus<TContent> = unknown;
 
-// hovering over Example shows
-type Example = {
-  id: string;
-  name: string;
-  tracks: string[];
-};
+// hovering over TContent shows:
+// Type 'TContent' is declared but its value is never read.
 ```
 
-Just like with a function, we can use the `TContent` that's being passed in to create a new type. This is the property we will leverage to define the shape of the `ResourceStatus` type.
+We're not _using_ the `TContent` parameter. We're just returning `unknown`, no matter what is passed in. So, the `Example` type is also `unknown`.
 
-The primary difference between the `StreamingPlaylist` and `StreamingAlbum` types was in `content` object in the first branch of the union type. The second branch's `unavailable` status and `reason` properties are the same.
-
-We can update the shape of the `ResourceStatus` type to reflect this:
+So, let's use it. Let's update the `ResourceStatus` type to match the structure of the `StreamingPlaylist` and `StreamingAlbum` types, with the bit we want to be dynamic replaced with the `TContent` type parameter:
 
 ```tsx
 type ResourceStatus<TContent> =
@@ -108,7 +115,7 @@ type ResourceStatus<TContent> =
     };
 ```
 
-With the `ResourceStatus` type defined, we can now redefine `StreamingPlaylist` and `StreamingAlbum` to use it:
+We can now redefine `StreamingPlaylist` and `StreamingAlbum` to use it:
 
 ```tsx
 type StreamingPlaylist = ResourceStatus<{
@@ -125,7 +132,7 @@ type StreamingAlbum = ResourceStatus<{
 }>;
 ```
 
-Now if we hover over `StreamingPlaylist`, we will see that it has the same structure as it did originally, but it's now defined in terms of the `ResourceStatus` type without having to manually provide the additional properties:
+Now if we hover over `StreamingPlaylist`, we will see that it has the same structure as it did originally, but it's now defined with the `ResourceStatus` type without having to manually provide the additional properties:
 
 ```tsx
 // hovering over StreamingPlaylist shows:
@@ -145,7 +152,7 @@ type StreamingPlaylist =
     };
 ```
 
-Because the `ResourceStatus` type is generic, we can quickly and easily create new types of resources that maintain structure while accommodating different content shapes.
+`ResourceStatus` is now a generic type. It's a kind of type function, which means it's useful in all the ways runtime functions are useful. We can use generic types to capture repeated patterns in our types, and make our types more flexible and reusable.
 
 ### Multiple Type Parameters
 
@@ -199,24 +206,24 @@ type StreamingAlbum = ResourceStatus<
 
 Like before, each type maintains the same structure defined in `ResourceStatus`, but with its own content and metadata.
 
+You can use as many type parameters as you need in a generic type. But just like with functions, the more parameters you have, the more complex your types can become.
+
+### All Type Arguments Must Be Provided
+
+What happens if we don't pass a type argument to a generic type? Let's try it with the `ResourceStatus` type:
+
+```tsx
+type Example = ResourceStatus; // red squiggly line under ResourceStatus
+
+// hovering over ResourceStatus shows:
+// Generic type 'ResourceStatus' requires 2 type argument(s).
+```
+
+TypeScript shows an error that tells us that `ResourceStatus` requires two type arguments. This is because by default, all generic types _require_ their type arguments to be passed in, just like runtime functions.
+
 ### Default Type Parameters
 
 In some cases, you may want to provide default types for generic type parameters. Like with functions, you can use the `=` to assign a default value.
-
-With the latest update to the `ResourceStatus` type, the second type parameter `TMetadata` is required.
-
-For example, if we want to create a `ResourceStatus` type that doesn't include metadata, TypeScript gives us an error:
-
-```tsx
-type StreamingPlaylist = ResourceStatus<{
-  id: number;
-  name: string;
-  tracks: string[];
-}>; // red squiggly line under the content object
-
-// hovering over the error shows:
-Generic type 'ResourceStatus' requires 2 type argument(s).
-```
 
 By setting `TMetadata`'s default value to an empty, we can essentially make `TMetadata` optional:
 
@@ -233,7 +240,17 @@ type ResourceStatus<TContent, TMetadata = {}> =
     };
 ```
 
-With this change, the error under `StreamingPlaylist` as gone away. If we hover over it, we'll see that it's typed as expected, with `metadata` being an empty object:
+Now, we can create a `StreamingPlaylist` type without providing a `TMetadata` type argument:
+
+```tsx
+type StreamingPlaylist = ResourceStatus<{
+  id: number;
+  name: string;
+  tracks: string[];
+}>;
+```
+
+If we hover over it, we'll see that it's typed as expected, with `metadata` being an empty object:
 
 ```tsx
 type StreamingPlaylist =
@@ -252,40 +269,11 @@ type StreamingPlaylist =
     };
 ```
 
-However, there's an interesting behavior here. Even though we've specified that `TMetadata` will be an empty object by default, we can still provide a different type for `TMetadata` if we want to:
-
-```tsx
-type StreamingPlaylist = ResourceStatus<
-  {
-    id: number;
-    name: string;
-    tracks: string[];
-  },
-  number
->;
-
-// hovering over StreamingPlaylist shows:
-type StreamingPlaylist =
-  | {
-      status: "unavailable";
-      reason: string;
-    }
-  | {
-      status: "available";
-      content: {
-        id: number;
-        name: string;
-        tracks: string[];
-      };
-      metadata: number;
-    };
-```
-
-It would probably be a good idea to add a constraints to ensure that the parameters to `ResourceStatus` are of the correct type.
+Defaults can help make your generic types more flexible and easier to use.
 
 ### Type Parameter Constraints
 
-To set constraints on type parameters, we can use the `extends` keyword like we've seen in the context of interfaces and type aliases.
+To set constraints on type parameters, we can use the `extends` keyword.
 
 We can force the `TMetadata` type parameter to be an object while still defaulting to an empty object:
 
@@ -297,21 +285,17 @@ There's also an opportunity to provide a constraint for the `TContent` type para
 
 Both of the `StreamingPlaylist` and `StreamingAlbum` types have an `id` property in their `content` objects. This would be a good candidate for a constraint.
 
-First, we'll define a `HasId` interface with an `id` property:
+We can create a `HasId` type that enforces the presence of an `id` property:
 
 ```tsx
-interface HasId {
+type HasId = {
   id: number;
-}
-```
+};
 
-Then we can use this interface as a constraint for the `TContent` type parameter in the `ResourceStatus` type:
-
-```tsx
 type ResourceStatus<TContent extends HasId, TMetadata extends object = {}> =
   | {
       status: "available";
-      content: TContent extends HasId;
+      content: TContent;
       metadata: TMetadata;
     }
   | {
@@ -338,113 +322,38 @@ type StreamingPlaylist = ResourceStatus<
 >;
 
 // hovering over the error shows:
-Type '{ name: string; tracks: string[]; }' does not satisfy the constraint 'HasId'.
-  Property 'id' is missing in type '{ name: string; tracks: string[]; }' but required in type 'HasId'.
+// Type '{ name: string; tracks: string[]; }' does not satisfy the constraint 'HasId'.
+//   Property 'id' is missing in type '{ name: string; tracks: string[]; }' but required in type 'HasId'.
 ```
 
 Once the `id` property is added to the `TContent` type parameter, the error will go away.
 
-### Putting it All Together
+#### Constraints Describe Required Properties
 
-The generic `ResourceStatus` type allows for the creation of any sort of resource, as long as its constraints are met. The first branch of the union type represents the resource being available, with a `content` object and optional `metadata`. The second branch represents the resource being unavailable, with a `reason` for its unavailability.
+Note that these constraints we're providing here are just descriptions for properties the object must contain. We can pass `name` and `tracks` into `TContent` as long as it has an `id` property.
 
-Let's create a `DownloadableAlbum` type that is generally `available` for listening, but only for paid subscribers.
+In other words, these constraints are _open_, not _closed_. You won't get excess property warnings here. Any excess properties you pass in will be added to the type.
 
-We'll provide an object corresponding to the `TContent` parameter that includes the required `id`, along with a `TMetdata` object that contains a `region` property:
+#### `extends`, `extends`, `extends`
 
-```tsx
-type DownloadableAlbum = ResourceStatus<
-  {
-    id: string;
-    name: string;
-    artist: string;
-    year: number;
-  },
-  {
-    region: string;
-  }
->;
-```
+By now, we've seen `extends` used in a few different contexts:
 
-We can create a variable representing an album that is typed as the `DownloadableAlbum` type:
+- In generic types, to set constraints on type parameters
+- In classes, to extend another class
+- In interfaces, to extend another interface
 
-```tsx
-let hosonoHouse: DownloadableAlbum = {
-  status: "available",
-  content: {
-    id: "1",
-    artist: "Haruomi Hosono",
-    name: "Hosono House",
-    year: 1973,
-  },
-  metadata: {
-    region: "Japan",
-  },
-};
-```
+There is even another use for `extends` - conditional types, which we'll look at later in this chapter.
 
-Next, we'll write a function that checks if the `DownloadableAlbum` being passed in is available in a specific region. The function will use a type guard to first check that the album has a `status` of `available`. Once we know the album is available, we know that it will have a content object with a `name` that we can access. Because the function will also return a `DownloadableAlbum`, if the region is not Japan, the function will return an object with a `status` of `unavailable` and a `reason` property as defined in the `ResourceStatus` type:
+One of TypeScript's annoying habits is that it tends to reuse the same keywords in different contexts. So it's important to understand that `extends` means different things in different places.
+
+### Putting It All Together: A Generic `Result` Type
+
+Let's put all of these concepts together to create a generic `Result` type. This is a common pattern in TypeScript for handling success and error states.
+
+Let's start by defining the `Result` type:
 
 ```tsx
-function checkRegionAvailability(
-  album: DownloadableAlbum,
-  region: string,
-): DownloadableAlbum {
-  // Check if the album is available
-  if (album.status === "available") {
-    let albumName = album.content.name;
-
-    if (region !== "Japan") {
-      return {
-        status: "unavailable",
-        reason: `${albumName} is not available in ${region}`,
-      };
-    }
-    return album;
-  } else {
-    // If the album is already unavailable, just return it as is
-    return album;
-  }
-}
-```
-
-We can test the function by passing in the `hosonoHouse` album and a region:
-
-```tsx
-hosonoHouse = checkRegionAvailability(hosonoHouse, "USA");
-
-console.log(`hosonoHouse after region check: `, hosonoHouse);
-
-// Output:
-hosonoHouse after region check:  { status: 'unavailable', reason: 'Hosono House is not available in USA' }
-```
-
-If we create a new `unreleasedAlbum` typed as `DownloadableAlbum` with an `unavailable` status, it will be returned as-is when passed into the `checkRegionAvailability` function:
-
-```tsx
-const unreleasedAlbum: DownloadableAlbum = {
-  status: "unavailable",
-  reason: "Album has not been released yet",
-};
-
-unreleasedAlbum = checkRegionAvailability(unreleasedAlbum, "Japan");
-
-console.log(`unreleasedAlbum after region check: `, unreleasedAlbum);
-
-// Output:
-unreleasedAlbum after region check:  { status: 'unavailable', reason: 'Album has not been released yet' }
-```
-
-Generics are one of the most important features of TypeScript. They provide flexibility and reusability, while still maintaining type safety. As you become more comfortable with generics, you'll find that they can be used to solve a wide variety of problems.
-
-## A Generic `Result` Type
-
-As we iterated through building the `ResourceStatus` generic type, we essentially encapsulated the concept of a type that either has a success state or an error state.
-
-This type follows the structure of a common TypeScript pattern seen in this `Result` type:
-
-```tsx
-type Result<TResult, TError = Error> =
+type Result<TResult, TError extends { message: string } = Error> =
   | {
       success: true;
       data: TResult;
@@ -457,21 +366,45 @@ type Result<TResult, TError = Error> =
 
 Here, `Result` is a generic type that accepts two type parameters `TResult` and `TError`, and returns a discriminated union where the first branch represents a successful operation and the second branch represents an unsuccessful operation.
 
-The `TResult` type parameter represents the type of the data that will be returned if the operation is successful. The `TError` type parameter represents the type of the error that will be returned if the operation is unsuccessful, defaulting to the built-in `Error` type.
+The `TError` type parameter is constrained to an object with a `message` property, and defaults to the `Error` type. This means you can pass in more specific error types if you want, like `TypeError` or `SyntaxError`.
 
-This pattern for defining the `Result` type comes in handy for error handling, as it eliminates the need for `try-catch` blocks. Instead, we can directly check if there was an error and handle it accordingly:
+Now we can use the `Result` type to represent the result of an operation that can either succeed or fail:
 
 ```tsx
-function doSomethingWithResult(result: Result<string, Error>) {
-  if (result.success) {
-    console.log(result.data);
-  } else {
-    console.error(result.error.message);
+const createRandomNumber = (): Result<number> => {
+  const num = Math.random();
+
+  if (num > 0.5) {
+    return {
+      success: true,
+      data: 123,
+    };
   }
+
+  return {
+    success: false,
+    error: new Error("Something went wrong"),
+  };
+};
+```
+
+In this example, `createRandomNumber` returns a `Result` type that represents a random number that is either successfully generated or an error if the number is less than 0.5.
+
+When we use `createRandomNumber`, TypeScript will infer the type of the result based on the return value, and use narrowing on `.success` to determine whether the operation was successful or not:
+
+```tsx
+const result = createRandomNumber();
+
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.error(result.error.message);
 }
 ```
 
-If you have complicated imperative code in your projects, give the `Result` type pattern a try!
+This can be a powerful pattern for handling success and error states in your applications, and can help you avoid using `try-catch` blocks in favor of more explicit error handling.
+
+<!-- CONTINUE -->
 
 ## Template Literal Types in TypeScript
 

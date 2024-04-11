@@ -1,10 +1,10 @@
 <!-- CONTINUE -->
 
-# 16. CommonJS vs. ESM Module Systems
+# 15. CommonJS vs. ES Modules
 
-The two primary module systems in the JavaScript ecosystem are CommonJS (CJS) and ECMAScript Modules (ESM).
+JavaScript is still a very young language. Its youth is most obvious when looking at how you modularize your code. As of 2024, the time of writing, there are _two_ ways to modularize your code in JavaScript: CommonJS (CJS) and ECMAScript Modules (ESM).
 
-While both serve the purpose of organizing and sharing code, they were created under different circumstances and are often seen as competing standards. However, understanding their differences and knowing when to use each is crucial for effective JavaScript and TypeScript development.
+Understanding the differences between these two module systems, and how they interoperate, is crucial for writing modern JavaScript applications.
 
 ## An Overview
 
