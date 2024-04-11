@@ -456,6 +456,110 @@ That's 27 possible combinations - three colors times nine shades.
 
 If you have any kind of string pattern you want to enforce in your application, from routes to URI's to hex codes, template literal types can help.
 
+### Transforming String Types
+
+TypeScript even has several built-in utility types for transforming string types. For example, `Uppercase` and `Lowercase` can be used to convert a string to uppercase or lowercase:
+
+```tsx
+type UppercaseHello = Uppercase<"hello">; // "HELLO"
+type LowercaseHELLO = Lowercase<"HELLO">; // "hello"
+```
+
+The `Capitalize` type can be used to capitalize the first letter of a string:
+
+```tsx
+type CapitalizeMatt = Capitalize<"matt">; // "Matt"
+```
+
+The `Uncapitalize` type can be used to lowercase the first letter of a string:
+
+```tsx
+type UncapitalizePHD = Uncapitalize<"PHD">; // "pHD"
+```
+
+These utility types are occasionally useful for transforming string types in your applications, and prove how flexible TypeScript's type system can be.
+
+## Conditional Types
+
+You can use conditional types in TypeScript to create if/else logic in your types. This is mostly useful in a library setting when working with really complex code, but I'll show you a simple example in case you ever run into it.
+
+Let's imagine we create a `ToArray` generic type that converts a type to an array type:
+
+```tsx
+type ToArray<T> = T[];
+```
+
+This is fine, except when we pass in a type that's already an array. If we do, we'll get an array of arrays:
+
+```tsx
+type Example = ToArray<string>; // string[]
+type Example2 = ToArray<string[]>; // string[][]
+```
+
+We actually want `Example2` to end up as `string[]` too. So, we'll need to check if `T` is already an array, and if it is, we'll return `T` instead of `T[]`.
+
+We can use a conditional type to do that. This uses a ternary operator, similar to JavaScript:
+
+```tsx
+type ToArray<T> = T extends any[] ? T : T[];
+```
+
+This will look pretty scary the first time you see it, but let's break it down.
+
+```tsx
+type ToArray<T> = T extends any[] ? T : T[];
+//                ^^^^^^^^^^^^^^^   ^   ^^^
+//                condition       true/false
+```
+
+### The Condition
+
+The 'condition' in a conditional type is the part before the `?`. In this case, it's `T extends any[]`.
+
+```tsx
+type ToArray<T> = T extends any[] ? T : T[];
+//                ^^^^^^^^^^^^^^^
+//                   condition
+```
+
+This checks if `T` can be assigned to `any[]`. To make sense of this check, imagine it like a function:
+
+```tsx
+const toArray = (t: any[]) => {
+  // implementation
+};
+```
+
+What could be passed to this function? Only arrays:
+
+```tsx
+toArray([1, 2, 3]); // OK
+toArray("hello"); // Error
+```
+
+`T extends any[]` checks if `T` could be passed to a function expecting `any[]`. If we wanted to check if `T` was a string, we'd use `T extends string`.
+
+### 'True' and 'False'
+
+```tsx
+type ToArray<T> = T extends any[] ? T : T[];
+//                                  ^   ^^^
+//                                 true/false
+```
+
+If the condition is true, it resolves to the 'true' part, just like a normal ternary. If it's false, it resolves to the 'false' part.
+
+In this case, if `T` is an array, it resolves to `T`. If it's not, it resolves to `T[]`.
+
+This means that our examples above now work as expected:
+
+```tsx
+type Example = ToArray<string>; // string[]
+type Example2 = ToArray<string[]>; // string[]
+```
+
+Conditional types turn TypeScript's type system into a full programming language. They're incredibly powerful, but they can also be incredibly complex. You'll rarely need them in application code, but they can perform wonders in library code.
+
 <!-- CONTINUE -->
 
 ## Mapped Types
@@ -495,7 +599,7 @@ In the above, the `[K in keyof Album]` part of the mapped type iterates over the
 
 Now when typing something as `AlbumWithPlayableSongs`, each of the `songs` will need to follow the shape of `SongWithPlayingStatus` and include a boolean `nowPlaying` property.
 
-#### Key Remapping with `as`
+### Key Remapping with `as`
 
 We've used a mapped type to change the type of `songs` in the `Album` interface to `SongWithPlayingStatus[]`, but it would be nice to have a more descriptive key name.
 
@@ -559,7 +663,7 @@ console.log(nowPlayingMessage);
 Now playing: Three Little Birds
 ```
 
-#### Another Mapped Type Example
+### Another Mapped Type Example
 
 Mapped types don't always have to use `keyof` to iterate over an object. They can also map over a union of something that's assignable to a string.
 
