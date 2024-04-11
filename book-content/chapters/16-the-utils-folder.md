@@ -1,6 +1,6 @@
 <!-- CONTINUE -->
 
-# 17. Utility Folder Development in TypeScript
+# 16. Building Reusable Functions in TypeScript
 
 There are three primary levels of complexity when it comes to TypeScript development.
 

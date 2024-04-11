@@ -1,4 +1,4 @@
-# 16. Designing Your Types in TypeScript
+# 15. Designing Your Types in TypeScript
 
 As you build out your TypeScript applications, you're going to notice something. The way you design your types will significantly change how easy your application is to maintain.
 
