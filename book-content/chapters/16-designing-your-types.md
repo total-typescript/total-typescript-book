@@ -560,11 +560,9 @@ type Example2 = ToArray<string[]>; // string[]
 
 Conditional types turn TypeScript's type system into a full programming language. They're incredibly powerful, but they can also be incredibly complex. You'll rarely need them in application code, but they can perform wonders in library code.
 
-<!-- CONTINUE -->
-
 ## Mapped Types
 
-Mapped types in TypeScript allow you to create a new type based on an existing type by iterating over its keys and values, similar to how a `map` function can be used in JavaScript. This can be useful for creating new types that are variations of existing ones, while maintaining a single source of truth.
+Mapped types in TypeScript allow you to create a new object type based on an existing type by iterating over its keys and values. This can be let you be extremely expressive when creating new object types.
 
 Consider this `Album` interface:
 
@@ -576,96 +574,133 @@ interface Album {
 }
 ```
 
-Notice that the `songs` property in the `Album` interface is an array of strings. This is fine for representing a basic album structure in a music library, but wouldn't really work in a player application. This situation would call for more detailed information like its currently playback status, as seen in this `SongWithPlayingStatus` type:
+Imagine we want to create a new type that makes all the properties optional and nullable. If it were only optional, we could use `Partial`, but we want to end up with a type that looks like this:
 
 ```tsx
-type SongWithPlayingStatus = {
-  title: string;
-  nowPlaying: boolean;
+type AlbumWithNullable = {
+  name?: string | null;
+  artist?: string | null;
+  songs?: string[] | null;
 };
 ```
 
-Instead of manually updating the `Album` interface to incorporate the `SongWithPlayingStatus` type, we can use a mapped type to dynamically generate a new `AlbumWithPlayableSongs` type based on the `Album` interface. This new type will have the `songs` property replaced with an array of `SongWithPlayingStatus` objects.
-
-Here's what the syntax for the mapped type looks like:
+Let's start by, instead of repeating the properties, using a mapped type:
 
 ```tsx
-type AlbumWithPlayableSongs = {
-  [K in keyof Album]: K extends "songs" ? SongWithPlayingStatus[] : Album[K];
+type AlbumWithNullable = {
+  [K in keyof Album]: K;
 };
 ```
 
-In the above, the `[K in keyof Album]` part of the mapped type iterates over the keys of the `Album` interface. For each key, we check if the key is `'songs'`. If the key is `songs`, we replace its type with an array of `SongWithPlayingStatus` objects. Otherwise the original type of the property will stay the same.
+This will look similar to an index signature, but instead of `[k: string]`, we use `[K in keyof Album]`. This will iterate over each key in `Album`, and create a property in the object with that key. `K` is a name we've chosen: you can choose any name you like.
 
-Now when typing something as `AlbumWithPlayableSongs`, each of the `songs` will need to follow the shape of `SongWithPlayingStatus` and include a boolean `nowPlaying` property.
+In this case, we're then using `K` as the value of the property, too. This is not what we want eventually, but it's a good start:
+
+```tsx
+// Hovering over AlbumWithNullable shows:
+type AlbumWithNullable = {
+  name: "name";
+  artist: "artist";
+  songs: "songs";
+};
+```
+
+We can see that `K` represents the _currently iterated key_. This means we can use it to get the type of the original `Album` property using an indexed access type:
+
+```tsx
+type AlbumWithNullable = {
+  [K in keyof Album]: Album[K];
+};
+
+// Hovering over AlbumWithNullable shows:
+type AlbumWithNullable = {
+  name: string;
+  artist: string;
+  songs: string[];
+};
+```
+
+Wonderful - we've now recreated the object type of `Album`. Now we can add `| null` to each property:
+
+```tsx
+type AlbumWithNullable = {
+  [K in keyof Album]: Album[K] | null;
+};
+
+// Hovering over AlbumWithNullable shows:
+type AlbumWithNullable = {
+  name: string | null;
+  artist: string | null;
+  songs: string[] | null;
+};
+```
+
+This is almost there, we just need to make each property optional. We can do this by adding a `?` after the key:
+
+```tsx
+type AlbumWithNullable = {
+  [K in keyof Album]?: Album[K] | null;
+};
+
+// Hovering over AlbumWithNullable shows:
+type AlbumWithNullable = {
+  name?: string | null;
+  artist?: string | null;
+  songs?: string[] | null;
+};
+```
+
+Now, we have a new type that is derived from the `Album` type, but with all properties optional and nullable.
+
+In the spirit of designing our types properly, we should make this behavior reusable by wrapping it in a generic type, `Nullable<T>`:
+
+```tsx
+type Nullable<T> = {
+  [K in keyof T]?: T[K] | null;
+};
+
+type AlbumWithNullable = Nullable<Album>;
+```
+
+Mapped types are an extremely useful method for transforming object types, and have many different uses in application code.
 
 ### Key Remapping with `as`
 
-We've used a mapped type to change the type of `songs` in the `Album` interface to `SongWithPlayingStatus[]`, but it would be nice to have a more descriptive key name.
+In the previous example, we didn't need to change the key of the object we were iterating over. But what if we did?
 
-By bringing the `as` keyword into the mapped type, we can rename the `songs` key to `songsWithStatus` to better reflect its transformed type by updating the mapped type:
+Let's say we want to create a new type that has the same properties as `Album`, but with the key names uppercased. We could try using `Uppercase` on `keyof Album`:
+
+```typescript
+type AlbumWithUppercaseKeys = {
+  [K in Uppercase<keyof Album>]: Album[K]; // Red squiggly line under Album[K]
+};
+
+// Hovering over the error shows:
+// Type 'K' cannot be used to index type 'Album'.
+```
+
+But this doesn't work. We can't use `K` to index `Album` because `K` has already been transformed to its uppercase version. Instead, we need to find a way to keep `K` the same as before, while using the uppercase version of `K` for the key.
+
+We can do this by using the `as` keyword to remap the key:
 
 ```tsx
-type AlbumWithPlayableSongs = {
-  [K in keyof Album as K extends "songs"
-    ? "songsWithStatus"
-    : K]: K extends "songs" ? SongWithPlayingStatus[] : Album[K];
+type AlbumWithUppercaseKeys = {
+  [K in keyof Album as Uppercase<K>]: Album[K];
+};
+
+// Hovering over AlbumWithUppercaseKeys shows:
+type AlbumWithUppercaseKeys = {
+  NAME: string;
+  ARTIST: string;
+  SONGS: string[];
 };
 ```
 
-Now when the keys of the `Album` interface are iterated over, if the key is `songs` it will be renamed to `songsWithStatus` in the resulting `AlbumWithPlayableSongs` type. The rest of the keys and types will remain the same.
+`as` allows us to remap the key while keeping the original key accessible in the loop. This isn't like when we use `as` for a type assertion - it's a completely different use of the keyword.
 
-Let's look at an example of the `AlbumWithPlayableSongs` type in action, starting with an regular `Album` object:
+### Using Mapped Types with Union Types
 
-```tsx
-const legend: Album = {
-  name: "Legend: The Best of Bob Marley and the Wailers",
-  artist: "Bob Marley",
-  songs: [
-    "Is This Love",
-    "No Woman, No Cry",
-    "Could You Be Loved",
-    "Three Little Birds",
-  ],
-};
-```
-
-Instead of manually creating a new `AlbumWithPlayableSongs` object, we can map over the existing `legend` object and transform the `songs` property to satisfy the `SongWithPlayingStatus` type:
-
-```tsx
-const legendWithPlayableSongs: AlbumWithPlayableSongs = {
-  name: legend.name,
-  artist: legend.artist,
-  songsWithStatus: legend.songs.map((song) => ({
-    title: song,
-    nowPlaying: false,
-  })),
-};
-```
-
-Now `legendWithPlayableSongs` is ready to track the playback status of each song in the `songsWithStatus` array. We could even create a type helper that uses a template literal to generate a message that includes the title of the currently playing song:
-
-```tsx
-legendWithPlayableSongs.songsWithStatus[3].nowPlaying = true;
-
-
-let currentSong = legendWithPlayableSongs.songsWithStatus.find(
-  (song) => song.nowPlaying
-);
-
-type NowPlayingMessage<Title extends string> = `Now playing: ${Title}`;
-
-const nowPlayingMessage: NowPlayingMessage<string> = `Now playing: ${currentSong?.title}`;
-
-console.log(nowPlayingMessage);
-
-// output:
-Now playing: Three Little Birds
-```
-
-### Another Mapped Type Example
-
-Mapped types don't always have to use `keyof` to iterate over an object. They can also map over a union of something that's assignable to a string.
+Mapped types don't always have to use `keyof` to iterate over an object. They can also map over a union of potential property keys for the object.
 
 For example, we can create an `Example` type that is a union of 'a', 'b', and 'c':
 
@@ -688,7 +723,9 @@ type MappedExample = {
 };
 ```
 
-This chapter should help you start to understand how transforming objects into other shapes is a great way to derive types from other types while still retaining a single source of truth.
+This chapter should give you a good understanding of advanced methods for designing your types in TypeScript. By using generic types, template literal types, conditional types, and mapped types, you can create expressive and reusable types that reflect the business logic of your application.
+
+<!-- CONTINUE -->
 
 ## Exercises
 
