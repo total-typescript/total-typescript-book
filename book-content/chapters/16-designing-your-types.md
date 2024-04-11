@@ -404,84 +404,59 @@ if (result.success) {
 
 This can be a powerful pattern for handling success and error states in your applications, and can help you avoid using `try-catch` blocks in favor of more explicit error handling.
 
-<!-- CONTINUE -->
-
 ## Template Literal Types in TypeScript
 
 Similar to how template literals in JavaScript allow you to interpolate values into strings, template literal types in TypeScript can be used to interpolate other types into string types.
 
-For example, let's create a `GreatestHitsAlbumTitle` type that enforces that a string ends with "Greatest Hits". To do this, we'll use the same backtick syntax as template literals in JavaScript, along with the `${}` syntax for interpolation:
+For example, let's create a `PngFile` type that represents a string that ends with ".png":
 
 ```tsx
-type GreatestHitsAlbumTitle = `${string} Greatest Hits`;
+type PngFile = `${string}.png`;
 ```
 
-Now when we type a new variable as `GreatestHitsAlbumTitle`, we can only assign it a string that ends with "Greatest Hits":
+Now when we type a new variable as `PngFile`, it must end with ".png":
 
 ```tsx
-type GreatestHitsAlbumTitle = `${string} Greatest Hits`;
-
-let dollyPartonsGreatestHits: GreatestHitsAlbumTitle =
-  "Dolly Parton's Greatest Hits";
+let myImage: PngFile = "my-image.png"; // OK
 ```
 
-When a string does not match the pattern defined in the `GreatestHitsAlbumTitle` type, TypeScript will raise an error:
+When a string does not match the pattern defined in the `PngFile` type, TypeScript will raise an error:
 
 ```tsx
-let legend: GreatestHitsAlbumTitle = "The Best of Bob Marley and the Wailers"; // red squiggly line under legend
-
-// hovering over legend shows:
-Type '"The Best of Bob Marley and the Wailers"' is not assignable to type '`${string} Greatest Hits`'
+let myImage: PngFile = "my-image.jpg"; // Type '"my-image.jpg"' is not assignable to type 'PngFile'.
 ```
 
-Enforce specific string formats with template literal types can be useful in your applications, especially when working with APIs or databases.
+Enforce specific string formats with template literal types can be useful in your applications.
 
 ### Combining Template Literal Types with Union Types
 
 Template literal types become even more powerful when combined with union types. By passing a union to a template literal type, you can generate a type that represents all possible combinations of the union.
 
-For example, the artist John Mellencamp has released albums under several different names. We could create a `JohnMellencampNames` type by passing a union of last names into a template literal type:
+For example, let's imagine we have a set of colors each with possible shades from `100` to `900`:
 
 ```tsx
-type JohnMellencampNames = `John ${
-  | "Cougar"
-  | "Cougar Mellencamp"
-  | "Mellencamp"}`;
+type ColorShade = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+type Color = "red" | "blue" | "green";
 ```
 
-Now when hovering over `JohnMellencampNames`, we'll see that it's a union of all possible combinations of the `JohnLastNames` union:
+If we want a combination of all possible colors and shades, we can use a template literal type to generate a new type:
 
 ```tsx
-// hovering over JohnMellencampNames shows:
-type JohnMellencampNames =
-  | "John Cougar"
-  | "John Cougar Mellencamp"
-  | "John Mellencamp";
+type ColorPalette = `${Color}-${ColorShade}`;
 ```
 
-Using template literals in this way allows you to quickly create unions based on combinations of other unions.
-
-While this can be useful, it's a capability that should be used with caution. Each additional union you add increases the number of combinations exponentially.
-
-For example, if we use another union for first names, the number of combinations would increase from three to six:
+Now, `ColorPalette` will represent all possible combinations of colors and shades:
 
 ```tsx
-type JohnMellencampNames = `${"John" | "Johnny"} ${
-  | "Cougar"
-  | "Cougar Mellencamp"
-  | "Mellencamp"}`;
-
-// hovering over JohnMellencampNames shows:
-type JohnMellencampNames =
-  | "John Cougar"
-  | "John Cougar Mellencamp"
-  | "John Mellencamp"
-  | "Johnny Cougar"
-  | "Johnny Cougar Mellencamp"
-  | "Johnny Mellencamp";
+let myColor: ColorPalette = "red-500"; // OK
+let myColor2: ColorPalette = "blue-900"; // OK
 ```
 
-Despite the potential for overuse, template literal types combined with unions have legitimate use cases and can be a valuable tool in your TypeScript toolbox.
+That's 27 possible combinations - three colors times nine shades.
+
+If you have any kind of string pattern you want to enforce in your application, from routes to URI's to hex codes, template literal types can help.
+
+<!-- CONTINUE -->
 
 ## Mapped Types
 
