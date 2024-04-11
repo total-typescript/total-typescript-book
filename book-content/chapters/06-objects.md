@@ -1094,13 +1094,7 @@ At the time, it was a more popular idea in the community to implement a loose ve
 
 While it is possible to create a strict version of Omit, the loose version should be sufficient for most cases. Just keep an eye out, since it may error in ways you don't expect.
 
-If you do need a strict version, it would look something like this:
-
-```typescript
-type StrictOmit<T, K extends keyof T> = Omit<T, K>;
-```
-
-We'll investigate this syntax later in the book.
+We'll implement a strict version of Omit later in this book.
 
 For more insights into the decisions behind Omit, refer to the TypeScript team's original [discussion](https://github.com/microsoft/TypeScript/issues/30455) and [pull request](https://github.com/microsoft/TypeScript/pull/30552) adding `Omit`, and their [final note](https://github.com/microsoft/TypeScript/issues/30825#issuecomment-523668235) on the topic.
 

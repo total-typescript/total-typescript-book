@@ -955,3 +955,63 @@ TypeScript was giving us an error since it does not recognize `elements` as an i
 ```
 
 It's worth noting that `DOM.Iterable` is included by default if you don't specify the `lib` option. However, explicitly stating which libraries are included can help ward off potential problems later on, particularly when operating in diverse environments like Node.js. By including `ES2022`, `DOM`, and `DOM.Iterable` in your TypeScript configuration, you'll be adequately prepared to handle DOM iteration in your web development projects.
+
+<!--  -->
+
+### Putting It All Together: A Generic `Result` Type
+
+Let's put all of these concepts together to create a generic `Result` type. This is a common pattern in TypeScript for handling success and error states.
+
+Let's start by defining the `Result` type:
+
+```tsx
+type Result<TResult, TError extends { message: string } = Error> =
+  | {
+      success: true;
+      data: TResult;
+    }
+  | {
+      success: false;
+      error: TError;
+    };
+```
+
+Here, `Result` is a generic type that accepts two type parameters `TResult` and `TError`, and returns a discriminated union where the first branch represents a successful operation and the second branch represents an unsuccessful operation.
+
+The `TError` type parameter is constrained to an object with a `message` property, and defaults to the `Error` type. This means you can pass in more specific error types if you want, like `TypeError` or `SyntaxError`.
+
+Now we can use the `Result` type to represent the result of an operation that can either succeed or fail:
+
+```tsx
+const createRandomNumber = (): Result<number> => {
+  const num = Math.random();
+
+  if (num > 0.5) {
+    return {
+      success: true,
+      data: 123,
+    };
+  }
+
+  return {
+    success: false,
+    error: new Error("Something went wrong"),
+  };
+};
+```
+
+In this example, `createRandomNumber` returns a `Result` type that represents a random number that is either successfully generated or an error if the number is less than 0.5.
+
+When we use `createRandomNumber`, TypeScript will infer the type of the result based on the return value, and use narrowing on `.success` to determine whether the operation was successful or not:
+
+```tsx
+const result = createRandomNumber();
+
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.error(result.error.message);
+}
+```
+
+This can be a powerful pattern for handling success and error states in your applications, and can help you avoid using `try-catch` blocks in favor of more explicit error handling.

@@ -1,3 +1,5 @@
+<!-- CONTINUE -->
+
 # 17. Utility Folder Development in TypeScript
 
 There are three primary levels of complexity when it comes to TypeScript development.

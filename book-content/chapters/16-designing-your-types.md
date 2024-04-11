@@ -346,64 +346,6 @@ There is even another use for `extends` - conditional types, which we'll look at
 
 One of TypeScript's annoying habits is that it tends to reuse the same keywords in different contexts. So it's important to understand that `extends` means different things in different places.
 
-### Putting It All Together: A Generic `Result` Type
-
-Let's put all of these concepts together to create a generic `Result` type. This is a common pattern in TypeScript for handling success and error states.
-
-Let's start by defining the `Result` type:
-
-```tsx
-type Result<TResult, TError extends { message: string } = Error> =
-  | {
-      success: true;
-      data: TResult;
-    }
-  | {
-      success: false;
-      error: TError;
-    };
-```
-
-Here, `Result` is a generic type that accepts two type parameters `TResult` and `TError`, and returns a discriminated union where the first branch represents a successful operation and the second branch represents an unsuccessful operation.
-
-The `TError` type parameter is constrained to an object with a `message` property, and defaults to the `Error` type. This means you can pass in more specific error types if you want, like `TypeError` or `SyntaxError`.
-
-Now we can use the `Result` type to represent the result of an operation that can either succeed or fail:
-
-```tsx
-const createRandomNumber = (): Result<number> => {
-  const num = Math.random();
-
-  if (num > 0.5) {
-    return {
-      success: true,
-      data: 123,
-    };
-  }
-
-  return {
-    success: false,
-    error: new Error("Something went wrong"),
-  };
-};
-```
-
-In this example, `createRandomNumber` returns a `Result` type that represents a random number that is either successfully generated or an error if the number is less than 0.5.
-
-When we use `createRandomNumber`, TypeScript will infer the type of the result based on the return value, and use narrowing on `.success` to determine whether the operation was successful or not:
-
-```tsx
-const result = createRandomNumber();
-
-if (result.success) {
-  console.log(result.data);
-} else {
-  console.error(result.error.message);
-}
-```
-
-This can be a powerful pattern for handling success and error states in your applications, and can help you avoid using `try-catch` blocks in favor of more explicit error handling.
-
 ## Template Literal Types in TypeScript
 
 Similar to how template literals in JavaScript allow you to interpolate values into strings, template literal types in TypeScript can be used to interpolate other types into string types.
@@ -725,8 +667,6 @@ type MappedExample = {
 
 This chapter should give you a good understanding of advanced methods for designing your types in TypeScript. By using generic types, template literal types, conditional types, and mapped types, you can create expressive and reusable types that reflect the business logic of your application.
 
-<!-- CONTINUE -->
-
 ## Exercises
 
 ### Exercise 1: Create a `DataShape` Type Helper
@@ -763,13 +703,11 @@ type PostDataShape =
 
 Looking at these types, they both share a consistent pattern. Both `UserDataShape` and `PostDataShape` possess a `data` object and an `error` shape, with the `error` shape being identical in both. The only difference between the two is the `data` object, which holds different properties for each type.
 
-Because the user of this API would have to look at the `data` object whether to determine whether there's an error or not, a `DataShape` type helper would be useful.
-
-Your task is to create a generic `DataShape` type that would accept accept a `data` object that is merged with the `ErrorShape` type.
+Your task is to create a generic `DataShape` type to reduce duplication in the `UserDataShape` and `PostDataShape` types.
 
 ### Exercise 2: Typing `PromiseFunc`
 
-This `PromiseFunc` type represents a function that returns a Promise:
+This `PromiseFunc` type represents a function that returns a promise:
 
 ```tsx
 type PromiseFunc = (input: any) => Promise<any>;
@@ -787,13 +725,13 @@ type Example2 = PromiseFunc<boolean, number>; // red squiggly line under Promise
 type test2 = Expect<Equal<Example2, (input: boolean) => Promise<number>>>;
 ```
 
-The error messages inform us that the `PromiseFunc` type is not generic.
+The error messages inform us that the `PromiseFunc` type is not generic. We're also expecting the `PromiseFunc` type to take in two type arguments: the input type and the return type of the promise.
 
 Your task is to update `PromiseFunc` so that both of the tests pass without errors.
 
 ### Exercise 3: Working with the `Result` Type
 
-Here we have the `Result` type that will either give us a `success` or an `error`:
+Let's say we have a `Result` type that can either be a success or an error:
 
 ```tsx
 type Result<TResult, TError> =
@@ -807,7 +745,7 @@ type Result<TResult, TError> =
     };
 ```
 
-We also have the `createRandomNumber` function, but this time it only specifies a `number` to the `Result` type:
+We also have the `createRandomNumber` function that returns a `Result` type:
 
 ```tsx
 const createRandomNumber = (): Result<number> => {
@@ -877,9 +815,9 @@ In this example, we're trying to omit the property `b` from a type that only has
 type Example = Omit<{ a: string }, "b">;
 ```
 
-Since `b` isn't a part of the type, you might anticipate TypeScript would throw an error, but it doesn't.
+Since `b` isn't a part of the type, you might anticipate TypeScript would show an error, but it doesn't.
 
-Instead, we want to implement a `StrictOmit` type that only accepts keys that exist in the provided type. Otherwise, an error should be thrown.
+Instead, we want to implement a `StrictOmit` type that only accepts keys that exist in the provided type. Otherwise, an error should be shown.
 
 Here's the start of `StrictOmit`, which currently has an error under `K`:
 
@@ -911,7 +849,7 @@ type tests = [
 ];
 ```
 
-You'll need to use `keyof` and `extends` to solve this challenge.
+You'll need to remember `keyof` and how to constraint type parameters to complete this exercise.
 
 ### Exercise 6: Route Matching
 
@@ -1042,7 +980,7 @@ type tests = [
 ];
 ```
 
-Your challenge is to adjust the `AttributeGetters` type to remap the keys as specified. You'll need to use the `as` keyword, as well as TypeScript's built-in `Capitalize<string>` type helper.
+Your challenge is to adjust the `AttributeGetters` type to remap the keys as specified. You'll need to use the `as` keyword, template literals, as well as TypeScript's built-in `Capitalize<string>` type helper.
 
 ### Solution 1: Create a `DataShape` Type Helper
 
@@ -1110,6 +1048,20 @@ type Result<TResult, TError = Error> =
     };
 ```
 
+`Result` types are a great way to ensure errors are handled properly. For instance, `result` here must be checked for success before accessing the `data` property:
+
+```tsx
+const result = createRandomNumber();
+
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.error(result.error.message);
+}
+```
+
+This pattern can be a great alternative to `try...catch` blocks in JavaScript.
+
 ### Solution 4: Constraining the `Result` Type
 
 We want to set a constraint on `TError` to ensure that it is an object with a `message` string property, while also retaining `Error` as the default type for `TError`.
@@ -1137,7 +1089,7 @@ type BadExample = Result<
 >;
 
 // hovering over `string` shows:
-Type 'string' does not satisfy the constraint '{ message: string }'.
+// Type 'string' does not satisfy the constraint '{ message: string }'.
 ```
 
 The behavior of constraining type parameters and adding defaults is similar to runtime parameters. However, unlike runtime arguments, you can add additional properties and still satisfy the constraint:
@@ -1239,7 +1191,7 @@ goToRoute(
 
 Following the pattern of the tests, we can see that the desired results are named:
 
-```tsx
+```
 bread "sandwich with" filling
 ```
 
@@ -1251,7 +1203,7 @@ type Filling = "cheese" | "ham" | "salami";
 type Sandwich = `${BreadType} sandwich with ${Filling}`;
 ```
 
-TypeScript generates all the feasible pairings, leading to the type `Sandwich` being the same as:
+TypeScript generates all the possible combinations, leading to the type `Sandwich` being:
 
 ```tsx
 | "rye sandwich with cheese"
