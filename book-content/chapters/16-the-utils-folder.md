@@ -14,11 +14,141 @@ Understanding how to build these types of functions can save your team a lot of 
 
 In this chapter we'll cover how to build these functions. We'll start with generic functions, then head to type predicates, assertion functions, and function overloads.
 
-<!-- CONTINUE -->
-
 ## Generic Functions
 
-Just as types can be made generic, so can functions. Generic functions can work with a variety of types, providing flexibility and type safety. In this section, we'll explore the concept of generic functions and see how they can be used to write more flexible and type-safe code.
+We've seen that in TypeScript, functions can receive not just values as arguments, but types too. Here, we're passing a _value_ and a _type_ to `new Set()`:
+
+```tsx
+const set = new Set<number>([1, 2, 3]);
+//                 ^^^^^^^^ ^^^^^^^^^
+//                 type     value
+```
+
+We pass the type in the angle brackets, and the value in the parentheses. This is because `new Set()` is a generic function. A function that can't receive types is a regular function, like `JSON.parse`:
+
+```tsx
+const obj = JSON.parse<{ hello: string }>('{"hello": "world"}');
+// Red squiggly line under { hello: string }
+// Expected 0 type arguments, but got 1.
+```
+
+Here, TypeScript is telling us that `JSON.parse` doesn't accept type arguments, because it's not generic.
+
+### What Makes A Function Generic?
+
+A function is generic if it declares a type parameter. Here's a generic function that takes a type parameter `T`:
+
+```tsx
+function identity<T>(arg: T): T {
+  //                 ^^^ Type parameter
+  return arg;
+}
+```
+
+We can use the function keyword, or use arrow function syntax:
+
+```tsx
+const identity = <T,>(arg: T): T => arg;
+```
+
+We can even declare a generic function as a type:
+
+```tsx
+type Identity = <T>(arg: T) => void;
+
+const identity: Identity = (arg) => arg;
+```
+
+Now, we can pass a type argument to `identity`:
+
+```tsx
+identity<number>(42);
+```
+
+#### Generic Function Type Alias vs Generic Type
+
+It's very important not to confuse the syntax for a generic type with the syntax for a type alias for a generic function. They look very similar to the untrained eye. Here's the difference:
+
+```tsx
+// Type alias for a generic function
+type Identity = <T>(arg: T) => void;
+//              ^^^
+//              Type parameter belongs to the function
+
+// Generic type
+type Identity<T> = (arg: T) => void;
+//           ^^^
+//           Type parameter belongs to the type
+```
+
+It's all about the position of the type parameter. If it's attached to the type's name, it's a generic type. If it's attached to the function's parentheses, it's a type alias for a generic function.
+
+### What Happens When We Don't Pass In A Type Argument?
+
+When we looked at generic types, we saw that TypeScript _requires_ you to pass in all type arguments when you use a generic type:
+
+```tsx
+type StringArray = Array<string>;
+
+type AnyArray = Array; // Red squiggly line under Array
+
+// Hovering over Array shows:
+// Generic type 'Array<T>' requires 1 type argument(s).
+```
+
+This is not true of generic functions. If you don't pass a type argument to a generic function, TypeScript won't complain:
+
+```tsx
+function identity<T>(arg: T): T {
+  return arg;
+}
+
+const result = identity(42); // No error!
+```
+
+Why is this? Well, it's the feature of generic functions that make them my favourite TypeScript tool. If you don't pass a type argument, TypeScript will attempt to _infer_ it from the function's runtime arguments.
+
+Our `identity` function above simply takes in an argument and returns it. We've referenced the type parameter in the runtime parameter: `arg: T`. This means that if we don't pass in a type argument, `T` will be inferred from the type of `arg`.
+
+So, `result` will be typed as `42`:
+
+```tsx
+const result = identity(42);
+
+// Hovering over result shows:
+// const result: 42
+```
+
+This means that every time the function is called, it can potentially return a different type:
+
+```tsx
+const result1 = identity("hello"); // result1: 'hello'
+const result2 = identity({ hello: "world" }); // result2: { hello: 'world' }
+const result3 = identity([1, 2, 3]); // result3: number[]
+```
+
+This ability means that your functions can understand what types they're working with, and alter their suggestions and errors accordingly. It's TypeScript at its most powerful and flexible.
+
+### Specified Types Beat Inferred Types
+
+Let's go back to specifying type arguments instead of inferring them. What happens if your type argument you pass conflicts with the runtime argument?
+
+Let's try it with our `identity` function:
+
+```tsx
+const result = identity<string>(42); // Red squiggly line under 42
+
+// Hovering over 42 shows:
+// Argument of type '42' is not assignable to parameter of type 'string'.
+```
+
+Here, TypeScript is telling us that `42` is not a `string`. This is because we've explicitly told TypeScript that `T` should be a `string`, which conflicts with the runtime argument.
+
+Passing type arguments is an instruction to TypeScript override inference. If you pass in a type argument, TypeScript will use it as the source of truth. If you don't, TypeScript will use the type of the runtime argument as the source of truth.
+
+### The Problem Generic Functions Solve
+
+Let's put what we've learned into practice.
 
 Consider this function called `getFirstElement` that takes an array and returns the first element:
 
@@ -28,149 +158,70 @@ const getFirstElement = (arr: any[]) => {
 };
 ```
 
-While this function works, it's not very type-safe. We're using `any[]` as the type for the array, which means we can pass in an array of any type and the function will still compile.
-
-However, we lose type information about the returned element.
-
-If we pass in an array of numbers, we know the returned value should be a number, but the function's return type is `any`:
+This function is dangerous. Because it takes an array of `any`, it means that the thing we get back from `getFirstElement` is also `any`:
 
 ```tsx
-const numbers = [1, 2, 3];
+const first = getFirstElement([1, 2, 3]);
 
-const firstNumber = getFirstElement(numbers);
-
-// hovering over firstNumber shows:
-const firstNumber: any;
+// Hovering over first shows:
+const first: any;
 ```
 
-By making the `getFirstElement` function generic, we can capture the type of the array and use it to define the return type.
+As we've seen, `any` can cause havoc in your code. Anyone who uses this function will be unwittingly opting out of TypeScript's type safety. So, how can we fix this?
 
-To do this, we'll add a type parameter `T` before the function's parameter list, then use `T[]` as the type for the array:
+We need TypeScript to understand the type of the array we're passing in, and use it to type what's returned. We need to make `getFirstElement` generic:
+
+To do this, we'll add a type parameter `TMember` before the function's parameter list, then use `TMember[]` as the type for the array:
 
 ```typescript
-const getFirstElement = <T>(arr: T[]) => {
+const getFirstElement = <TMember>(arr: TMember[]) => {
   return arr[0];
 };
 ```
 
-Now when we call `getFirstElement`, TypeScript will infer the type of `T` based on the argument we pass in:
+Just like generic functions, it's common to prefix your type parameters with `T` to differentiate them from normal types.
+
+Now when we call `getFirstElement`, TypeScript will infer the type of `` based on the argument we pass in:
 
 ```typescript
-const numbers = [1, 2, 3];
-const strings = ["a", "b", "c"];
-
-const firstNumber = getFirstElement(numbers);
-const firstString = getFirstElement(strings);
+const firstNumber = getFirstElement([1, 2, 3]);
+const firstString = getFirstElement(["a", "b", "c"]);
 
 // hovering over firstNumber shows:
-const firstNumber: number;
+const firstNumber: number | undefined;
 
 // hovering over firstString shows:
-const firstString: string;
+const firstString: string | undefined;
 ```
 
-By making the function generic, we've ensured that the return type matches the type of the elements in the array.
+Now, we've made `getFirstElement` type-safe. The type of the array we pass in is the type of the thing we get back.
 
-### Inference in Generic Functions
+### Debugging The Inferred Type Of Generic Functions
 
-TypeScript's type inference works seamlessly with generic functions. When you call a generic function without explicitly specifying the type arguments, TypeScript will attempt to infer the types based on the provided arguments. Let's look at some examples to understand what happens when you call a generic function with and without type arguments.
+When you're working with generic functions, it can be hard to know what type TypeScript has inferred. However, with a carefully-placed hover, you can find out.
 
-This generic `wrapInObject` function takes in an optional `arg` typed as `T`, and returns an object. The nullish coalescing operator (`??`) is used for the object's value. If `arg` exists, it will be set as the object's value, otherwise it will be an empty string. The type assertion `as T` is used to ensure the type of the value matches the type parameter `T`:
+When we call the `getFirstElement` function, we can hover over the function name to see what TypeScript has inferred:
 
 ```typescript
-const wrapInObject = <T>(arg?: T) => {
-  return { value: arg ?? ("" as T) };
-};
+const first = getFirstElement([1, 2, 3]);
+
+// Hovering over getFirstElement shows:
+// const getFirstElement: <number>(arr: number[]) => number
 ```
 
-Calling `wrapInObject` with a string or number will have TypeScript infer the type of `T` based on the argument:
+We can see that within the angle brackets, TypeScript has inferred that `TMember` is `number`, because we passed in an array of numbers.
 
-```typescript
-const stringValue = wrapInObject("hello");
-const numberValue = wrapInObject(42);
+This can be useful when you have more complex functions with multiple type parameters to debug. I often find myself creating temporary function calls in the same file to see what TypeScript has inferred.
 
-// hovering over stringValue shows:
-const stringValue: {
-  value: string;
-};
-
-// hovering over numberValue shows:
-const numberValue: {
-  value: number;
-};
-```
-
-If we call `wrapInObject` without passing in an argument, TypeScript will infer the type of `T` as `unknown`:
-
-```typescript
-const unknownValue = wrapInObject();
-
-// hovering over unknownValue shows:
-const unknownValue: {
-  value: unknown;
-};
-```
+<!-- CONTINUE -->
 
 ### Default Type Arguments
 
-To change the default type for `T`, we can update `wrapInObject` to specify a default type using the `=` operator:
-
-```typescript
-const wrapInObject = <T = string>(arg?: T) => {
-  return { value: arg ?? ("" as T) };
-};
-```
-
-Now when we call `wrapInObject` without passing in an argument, TypeScript will infer the default type `string` for `T`:
-
-```typescript
-const valueWithoutArgument = wrapInObject();
-
-// hovering over valueWithoutArgument shows:
-const valueWithoutArgument: {
-  value: string;
-};
-```
-
-### Overriding Defaults and Type Inference
-
-It's also possible to explicitly specify the type argument when calling a generic function. This can be useful when you want to override TypeScript's type inference or enforce a specific type.
-
-For example, we can call `wrapInObject` with `<Album>` to return an object with a `value` typed as `Album`:
-
-```typescript
-const albumValue = wrapInObject<Album>({
-  title: "Some Cold Rock Stuff",
-  artist: "J Rocc",
-  year: 2011,
-});
-
-// hovering over albumValue shows:
-const albumValue: {
-  value: Album;
-};
-```
+<!-- TODO -->
 
 ### Applying Type Constraints
 
-As we've seen in other examples, the `extends` keyword can be used to ensure that the type argument meets certain criteria.
-
-For example, if we didn't want to allow for an `Album` to be used as a type argument, we could add a constraint to the `T` type parameter so that it only will accept a number or string, while still defaulting to `string`:
-
-```tsx
-const wrapInObject = <T extends string | number = string>(arg?: T) => {
-  return { value: arg ?? ("" as T) };
-};
-```
-
-Now, when we call `wrapInObject` with an `Album`, TypeScript will raise an error:
-
-```tsx
-const albumValue = wrapInObject<Album>(); // red squiggly line under Album
-
-// hovering over Album shows:
-Type 'Album' does not satisfy the constraint 'string | number'.
-```
+<!-- TODO -->
 
 ## Combining Generic Types and Functions
 
