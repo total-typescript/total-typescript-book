@@ -1,16 +1,20 @@
+# 16. The `/utils` Folder
+
+It's commonly thought that there are two levels of TypeScript complexity.
+
+On one end, you have library development. Here, you take advantage of many of TypeScript's most arcane and powerful features. You'll need conditional types, mapped types, generics, and much more to create a library that's flexible enough to be used in a variety of scenarios.
+
+On the other end, you have application development. Here, you're mostly concerned with making sure your code is type-safe. You want to make sure your types reflect what's happening in your application. Any complex types are housed in libraries you use. You'll need to know your way around TypeScript, but you won't need to use its advanced features much.
+
+This is the rule of thumb most of the TypeScript community use. "It's too complex for application code". "You'll only need it in libraries". But there's a third level that's often overlooked: the `/utils` folder.
+
+If your application gets big enough, you'll start capturing common patterns in a set of reusable functions. These functions, like `groupBy`, `debounce`, and `retry`, might be used hundreds of times across a large application. They're like mini-libraries within the scope of your application.
+
+Understanding how to build these types of functions can save your team a lot of time. Capturing common patterns means your code becomes easier to maintain, and faster to build.
+
+In this chapter we'll cover how to build these functions. We'll start with generic functions, then head to type predicates, assertion functions, and function overloads.
+
 <!-- CONTINUE -->
-
-# 16. Building Reusable Functions in TypeScript
-
-There are three primary levels of complexity when it comes to TypeScript development.
-
-Application development is the first level, and the one we've focused on the most so far in this book. This lower-complexity level involves using the fundamental features of TypeScript, such as type annotations, function parameters, object types, array types, tuples, and `as const`. At this level, the goal is to build a specific application or feature set.
-
-Library development is at the opposite end of the spectrum. This level has the highest complexity, and is all about creating types for libraries that can be used by other developers. The types involved in library development are often complex and require numerous transformations. For example, if you look at the type definitions for Redux, you'll notice that they are several times longer than the actual runtime code.
-
-In between the two extremes lies Utility Folder development. This level deals with shared code within your application or monorepo. It's all about creating utility functions, shared business logic, and helpers like `groupBy`. The code in the utilities folder is meant to be reused across your application rather than being published as a standalone library.
-
-The TypeScript used for utility folder development are more advanced than those used for application development, but not as complex as those used for library development. In this chapter, we'll explore the techniques required for each of these levels and give you a glimpse of what's possible.
 
 ## Generic Functions
 
@@ -25,6 +29,7 @@ const getFirstElement = (arr: any[]) => {
 ```
 
 While this function works, it's not very type-safe. We're using `any[]` as the type for the array, which means we can pass in an array of any type and the function will still compile.
+
 However, we lose type information about the returned element.
 
 If we pass in an array of numbers, we know the returned value should be a number, but the function's return type is `any`:
