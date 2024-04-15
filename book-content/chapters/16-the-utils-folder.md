@@ -300,12 +300,6 @@ const result: Omit<
 
 Note how clever TypeScript is being here. Even though we didn't specify a return type for `removeId`, TypeScript has inferred that `result` is an object with all the properties of the input object, except `id`.
 
-<!-- CONTINUE -->
-
-### Type Safe vs Type Faith
-
-<!-- TODO -->
-
 ## Type Predicates
 
 A type predicate is a special return type that tells TypeScript that a function returns a Boolean value that says something about the type of one of its parameters.
@@ -315,7 +309,7 @@ For example, say we want to ensure that a variable is an `Album` before we try a
 We can write an `isAlbum` function that takes in an input, and specifies a return type of `input is Album`. The body of the function will check that the `input` passed in is a non-null object with the required properties of an `Album`:
 
 ```typescript
-function isAlbum(input): input is Album {
+function isAlbum(input: unknown): input is Album {
   return (
     typeof input === "object" &&
     input !== null &&
@@ -361,6 +355,8 @@ let notAnAlbumTitle = getAlbumTitle("Some string");
 console.log(notAnAlbumTitle); // "Unknown Album"
 ```
 
+### Type Predicates Can be Unsafe
+
 Type predicates are a great technique to be aware of, and are particularly useful when working with union types.
 
 However, there are situations where they aren't as type-safe as they may appear.
@@ -377,44 +373,67 @@ In this case, any object passed to `isAlbum` will be considered an `Album`, even
 
 ## Assertion Functions
 
-Assertion functions are similar to type predicates, but they use the `asserts` keyword instead of `is`. They are used to assert that a condition is true and to narrow the type of a variable, and will throw an error if the condition is false.
+Assertion functions look similar to type predicates, but they're used slightly differently. Instead of returning a boolean to indicate whether a value is of a certain type, assertion functions throw an error if the value isn't of the expected type.
 
 Here's how we could rework the `isAlbum` type predicate to be an `assertIsItem` assertion function:
 
 ```typescript
 function assertIsAlbum(input: unknown): asserts input is Album {
-  if (!isAlbum(input)) {
+  if (
+    typeof input === "object" &&
+    input !== null &&
+    "id" in input &&
+    "title" in input &&
+    "artist" in input &&
+    "year" in input
+  ) {
     throw new Error("Not an Album!");
   }
 }
 ```
 
-The `assertIsAlbum` function takes in a `input` of type `unknown` and asserts that it is an `Album` using the `asserts input is Album` syntax. If the `isAlbum` function returns `false`, an error is thrown.
+The `assertIsAlbum` function takes in a `input` of type `unknown` and asserts that it is an `Album` using the `asserts input is Album` syntax.
 
-Narrowing with assertion functions also works similarly to type predicates, with a notable difference:
+This means that the narrowing is more aggressive. Instead of checking within an `if` statement, the function call itself is enough to assert that the `input` is an `Album`.
 
 ```typescript
 function getAlbumTitle(item: unknown) {
+  // 'item' is unknown here
+
   assertIsAlbum(item);
-  // At this point, 'item' is of type 'Album'
+
+  // After the assertion, 'item' is narrowed to 'Album'
   console.log(item.title);
 }
 ```
 
-There's no need to use a conditional statement when calling `assertIsAlbum` because the function will throw an error if the `item` isn't an `Album`. If the function doesn't throw an error, we can access the `item`'s properties without any type errors.
+Assertion functions can be useful when you want to ensure that a value is of a certain type before proceeding with further operations.
 
-However, it's important to note that TypeScript won't alert you of the an error until the code is compiled.
+### Assertion Functions Can Lie
 
-Creating a variable by calling `getAlbumTitle` with a string will not raise an error until the code is compiled:
+Just like type predicates, assertion functions can be misused. If the assertion function doesn't accurately reflect the type being checked, it can lead to runtime errors.
+
+For example, if the `assertIsAlbum` function doesn't check for all the required properties of an `Album`, it can lead to unexpected behavior:
 
 ```typescript
-let title = getAlbumTitle("Some string"); // no error in VS Code
+function assertIsAlbum(input: unknown): asserts input is Album {
+  if (typeof input === "object") {
+    throw new Error("Not an Album!");
+  }
+}
 
-// during compilation, TypeScript will raise an error:
-Error: Not an Album!
+let item = null;
+
+assertIsAlbum(item);
+
+// 'item' is now narrowed to 'Album', even though it's
+// null at runtime
+item.title;
 ```
 
-Assertion functions are particularly useful when you want to validate the type of a variable and throw an error if the validation fails. As with type predicates, it's important to ensure that the assertion function accurately reflects the type being checked in order to avoid any potential runtime issues.
+In this case, the `assertIsAlbum` function doesn't check for the required properties of an `Album` - it just checks if `typeof input` is `"object"`. This means we've left ourselves open to a stray `null`. The famous JavaScript quirk where `typeof null === 'object'` will cause a runtime error when we try to access the `title` property.
+
+<!-- CONTINUE -->
 
 ## Function Overloads
 
