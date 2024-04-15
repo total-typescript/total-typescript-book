@@ -433,8 +433,6 @@ item.title;
 
 In this case, the `assertIsAlbum` function doesn't check for the required properties of an `Album` - it just checks if `typeof input` is `"object"`. This means we've left ourselves open to a stray `null`. The famous JavaScript quirk where `typeof null === 'object'` will cause a runtime error when we try to access the `title` property.
 
-<!-- CONTINUE -->
-
 ## Function Overloads
 
 Function overloads provide a way to define multiple function signatures for a single function implementation. In other words, you can define different ways to call a function, each with its own set of parameters and return types. It's an interesting technique for creating a flexible API that can handle different use cases while maintaining type safety.
@@ -443,22 +441,26 @@ To demonstrate how function overloads work, we'll create a `searchMusic` functio
 
 ### Defining Overloads
 
-To define function overloads, the same function definition is written multiple times with different parameter and return types. Each definition is called an overload signature, and is separated by semicolons.
+To define function overloads, the same function definition is written multiple times with different parameter and return types. Each definition is called an overload signature, and is separated by semicolons. You'll also need to use the `function` keyword each time.
 
-For the `searchMusic` example, we want to allow users to search by providing a string with keywords that will match songs, albums, or artists. We also want to allow for an advanced search by accepting an object with properties for `artist`, `genre`, and `year`.
+For the `searchMusic` example, we want to allow users to search by providing an artist, genre and year. But for legacy reasons, we want them to be able to pass them as a single object or as separate arguments.
 
-Here's how we could define these function overload signatures:
+Here's how we could define these function overload signatures. The first signature takes in three separate arguments, while the second signature takes in a single object with the properties:
 
 ```typescript
-function searchMusic(query: string): void;
+function searchMusic(artist: string, genre: string, year: number): void;
 function searchMusic(criteria: {
-  artist?: string;
-  genre?: string;
-  year?: number;
+  // red squiggly line under searchMusic
+  artist: string;
+  genre: string;
+  year: number;
 }): void;
+
+// Hovering over searchMusic shows:
+// Function implementation is missing or not immediately following the declaration.
 ```
 
-With the overloads in place, we can now define the implementation signature.
+But we're getting an error. We've declared some ways this function should be declared, but we haven't provided the implementation yet.
 
 ### The Implementation Signature
 
@@ -467,28 +469,27 @@ The implementation signature is the actual function declaration that contains th
 In this case, the implementation signature will take in a parameter called `queryOrCriteria` that can be either a `string` or an object with the specified properties. Inside the function, we'll check the type of `queryOrCriteria` and perform the appropriate search logic based on the provided arguments:
 
 ```typescript
-function searchMusic(query: string): void;
+function searchMusic(artist: string, genre: string, year: number): void;
 function searchMusic(criteria: {
-  artist?: string;
-  genre?: string;
-  year?: number;
+  artist: string;
+  genre: string;
+  year: number;
 }): void;
 function searchMusic(
-  queryOrCriteria: string | { artist?: string; genre?: string; year?: number },
+  artistOrCriteria: string | { artist: string; genre: string; year: number },
+  genre?: string,
+  year?: number,
 ): void {
-  if (typeof queryOrCriteria === "string") {
-    console.log(`Searching for music with query: ${queryOrCriteria}`);
-    // general search logic
+  if (typeof artistOrCriteria === "string") {
+    // Search with separate arguments
+    search(artistOrCriteria, genre, year);
   } else {
-    const { artist, genre, year } = queryOrCriteria;
-    console.log(
-      `Searching for music with criteria: ${JSON.stringify({
-        artist,
-        genre,
-        year,
-      })}`,
+    // Search with object
+    search(
+      artistOrCriteria.artist,
+      artistOrCriteria.genre,
+      artistOrCriteria.year,
     );
-    // specific search logic
   }
 }
 ```
@@ -496,24 +497,54 @@ function searchMusic(
 Now we can call the `searchMusic` function with the different arguments defined in the overloads:
 
 ```typescript
-searchMusic("King Gizzard and the Lizard Wizard"); // Valid
-searchMusic({ genre: "Psychedelic Rock" }); // Valid
+searchMusic("King Gizzard and the Lizard Wizard", "Psychedelic Rock", 2021);
+searchMusic({
+  artist: "Tame Impala",
+  genre: "Psychedelic Rock",
+  year: 2015,
+});
 ```
 
 However, TypeScript will warn us if we attempt to pass in an argument that doesn't match any of the defined overloads:
 
 ```typescript
-searchMusic(1337); // red squiggly line under 1337
+searchMusic(
+  // red squiggly line under searchMusic
+  {
+    artist: "Tame Impala",
+    genre: "Psychedelic Rock",
+    year: 2015,
+  },
+  "Psychedelic Rock",
+);
 
-// hovering over 1337 shows:
-No overload matches this call.
-  Overload 1 of 2, '(query: string): void', gave the following error.
-    Argument of type 'number' is not assignable to parameter of type 'string'.
-  Overload 2 of 2, '(criteria: { artist?: string | undefined; genre?: string | undefined; year?: number | undefined; }): void', gave the following error.
-    Type '1337' has no properties in common with type '{ artist?: string | undefined; genre?: string | undefined; year?: number | undefined; }'.
+// Hovering over searchMusic shows:
+// No overload expects 2 arguments, but overloads do exist that expect either 1 or 3 arguments.
 ```
 
-While there aren't too many use cases for function overloads in typical application development, it can be useful for adding support for multiple arguments to your utilities and libraries. However, you'll want to use them sparingly since too many overloads can make a function difficult to understand and maintain. If you get to a point where a function has too many overloads, look into refactoring it into more focused functions or using other patterns like optional parameters or union types.
+This error shows us that we're trying to call `searchMusic` with two arguments, but the overloads only expect one or three arguments.
+
+### Function Overloads vs Unions
+
+<!-- CONTINUE -->
+
+Function overloads can be useful when you want to express multiple ways to call a function that spread out over different parameters. In the example above, we can either call the function with separate arguments or with a single object.
+
+When you have the same number of arguments but different types, you can use a union type instead of function overloads. For example, if you want to allow the user to search by either artist name or criteria object, you could use a union type:
+
+```typescript
+function searchMusic(
+  query: string | { artist: string; genre: string; year: number },
+): void {
+  if (typeof query === "string") {
+    // Search by artist
+    searchByArtist(query);
+  } else {
+    // Search by genre
+    searchByGenre(query.genre);
+  }
+}
+```
 
 ## Exercises
 
