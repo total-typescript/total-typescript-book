@@ -1431,7 +1431,7 @@ The reason this works is because `any` disables type checking. So, we can assign
 const parsedData: number = JSON.parse('{"name": "Alice", "age": 30}');
 ```
 
-So, this is more 'type faith' than 'type safe'. We are hoping that `parsedData` is the type we expect it to be. We'll explore this idea more later in the book.
+So, this is more 'type faith' than 'type safe'. We are hoping that `parsedData` is the type we expect it to be. This relies on us keeping the type annotation up to date with the actual data.
 
 ## Typing Functions
 
@@ -2226,13 +2226,3 @@ async function fetchData(): Promise<number> {
 ```
 
 By wrapping the `number` inside of `Promise<>`, we make sure that the `data` is awaited before the type is figured out.
-
-##### "Type Safe" vs "Type Faith"
-
-An interesting note here is that TypeScript is not really enforcing the return type of `fetchData`. It's just assuming that `data` is a `number` because we've told it to be.
-
-This is a good example of "type faith" - we're telling TypeScript to trust us that `data` is a `number`. But if it's not, TypeScript won't catch it at runtime.
-
-We'll return to this topic later in the book.
-
----
