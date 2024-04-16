@@ -173,27 +173,65 @@ Object literal may only specify known properties, but 'artsist' does not exist i
 
 That's because we've said that the `album` variable needs to be of type `Album`, but we've misspelled `artist` as `artsist`. TypeScript is telling us that we've made a mistake, and even suggests the correct spelling.
 
-### Dealing With Far-Away Errors
+### Dealing With Multi-Line Errors
 
 However, sometimes TypeScript will give you an error in a more unhelpful spot.
 
-In this example, we have a `FunctionThatReturnsString` type that represents a function that returns a string. An `exampleFunction` that is given that type is defined, but it returns a number instead of a string.
+In this example, we have a function called `logUserJobTitle` that logs the job title of a user:
 
 ```typescript
-type FunctionThatReturnsString = () => string;
-
-const exampleFunction: FunctionThatReturnsString = () => {
-  // red squiggly line under `exampleFunction`
-
-  // Imagine lots more code here...
-
-  return 123;
+const logUserJobTitle = (user: {
+  job: {
+    title: string;
+  };
+}) => {
+  console.log(user.job.title);
 };
 ```
 
-It might seem like TypeScript should give us an error on the `return` line, but it gives us an error on the line where we define `exampleFunction` instead.
+Don't worry about the syntax for now - we'll cover it later. The important thing is that `logUserJobTitle` takes a user object with a `job` property that has a `title` property.
 
-The reason why the error is on the function declaration line instead of the `return` line is because of how TypeScript checks functions. We'll look at this later. But the important thing is that while TypeScript does its best to locate errors, sometimes they might not be where you expect.
+Now, let's call `logUserJobTitle` with a user object where the `job.title` is a number, not a string.
+
+```typescript
+const exampleUser = {
+  job: {
+    title: 123,
+  },
+};
+
+logUserJobTitle(exampleUser); // red squiggly line under `exampleUser`
+```
+
+It might seem like TypeScript should give us an error on `title` in the `exampleUser` object. But instead, it gives us an error on the `exampleUser` variable itself.
+
+Hovering over `exampleUser` shows the following error message:
+
+```
+Argument of type '{ job: { title: number; }; }' is not assignable to parameter of type '{ job: { title: string; }; }'.
+  The types of 'job.title' are incompatible between these types.
+    Type 'number' is not assignable to type 'string'.
+```
+
+It's multiple lines long, which can feel pretty scary. A good rule of thumb with multi-line errors is to start at the bottom:
+
+```
+Type 'number' is not assignable to type 'string'.
+```
+
+This tells us that a `number` is being passed into a slot where a `string` is expected. This is the root of the problem.
+
+Let's go to the next line:
+
+```
+The types of 'job.title' are incompatible between these types.
+```
+
+This tells us that the `title` property in the `job` object is the problem.
+
+Already, we understand the issue without needing to see the top line, which is usually a long summary of the problem.
+
+Reading errors bottom-to-top can be a helpful strategy when dealing with multi-line TypeScript errors.
 
 ## Introspecting Variables and Declarations
 
