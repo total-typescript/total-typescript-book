@@ -1600,3 +1600,23 @@ By now you should feel comfortable with both CommonJS (CJS) and ECMAScript Modul
 Remember, the JavaScript ecosystem is constantly evolving, and what's considered best practice today might change tomorrow. Stay connected with the community, keep learning, and don't be afraid to experiment.
 
 Should you encounter any stumbling blocks, don't hesitate to connect on the Total TypeScript Discord! The community there is always eager to help and share their experiences with publishing TypeScript applications and libraries.
+
+<!--  -->
+
+### Importing Inside `declare module`
+
+There's an interesting edge case you can run into when using `declare module`. What if you want to keep the file you're working in a script, but import some types to use inside the `declare module` block?
+
+You won't be able to `import` at the top of the file, because that will turn the file into a module. But you can use `import` inside the `declare module` block:
+
+```typescript
+// inside express.d.ts
+
+declare module "express" {
+  import { Request } from "express";
+
+  export interface MyType {
+    hello: string;
+  }
+}
+```
