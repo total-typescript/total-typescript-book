@@ -72,10 +72,11 @@ Based on your answers to the above questions, here's how the complete `tsconfig.
     "strict": true,
     "noUncheckedIndexedAccess": true,
 
-    /* If transpiling with TypeScript: */
+    /* If transpiling with tsc: */
     "module": "NodeNext",
     "outDir": "dist",
     "sourceMap": true,
+    "verbatimModuleSyntax": true,
 
     /* AND if you're building for a library: */
     "declaration": true,
@@ -84,7 +85,7 @@ Based on your answers to the above questions, here's how the complete `tsconfig.
     "composite": true,
     "declarationMap": true,
 
-    /* If NOT transpiling with TypeScript: */
+    /* If NOT transpiling with tsc: */
     "module": "Preserve",
     "noEmit": true,
 
@@ -439,27 +440,139 @@ TypeScript has gone through various iterations of configuration options to suppo
 
 The behavior described above, where imports are elided if they're only used for types, is what happens when `verbatimModuleSyntax` is set to `true`.
 
-You might be wondering why it isn't part of the recommended set of options detailed above. The reason is that it also has some impact on how modules work in TypeScript - we'll talk about that in the next section.
-
 ## ESM and CommonJS
 
-<!-- TODO -->
+There are two ways to modularize your code in TypeScript: ECMAScript Modules (ESM) and CommonJS (CJS). These two module systems operate slightly differently, and they don't always work together cleanly.
 
-### `type` In `package.json` And `module: NodeNext`
+ES Modules use `import` and `export` statements:
 
-<!-- TODO -->
+```typescript
+import { createAlbum } from "./album";
+
+export { createAlbum };
+```
+
+CommonJS uses `require` and `module.exports`:
+
+```typescript
+const { createAlbum } = require("./album");
+
+module.exports = { createAlbum };
+```
+
+Understanding the interoperability issues between ESM and CJS is a little beyond the scope of this book. Instead, we'll look at how to set up TypeScript to make working with both module systems as easy as possible.
+
+### How Does TypeScript Know What Module System To Emit?
+
+Imagine we have our `album.ts` file that exports a `createAlbum` function:
+
+```typescript
+// album.ts
+
+export function createAlbum(
+  title: string,
+  artist: string,
+  year: number,
+): Album {
+  return { title, artist, year };
+}
+```
+
+When this file is turned into JavaScript, should it emit `CJS` or `ESM` syntax?
+
+```javascript
+// ESM
+
+export function createAlbum(title, artist, year) {
+  return { title, artist, year };
+}
+```
+
+```javascript
+// CJS
+
+function createAlbum(title, artist, year) {
+  return { title, artist, year };
+}
+
+module.exports = {
+  createAlbum,
+};
+```
+
+The way this is decided is via `module`. You can hardcode this by choosing some older options. `module: CommonJS` will always emit CommonJS syntax, and `module: ESNext` will always emit ESM syntax.
+
+But if you're using TypeScript to transpile your code, I recommend using `module: NodeNext`. This has several complex rules built-in for understanding whether to emit CJS or ESM:
+
+The first way we can influence how TypeScript emits your modules with `module: NodeNext` is by using `.cts` and `.mts` extensions.
+
+If we change `album.ts` to `album.cts`, TypeScript will emit CommonJS syntax, and the emitted file extension will be `.cjs`.
+
+If we change `album.ts` to `album.mts`, TypeScript will emit ESM syntax, and the emitted file extension will be `.mjs`.
+
+If we keep `album.ts` the same, TypeScript will look up the directories for the closest `package.json` file. If the `type` field is set to `module`, TypeScript will emit ESM syntax. If it's set to `commonjs` (or unset, matching Node's behavior), TypeScript will emit CJS syntax.
+
+| File Extension | Emitted File Extension | Emitted Module System               |
+| -------------- | ---------------------- | ----------------------------------- |
+| `album.mts`    | `album.mjs`            | ESM                                 |
+| `album.cts`    | `album.cjs`            | CJS                                 |
+| `album.ts`     | `album.js`             | Depends on `type` in `package.json` |
 
 ### `verbatimModuleSyntax` With ESM and CommonJS
 
-<!-- TODO -->
+`verbatimModuleSyntax` can help you be more explicit about which module system you're using. If you set `verbatimModuleSyntax` to `true`, TypeScript will error if you try to use `require` in an ESM file, or `import` in a CJS file.
 
-#### Importing and Exporting In CJS
+For example, consider this file `hello.cts` that uses the `export default` syntax:
 
-`import X = require('x')`
+```tsx
+// hello.cts
+const hello = () => {
+  console.log("Hello!");
+};
 
-<!-- TODO -->
+export { hello }; // red squiggly line under export { hello }
+```
 
-#### When `verbatimModuleSyntax` Isn't Appropriate
+When `verbatimModuleSyntax` is enabled, TypeScript will show an error under the `export default` line that tells us we're mixing the syntaxes together:
+
+```tsx
+// hovering over export { hello } shows:
+ESM syntax is not allowed in a CommonJS module when 'verbatimModuleSyntax' is enabled.
+```
+
+In order to fix the issue, we need to use the `export =` syntax instead:
+
+```tsx
+// hello.cts
+
+const hello = () => {
+  console.log("Hello!");
+};
+export = { hello };
+```
+
+This will compile down to `module.exports = { hello }` in the emitted JavaScript.
+
+The warnings will show when trying to use an ESM import as well:
+
+```tsx
+import { z } from "zod"; // rsl under import statement
+
+// hovering over the import shows:
+// ESM syntax is not allowed in a CommonJS module when 'verbatimModuleSyntax' is enabled.
+```
+
+Here, the fix is to use `require` instead of `import`:
+
+```tsx
+import zod = require("zod");
+
+const z = zod.z;
+```
+
+Note that this syntax combines `import` and `require` in a curious way - this is a TypeScript-specific syntax that gives you autocomplete in CommonJS modules.
+
+`verbatimModuleSyntax` is a great way to catch these issues early, and to make sure you're using the right module system in the correct files. It pairs very well with `module: NodeNext`.
 
 ## `noEmit`
 
