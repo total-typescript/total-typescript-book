@@ -363,6 +363,34 @@ This is because the bundler will take care of resolving the file paths and exten
 
 This means that if you're using an external bundler or transpiler, you should use `module: "Preserve"` in your `tsconfig.json` file. This is also true if you're using a frontend framework like Next.js, Remix, Vite, or SvelteKit - it will handle the bundling for you.
 
+## `import type`
+
+<!-- TODO -->
+
+### `import type { X }` vs `import { type X }`
+
+<!-- TODO -->
+
+### `verbatimModuleSyntax` Enforces `import type`
+
+<!-- TODO -->
+
+## ESM and CommonJS
+
+<!-- TODO -->
+
+### `type` In `package.json` And `module: NodeNext`
+
+<!-- TODO -->
+
+### `verbatimModuleSyntax` With ESM and CommonJS
+
+<!-- TODO -->
+
+#### `import X = require('x')`
+
+<!-- TODO -->
+
 ## `noEmit`
 
 The `noEmit` option in `tsconfig.json` tells TypeScript not to emit any JavaScript files when transpiling your TypeScript code.
