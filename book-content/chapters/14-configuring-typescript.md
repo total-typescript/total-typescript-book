@@ -363,17 +363,83 @@ This is because the bundler will take care of resolving the file paths and exten
 
 This means that if you're using an external bundler or transpiler, you should use `module: "Preserve"` in your `tsconfig.json` file. This is also true if you're using a frontend framework like Next.js, Remix, Vite, or SvelteKit - it will handle the bundling for you.
 
-## `import type`
+## Importing Types With `import type`
 
-<!-- TODO -->
+When you're importing types from other files, TypeScript has some choices to make. Let's say you're importing a type of `Album` from `album.ts`:
+
+```typescript
+// index.ts
+
+import { Album } from "./album";
+```
+
+What should the emitted JavaScript look like? We're only importing a type, which disappears at runtime. Should the import remain, but with the type removed?
+
+```javascript
+// index.js
+
+import {} from "./album";
+```
+
+Or should the import be removed entirely?
+
+These decisions matter, because modules can contain effects which run when they're first imported. For instance, `album.ts` might call a `console.log` statement:
+
+```typescript
+// album.ts
+
+export interface Album {
+  title: string;
+  artist: string;
+  year: number;
+}
+
+console.log("Imported album.ts");
+```
+
+Now, if TypeScript removes (or, as they say in the TypeScript docs, elides) the import, the `console.log` statement won't run. This can be surprising if you're not expecting it.
+
+The way TypeScript resolves this is with the `import type` syntax. If you're importing a type and you don't want the import to be emitted in the JavaScript, you can use `import type`:
+
+```typescript
+// index.ts
+
+import type { Album } from "./album";
+```
+
+Now, only the type information is imported, and the import is removed from the emitted JavaScript:
+
+```javascript
+// index.js
+
+// No import statement
+```
 
 ### `import type { X }` vs `import { type X }`
 
-<!-- TODO -->
+You can combine `import` and `type` in two ways. You can either mark the entire line as a type import:
+
+```typescript
+import type { Album } from "./album";
+```
+
+Or, if you want to combine runtime imports with type imports, you can mark the type itself as a type import:
+
+```typescript
+import { type Album, createAlbum } from "./album";
+```
+
+In this case, `createAlbum` will be imported as a runtime import, and `Album` will be imported as a type import.
+
+In both cases, it's clear what will be removed from the emitted JavaScript. The first line will remove the entire import, and the second line will remove only the type import.
 
 ### `verbatimModuleSyntax` Enforces `import type`
 
-<!-- TODO -->
+TypeScript has gone through various iterations of configuration options to support this behavior. `importsNotUsedAsValues` and `preserveValueImports` both tried to solve the problem. But since TypeScript 5.0, `verbatimModuleSyntax` is the recommended way to enforce `import type`.
+
+The behavior described above, where imports are elided if they're only used for types, is what happens when `verbatimModuleSyntax` is set to `true`.
+
+You might be wondering why it isn't part of the recommended set of options detailed above. The reason is that it also has some impact on how modules work in TypeScript - we'll talk about that in the next section.
 
 ## ESM and CommonJS
 
@@ -387,9 +453,13 @@ This means that if you're using an external bundler or transpiler, you should us
 
 <!-- TODO -->
 
-#### `import X = require('x')`
+#### Importing and Exporting In CJS
+
+`import X = require('x')`
 
 <!-- TODO -->
+
+#### When `verbatimModuleSyntax` Isn't Appropriate
 
 ## `noEmit`
 
