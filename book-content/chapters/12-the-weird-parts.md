@@ -207,7 +207,7 @@ But Flow recommends you use closed objects by default. They think that, especial
 
 ### Why Does TypeScript Treat Objects As Open?
 
-Open objects more closely reflect how JavaScript actually works. Any type system for JavaScript - a very dynamic lanugage - has to be relatively cautious about how 'safe' it can truly be.
+Open objects more closely reflect how JavaScript actually works. Any type system for JavaScript - a very dynamic language - has to be relatively cautious about how 'safe' it can truly be.
 
 So, TypeScript's decision to treat objects as open by default is a reflection of the language it's trying to type. It also more closely reflects how objects work in other languages.
 
