@@ -437,6 +437,65 @@ class Album {
 
 Now, the `title` property can be accessed from within the `SpecialEditionAlbum` class, and not from outside the class.
 
+### Safe Overrides With `override`
+
+You can run into trouble when extending classes if you try to override a method in a subclass. Let's say our `Album` class implements a `displayInfo` method:
+
+```typescript
+class Album {
+  // ...
+  displayInfo() {
+    console.log(
+      `${this.title} by ${this.artist}, released in ${this.releaseYear}.`,
+    );
+  }
+}
+```
+
+And our `SpecialEditionAlbum` class also implements a `displayInfo` method:
+
+```typescript
+class SpecialEditionAlbum extends Album {
+  // ...
+  displayInfo() {
+    console.log(
+      `${this.title} by ${this.artist}, released in ${this.releaseYear}.`,
+    );
+    console.log(`Bonus tracks: ${this.bonusTracks.join(", ")}`);
+  }
+}
+```
+
+This overrides the `displayInfo` method from the `Album` class, adding an extra log for the bonus tracks.
+
+But what happens if we change the `displayInfo` method in `Album` to `displayAlbumInfo`? `SpecialEditionAlbum` won't automatically get updated, and its override will no longer work.
+
+To prevent this, you can use the `override` keyword in the subclass to indicate that you're intentionally overriding a method from the parent class:
+
+```typescript
+class SpecialEditionAlbum extends Album {
+  // ...
+  override displayInfo() {
+    console.log(
+      `${this.title} by ${this.artist}, released in ${this.releaseYear}.`,
+    );
+    console.log(`Bonus tracks: ${this.bonusTracks.join(", ")}`);
+  }
+}
+```
+
+Now, if the `displayInfo` method in the `Album` class is changed, TypeScript will give an error in the `SpecialEditionAlbum` class, letting you know that the method is no longer being overridden.
+
+You can also enforce this by setting `noImplicitOverride` to `true` in your `tsconfig.json` file. This will force you to always specify `override` when you're overriding a method:
+
+```json
+{
+  "compilerOptions": {
+    "noImplicitOverride": true
+  }
+}
+```
+
 ### The `implements` Keyword
 
 There are some situations where you want to enforce that a class adheres to a specific structure. To do that, you can use the `implements` keyword.
