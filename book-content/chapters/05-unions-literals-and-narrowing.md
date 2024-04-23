@@ -904,6 +904,54 @@ it("Should error when anything else is passed in", () => {
 
 Your challenge is to modify the `parseValue` function so that the tests pass and the errors go away. I want you to challenge yourself to do this _only_ by narrowing the type of `value` inside of the function. No changes to the types. This will require a very large `if` statement!
 
+#### Exercise 3: Reusable Type Guards
+
+Let's imagine that we have two very similar functions, each with a long conditional check to narrow down the type of a value.
+
+Here's the first function:
+
+```typescript
+const parseValue = (value: unknown) => {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "data" in value &&
+    typeof value.data === "object" &&
+    value.data !== null &&
+    "id" in value.data &&
+    typeof value.data.id === "string"
+  ) {
+    return value.data.id;
+  }
+
+  throw new Error("Parsing error!");
+};
+```
+
+And here's the second function:
+
+```typescript
+const parseValueAgain = (value: unknown) => {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "data" in value &&
+    typeof value.data === "object" &&
+    value.data !== null &&
+    "id" in value.data &&
+    typeof value.data.id === "string"
+  ) {
+    return value.data.id;
+  }
+
+  throw new Error("Parsing error!");
+};
+```
+
+Both functions have the same conditional check. This is a great opportunity to create a reusable type guard.
+
+All the tests are currently passing. Your job is to try to refactor the two functions to use a reusable type guard, and remove the duplicated code. As it turns out, TypeScript makes this a lot easier than you expect.
+
 #### Solution 1: Narrowing Errors with `instanceof`
 
 The way to solve this challenge is to narrow the `error` using the `instanceof` operator.
@@ -1033,6 +1081,59 @@ const parseValue: (value: unknown) => string;
 Thanks to this huge conditional, our tests pass, and our error messages are gone!
 
 This is usually _not_ how you'd want to write your code. It's a bit of a mess. You could use a library like [Zod](https://zod.dev) to do this with a much nicer API. But it's a great way to understand how `unknown` and narrowing work in TypeScript.
+
+#### Solution 3: Reusable Type Guards
+
+The first step is to create a function called `hasDataId` that captures the conditional check:
+
+```typescript
+const hasDataId = (value) => {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "data" in value &&
+    typeof value.data === "object" &&
+    value.data !== null &&
+    "id" in value.data &&
+    typeof value.data.id === "string"
+  );
+};
+```
+
+We haven't given `value` a type here - `unknown` makes sense, because it could be anything.
+
+Now we can refactor the two functions to use this type guard:
+
+```typescript
+const parseValue = (value: unknown) => {
+  if (hasDataId(value)) {
+    return value.data.id;
+  }
+
+  throw new Error("Parsing error!");
+};
+
+const parseValueAgain = (value: unknown) => {
+  if (hasDataId(value)) {
+    return value.data.id;
+  }
+
+  throw new Error("Parsing error!");
+};
+```
+
+Incredibly, this is all TypeScript needs to be able to narrow the type of `value` inside of the `if` statement. It's smart enough to understand that `hasDataId` being called on `value` ensures that `value` has a `data` property with an `id` property.
+
+We can observe this by hovering over `hasDataId`:
+
+```typescript
+// hovering over `hasDataId` shows:
+const hasDataId: (value: unknown) => value is { data: { id: string } };
+```
+
+This return type we're seeing is a type predicate. It's a way of saying "if this function returns `true`, then the type of the value is `{ data: { id: string } }`".
+
+We'll look at authoring our own type predicates in one of the later chapters in the book - but it's very useful that TypeScript infers its own.
 
 ## Discriminated Unions
 

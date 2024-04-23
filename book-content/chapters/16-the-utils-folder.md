@@ -326,11 +326,73 @@ Note how clever TypeScript is being here. Even though we didn't specify a return
 
 ## Type Predicates
 
-A type predicate is a special return type that tells TypeScript that a function returns a Boolean value that says something about the type of one of its parameters.
+We were introduced to type predicates way back in chapter 5, when we looked at narrowing. They're used to capture reusable logic that narrows the type of a variable.
 
 For example, say we want to ensure that a variable is an `Album` before we try accessing its properties or passing it to a function that requires an `Album`.
 
-We can write an `isAlbum` function that takes in an input, and specifies a return type of `input is Album`. The body of the function will check that the `input` passed in is a non-null object with the required properties of an `Album`:
+We can write an `isAlbum` function that takes in an input, and checks for all the required properties.
+
+```typescript
+function isAlbum(input: unknown) {
+  return (
+    typeof input === "object" &&
+    input !== null &&
+    "id" in input &&
+    "title" in input &&
+    "artist" in input &&
+    "year" in input
+  );
+}
+```
+
+If we hover over `isAlbum`, we can see a rather ugly type signature:
+
+```typescript
+// hovering over isAlbum shows:
+function isAlbum(
+  input: unknown,
+): input is object &
+  Record<"id", unknown> &
+  Record<"title", unknown> &
+  Record<"artist", unknown> &
+  Record<"year", unknown>;
+```
+
+This is technically correct: a big intersection between an `object` and a bunch of `Record`s. But it's not very helpful.
+
+When we try to use `isAlbum` to narrow the type of a value, TypeScript will infer lots of the values as `unknown`:
+
+```typescript
+const run = (maybeAlbum: unknown) => {
+  if (isAlbum(maybeAlbum)) {
+    maybeAlbum.name.toUpperCase(); // red squiggly line under name
+  }
+};
+
+// hovering over name shows:
+// Object is of type 'unknown'.
+```
+
+To fix this, we'd need to add even more checks to `isAlbum` to ensure we're checking the types of all the properties:
+
+```typescript
+function isAlbum(input: unknown) {
+  return (
+    typeof input === "object" &&
+    input !== null &&
+    "id" in input &&
+    "title" in input &&
+    "artist" in input &&
+    "year" in input &&
+    typeof input.id === "number" &&
+    typeof input.title === "string" &&
+    typeof input.artist === "string" &&
+    typeof input.year === "number"
+  );
+}
+```
+
+This can feel far too verbose. We can make it more readable by adding our own type predicate.
 
 ```typescript
 function isAlbum(input: unknown): input is Album {
@@ -345,47 +407,21 @@ function isAlbum(input: unknown): input is Album {
 }
 ```
 
-The `input is Album` return type is the type predicate that tells TypeScript that if the function returns `true`, then the `input` parameter is of type `Album`. Otherwise, it isn't.
-
-### Narrowing with Type Predicates
-
-Type predicates are often used in conditional statements to narrow the type of a variable to become more specific.
-
-For example, we can use the `isAlbum` type predicate to check if an `item` is an `Album` before accessing its `title` property:
+Now, when we use `isAlbum`, TypeScript will know that the type of the value has been narrowed to `Album`:
 
 ```typescript
-function getAlbumTitle(item: unknown) {
-  if (isAlbum(item)) {
-    return item.title;
+const run = (maybeAlbum: unknown) => {
+  if (isAlbum(maybeAlbum)) {
+    maybeAlbum.name.toUpperCase(); // No error!
   }
-  return "Unknown Album";
-}
+};
 ```
 
-In this case, the `getAlbumTitle` function takes an `item` of type `unknown`. Inside the function, we use the `isAlbum` type predicate to check if the `item` is an `Album`. If it is, TypeScript narrows the type of `item` to `Album` within the conditional block, allowing us to access the `title` property without any type errors:
-
-```typescript
-let title = getAlbumTitle({
-  id: 1,
-  title: "Dummy",
-  artist: "Portishead",
-  year: 1994,
-});
-
-console.log(title); // "Dummy"
-
-let notAnAlbumTitle = getAlbumTitle("Some string");
-
-console.log(notAnAlbumTitle); // "Unknown Album"
-```
+For complex type guards, this can be much more readable.
 
 ### Type Predicates Can be Unsafe
 
-Type predicates are a great technique to be aware of, and are particularly useful when working with union types.
-
-However, there are situations where they aren't as type-safe as they may appear.
-
-For example, if the type predicate doesn't match the actual type being checked, TypeScript won't catch that discrepancy:
+Authoring your own type predicates can be a little dangerous. If the type predicate doesn't accurately reflect the type being checked, TypeScript won't catch that discrepancy:
 
 ```typescript
 function isAlbum(input): input is Album {
@@ -393,7 +429,7 @@ function isAlbum(input): input is Album {
 }
 ```
 
-In this case, any object passed to `isAlbum` will be considered an `Album`, even if it doesn't have the required properties. This is a common pitfall when working with type predicates, and it's important to ensure that the type predicate accurately reflects the type being checked.
+In this case, any object passed to `isAlbum` will be considered an `Album`, even if it doesn't have the required properties. This is a common pitfall when working with type predicates - it's important to consider them about as unsafe as `as` and `!`.
 
 ## Assertion Functions
 
