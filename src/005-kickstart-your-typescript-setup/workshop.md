@@ -8,8 +8,8 @@ Discuss each of the questions below in your groups.
 
 ### Can you turn TypeScript into JavaScript?
 
-### Does TypeScript make your code run faster?
-
 ### What kind of mistakes does TypeScript help prevent?
+
+### Does TypeScript make your code run faster?
 
 ### What is a 'type'?
