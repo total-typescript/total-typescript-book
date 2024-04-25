@@ -49,7 +49,3 @@ https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys
 We want to be able to pass a partial `Product` object to `updateProduct`. See if you can redefine the definition of `productInfo` to make the errors go away.
 
 https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype
-
-### 096.5 - Common Keys of Unions of Objects
-
-Find the correct definition for `entity` in the `getAvatarImage` function. We should be able to pass either a User, Product or Organisation to the function.

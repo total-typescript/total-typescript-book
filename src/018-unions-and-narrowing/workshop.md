@@ -78,7 +78,7 @@ Change the type definitions of `throwError` to make the type error inside `handl
 
 ### 071 - Narrowing in Different Scopes
 
-Change the code inside `findUsersByName` so that the type error goes away.
+Change the code inside `findUsersByName` so that the type error goes away. Don't change the definition of `searchParams`.
 
 Also - why is the type error happening in the first place?
 
