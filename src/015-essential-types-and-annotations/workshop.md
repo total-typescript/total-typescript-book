@@ -48,7 +48,7 @@ Once you've figured out the bug, try to work out WHY TypeScript isn't yelling at
 
 https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#any
 
-## Section 4
+## Section 3
 
 ### 033 - Function Types
 
