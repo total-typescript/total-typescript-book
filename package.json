@@ -588,7 +588,9 @@
     "e-202.6": "tt-cli run 202.6",
     "s-202.6": "tt-cli run 202.6 --solution",
     "e-202.7": "tt-cli run 202.7",
-    "s-202.7": "tt-cli run 202.7 --solution"
+    "s-202.7": "tt-cli run 202.7 --solution",
+    "e-072.5": "tt-cli run 072.5",
+    "s-072.5": "tt-cli run 072.5 --solution"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.29.12",

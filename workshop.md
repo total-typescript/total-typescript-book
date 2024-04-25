@@ -16,14 +16,6 @@
 - 14:45-15:30: Session
 - 15:45-16:30: Session
 
-## Repo overview
-
-- Exercises are in `src`
-- Run each exercise with `pnpm exercise` or `pnpm e`
-- Explainers vs Problem/Solution files
-- There is WAY TOO MUCH CONTENT
-- Look in the `workshop.md` files
-
 ## Exercises
 
 - We'll be in pairs all day
@@ -31,7 +23,7 @@
 - Swap over who is coding each section
 - If you get stuck, you can ask me for help
 
-## Any Questions?
+VSCode is recommended, but not necessary
 
 ## Setup
 
@@ -41,4 +33,10 @@
 4. Pull the latest changes
 5. Make sure you've selected your TypeScript version to be the one used by the repo (latest)
 
-VSCode is recommended, but not necessary
+## Repo overview
+
+- Exercises are in `src`
+- Run each exercise with `pnpm exercise` or `pnpm e`
+- Explainers vs Problem/Solution files
+- There is WAY TOO MUCH CONTENT
+- Look in the `workshop.md` files
