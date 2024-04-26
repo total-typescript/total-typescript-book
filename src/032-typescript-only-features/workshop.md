@@ -4,7 +4,7 @@
 
 ### 118 - Enums
 
-We're declaring `LogLevel` as an object containing a bunch of numbers. These how much logging info we want.
+We're declaring `LogLevel` as an object containing a bunch of numbers. These show how much logging info we want.
 
 Inside our function, we then compare the level to a globalLogLevel to see if we should log.
 
