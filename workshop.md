@@ -9,10 +9,10 @@
 ## Session Plan
 
 - 09:30-10:30: Session
-- 10:45-11:30: Session
+- 10:40-11:30: Session
 - 11:45-12:45: Session
-- 12:45-13:45: Lunch
-- 13:45-14:30: Session
+- 12:45-13:40: Lunch
+- 13:40-14:30: Session
 - 14:45-15:30: Session
 - 15:45-16:30: Session
 
@@ -40,3 +40,15 @@ VSCode is recommended, but not necessary
 - Explainers vs Problem/Solution files
 - There is WAY TOO MUCH CONTENT
 - Look in the `workshop.md` files
+
+## Final Questions
+
+### What's the difference between types and interfaces?
+
+### TypeScript has "open object types". What does that mean?
+
+### What new piece of syntax did you learn about?
+
+### What did you learn that you can immediately apply on a project?
+
+### Did you end up liking TypeScript more, or wishing you could go back to JavaScript?
