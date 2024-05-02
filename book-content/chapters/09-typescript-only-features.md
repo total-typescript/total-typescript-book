@@ -493,4 +493,4 @@ But the question remains: should you use them? TypeScript will likely never stop
 
 But I prefer writing code in the spirit of the language I'm using. Writing "JavaScript with types" keeps the relationship between TypeScript and JavaScript crystal-clear.
 
-However, this is my personal preference. If you're working on a large codebase that already uses these features, it is _not_ worth the effort to remove them. Reaching a decision as a team, and staying consistent, is the key.
+However, this is my personal preference. If you're working on a large codebase that already uses these features, it is _not_ worth the effort to remove them. Reaching a decision as a team and staying consistent are the keys.
