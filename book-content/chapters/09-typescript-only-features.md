@@ -4,7 +4,7 @@ Based on what I've told you so far, you might be thinking of TypeScript as just 
 
 But TypeScript actually has a few runtime features that don't exist in JavaScript. These features are compiled into JavaScript, but they are not part of the JavaScript language itself.
 
-In this chapter we'll look at several of these TypesScript-only features, including parameter properties, enums and namespaces. Along the way, we'll discuss benefits and trade-offs, as well as when you might want to stick with JavaScript.
+In this chapter we'll look at several of these TypeScript-only features, including parameter properties, enums and namespaces. Along the way, we'll discuss benefits and trade-offs, as well as when you might want to stick with JavaScript.
 
 ## Class Parameter Properties
 
@@ -18,7 +18,7 @@ class Rating {
 }
 ```
 
-That the constructor includes `public` before the `value` prameter and `private` before the `max` parameter. In JavaScript, this compiles down to code which assigns the parameters to properties on the class:
+That the constructor includes `public` before the `value` parameter and `private` before the `max` parameter. In JavaScript, this compiles down to code which assigns the parameters to properties on the class:
 
 ```typescript
 class Rating {
@@ -471,7 +471,7 @@ This information will become crucial later when we look at the namespace's key u
 
 Imagine ES modules, with `import` and `export`, never existed. In this world, everything you declare is in the global scope. You'd have to be careful about naming things, and you'd have to come up with a way to organize your code.
 
-This is the world that TypeScript was born into. Module systems like CommonJS (`requre`) and ES Modules (`import`, `export`) weren't popular yet. So, namespaces were a crucial way to avoid naming conflicts and organize your code.
+This is the world that TypeScript was born into. Module systems like CommonJS (`require`) and ES Modules (`import`, `export`) weren't popular yet. So, namespaces were a crucial way to avoid naming conflicts and organize your code.
 
 But now that ES modules are widely supported, you should use them over namespaces. Namespaces have very little relevance in modern TypeScript code, with some exceptions which we'll explore in our chapter on global scopes.
 
