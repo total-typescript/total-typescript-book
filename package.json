@@ -5,16 +5,16 @@
   "author": "Matt Pocock <mattpocockvoice@gmail.com>",
   "license": "GPL",
   "devDependencies": {
-    "@total-typescript/exercise-cli": "0.4.0",
+    "@total-typescript/exercise-cli": "0.5.1",
     "@total-typescript/helpers": "^0.0.1",
     "cross-fetch": "^3.1.5",
     "jsdom": "^21.1.1",
     "nodemon": "^3.0.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.8.7",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.5",
     "vite-tsconfig-paths": "^4.0.7",
-    "vitest": "^0.34.4"
+    "vitest": "^1.6.0"
   },
   "scripts": {
     "format-book": "tsx book-content/formatter/format.ts",
