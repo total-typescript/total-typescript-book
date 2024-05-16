@@ -242,9 +242,3 @@ Inside the `tsconfig.json` file, there's an option called `noEmit` that tells `t
 By setting `noEmit` to `true`, no JavaScript files will be created when you run `tsc`. This makes TypeScript act more like a linter than a transpiler. This makes a `tsc` step a great addition to a CI/CD system, since it can prevent merging a pull request with TypeScript errors.
 
 Later in the book, we'll look closer at more advanced TypeScript configurations for application development.
-
----
-
-Part 2: Fundamentals
-
----
