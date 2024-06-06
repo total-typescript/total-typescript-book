@@ -145,12 +145,11 @@ export const playTrack = (track) => {
 
 If we try to import this file into a TypeScript file, we'll get an error:
 
-```typescript
+```ts twoslash
+// @errors: 2307
 // inside of app.ts
 
-import { playTrack } from "./musicPlayer"; // red squiggly line under ./musicPlayer
-// Hovering over the error shows:
-// Could not find a declaration file for module './musicPlayer'.
+import { playTrack } from "./musicPlayer";
 ```
 
 This error occurs because TypeScript doesn't have any type information for the `musicPlayer.js` file. To fix this, we can create a declaration file with the same name as the JavaScript file, but with a `.d.ts` extension:
@@ -334,18 +333,22 @@ declare function myFunction(): void;
 
 To do this, we can wrap our `declare const` statement in a `declare global` block:
 
-```typescript
+```ts twoslash
+// @errors: 1038
+type Album = {
+  title: string;
+  artist: string;
+  releaseDate: string;
+};
+
+// ---cut---
 // inside musicUtils.ts
 declare global {
   declare const ALBUM_API: {
-    // red squiggly line under declare
     getAlbumInfo(upc: string): Promise<Album>;
     searchAlbums(query: string): Promise<Album[]>;
   };
 }
-
-// Hovering over the error shows:
-// A 'declare' modifier cannot be used in an already ambient context.
 ```
 
 This almost works, except for the error. We can't use `declare` inside an ambient context: the `declare global` block is already ambient. So, we can remove the `declare` keyword:
@@ -704,14 +707,10 @@ In some environments like Webpack, it's possible to import files like images tha
 
 Consider this example where several `.png` images are imported. TypeScript doesn't typically recognize PNG files as modules, so it reports an error underneath each import statement:
 
-```tsx
-import pngUrl1 from "./example1.png"; // red squiggly line under "./example1.png"
-import pngUrl2 from "./example2.png"; // red squiggly line under "./example2.png"
-import pngUrl3 from "./example3.png"; // red squiggly line under "./example3.png"
-import pngUrl4 from "./example4.png"; // red squiggly line under "./example4.png"
-
-// hovering over "./example1.png" shows:
-Cannot find module './example1.png' or its corresponding type declarations.
+```ts twoslash
+// @errors: 2307
+import pngUrl1 from "./example1.png";
+import pngUrl2 from "./example2.png";
 ```
 
 The `declare module` syntax can help. We can use it to declare types for non-JavaScript files.
@@ -825,7 +824,10 @@ Your task is to specify that `DEBUG` is available in this module (and this modul
 
 Let's imagine now that we want our `DEBUG` object to only be accessible through the `window` object:
 
-```tsx
+```ts twoslash
+// @errors: 2339
+import { Equal, Expect } from "@total-typescript/helpers";
+// ---cut---
 // inside index.ts
 
 const state = window.DEBUG.getState(); // red squiggly line under DEBUG
@@ -835,12 +837,7 @@ type test = Expect<Equal<typeof state, { id: string }>>;
 
 We expect `state` to be an object with an `id` string property, but it is currently typed as `any`.
 
-There's also an error on `DEBUG` that tells us TypeScript doesn't see the `DEBUG` type:
-
-```tsx
-// hovering over DEBUG shows:
-// Property 'DEBUG' does not exist on type 'Window & typeof globalThis'.
-```
+There's also an error on `DEBUG` that tells us TypeScript doesn't see the `DEBUG` type.
 
 Your task is to specify that `DEBUG` is available on the `window` object. This will help TypeScript understand the type of `state` and provide the expected type checking.
 
@@ -852,10 +849,18 @@ The `env` property is an object encapsulating all the environment variables that
 
 Here's an example of using an `envVariable`, along with a test that checks to see if it is a string:
 
-```tsx
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
+// ---cut---
 const envVariable = process.env.MY_ENV_VAR;
 
-type test = Expect<Equal<typeof envVariable, string>>; // red squiggly line under Equal
+type test = Expect<Equal<typeof envVariable, string>>;
 ```
 
 TypeScript isn't aware of the `MY_ENV_VAR` environment variable, so it can't be certain that it will be a string. Thus, the `Equal` test fails because `envVariable` is typed as `string | undefined` instead of just `string`.
@@ -889,8 +894,13 @@ declare const DEBUG: {};
 
 Now that we've typed `DEBUG`, the error message has moved to be under `getState()`:
 
-```tsx
-const state = DEBUG.getState(); // red squiggly line under getState
+```ts twoslash
+// @errors: 2339
+import { Equal, Expect } from "@total-typescript/helpers";
+declare const DEBUG: {};
+// ---cut---
+
+const state = DEBUG.getState();
 
 type test = Expect<Equal<typeof state, { id: string }>>;
 ```
