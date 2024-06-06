@@ -8,7 +8,7 @@ As an example, we'll be looking at using TypeScript to build a web application. 
 
 Consider this TypeScript file `example.ts` that contains a `run` function that logs a message to the console:
 
-```typescript
+```ts twoslash
 const run = (message: string) => {
   console.log(message);
 };
@@ -48,7 +48,7 @@ The problem is that browsers (and other runtimes like Node.js) can't understand 
 
 In the case of the `run` function, the `: string` after `message` in the function declaration is not valid JavaScript:
 
-```typescript
+```ts twoslash
 const run = (message: string) => {
   // `: string` is not valid JavaScript!
 
@@ -58,8 +58,9 @@ const run = (message: string) => {
 
 Removing `: string` gives us something that looks a bit more like JavaScript, but now TypeScript displays an error underneath `message`:
 
-```typescript
-const run = (message) => {}; // red squiggly line under message
+```ts twoslash
+// @errors: 7006
+const run = (message) => {};
 ```
 
 Hovering over the red squiggly line in VS Code, we can see that TypeScript's error message is telling us that `message` implicitly has an `any` type.
@@ -194,12 +195,13 @@ If `tsc` encounters an error, it will display the error in the terminal and the 
 
 For example, try changing the `message: string` to `message: number` in the `run` function inside of `example.ts`:
 
-```typescript
+```ts twoslash
+// @errors: 2345
 const run = (message: number) => {
   console.log(message);
 };
 
-run("Hello world!"); // red squiggly line under "Hello world!"
+run("Hello world!");
 ```
 
 Inside the terminal, `tsc` will display an error message:

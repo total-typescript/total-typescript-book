@@ -841,7 +841,7 @@ But what about functions you don't control?
 
 A common example is a third-party library. A library might export a function that you can use, but might not export the accompanying types. An example I recently came across was a type from the library `@monaco-editor/react`.
 
-```tsx twoslash
+```tsx
 import { Editor } from "@monaco-editor/react";
 
 // This is JSX component, for our purposes equivalent to...

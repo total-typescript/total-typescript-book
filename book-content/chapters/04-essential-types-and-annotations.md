@@ -16,12 +16,10 @@ One of the most important annotations you'll use is for function parameters.
 
 For example, here is a `logAlbumInfo` function that takes in a `title` string, a `trackCount` number, and an `isReleased` boolean:
 
-```typescript
+```ts twoslash
 const logAlbumInfo = (
   title: string,
-
   trackCount: number,
-
   isReleased: boolean,
 ) => {
   // implementation
@@ -30,13 +28,33 @@ const logAlbumInfo = (
 
 Each parameter's type annotation enables TypeScript to check that the arguments passed to the function are of the correct type. If the type doesn't match up, TypeScript will show a squiggly red line under the offending argument.
 
-```typescript
-logAlbumInfo("Black Gold", false, 15); // red squiggly lines first under `false`, then under `15`
+```ts twoslash
+// @errors: 2345
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+) => {
+  // implementation
+};
+
+// ---cut---
+logAlbumInfo("Black Gold", false, 15);
 ```
 
 In the example above, we would first get an error under `false` because a boolean isn't assignable to a number.
 
-```typescript
+```ts twoslash
+// @errors: 2345
+const logAlbumInfo = (
+  title: string,
+  trackCount: number,
+  isReleased: boolean,
+) => {
+  // implementation
+};
+
+// ---cut---
 logAlbumInfo("Black Gold", 20, 15);
 ```
 
@@ -48,7 +66,7 @@ As well as function parameters, you can also annotate variables.
 
 Here's an example of some variables, with their associated types.
 
-```typescript
+```ts twoslash
 let albumTitle: string = "Midnights";
 let isReleased: boolean = true;
 let trackCount: number = 13;
@@ -62,7 +80,7 @@ Once a variable has been declared with a specific type annotation, TypeScript wi
 
 For example, this reassignment would work:
 
-```typescript
+```ts twoslash
 let albumTitle: string = "Midnights";
 
 albumTitle = "1989";
@@ -70,7 +88,8 @@ albumTitle = "1989";
 
 But this one would show an error:
 
-```typescript
+```ts twoslash
+// @errors: 2322
 let isReleased: boolean = true;
 
 isReleased = "yes"; // red squiggly line under `isReleased`
@@ -92,7 +111,7 @@ It's nice to be warned about these kinds of errors before we even run our code!
 
 TypeScript has a number of basic types that you can use to annotate your code. Here are a few of the most common ones:
 
-```typescript
+```ts twoslash
 let example1: string = "Hello World!";
 let example2: number = 42;
 let example3: boolean = true;
@@ -116,7 +135,7 @@ As it turns out, TypeScript can infer a lot from the context that your code is r
 
 Let's look again at our variable annotation example, but drop the annotations:
 
-```typescript
+```ts twoslash
 let albumTitle = "Midnights";
 let isReleased = true;
 let trackCount = 13;
@@ -126,7 +145,7 @@ We didn't add the annotations, but TypeScript isn't complaining. What's going on
 
 Try hovering your cursor over each variable.
 
-```typescript
+```ts twoslash
 // hovering over each variable name
 
 let albumTitle: string;
@@ -138,17 +157,17 @@ Even though they aren't annotated, TypeScript is still picking up the type that 
 
 It behaves as if we'd annotated it, warning us if we try to assign it a different type from what it was assigned originally:
 
-```typescript
+```ts twoslash
+// @errors: 2322
+
 let isReleased = true;
 
-// Type 'string' is not assignable to type 'boolean'.(2322)
-
-isReleased = "yes"; // red line under isReleased
+isReleased = "yes";
 ```
 
 And also giving us autocomplete on the variable:
 
-```typescript
+```ts
 albumTitle.toUpper; // shows `toUpperCase` in autocomplete
 ```
 
@@ -158,23 +177,20 @@ This is an extremely powerful part of TypeScript. It means that you can mostly _
 
 But type inference can't work everywhere. Let's see what happens if we remove the type annotations from the `logAlbumInfo` function's parameters:
 
-```typescript
+```ts twoslash
+// @errors: 7006
 const logAlbumInfo = (
-  title, // error: Parameter 'title' implicitly has an 'any' type.
-  trackCount, // error: Parameter 'trackCount' implicitly has an 'any' type.
-  isReleased, // error: Parameter 'isReleased' implicitly has an 'any' type.
+  title,
+
+  trackCount,
+
+  isReleased,
 ) => {
   // rest of function body
 };
 ```
 
-On its own, TypeScript isn't able to infer the types of the parameters, so it shows an error under each parameter name:
-
-```txt
-// hovering over `title`
-
-Parameter 'title' implicitly has an 'any' type.
-```
+On its own, TypeScript isn't able to infer the types of the parameters, so it shows an error under each parameter name.
 
 This is because functions are very different to variables. TypeScript can see what value is assigned to which variable, so it can make a good guess about the type.
 
@@ -182,7 +198,8 @@ But TypeScript can't tell from a function parameter alone what type it's suppose
 
 It also can't detect it from usage. If we had an 'add' function that took two parameters, TypeScript wouldn't be able to tell that they were supposed to be numbers:
 
-```typescript
+```ts twoslash
+// @errors: 7006
 function add(a, b) {
   return a + b;
 }
@@ -206,7 +223,7 @@ This type breaks TypeScript's type system. It turns off type safety on the thing
 
 This means that anything can be assigned to it, any property on it can be accessed/assigned to, and it can be called like a function.
 
-```typescript
+```ts twoslash
 let anyVariable: any = "This can be anything!";
 
 anyVariable(); // no error
@@ -226,21 +243,29 @@ But over-using `any` defeats the purpose of using TypeScript, so it's best to av
 
 Let's start with an `add` function which takes two boolean parameters `a` and `b` and returns `a + b`:
 
-```tsx
+```ts twoslash
+// @errors: 2365
 export const add = (a: boolean, b: boolean) => {
-  return a + b; // red squiggly line under a + b
+  return a + b;
 };
 ```
 
 A `result` variable is created by calling the `add` function. The `result` variable is then checked to see if it is equal to a `number`:
 
-```typescript
-const result = add(1, 2); // red squiggly line under `1``
+```ts twoslash
+// @errors: 2365 2345 2344
+import { Expect, Equal } from "@total-typescript/helpers";
 
-type test = Expect<Equal<typeof result, number>>; // red squiggly line under `Equal` through `number`
+export const add = (a: boolean, b: boolean) => {
+  return a + b;
+};
+
+// ---cut---
+
+const result = add(1, 2);
+
+type test = Expect<Equal<typeof result, number>>;
 ```
-
-<!-- TODO - explain the Expect<Equal<>> syntax -->
 
 Currently, there are a few errors in the code that are marked by red squiggly lines.
 
@@ -264,25 +289,26 @@ Your challenge is to consider how we can change the types to make the errors go 
 
 Here we have a `concatTwoStrings` function that is similar in shape to the `add` function. It takes two parameters, `a` and `b`, and returns a string.
 
-```typescript
+```ts twoslash
+// @errors: 7006
 const concatTwoStrings = (a, b) => {
-  // red squiggly lines under `a` and `b`
-
   return [a, b].join(" ");
 };
 ```
 
-There are currently errors on the `a` and `b` parameters, which have not been annotated with types:
-
-```
-Parameter 'a' implicitly has an 'any' type.
-
-Parameter 'b' implicitly has an 'any' type.
-```
+There are currently errors on the `a` and `b` parameters, which have not been annotated with types.
 
 The `result` of calling `concatTwoStrings` with `"Hello"` and `"World"` and checking if it is a `string` does not show any errors:
 
-```typescript
+```ts twoslash
+import { Expect, Equal } from "@total-typescript/helpers";
+
+const concatTwoStrings = (a, b) => {
+  return [a, b].join(" ");
+};
+
+// ---cut---
+
 const result = concatTwoStrings("Hello", "World");
 
 type test = Expect<Equal<typeof result, string>>;
@@ -296,7 +322,7 @@ As we've seen, TypeScript will show errors when types don't match.
 
 This set of examples shows us the basic types that TypeScript gives us to describe JavaScript:
 
-```typescript
+```ts
 export let example1: string = "Hello World!";
 export let example2: string = 42; // red squiggly line under `example2`
 export let example3: string = true; // red squiggly line under `example3`
@@ -328,7 +354,7 @@ Change the types of the annotations on each variable to make the errors go away.
 
 Here is a function called `handleFormData` that accepts an `e` typed as `any`. The function prevents the default form submission behavior, then creates an object from the form data and returns it:
 
-```typescript
+```ts
 const handleFormData = (e: any) => {
   e.preventDefault();
 
@@ -388,7 +414,7 @@ Common sense tells us that the `boolean`s in the `add` function should be replac
 
 If you are coming from another language, you might be tempted to try using `int` or `float`, but TypeScript only has the `number` type:
 
-```typescript
+```ts
 function add(a: number, b: number) {
   return a + b;
 }
@@ -398,13 +424,13 @@ Making this change resolves the errors, and also gives us some other bonuses.
 
 If we try calling the `add` function with a string instead of a number, we'd get an error that type `string` is not assignable to type `number`:
 
-```typescript
+```ts
 add("something", 2); // red squiggly line under `"something"`
 ```
 
 Not only that, but the result of our function is now inferred for us:
 
-```typescript
+```ts
 const result = add(1, 2); // result is a number!
 ```
 
@@ -416,7 +442,7 @@ As we know, function parameters always need annotations in TypeScript.
 
 So, let's update the function declaration parameters so that `a` and `b` are both specified as `string`:
 
-```typescript
+```ts
 const concatTwoStrings = (a: string, b: string) => {
   return [a, b].join(" ");
 };
@@ -426,7 +452,7 @@ This change fixes the errors.
 
 For a bonus point, what type will the return type be inferred as?
 
-```typescript
+```ts
 const result = concatTwoStrings("Hello", "World"); // result is a string!
 ```
 
@@ -434,7 +460,7 @@ const result = concatTwoStrings("Hello", "World"); // result is a string!
 
 Each of the examples represents the TypeScript's basic types, and would be annotated as follows:
 
-```typescript
+```ts
 let example1: string = "Hello World!";
 let example2: number = 42;
 let example3: boolean = true;
@@ -446,7 +472,7 @@ We've already seen `string`, `number`, and `boolean`. The `symbol` type is used 
 
 However, in practice you mostly won't annotate variables like this. If we remove the explicit type annotations, there won't be any errors at all:
 
-```typescript
+```ts
 let example1 = "Hello World!";
 let example2 = 42;
 let example3 = true;
@@ -466,7 +492,7 @@ Using `any` also disables useful features like autocompletion, which can help yo
 
 That's right-- the error in the above code was caused by a typo of `e.terget` instead of `e.target` when creating the `FormData`!
 
-```typescript
+```ts
 const handleFormData = (e: any) => {
   e.preventDefault();
 
@@ -490,7 +516,7 @@ Object types are used to describe the shape of objects. Each property of an obje
 
 When defining an object type, we use curly braces to contain the properties and their types:
 
-```typescript
+```ts
 const talkToAnimal = (animal: { name: string; type: string; age: number }) => {
   // rest of function body
 };
@@ -502,7 +528,7 @@ This curly braces syntax is called an object literal type.
 
 We can use `?` operator to mark the `age` property as optional:
 
-```typescript
+```ts
 const talkToAnimal = (animal: { name: string; type: string; age?: number }) => {
   // rest of function body
 };
@@ -520,7 +546,7 @@ This feature can save you a lot of time, and also helps to avoid typos in a situ
 
 Here we have a `concatName` function that accepts a `user` object with `first` and `last` keys:
 
-```typescript
+```ts
 const concatName = (user) => {
   // squiggly line under `user`
 
@@ -530,7 +556,7 @@ const concatName = (user) => {
 
 The test expects that the full name should be returned, and it is passing:
 
-```typescript
+```ts
 it("should return the full name", () => {
   const result = concatName({
     first: "John",
@@ -557,7 +583,7 @@ How could we type the `user` parameter to ensure that it has these properties an
 
 Here's a version of the `concatName` function that has been updated to return just the first name if a last name wasn't provided:
 
-```typescript
+```ts
 const concatName = (user: { first: string; last: string }) => {
   if (!user.last) {
     return user.first;
@@ -569,7 +595,7 @@ const concatName = (user: { first: string; last: string }) => {
 
 Like before, TypeScript gives us an error when testing that the function returns only the first name when no last name is provided passes:
 
-```typescript
+```ts
 it("should only return the first name if last name not provided", () => {
   const result = concatName({
     first: "John",
@@ -598,7 +624,7 @@ In order to annotate the `user` parameter as an object, we can use the curly bra
 
 Let's start by annotating the `user` parameter as an empty object:
 
-```typescript
+```ts
 const concatName = (user: {}) => {
   return `${user.first} ${user.last}`; // red squiggly line under `.first` and `.last`
 };
@@ -613,7 +639,7 @@ Property 'last' does not exist on type '{}'.
 
 In order to fix these errors, we need to add the `first` and `last` properties to the type annotation.
 
-```typescript
+```ts
 const concatName = (user: { first: string; last: string }) => {
   return `${user.first} ${user.last}`;
 };
@@ -627,7 +653,7 @@ Similar to when we set a function parameter as optional, we can use the `?` to s
 
 As seen in a previous exercise, we can add a question mark to function parameters to make them optional:
 
-```typescript
+```ts
 function concatName(user: { first: string; last?: string }) {
   // implementation
 }
@@ -653,7 +679,7 @@ These might be users, products, or other domain-specific types. We don't want to
 
 This is where the `type` keyword comes in. It allows us to define a type once and use it in multiple places.
 
-```typescript
+```ts
 type Animal = {
   name: string;
   type: string;
@@ -665,7 +691,7 @@ This is what's called a type alias. It's a way to give a name to a type, and the
 
 To create a new variable with the `Animal` type, we'll add it as a type annotation after the variable name:
 
-```typescript
+```ts
 let pet: Animal = {
   name: "Karma",
   type: "cat",
@@ -674,19 +700,19 @@ let pet: Animal = {
 
 We can also use the `Animal` type alias in place of the object type annotation in a function:
 
-```typescript
+```ts
 const getAnimalDescription = (animal: Animal) => {};
 ```
 
 And call the function with our `pet` variable:
 
-```typescript
+```ts
 const desc = getAnimalDescription(pet);
 ```
 
 Type aliases can be objects, but they can also use basic types:
 
-```typescript
+```ts
 type Id = string | number;
 ```
 
@@ -698,7 +724,7 @@ Using a type alias is a great way to ensure there's a single source of truth for
 
 Type aliases can be created in their own `.ts` files and imported into the files where you need them. This is useful when sharing types in multiple places, or when a type definition gets too large:
 
-```typescript
+```ts
 // In shared-types.ts
 
 export type Animal = {
@@ -719,7 +745,7 @@ As a convention, you can even create your own `.types.ts` files. This can help t
 
 Here's some code that uses the same type in multiple places:
 
-```typescript
+```ts
 const getRectangleArea = (rectangle: { width: number; height: number }) => {
   return rectangle.width * rectangle.height;
 };
@@ -736,7 +762,7 @@ The `getRectangleArea` and `getRectanglePerimeter` functions both take in a `rec
 
 Tests for each function pass as expected:
 
-```typescript
+```ts
 it("should return the area of a rectangle", () => {
   const result = getRectangleArea({
     width: 10,
@@ -768,7 +794,7 @@ How could you use the `type` keyword to make this code more readable?
 
 You can use the `type` keyword to create a `Rectangle` type with `width` and `height` properties:
 
-```typescript
+```ts
 type Rectangle = {
   width: number;
   height: number;
@@ -777,7 +803,7 @@ type Rectangle = {
 
 With the type alias created, we can update the `getRectangleArea` and `getRectanglePerimeter` functions to use the `Rectangle` type:
 
-```typescript
+```ts
 const getRectangleArea = (rectangle: Rectangle) => {
   return rectangle.width * rectangle.height;
 };
@@ -797,7 +823,7 @@ You can also describe the types of arrays in TypeScript. There are two different
 
 The first option is the square bracket syntax. This syntax is similar to the type annotations we've made so far, but with the addition of two square brackets at the end to indicate an array.
 
-```typescript
+```ts
 let albums: string[] = [
   "Rubber Soul",
   "Revolver",
@@ -809,7 +835,7 @@ let dates: number[] = [1965, 1966, 1967];
 
 The second option is to explicitly use the `Array` type with angle brackets containing the type of data the array will hold:
 
-```typescript
+```ts
 let albums: Array<string> = [
   "Rubber Soul",
   "Revolver",
@@ -823,7 +849,7 @@ Both of these syntaxes are equivalent, but the square bracket syntax is a bit mo
 
 When specifying an array's type, you can use any built-in types, inline types, or type aliases:
 
-```typescript
+```ts
 type Album = {
   artist: string;
   title: string;
@@ -846,7 +872,7 @@ let selectedDiscography: Album[] = [
 
 And if you try to update the array with an item that doesn't match the type, TypeScript will give you an error:
 
-```typescript
+```ts
 selectedDiscography.push({name: "Karma", type: "cat"};) // red squiggly line under `name`
 // error message:
 // Argument of type '{ name: string; type: string; }' is not assignable to parameter of type 'Album'.
@@ -858,7 +884,7 @@ Tuples let you specify an array with a fixed number of elements, where each elem
 
 Creating a tuple is similar to an array's square bracket syntax - except the square brackets contain the types instead of abutting the variable name:
 
-```typescript
+```ts
 // Tuple
 let album: [string, number] = ["Rubber Soul", 1965];
 
@@ -874,7 +900,7 @@ Tuples are useful for grouping related information together without having to cr
 
 For example, if we wanted to group an album with its play count, we could do something like this:
 
-```typescript
+```ts
 let albumWithPlayCount: [Album, number] = [
   {
     artist: "The Beatles",
@@ -889,7 +915,7 @@ let albumWithPlayCount: [Album, number] = [
 
 To add more clarity to the tuple, names for each of the types can be added inside of the square brackets:
 
-```typescript
+```ts
 type MyTuple = [album: Album, playCount: number];
 ```
 
@@ -901,7 +927,7 @@ This can be helpful when you have a tuple with a lot of elements, or when you wa
 
 Consider the following shopping cart code:
 
-```typescript
+```ts
 type ShoppingCart = {
   userId: string;
 };
@@ -938,7 +964,7 @@ How would you fix this error?
 
 Consider this `processRecipe` function which takes in a `Recipe` type:
 
-```typescript
+```ts
 type Recipe = {
   title: string;
   instructions: string;
@@ -972,7 +998,7 @@ By combining what you've seen with typing object properties and working with arr
 
 Here we have a `setRange` function that takes in an array of numbers:
 
-```typescript
+```ts
 const setRange = (range: Array<number>) => {
   const x = range[0];
   const y = range[1];
@@ -993,7 +1019,7 @@ There are two tests inside the `setRange` function that are currently failing.
 
 Using the `// @ts-expect-error` directive, we find there are a couple more errors that need fixing. Recall that this directive tells TypeScript we know there will be an error on the next line, so ignore it. However, if we say we expect an error but there isn't one, we will get the red squiggly lines on the actual `//@ts-expect-error` line.
 
-```typescript
+```ts
 // both of these show red squiggly lines under the ts-expect-error directive
 
 // @ts-expect-error too few arguments
@@ -1009,7 +1035,7 @@ The code for the `setRange` function needs an updated type annotation to specify
 
 This `goToLocation` function takes in an array of coordinates. Each coordinate has a `latitude` and `longitude`, which are both numbers, as well as an optional `elevation` which is also a number:
 
-```typescript
+```ts
 const goToLocation = (coordinates: Array<number>) => {
   const latitude = coordinates[0];
   const longitude = coordinates[1];
@@ -1031,7 +1057,7 @@ Your challenge is to update the type annotation for the `coordinates` parameter 
 
 For the `ShoppingCart` example, defining an array of `item` strings would looks like this when using the square bracket syntax:
 
-```typescript
+```ts
 type ShoppingCart = {
   userId: string;
   items: string[];
@@ -1042,7 +1068,7 @@ With this in place, we must pass in `items` as an array. A single string or othe
 
 The other syntax is to explicitly write `Array` and pass it a type inside the angle brackets:
 
-```typescript
+```ts
 type ShoppingCart = {
   userId: string;
   items: Array<string>;
@@ -1055,7 +1081,7 @@ There are a few different ways to express an array of objects.
 
 One approach would be to to create a new `Ingredient` type that we can use to represent the objects in the array:
 
-```typescript
+```ts
 type Ingredient = {
   name: string;
   quantity: string;
@@ -1064,7 +1090,7 @@ type Ingredient = {
 
 Then the `Recipe` type can be updated to include an `ingredients` property of type `Ingredient[]`:
 
-```typescript
+```ts
 type Recipe = {
   title: string;
   instructions: string;
@@ -1076,7 +1102,7 @@ This solution reads nicely, fixes the errors, and helps to create a mental map o
 
 As seen previously, using the `Array<Ingredient>` syntax would also work:
 
-```typescript
+```ts
 type Recipe = {
   title: string;
   instructions: string;
@@ -1086,7 +1112,7 @@ type Recipe = {
 
 It's also possible to specify the `ingredients` property as an inline object literal on the `Recipe` type using the square brackets:
 
-```typescript
+```ts
 type Recipe = {
   title: string;
   instructions: string;
@@ -1099,7 +1125,7 @@ type Recipe = {
 
 Or using `Array<>`:
 
-```typescript
+```ts
 type Recipe = {
   title: string;
   instructions: string;
@@ -1116,7 +1142,7 @@ The inline approaches are useful, but I prefer extracting them out to a new type
 
 In this case, we would update the `setRange` function to use the tuple syntax instead of the array syntax:
 
-```typescript
+```ts
 const setRange = (range: [number, number]) => {
   // rest of function body
 };
@@ -1124,7 +1150,7 @@ const setRange = (range: [number, number]) => {
 
 If you want to add more clarity to the tuple, you can add names for each of the types:
 
-```typescript
+```ts
 const setRange = (range: [x: number, y: number]) => {
   // rest of function body
 };
@@ -1176,13 +1202,13 @@ A `Set` is a JavaScript feature that represents a collection of unique values.
 
 To create a `Set`, use the `new` keyword and call `Set`:
 
-```typescript
+```ts
 const formats = new Set();
 ```
 
 If we hover over the `formats` variable, we can see that it is typed as `Set<unknown>`:
 
-```typescript
+```ts
 // hovering over `formats` shows:
 
 const formats: Set<unknown>;
@@ -1192,13 +1218,13 @@ That's because the `Set` doesn't know what type it's supposed to be! We haven't 
 
 One way to have TypeScript know what type we want the `Set` to hold would be to pass in some initial values:
 
-```typescript
+```ts
 const formats = new Set(["CD", "DVD"]);
 ```
 
 In this case, since we specified two strings when creating the `Set`, TypeScript knows that `formats` is a `Set` of strings:
 
-```typescript
+```ts
 // hovering over `formats` shows:
 const formats: Set<string>;
 ```
@@ -1207,13 +1233,13 @@ But it's not always the case that we know exactly what values we want to pass to
 
 For this, we can pass a type to `Set` using the angle brackets syntax:
 
-```typescript
+```ts
 const formats = new Set<string>();
 ```
 
 Now, `formats` understands that it's a set of strings, and adding anything other than a string will fail:
 
-```typescript
+```ts
 formats.add("Digital"); // this works
 
 formats.add(8); // red squiggly line under `8`
@@ -1233,13 +1259,13 @@ For example, let's look at `document.getElementById` that comes in from the DOM 
 
 A common example where you might want to pass a type is when calling `document.getElementById`. Here we're trying to get an audio element:
 
-```typescript
+```ts
 const audioElement = document.getElementById("player");
 ```
 
 We know that `audioElement` is going to be a `HTMLAudioElement`, so it seems like we should be able to pass it to `document.getElementById`:
 
-```typescript
+```ts
 // red squiggly line under HTMLAudioElement
 const audioElement = document.getElementById<HTMLAudioElement>("player");
 
@@ -1251,7 +1277,7 @@ But unfortunately, we can't. We get an error saying that `.getElementById` expec
 
 We can see whether a function can receive type arguments by hovering over it. Let's try hovering `.getElementById`:
 
-```typescript
+```ts
 // hovering over .getElementById shows:
 (method) Document.getElementById(elementId: string): HTMLElement | null
 ```
@@ -1260,7 +1286,7 @@ Notice that `.getElementById` contains no angle brackets (`<>`) in its hover, wh
 
 Let's contrast it with a function that _can_ receive type arguments, like `document.querySelector`:
 
-```typescript
+```ts
 const audioElement = document.querySelector("#player");
 
 // hovering over .querySelector shows:
@@ -1271,7 +1297,7 @@ This type definition shows us that `.querySelector` has some angle brackets befo
 
 So, to fix our code above we could replace `.getElementById` with `.querySelector` and use the `#player` selector to find the audio element:
 
-```typescript
+```ts
 const audioElement = document.querySelector<HTMLAudioElement>("#player");
 ```
 
@@ -1287,7 +1313,7 @@ Here we are creating a `Map`, a JavaScript feature which represents a dictionary
 
 In this case we want to pass in a number for the key, and an object for the value:
 
-```typescript
+```ts
 const userMap = new Map();
 
 userMap.set(1, { name: "Max", age: 30 });
@@ -1303,7 +1329,7 @@ userMap.set(3, "123");
 
 There are red lines on the `@ts-expect-error` directives because currently any type of key and value is allowed in the `Map`.
 
-```typescript
+```ts
 
 // hovering over Map shows:
 var Map: MapConstructor
@@ -1318,7 +1344,7 @@ How would we type the `userMap` so the key must be a number and the value is an 
 
 Consider the following code, which uses `JSON.parse` to parse some JSON:
 
-```typescript
+```ts
 const parsedData = JSON.parse<{
   name: string; // red squiggly lines for the full {} argument
   age: number;
@@ -1333,7 +1359,7 @@ Expected 0 type arguments, but got 1.
 
 A test that checks the type of `parsedData` is currently failing, since it is typed as `any` instead of the expected type:
 
-```typescript
+```ts
 type test = Expect<
   Equal<
     // red squiggly lines for the full Equal<>
@@ -1365,7 +1391,7 @@ There are a few different ways to solve this problem, but we'll start with the m
 
 The first thing to do is to create a `User` type:
 
-```typescript
+```ts
 type User = {
   name: string;
   age: number;
@@ -1374,7 +1400,7 @@ type User = {
 
 Following the patterns we've seen so far, we can pass `number` and `User` as the types for the `Map`:
 
-```typescript
+```ts
 const userMap = new Map<number, User>();
 ```
 
@@ -1384,7 +1410,7 @@ With this change, the errors go away, and we can no longer pass in incorrect typ
 
 You can also express the `User` type inline:
 
-```typescript
+```ts
 const userMap = new Map<number, { name: string; age: number }>();
 ```
 
@@ -1398,7 +1424,7 @@ Expected 0 type arguments, but got 1.
 
 This message indicates that TypeScript is not expecting anything inside the angle braces when calling `JSON.parse`. To resolve this error, we can remove the angle braces:
 
-```typescript
+```ts
 const parsedData = JSON.parse('{"name": "Alice", "age": 30}');
 ```
 
@@ -1406,7 +1432,7 @@ Now that `.parse` is receiving the correct number of type arguments, TypeScript 
 
 However, we want our parsed data to have the correct type. Hovering over `JSON.parse`, we can see its type definition:
 
-```typescript
+```ts
 
 JSON.parse(text: string, reviver?: ((this: any, key: string, value: any) => any)  undefined): any
 
@@ -1416,7 +1442,7 @@ It always returns `any`, which is a bit of a problem.
 
 To get around this issue, we can give `parsedData` a variable type annotation with `name: string` and `age: number`:
 
-```typescript
+```ts
 const parsedData: {
   name: string;
   age: number;
@@ -1427,7 +1453,7 @@ Now we have `parsedData` typed as we want it to be.
 
 The reason this works is because `any` disables type checking. So, we can assign it any type we want to. We could assign it something that doesn't make sense, like `number`, and TypeScript wouldn't complain:
 
-```typescript
+```ts
 const parsedData: number = JSON.parse('{"name": "Alice", "age": 30}');
 ```
 
@@ -1441,7 +1467,7 @@ For cases where a function parameter is optional, we can add the `?` operator be
 
 Say we wanted to add an optional `releaseDate` parameter to the `logAlbumInfo` function. We could do so like this:
 
-```typescript
+```ts
 const logAlbumInfo = (
   title: string,
   trackCount: number,
@@ -1454,7 +1480,7 @@ const logAlbumInfo = (
 
 Now we can call `logAlbumInfo` and include a release date string, or leave it out:
 
-```typescript
+```ts
 logAlbumInfo("Midnights", 13, true, "2022-10-21");
 
 logAlbumInfo("American Beauty", 10, true);
@@ -1470,7 +1496,7 @@ In addition to marking parameters as optional, you can set default values for pa
 
 For example, we could set the `format` to default to `"CD"` if no format is provided:
 
-```typescript
+```ts
 const logAlbumInfo = (
   title: string,
   trackCount: number,
@@ -1483,7 +1509,7 @@ const logAlbumInfo = (
 
 The annotation of `: string` can also be omitted:
 
-```typescript
+```ts
 const logAlbumInfo = (
   title: string,
   trackCount: number,
@@ -1502,7 +1528,7 @@ In addition to setting parameter types, we can also set the return type of a fun
 
 The return type of a function can be annotated by placing a `:` and the type after the closing parentheses of the parameter list. For the `logAlbumInfo` function, we can specify that the function will return a string:
 
-```typescript
+```ts
 const logAlbumInfo = (
   title: string,
   trackCount: number,
@@ -1514,7 +1540,7 @@ const logAlbumInfo = (
 
 If the value returned from a function doesn't match the type that was specified, TypeScript will show an error.
 
-```typescript
+```ts
 const logAlbumInfo = (
   title: string,
   trackCount: number,
@@ -1532,7 +1558,7 @@ Just like in JavaScript, TypeScript supports rest parameters by using the `...` 
 
 For example, this `printAlbumFormats` is set up to accept an `album` and any number of `formats`:
 
-```typescript
+```ts
 function getAlbumFormats(album: Album, ...formats: string[]) {
   return `${album.title} is available in the following formats: ${formats.join(
     ", ",
@@ -1542,7 +1568,7 @@ function getAlbumFormats(album: Album, ...formats: string[]) {
 
 Declaring the parameter with the `...formats` syntax combined with an array of strings lets us pass in any number of strings to the function:
 
-```typescript
+```ts
 getAlbumFormats(
   { artist: "Radiohead", title: "OK Computer", year: 1997 },
   "CD",
@@ -1553,7 +1579,7 @@ getAlbumFormats(
 
 Or even by spreading in an array of strings:
 
-```typescript
+```ts
 const albumFormats = ["CD", "LP", "Cassette"];
 
 getAlbumFormats(
@@ -1564,7 +1590,7 @@ getAlbumFormats(
 
 As an alternative, we can use the `Array<>` syntax instead.
 
-```typescript
+```ts
 function getAlbumFormats(album: Album, ...formats: Array<string>) {
   // function body
 }
@@ -1576,7 +1602,7 @@ We've used type annotations to specify the types of function parameters, but we 
 
 We can do this using this syntax:
 
-```typescript
+```ts
 type Mapper = (item: string) => number;
 ```
 
@@ -1584,7 +1610,7 @@ This is a type alias for a function that takes in a `string` and returns a `numb
 
 We could then use this to describe a callback function passed to another function:
 
-```typescript
+```ts
 const mapOverItems = (items: string[], map: Mapper) => {
   return items.map(map);
 };
@@ -1592,7 +1618,7 @@ const mapOverItems = (items: string[], map: Mapper) => {
 
 Or, declare it inline:
 
-```typescript
+```ts
 const mapOverItems = (items: string[], map: (item: string) => number) => {
   return items.map(map);
 };
@@ -1600,7 +1626,7 @@ const mapOverItems = (items: string[], map: (item: string) => number) => {
 
 This lets us pass a function to `mapOverItems` that changes the value of the items in the array.
 
-```typescript
+```ts
 const arrayOfNumbers = mapOverItems(["1", "2", "3"], (item) => {
   return parseInt(item) * 100;
 });
@@ -1608,7 +1634,7 @@ const arrayOfNumbers = mapOverItems(["1", "2", "3"], (item) => {
 
 Function types are as flexible as function definitions. You can declare multiple parameters, rest parameters, and optional parameters.
 
-```typescript
+```ts
 // Optional parameters
 type WithOptional = (index?: number) => number;
 
@@ -1625,7 +1651,7 @@ Some functions don't return anything. They perform some kind of action, but they
 
 A great example is a `console.log`:
 
-```typescript
+```ts
 const logResult = console.log("Hello!");
 ```
 
@@ -1647,7 +1673,7 @@ This is TypeScript's way of saying "ignore the result of this function call".
 
 We've looked at how to strongly type what a function returns, via a return type:
 
-```typescript
+```ts
 const getUser = (id: string): User => {
   // function body
 };
@@ -1655,7 +1681,7 @@ const getUser = (id: string): User => {
 
 But what about when the function is asynchronous?
 
-```typescript
+```ts
 // The return type of an async function or method must
 // be the global Promise<T> type. Did you mean to write
 // 'Promise<User>'?
@@ -1669,7 +1695,7 @@ Fortunately, TypeScript's error message is helpful here. It's telling us that th
 
 So, we can pass `User` to a `Promise`:
 
-```typescript
+```ts
 const getUser = async (id: string): Promise<User> => {
   const user = await db.users.get(id);
 
@@ -1687,7 +1713,7 @@ Here we have a `concatName` function, whose implementation takes in two `string`
 
 If there's no `last` name passed, the return would be just the `first` name. Otherwise, it would return `first` concatenated with `last`:
 
-```typescript
+```ts
 const concatName = (first: string, last: string) => {
   if (!last) {
     return first;
@@ -1699,13 +1725,13 @@ const concatName = (first: string, last: string) => {
 
 When calling `concatName` with a first and last name, the function works as expected without errors:
 
-```typescript
+```ts
 const result = concatName("John", "Doe");
 ```
 
 However, when calling `concatName` with just a first name, we get an error:
 
-```typescript
+```ts
 const result2 = concatName("John"); // red squiggly line under `concatName("John")`
 ```
 
@@ -1721,7 +1747,7 @@ Try to use an optional parameter annotation to fix the error.
 
 Here we have the same `concatName` function as before, where the `last` name is optional:
 
-```typescript
+```ts
 const concatName = (first: string, last?: string) => {
   if (!last) {
     return first;
@@ -1733,7 +1759,7 @@ const concatName = (first: string, last?: string) => {
 
 We also have a couple of tests. This test checks that the function returns the full name when passed a first and last name:
 
-```typescript
+```ts
 it("should return the full name", () => {
   const result = concatName("John", "Doe");
 
@@ -1745,7 +1771,7 @@ it("should return the full name", () => {
 
 However, the second test expects that when `concatName` is called with just a first name as an argument, the function should use `Pocock` as the default last name:
 
-```typescript
+```ts
 it("should return the first name", () => {
   const result = concatName("John");
 
@@ -1781,7 +1807,7 @@ Update the `concatName` function to use `Pocock` as the default last name if one
 
 Here we have a `concatenate` function that takes in a variable number of strings:
 
-```typescript
+```ts
 export function concatenate(...strings) {
   // red squiggly line under `...strings`
 
@@ -1809,7 +1835,7 @@ How would you update the rest parameter to specify that it should be an array of
 
 Here, we have a `modifyUser` function that takes in an array of `users`, an `id` of the user that we want to change, and a `makeChange` function that makes that change:
 
-```typescript
+```ts
 type User = {
   id: string;
   name: string;
@@ -1836,7 +1862,7 @@ Parameter `makeChange` implicitly has an `any` type.
 
 Here's an example of how this function would be called:
 
-```typescript
+```ts
 const users: User[] = [
   { id: "1", name: "John" },
   { id: "2", name: "Jane" },
@@ -1852,7 +1878,7 @@ In the above example, the `user` parameter to the error function also has the "i
 
 The `modifyUser` type annotation for the `makeChange` function to be updated. It should return a modified user. For example, we should not be able to return a `name` of `123`, because in the `User` type, `name` is a `string`:
 
-```typescript
+```ts
 modifyUser(
   users,
   "1",
@@ -1871,10 +1897,9 @@ Here we explore a classic web development example.
 
 We have an `addClickEventListener` function that takes in a listener function and adds it to the document:
 
-```typescript
+```ts
+// @errors: 7006
 const addClickEventListener = (listener) => {
-  // red squiggly line under `listener`
-
   document.addEventListener("click", listener);
 };
 
@@ -1887,7 +1912,7 @@ Currently there is an error under `listener` because it doesn't have a type sign
 
 We're also _not_ getting an error when we pass an incorrect value to `addClickEventListener`.
 
-```typescript
+```ts
 addClickEventListener(
   // @ts-expect-error // red squiggly line under `@ts-expect-error`
   "abc",
@@ -1902,7 +1927,7 @@ How should `addClickEventListener` be typed so that each error is resolved?
 
 We've got a function that accepts a callback and calls it. The callback doesn't return anything, so we've typed it as `() => undefined`:
 
-```typescript
+```ts
 const acceptsCallback = (callback: () => undefined) => {
   callback();
 };
@@ -1910,14 +1935,13 @@ const acceptsCallback = (callback: () => undefined) => {
 
 But we're getting an error when we try to pass in `returnString`, a function that _does_ return something:
 
-```typescript
+```ts
+// @errors: 2304
 const returnString = () => {
   return "Hello!";
 };
 
-// Argument of type '() => string' is not
-// assignable to parameter of type '() => undefined'.
-acceptsCallback(returnString); // red squiggly line under `returnString`
+acceptsCallback(returnString);
 ```
 
 Why is this happening? Can we alter the type of `acceptsCallback` to fix this error?
@@ -1926,7 +1950,7 @@ Why is this happening? Can we alter the type of `acceptsCallback` to fix this er
 
 This `fetchData` function awaits the `response` from a call to `fetch`, then gets the `data` by calling `response.json()`:
 
-```typescript
+```ts
 async function fetchData() {
   const response = await fetch("https://api.example.com/data");
 
@@ -1940,14 +1964,14 @@ There are a couple of things worth noting here.
 
 Hovering over `response`, we can see that it has a type of `Response`, which is a globally available type:
 
-```typescript
+```ts
 // hovering over response
 const response: Response;
 ```
 
 When hovering over `response.json()`, we can see that it returns a `Promise<any>`:
 
-```typescript
+```ts
 // hovering over response.json()
 
 const response.json(): Promise<any>
@@ -1955,7 +1979,7 @@ const response.json(): Promise<any>
 
 If we were to remove the `await` keyword from the call to `fetch`, the return type would also become `Promise<any>`:
 
-```typescript
+```ts
 const response = fetch("https://api.example.com/data");
 
 // hovering over response shows
@@ -1965,7 +1989,7 @@ const response: Promise<any>;
 
 Consider this `example` and its test:
 
-```typescript
+```ts
 const example = async () => {
   const data = await fetchData();
 
@@ -1983,7 +2007,7 @@ There are two possible solutions here.
 
 By adding a question mark `?` to the end of a parameter, it will be marked as optional:
 
-```typescript
+```ts
 function concatName(first: string, last?: string) {
   // ...implementation
 }
@@ -1995,7 +2019,7 @@ To add a default parameter in TypeScript, we would use the `=` syntax that is al
 
 In this case, we will update `last` to default to "Pocock" if no value is provided:
 
-```typescript
+```ts
 export const concatName = (first: string, last?: string = "Pocock") => {
   return `${first} ${last}`;
 };
@@ -2013,7 +2037,7 @@ This is because TypeScript doesn't allow us to have both an optional parameter a
 
 To fix the error, we can remove the question mark from the `last` parameter:
 
-```typescript
+```ts
 export const concatName = (first: string, last = "Pocock") => {
   return `${first} ${last}`;
 };
@@ -2023,7 +2047,7 @@ export const concatName = (first: string, last = "Pocock") => {
 
 When using rest parameters, all of the arguments passed to the function will be collected into an array. This means that the `strings` parameter can be typed as an array of strings:
 
-```typescript
+```ts
 export function concatenate(...strings: string[]) {
   return strings.join("");
 }
@@ -2031,7 +2055,7 @@ export function concatenate(...strings: string[]) {
 
 Or, of course, using the `Array<>` syntax:
 
-```typescript
+```ts
 export function concatenate(...strings: Array<string>) {
   return strings.join("");
 }
@@ -2041,7 +2065,7 @@ export function concatenate(...strings: Array<string>) {
 
 Let's start by annotating the `makeChange` parameter to be a function. For now, we'll specify that it returns `any`:
 
-```typescript
+```ts
 const modifyUser = (user: User[], id: string, makeChange: () => any) => {
   return user.map((u) => {
     if (u.id === id) {
@@ -2069,7 +2093,7 @@ This tells us we need to add a parameter to the `makeChange` function type.
 
 In this case, we will specify that `user` is of type `User`.
 
-```typescript
+```ts
 const modifyUser = (
   user: User[],
   id: string,
@@ -2081,7 +2105,7 @@ const modifyUser = (
 
 This is pretty good, but we also need to make sure our `makeChange` function returns a `User`:
 
-```typescript
+```ts
 const modifyUser = (
   user: User[],
   id: string,
@@ -2095,7 +2119,7 @@ Now the errors are resolved, and we have autocompletion for the `User` propertie
 
 Optionally, we can clean up the code a bit by creating a type alias for the `makeChange` function type:
 
-```typescript
+```ts
 type MakeChangeFunc = (user: User) => User;
 
 const modifyUser = (user: User[], id: string, makeChange: MakeChangeFunc) => {
@@ -2109,7 +2133,7 @@ Both techniques behave the same, but if you need to reuse the `makeChange` funct
 
 Let's start by annotating the `listener` parameter to be a function. For now, we'll specify that it returns a string:
 
-```typescript
+```ts
 const addClickEventListener = (listener: () => string) => {
   document.addEventListener("click", listener);
 };
@@ -2117,10 +2141,15 @@ const addClickEventListener = (listener: () => string) => {
 
 The problem is that we now have an error when we call `addClickEventListener` with a function that returns nothing:
 
-```typescript
-addClickEventListener(() => {
-  // red squiggly line under `() => {`
+```ts
+// @errors: 2345
+const addClickEventListener = (listener: () => string) => {
+  document.addEventListener("click", listener);
+};
 
+// ---cut---
+
+addClickEventListener(() => {
   console.log("Clicked!");
 });
 ```
@@ -2137,7 +2166,7 @@ The error message tells us that the `listener` function is returning `void`, whi
 
 This suggests that instead of typing the `listener` parameter as a function that returns a string, we should type it as a function that returns `void`:
 
-```typescript
+```ts
 const addClickEventListener = (listener: () => void) => {
   document.addEventListener("click", listener);
 };
@@ -2149,7 +2178,7 @@ This is a great way to tell TypeScript that we don't care about the return value
 
 The solution is to change the of `callback` to `() => void`:
 
-```typescript
+```ts
 const acceptsCallback = (callback: () => void) => {
   callback();
 };
@@ -2165,17 +2194,10 @@ You might be tempted to try passing a type argument to `fetch`, similar to how y
 
 However, hovering over `fetch`, we can see that it doesn't accept type arguments:
 
-```typescript
-// this won't work!
-
-const response = fetch<number>("https://api.example.com/data"); // red squiggly line under number
-
-// Hovering over fetch shows:
-
-function fetch(
-  input: RequestInfo | URL,
-  init?: RequestInit | undefined,
-): Promise<Response>;
+```ts
+// @noErrors
+const response = fetch<number>("https://api.example.com/data");
+//               ^?
 ```
 
 We also can't add a type annotation to `response.json()` because as it doesn't accept type arguments either:
@@ -2192,7 +2214,11 @@ Expected 0 type arguments, but got 1.
 
 One thing that will work is to specify that `data` is a `number`:
 
-```typescript
+```ts
+const response = await fetch("https://api.example.com/data");
+
+// ---cut---
+
 const data: number = await response.json();
 ```
 
@@ -2200,10 +2226,12 @@ This works because `data` was `any` before, and `await response.json()` returns 
 
 However, the best way to solve this problem is to add a return type to the function. In this case, it should be a `number`:
 
-```typescript
-// red squiggly line under number
+```ts
+// @errors: 1064
 async function fetchData(): number {
   // function body
+
+  return 123;
 }
 ```
 
@@ -2215,7 +2243,7 @@ The return type of an async function or method must be the global Promise<T> typ
 
 So, we should change the return type to `Promise<number>`:
 
-```typescript
+```ts
 async function fetchData(): Promise<number> {
   const response = await fetch("https://api.example.com/data");
 
