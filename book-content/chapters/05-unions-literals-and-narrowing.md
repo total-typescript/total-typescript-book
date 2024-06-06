@@ -10,16 +10,12 @@ A union type is TypeScript's way of saying that a value can be "either this type
 
 This situation comes up in JavaScript all the time. Imagine you have a value that is a `string` on Tuesdays, but `null` the rest of the time:
 
-```typescript
+```ts twoslash
 const message = Date.now() % 2 === 0 ? "Hello Tuesdays!" : null;
+//    ^?
 ```
 
-If we hover over `message`, we can see that TypeScript has inferred its type as `string | null`:
-
-```typescript
-// hovering over message
-const message: string | null;
-```
+If we hover over `message`, we can see that TypeScript has inferred its type as `string | null`.
 
 This is a union type. It means that `message` can be either a `string` or `null`.
 
@@ -29,7 +25,7 @@ We can declare our own union types.
 
 For example, you might have an `id` that could be either a `string` or a `number`:
 
-```typescript
+```ts twoslash
 const logId = (id: string | number) => {
   console.log(id);
 };
@@ -37,12 +33,17 @@ const logId = (id: string | number) => {
 
 This means that `logId` can accept either a `string` or a `number` as an argument, but not a `boolean`:
 
-```typescript
-logId("abc"); // "abc"
+```ts twoslash
+// @errors: 2345
+const logId = (id: string | number) => {
+  console.log(id);
+};
+// ---cut---
+logId("abc");
 
-logId(123); // 123
+logId(123);
 
-logId(true); // red squiggly line under true
+logId(true);
 ```
 
 To create a union type, the `|` operator is used to separate the types. Each type of the union is called a 'member' of the union.
@@ -122,12 +123,16 @@ Now, we can use the `DigitalFormat` type for functions that handle digital forma
 
 This way, we can ensure that each function only handles the cases it's supposed to handle, and TypeScript will throw an error if we try to pass an incorrect format to a function.
 
-```typescript
+```ts twoslash
+// @errors: 2345
+type PhysicalFormat = "LP" | "CD" | "Cassette";
+// ---cut---
+
 const getAlbumFormats = (format: PhysicalFormat) => {
   // function body
 };
 
-getAlbumFormats("MP3"); // red squiggly line under "MP3"
+getAlbumFormats("MP3");
 ```
 
 ### Exercises
@@ -148,20 +153,26 @@ function getUsername(username: string) {
 
 In the first test, we call `getUsername` and pass in a string of "Alice" which passes as expected. However, in the second test, we have a red squiggly line under `null` when passing it into `getUsername`:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+import { Equal, Expect } from "@total-typescript/helpers";
+
+function getUsername(username: string) {
+  if (username !== null) {
+    return `User: ${username}`;
+  } else {
+    return "Guest";
+  }
+}
+
+// ---cut---
 const result = getUsername("Alice");
 
 type test = Expect<Equal<typeof result, string>>;
 
-const result2 = getUsername(null); // red squiggly line under `null`
+const result2 = getUsername(null);
 
 type test2 = Expect<Equal<typeof result2, string>>;
-```
-
-Hovering over `null` shows us the following error message:
-
-```
-Argument of type 'null' is not assignable to parameter of type 'string'.
 ```
 
 Normally we wouldn't explicitly call the `getUsername` function with `null`, but in this case it's important that we handle `null` values. For example, we might be getting the `username` from a user record in a database, and the user might or might not have a name depending on how they signed up.
@@ -194,15 +205,21 @@ However, since the `move` function currently takes in a `string` for the `direct
 
 This leads to TypeScript drawing red squiggly lines under the `@ts-expect-error` directives:
 
-```typescript
+```ts twoslash
+// @errors: 2578
+function move(direction: string, distance: number) {
+  // Move the specified distance in the given direction
+}
+// ---cut---
+
 move(
-  // @ts-expect-error - "up-right" is not a valid direction // red squiggly line
+  // @ts-expect-error - "up-right" is not a valid direction
   "up-right",
   10,
 );
 
 move(
-  // @ts-expect-error - "down-left" is not a valid direction // red squiggly line
+  // @ts-expect-error - "down-left" is not a valid direction
   "down-left",
   20,
 );
@@ -270,7 +287,8 @@ logSize("small");
 
 But if a function accepts `"small"`, we can't pass any random `string`:
 
-```typescript
+```ts twoslash
+// @errors: 2345
 const recordOfSizes = {
   small: "small",
   large: "large",
@@ -280,7 +298,7 @@ const logSize = (size: "small" | "large") => {
   console.log(recordOfSizes[size]);
 };
 
-logSize("medium"); // red squiggly line under "medium"
+logSize("medium");
 ```
 
 If you're familiar with the concept of 'subtypes' and 'supertypes' in set theory, this is a similar idea. `"small"` is a subtype of `string` (it is more specific), and `string` is a supertype of `"small"`.
@@ -304,7 +322,8 @@ However, this doesn't work in reverse. We can't pass `string | number` to a func
 
 For example, if we changed this `logId` function to only accept a `number`, TypeScript would throw an error when we try to pass `string | number` to it:
 
-```tsx
+```ts twoslash
+// @errors: 2345
 function logId(id: number) {
   console.log(`The id is ${id}`);
 }
@@ -317,7 +336,7 @@ const user: User = {
   id: 123,
 };
 
-logId(user.id); // red squiggly line under user.id
+logId(user.id);
 ```
 
 Hovering over `user.id` shows:
@@ -391,9 +410,10 @@ We'll take a closer look at these in the following exercises.
 
 Here we have a function called `validateUsername` that takes in either a `string` or `null`, and will always return a `boolean`:
 
-```typescript
+```ts twoslash
+// @errors: 18047
 function validateUsername(username: string | null): boolean {
-  return username.length > 5; // red squiggly line under `username`
+  return username.length > 5;
 
   return false;
 }
@@ -431,8 +451,14 @@ const appElement = document.getElementById("app");
 
 Currently, a test to see if the `appElement` is an `HTMLElement` fails:
 
-```typescript
-type Test = Expect<Equal<typeof appElement, HTMLElement>>; // red squiggly line under Equal<>
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+const appElement = document.getElementById("app");
+
+// ---cut---
+type Test = Expect<Equal<typeof appElement, HTMLElement>>;
 ```
 
 Your task is to use `throw` to narrow down the type of `appElement` before it's checked by the test.
@@ -629,10 +655,20 @@ Throwing errors like this can help you identify issues at runtime. In this speci
 
 Your first instinct will be to check if `response.data` is truthy.
 
-```typescript
+```ts twoslash
+// @errors: 2339
+type APIResponse =
+  | {
+      data: {
+        id: string;
+      };
+    }
+  | {
+      error: string;
+    };
+
+// ---cut---
 const handleResponse = (response: APIResponse) => {
-  // Property 'data' does not exist on type 'APIResponse'.
-  // Red line under response.data
   if (response.data) {
     return response.data.id;
   } else {
@@ -668,7 +704,18 @@ We can use an `in` operator to check if a specific key exists on `response`.
 
 In this example, it would check for the key `data`:
 
-```typescript
+```ts twoslash
+type APIResponse =
+  | {
+      data: {
+        id: string;
+      };
+    }
+  | {
+      error: string;
+    };
+
+// ---cut---
 const handleResponse = (response: APIResponse) => {
   if ("data" in response) {
     return response.data.id;
@@ -698,7 +745,7 @@ If you imagine a scale whether the widest types are at the top and the narrowest
 
 Consider this example function `fn` that takes in an `input` parameter of type `unknown`:
 
-```typescript
+```ts twoslash
 const fn = (input: unknown) => {};
 
 // Anything is assignable to unknown!
@@ -724,10 +771,9 @@ You might be wondering what the difference is between `unknown` and `any`. They'
 
 `unknown`, on the other hand, is part of TypeScript's type system. It's wider than every other type, so it can't be assigned to anything.
 
-```typescript
+```ts twoslash
+// @errors: 18046
 const handleWebhookInput = (input: unknown) => {
-  // red line under input
-  // 'input' is of type 'unknown'.
   input.toUppercase();
 };
 
@@ -789,10 +835,13 @@ There are some weird implications for the `never` type.
 
 You cannot assign anything to `never`, except for `never` itself.
 
-```typescript
+```ts twoslash
+// @errors: 2345
+const getNever = () => {
+  throw new Error("This function never returns");
+};
+// ---cut---
 const fn = (input: never) => {};
-
-// red squiggly lines under everything in parens
 
 fn("hello");
 fn(42);
@@ -832,7 +881,8 @@ This gives us pretty much the full picture of TypeScript's type hierarchy.
 
 In TypeScript, one of the most common places you'll encounter the `unknown` type is when using a `try...catch` statement to handle potentially dangerous code. Let's consider an example:
 
-```typescript
+```ts twoslash
+// @errors: 18046
 const somethingDangerous = () => {
   if (Math.random() > 0.5) {
     throw new Error("Something went wrong");
@@ -845,7 +895,7 @@ try {
   somethingDangerous();
 } catch (error) {
   if (true) {
-    console.error(error.message); // red squiggly line under error in `error.message`
+    console.error(error.message);
   }
 }
 ```
@@ -868,10 +918,11 @@ Your task is to update the `if` statement to have the proper condition to check 
 
 Here we have a `parseValue` function that takes in a `value` of type `unknown`:
 
-```typescript
+```ts twoslash
+// @errors: 18046
 const parseValue = (value: unknown) => {
   if (true) {
-    return value.data.id; // red squiggly line under `value`
+    return value.data.id;
   }
 
   throw new Error("Parsing error!");
@@ -990,10 +1041,11 @@ Using this technique, we can handle the error in a safe way and avoid any potent
 
 Here's our starting point:
 
-```typescript
+```ts twoslash
+// @errors: 18046
 const parseValue = (value: unknown) => {
   if (true) {
-    return value.data.id; // red squiggly line under `value`
+    return value.data.id;
   }
 
   throw new Error("Parsing error!");
@@ -1004,37 +1056,51 @@ To fix the error, we'll need to narrow the type using conditional checks. Let's 
 
 First, we'll check if the type of `value` is an `object` by replacing the `true` with a type check:
 
-```typescript
-if (typeof value === "object") {
-  return value.data.id; // red squiggly line under `value` and `data`
-}
+```ts twoslash
+// @errors: 18047 2339
+const parseValue = (value: unknown) => {
+  if (typeof value === "object") {
+    return value.data.id;
+  }
+
+  throw new Error("Parsing error!");
+};
 ```
 
 Then we'll check if the `value` argument has a `data` attribute using the `in` operator:
 
-```typescript
-if (typeof value === "object" && "data" in value) {
-  // red squiggly line under `value`
+```ts twoslash
+// @errors: 18047 18046
+const parseValue = (value: unknown) => {
+  if (typeof value === "object" && "data" in value) {
+    return value.data.id;
+  }
 
-  return value.data.id; // red squiggly line under `value` and `data`
-}
+  throw new Error("Parsing error!");
+};
 ```
 
 With this change, TypeScript is complaining that `value` is possibly `null`. This is because, of course, `typeof null` is `"object"`. Thanks, JavaScript!
 
 To fix this, we can add `&& value` to our first condition to make sure it isn't `null`:
 
-```typescript
-if (typeof value === "object" && value && "data" in value) {
-  return value.data.id; // red squiggly line under `value` and `data`
-}
+```ts twoslash
+// @errors: 18046
+const parseValue = (value: unknown) => {
+  if (typeof value === "object" && value && "data" in value) {
+    return value.data.id;
+  }
+
+  throw new Error("Parsing error!");
+};
 ```
 
 Now our condition check is passing, but we're still getting an error on `value.data` being typed as `unknown`.
 
 What we need to do now is to narrow the type of `value.data` to an `object` and make sure that it isn't `null`. At this point we'll also add specify a return type of `string` to avoid returning an `unknown` type:
 
-```typescript
+```ts twoslash
+// @errors: 2339
 const parseValue = (value: unknown): string => {
   if (
     typeof value === "object" &&
@@ -1043,7 +1109,7 @@ const parseValue = (value: unknown): string => {
     typeof value.data === "object" &&
     value.data !== null
   ) {
-    return value.data.id; // red squiggly line under `id`
+    return value.data.id;
   }
 
   throw new Error("Parsing error!");
@@ -1165,14 +1231,21 @@ type State = {
 
 And let's imagine we have a `renderUI` function that returns a string based on the input.
 
-```typescript
+```ts twoslash
+// @errors: 18048
+type State = {
+  status: "loading" | "success" | "error";
+  error?: string;
+  data?: string;
+};
+// ---cut---
 const renderUI = (state: State) => {
   if (state.status === "loading") {
     return "Loading...";
   }
 
   if (state.status === "error") {
-    return `Error: ${state.error.toUpperCase()}`; // Red line under state.error
+    return `Error: ${state.error.toUpperCase()}`;
   }
 
   if (state.status === "success") {
@@ -1299,10 +1372,22 @@ type Shape = Circle | Square;
 
 This `calculateArea` function destructures the `kind`, `radius`, and `sideLength` properties from the `Shape` that is passed in, and calculates the area of the shape accordingly:
 
-```typescript
-function calculateArea({ kind, radius, sideLength }: Shape) {
-  // red squiggly lines under radius and sideLength
+```ts twoslash
+// @errors: 2339
+type Circle = {
+  kind: "circle";
+  radius: number;
+};
 
+type Square = {
+  kind: "square";
+  sideLength: number;
+};
+
+type Shape = Circle | Square;
+
+// ---cut---
+function calculateArea({ kind, radius, sideLength }: Shape) {
   if (kind === "circle") {
     return Math.PI * radius * radius;
   } else {
@@ -1311,15 +1396,7 @@ function calculateArea({ kind, radius, sideLength }: Shape) {
 }
 ```
 
-However, TypeScript is showing us errors below `'radius'` and `'sideLength'`:
-
-```
-// hovering over radius shows:
-Property 'radius' does not exist on type 'Shape'.
-
-// hovering over sideLength shows:
-Property 'sideLength' does not exist on type 'Shape'.
-```
+However, TypeScript is showing us errors below `'radius'` and `'sideLength'`.
 
 Your task is to update the implementation of the `calculateArea` function so that destructuring properties from the passed in `Shape` works without errors. Hint: the examples I showed in the chapter _didn't_ use destructuring, but some destructuring is possible.
 
@@ -1341,20 +1418,18 @@ Your challenge is to refactor this function to use a `switch` statement instead 
 
 #### Exercise 3: Discriminated Tuples
 
-Here we have a `fetchData` function that returns a promise that resolves to an `ApiResponse` tuple that consists of two elements.
+Here we have a `fetchData` function that returns a promise that resolves to an `APIResponse` tuple that consists of two elements.
 
 The first element is a string that indicates the type of the response. The second element can be either an array of `User` objects in the case of successful data retrieval, or a string in the event of an error:
 
-```typescript
-
-type APIResponse = [string, User[]] | string];
-
+```ts
+type APIResponse = [string, User[] | string];
 ```
 
 Here's what the `fetchData` function looks like:
 
 ```typescript
-async function fetchData(): Promise<ApiResponse> {
+async function fetchData(): Promise<APIResponse> {
   try {
     const response = await fetch("https://api.example.com/data");
 
@@ -1375,37 +1450,67 @@ async function fetchData(): Promise<ApiResponse> {
 }
 ```
 
-However, as seen in the tests below, the `ApiResponse` type currently will allow for other combinations that aren't what we want. For example, it would allow for passing an error message when data is being returned:
+However, as seen in the tests below, the `APIResponse` type currently will allow for other combinations that aren't what we want. For example, it would allow for passing an error message when data is being returned:
 
-```tsx
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+type User = {
+  id: number;
+  name: string;
+};
+
+type APIResponse = [string, User[] | string];
+
+async function fetchData(): Promise<APIResponse> {
+  try {
+    const response = await fetch("https://api.example.com/data");
+
+    if (!response.ok) {
+      return [
+        "error",
+        // Imagine some improved error handling here
+        "An error occurred",
+      ];
+    }
+
+    const data = await response.json();
+
+    return ["success", data];
+  } catch (error) {
+    return ["error", "An error occurred"];
+  }
+}
+// ---cut---
 async function exampleFunc() {
   const [status, value] = await fetchData();
 
   if (status === "success") {
     console.log(value);
 
-    type test = Expect<Equal<typeof value, User[]>>; // red squiggly lines under Equal<>
+    type test = Expect<Equal<typeof value, User[]>>;
   } else {
     console.error(value);
 
-    type test = Expect<Equal<typeof value, string>>; // red squiggly lines under Equal<>
+    type test = Expect<Equal<typeof value, string>>;
   }
 }
 ```
 
-The problem stems from the `ApiResponse` type being a "bag of optionals".
+The problem stems from the `APIResponse` type being a "bag of optionals".
 
-The `ApiResponse` type needs to be updated so that there are two possible combinations for the returned tuple:
+The `APIResponse` type needs to be updated so that there are two possible combinations for the returned tuple:
 
 If the first element is `"error"` then the second element should be the error message.
 
 If the first element is `"success"`, then the second element should be an array of `User` objects.
 
-Your challenge is to redefine the `ApiResponse` type to be a discriminated tuple that only allows for the specific combinations for the `success` and `error` states defined above.
+Your challenge is to redefine the `APIResponse` type to be a discriminated tuple that only allows for the specific combinations for the `success` and `error` states defined above.
 
 #### Exercise 4: Handling Defaults with a Discriminated Union
 
-We're back with out `calculateArea` function:
+We're back with our `calculateArea` function:
 
 ```typescript
 function calculateArea(shape: Shape) {
@@ -1421,10 +1526,35 @@ Until now, the test cases have involved checking if the `kind` of the `Shape` is
 
 However, a new test case has been added for a situation where no `kind` has been passed into the function:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+import { Equal, Expect } from "@total-typescript/helpers";
+import { it, expect } from "vitest";
+
+type Circle = {
+  kind: "circle";
+  radius: number;
+};
+
+type Square = {
+  kind: "square";
+  sideLength: number;
+};
+
+type Shape = Circle | Square;
+
+function calculateArea(shape: Shape) {
+  if (shape.kind === "circle") {
+    return Math.PI * shape.radius * shape.radius;
+  } else {
+    return shape.sideLength * shape.sideLength;
+  }
+}
+
+// ---cut---
 it("Should calculate the area of a circle when no kind is passed", () => {
   const result = calculateArea({
-    radius: 5, // red squiggly line under radius
+    radius: 5,
   });
 
   expect(result).toBe(78.53981633974483);
@@ -1434,11 +1564,6 @@ it("Should calculate the area of a circle when no kind is passed", () => {
 ```
 
 TypeScript is showing errors under `radius` in the test:
-
-```
-Argument of type '{ radius: number; }' is not assignable to parameter of type 'Shape'.
-Property 'kind' is missing in type '{ radius: number; }' but required in type 'Circle'.
-```
 
 The test expects that if a `kind` isn't passed in, the shape should be treated as a circle. However, the current implementation doesn't account for this.
 
@@ -1463,26 +1588,34 @@ function calculateArea({ kind, ...shape }: Shape) {
 
 Then inside of the conditional branches, we can specify the `kind` and destructure from the `shape` object:
 
-```typescript
-if (kind === "circle") {
-  const { radius } = shape; // red squiggly line under radius
+```ts twoslash
+// @errors: 2339
+type Circle = {
+  kind: "circle";
+  radius: number;
+};
 
-  return Math.PI * radius * radius;
-} else {
-  const { sideLength } = shape; // red squiggly line under sideLength
+type Square = {
+  kind: "square";
+  sideLength: number;
+};
 
-  return sideLength * sideLength;
+type Shape = Circle | Square;
+// ---cut---
+function calculateArea({ kind, ...shape }: Shape) {
+  if (kind === "circle") {
+    const { radius } = shape;
+
+    return Math.PI * radius * radius;
+  } else {
+    const { sideLength } = shape;
+
+    return sideLength * sideLength;
+  }
 }
 ```
 
-However, this approach doesn't work because the `kind` property has been separated from the rest of the shape. As a result, TypeScript can't track the relationship between `kind` and the other properties of `shape`.
-
-Both `radius` and `sideLength` have error messages below them:
-
-```
-Property 'radius' does not exist on type '{ radius: number; } | { sideLength: number; }'.
-Property 'sideLength' does not exist on type '{ radius: number; } | { sideLength: number; }'.
-```
+However, this approach doesn't work because the `kind` property has been separated from the rest of the shape. As a result, TypeScript can't track the relationship between `kind` and the other properties of `shape`. Both `radius` and `sideLength` have error messages below them.
 
 TypeScript gives us these errors because it still cannot guarantee properties in the function parameters since it doesn't know yet whether it's dealing with a `Circle` or a `Square`.
 
@@ -1498,15 +1631,17 @@ function calculateArea(shape: Shape) {
 
 ...and move the destructuring to take place inside of the conditional branches:
 
-```typescript
-if (shape.kind === "circle") {
-  const { radius } = shape;
+```ts
+function calculateArea(shape: Shape) {
+  if (shape.kind === "circle") {
+    const { radius } = shape;
 
-  return Math.PI * radius * radius;
-} else {
-  const { sideLength } = shape;
+    return Math.PI * radius * radius;
+  } else {
+    const { sideLength } = shape;
 
-  return sideLength * sideLength;
+    return sideLength * sideLength;
+  }
 }
 ```
 
@@ -1565,21 +1700,21 @@ Switch statements work great with discriminated unions!
 
 #### Solution 3: Destructuring a Discriminated Union of Tuples
 
-When you're done, your `ApiResponse` type should look like this:
+When you're done, your `APIResponse` type should look like this:
 
 ```typescript
-type ApiResponse = ["error", string] | ["success", User[]];
+type APIResponse = ["error", string] | ["success", User[]];
 ```
 
-We've created two possible combinations for the `ApiResponse` type. An error state, and a success state. And instead of objects, we've used tuples.
+We've created two possible combinations for the `APIResponse` type. An error state, and a success state. And instead of objects, we've used tuples.
 
 You might be thinking - where's the discriminant? It's the first element of the tuple. This is what's called a discriminated tuple.
 
-And with this update to the `ApiResponse` type, the errors have gone away!
+And with this update to the `APIResponse` type, the errors have gone away!
 
 ##### Understanding Tuple Relationships
 
-Inside of the `exampleFunc` function, we use array destructuring to pull out the `status` and `value` from the `ApiResponse` tuple:
+Inside of the `exampleFunc` function, we use array destructuring to pull out the `status` and `value` from the `APIResponse` tuple:
 
 ```typescript
 const [status, value] = await fetchData();
@@ -1652,13 +1787,27 @@ This modification allows us to distinguish between circles and squares. The disc
 
 However, there is now a new error inside of the `calculateArea` function:
 
-```typescript
-// inside the `calculateArea` function
+```ts twoslash
+// @errors: 2339
+type Circle = {
+  kind?: "circle";
+  radius: number;
+};
 
-if (shape.kind === "circle") {
-  return Math.PI * shape.radius * shape.radius;
-} else {
-  return shape.sideLength * shape.sideLength; // red squiggly line under sideLength
+type Square = {
+  kind: "square";
+  sideLength: number;
+};
+
+type Shape = Circle | Square;
+
+// ---cut---
+function calculateArea(shape: Shape) {
+  if (shape.kind === "circle") {
+    return Math.PI * shape.radius * shape.radius;
+  } else {
+    return shape.sideLength * shape.sideLength;
+  }
 }
 ```
 
