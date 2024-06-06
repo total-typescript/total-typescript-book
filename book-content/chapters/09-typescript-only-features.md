@@ -230,13 +230,26 @@ logStatus(0);
 
 If we call it with a number that isn't a member of the enum, TypeScript will report an error:
 
-```typescript
-logStatus(3); // Argument of type '3' is not assignable to parameter of type 'AlbumStatus'.
+```ts twoslash
+// @errors: 2345
+enum AlbumStatus {
+  NewRelease = 0,
+  OnSale = 1,
+  StaffPick = 2,
+}
+
+function logStatus(genre: AlbumStatus) {
+  console.log(genre);
+}
+
+// ---cut---
+logStatus(3);
 ```
 
 This is different from string enums, which only allow the enum members to be used as types:
 
-```typescript
+```ts twoslash
+// @errors: 2345
 enum AlbumStatus {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
@@ -248,7 +261,7 @@ function logStatus(genre: AlbumStatus) {
 }
 
 logStatus(AlbumStatus.NewRelease);
-logStatus("NEW_RELEASE"); // Argument of type '"NEW_RELEASE"' is not assignable to parameter of type 'AlbumStatus'.
+logStatus("NEW_RELEASE");
 ```
 
 The way string enums behave feels more natural - it matches how enums work in other languages like C# and Java.
@@ -259,14 +272,25 @@ In fact, string enums are unique in TypeScript because they're compared _nominal
 
 This means that two string enums with the same members are considered different types if they have different names:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+enum AlbumStatus {
+  NewRelease = "NEW_RELEASE",
+  OnSale = "ON_SALE",
+  StaffPick = "STAFF_PICK",
+}
+function logStatus(genre: AlbumStatus) {
+  console.log(genre);
+}
+
+// ---cut---
 enum AlbumStatus2 {
   NewRelease = "NEW_RELEASE",
   OnSale = "ON_SALE",
   StaffPick = "STAFF_PICK",
 }
 
-logStatus(AlbumStatus2.NewRelease); // Argument of type 'AlbumStatus2' is not assignable to parameter of type 'AlbumStatus'.
+logStatus(AlbumStatus2.NewRelease);
 ```
 
 For those of us used to structural typing, this can be a bit of a surprise. But to developers used to enums in other languages, string enums will feel the most natural.

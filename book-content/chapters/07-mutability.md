@@ -77,7 +77,6 @@ When using `const`, the variable is _immutable_ and cannot be reassigned. When w
 type AlbumGenre = "rock" | "country" | "electronic";
 
 // ---cut---
-
 const albumGenre = "rock";
 
 const handleGenre = (genre: AlbumGenre) => {

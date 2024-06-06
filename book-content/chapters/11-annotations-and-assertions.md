@@ -52,16 +52,38 @@ const config: Record<string, Color> = {
 
 Here, we're annotating a variable. We're saying that `config` is a `Record` with a string key and a `Color` value. This is useful, because if we specify a `Color` that doesn't match the type, TypeScript will show an error:
 
-```typescript
+```ts twoslash
+// @errors: 2353
+type Color =
+  | string
+  | {
+      r: number;
+      g: number;
+      b: number;
+    };
+
+// ---cut---
 const config: Record<string, Color> = {
-  border: { incorrect: 0, g: 0, b: 0 }, // red squiggly line under 'incorrect'
+  border: { incorrect: 0, g: 0, b: 0 },
 };
 ```
 
 But there's a problem with this approach. If we try to access any of the keys, TypeScript gets confused:
 
-```typescript
-config.foreground.r; // red squiggly line under 'foreground'
+```ts twoslash
+// @errors: 2339
+type Color =
+  | string
+  | {
+      r: number;
+      g: number;
+      b: number;
+    };
+
+const config: Record<string, Color> = {};
+
+// ---cut---
+config.foreground.r;
 ```
 
 Firstly, it doesn't know that foreground is defined on the object. Secondly, it doesn't know whether foreground is the `string` version of the `Color` type or the object version.
@@ -127,16 +149,37 @@ config.border.toUpperCase();
 
 But we've also told TypeScript that `config` must be a `Record` with a string key and a `Color` value. If we try to add a key that doesn't match this shape, TypeScript will show an error:
 
-```typescript
+```ts twoslash
+// @errors: 2322
+type Color =
+  | string
+  | {
+      r: number;
+      g: number;
+      b: number;
+    };
+
+// ---cut---
 const config = {
-  primary: 123, // red squiggly line under 'primary'
+  primary: 123,
 } satisfies Record<string, Color>;
 ```
 
 Of course, we have now lost the ability to add new keys to `config` without TypeScript complaining:
 
-```typescript
-config.somethingNew = "red"; // red squiggly line under 'somethingNew'
+```ts twoslash
+// @errors: 2339
+type Color =
+  | string
+  | {
+      r: number;
+      g: number;
+      b: number;
+    };
+
+const config = {} satisfies Record<string, Color>;
+// ---cut---
+config.somethingNew = "red";
 ```
 
 Because TypeScript is now inferring `config` as _just_ an object with a fixed set of keys.
@@ -199,24 +242,22 @@ Imagine that you're building a web page that has some information in the search 
 
 You happen to know that the user can't navigate to this page without passing `?id=some-id` to the URL.
 
-```typescript
+```ts twoslash
 const searchParams = new URLSearchParams(window.location.search);
 
 const id = searchParams.get("id");
-
-// Hovering over id shows:
-const id: string | null;
+//    ^?
 ```
 
 But TypeScript doesn't know that the `id` will always be a string. It thinks that `id` could be a string or `null`.
 
 So, let's force it. We can use `as` on the result of `searchParams.get("id")` to tell TypeScript that we know it will always be a string:
 
-```typescript
+```ts twoslash
+const searchParams = new URLSearchParams(window.location.search);
+// ---cut---
 const id = searchParams.get("id") as string;
-
-// Hovering over id shows:
-const id: string;
+//    ^?
 ```
 
 Now TypeScript knows that `id` will always be a string, and we can use it as such.
@@ -241,18 +282,12 @@ This is less common than `as`, but behaves exactly the same way. `as` is more co
 
 Consider this example where `as` is used to assert that a string should be treated as a number:
 
-```tsx
-const albumSales = "Heroes" as number; // red squiggly line under "Heroes" as number
+```ts twoslash
+// @errors: 2352
+const albumSales = "Heroes" as number;
 ```
 
-TypeScript realizes that even though we're using `as`, we might have made a mistake:
-
-```tsx
-// hovering over "Heroes" as number shows:
-Conversion of type 'string' to type 'number' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-```
-
-The error message is telling us that a string and a number don't share any common properties, but if we really want to go through with it, we could double up on the `as` assertions to first assert the string as `unknown` and then as a `number`:
+TypeScript realizes that even though we're using `as`, we might have made a mistake. The error message is telling us that a string and a number don't share any common properties, but if we really want to go through with it, we could double up on the `as` assertions to first assert the string as `unknown` and then as a `number`:
 
 ```tsx
 const albumSales = "Heroes" as unknown as number; // no error
@@ -264,7 +299,8 @@ The same behavior applies to other types as well.
 
 In this example, an `Album` interface and a `SalesData` interface don't share any common properties:
 
-```tsx
+```ts twoslash
+// @errors: 2352
 interface Album {
   title: string;
   artist: string;
@@ -282,15 +318,10 @@ const paulsBoutique: Album = {
   releaseYear: 1989,
 };
 
-const paulsBoutiqueSales = paulsBoutique as SalesData; // red squiggly line under paulsBoutique as SalesData
+const paulsBoutiqueSales = paulsBoutique as SalesData;
 ```
 
-Again, TypeScript shows us the warning about the lack of common properties:
-
-```tsx
-Conversion of type 'Album' to type 'SalesData' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-Type 'Album' is missing the following properties from type 'SalesData': sales, certification.
-```
+Again, TypeScript shows us the warning about the lack of common properties.
 
 So, `as` does have some built-in safeguards. But by using `as unknown as X`, you can easily bypass them. And because `as` does nothing at runtime, it's a convenient way to lie to TypeScript about the type of a value.
 
@@ -369,12 +400,15 @@ But the error doesn't show up in the editor, because we told TypeScript to expec
 
 However, if we pass a number into the function, the error will show up:
 
-```typescript
+```ts twoslash
+// @errors: 2578
+function addOne(num: number) {
+  return num + 1;
+}
+
+// ---cut---
 // @ts-expect-error
 const result = addOne(1);
-
-// hovering over addOne(1) shows:
-// Unused @ts-expect-error directive.
 ```
 
 So, TypeScript expects every `@ts-expect-error` directive to be _used_ - to be followed by an error.
@@ -442,10 +476,11 @@ Here, we're calling `addone` instead of `addOne`. The error suppression directiv
 
 Using `as any` instead is more precise:
 
-```typescript
-const result = addone("one" as any); // red squiggly line under "addone"
-// Hovering over "addone" shows:
-// Cannot find name 'addone'.
+```ts twoslash
+// @errors: 2552
+const addOne = (num: number) => num + 1;
+// ---cut---
+const result = addone("one" as any);
 ```
 
 Now, you'll only suppress the error that you intended to.
@@ -476,7 +511,8 @@ Some patterns lend themselves better to being typed than others. More dynamic pa
 
 A simple example is constructing an object. In JavaScript, there's no real difference between these two patterns:
 
-```typescript
+```ts twoslash
+// @errors: 2339
 // Static
 const obj = {
   a: 1,
@@ -492,13 +528,7 @@ obj2.b = 2;
 
 In the first, we construct an object by passing in the keys and values. In the second, we construct an empty object and add the keys and values later. The first pattern is static, the second is dynamic.
 
-But in TypeScript, the first pattern is much easier to work with. TypeScript can infer the type of `obj` as `{ a: number, b: number }`. But it can't infer the type of `obj2` - it's just an empty object. In fact, you'll get errors when you try to do this:
-
-```typescript
-obj2.a = 1; // red squiggly line under 'obj2'
-// Hovering over obj2 shows:
-// Property 'a' does not exist on type '{}'.
-```
+But in TypeScript, the first pattern is much easier to work with. TypeScript can infer the type of `obj` as `{ a: number, b: number }`. But it can't infer the type of `obj2` - it's just an empty object. In fact, you'll get errors when you try to do this.
 
 But if you're used to constructing your objects in a dynamic way, this can be frustrating. You know that `obj2` will have an `a` and a `b` key, but TypeScript doesn't.
 
@@ -506,6 +536,9 @@ In these cases, it's tempting to bend the rules a little by using an `as` to tel
 
 ```typescript
 const obj2 = {} as { a: number; b: number };
+
+obj2.a = 1;
+obj2.b = 2;
 ```
 
 This is subtly different from the first scenario, where you know more than TypeScript does. In this case, there's a simple runtime refactor you can make to make TypeScript happy and avoid suppressing errors.
@@ -540,24 +573,17 @@ This `handleFormData` function accepts an argument `e` typed as `SubmitEvent`, w
 
 Within the function we use the method `e.preventDefault()`, available on `SubmitEvent`, to stop the form from its default submission action. Then we attempt to create a new `FormData` object, `data`, with `e.target`:
 
-```typescript
+```ts twoslash
+// @errors: 2345
 const handleFormData = (e: SubmitEvent) => {
   e.preventDefault();
-  const data = new FormData(e.target); // red squiggly line under e.target
+  const data = new FormData(e.target);
   const value = Object.fromEntries(data.entries());
   return value;
 };
 ```
 
-At runtime, this code works flawlessly. However, at the type level, TypeScript shows an error under `e.target`:
-
-```typescript
-// hovering over e.target shows:
-Argument of type 'EventTarget | null' is not assignable to parameter of type 'HTMLFormElement | undefined'.
-Type 'null' is not assignable to type 'HTMLFormElement | undefined'.
-```
-
-Your task is to provide TypeScript with additional information in order to resolve the error.
+At runtime, this code works flawlessly. However, at the type level, TypeScript shows an error under `e.target`. Your task is to provide TypeScript with additional information in order to resolve the error.
 
 ### Exercise 4: Solving Issues with Assertions
 
@@ -565,7 +591,8 @@ Here we'll revisit a previous exercise, but solve it in a different way.
 
 The `findUsersByName` function takes in some `searchParams` as its first argument, where `name` is an optional string property. The second argument is `users`, which is an array of objects with `id` and `name` properties:
 
-```typescript
+```ts twoslash
+// @errors: 2345
 const findUsersByName = (
   searchParams: { name?: string },
   users: {
@@ -574,23 +601,14 @@ const findUsersByName = (
   }[],
 ) => {
   if (searchParams.name) {
-    return users.filter((user) => user.name.includes(searchParams.name)); // red squiggly line under searchParams.name
+    return users.filter((user) => user.name.includes(searchParams.name));
   }
 
   return users;
 };
 ```
 
-If `searchParams.name` is defined, we want to filter the `users` array using this `name`.
-
-However, this currently has an error:
-
-```typescript
-Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-```
-
-Your challenge is to adjust the code so that the error disappears.
+If `searchParams.name` is defined, we want to filter the `users` array using this `name`. Your challenge is to adjust the code so that the error disappears.
 
 Previously we solved this challenge by extracting `searchParams.name` into a const variable and performing the check against that.
 
@@ -602,7 +620,8 @@ Note that this is slightly less safe than the previous solution, but it's still 
 
 We're back to the `configurations` object that includes `development`, `production`, and `staging`. Each of these members contains specific settings relevant to its environment:
 
-```tsx
+```ts twoslash
+// @errors: 2578
 const configurations = {
   development: {
     apiBaseUrl: "http://localhost:8080",
@@ -615,7 +634,7 @@ const configurations = {
   staging: {
     apiBaseUrl: "https://staging.example.com",
     timeout: 8000,
-    // @ts-expect-error // red squiggly line under @ts-expect-error
+    // @ts-expect-error
     notAllowed: true,
   },
 };
@@ -623,7 +642,7 @@ const configurations = {
 
 We also have an `Environment` type along with a passing test case that checks if `Environment` is equal to `"development" | "production" | "staging"`:
 
-```typescript
+```ts
 type Environment = keyof typeof configurations;
 
 type test = Expect<
@@ -651,7 +670,11 @@ type test = Expect<Equal<typeof obj.a, number>>;
 
 Second, we have a `menuConfig` object that is assigned a Record type with `string` as the keys. The `menuConfig` is expected to have either an object containing `label` and `link` properties or an object with a `label` and `children` properties which include arrays of objects that have `label` and `link`:
 
-```typescript
+```ts twoslash
+// @errors: 2339
+import { Equal, Expect } from "@total-typescript/helpers";
+
+// ---cut---
 const menuConfig: Record<
   string,
   | {
@@ -685,10 +708,10 @@ const menuConfig: Record<
   },
 };
 type tests = [
-  Expect<Equal<typeof menuConfig.home.label, string>>, // red squiggly line under menuConfig.home
+  Expect<Equal<typeof menuConfig.home.label, string>>,
   Expect<
     Equal<
-      typeof menuConfig.services.children, // red squiggly line under menuConfig.services and children
+      typeof menuConfig.services.children,
       {
         label: string;
         link: string;
@@ -700,11 +723,15 @@ type tests = [
 
 In the third scenario, we're trying to use `satisfies` with `document.getElementById('app')` and `HTMLElement`, but it's resulting in errors:
 
-```typescript
-// Third Scenario
-const element = document.getElementById("app") satisfies HTMLElement; // red squiggly line under satisfies
+```ts twoslash
+// @errors: 1360 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+// ---cut---
 
-type test3 = Expect<Equal<typeof element, HTMLElement>>; // red squiggly line under Equal<>
+// Third Scenario
+const element = document.getElementById("app") satisfies HTMLElement;
+
+type test3 = Expect<Equal<typeof element, HTMLElement>>;
 ```
 
 Your job is to rearrange the annotations to correct these issues.
@@ -715,19 +742,20 @@ At the end of this exercise, you should have used `as`, variable annotations, an
 
 Here we have a `routes` object:
 
-```tsx
+```ts twoslash
+// @errors: 2578
 const routes = {
   "/": {
     component: "Home",
   },
   "/about": {
     component: "About",
-    // @ts-expect-error // red squiggly line under @ts-expect-error
+    // @ts-expect-error
     search: "?foo=bar",
   },
 };
 
-// @ts-expect-error // red squiggly line under @ts-expect-error
+// @ts-expect-error
 routes["/"].component = "About";
 ```
 
@@ -735,10 +763,23 @@ When adding a `search` field under the `/about` key, it should raise an error, b
 
 Inside of the tests we expect that accessing properties of the `routes` object should return `Home` and `About` instead of interpreting these as literals, but those are both currently failing:
 
-```tsx
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+const routes = {
+  "/": {
+    component: "Home",
+  },
+  "/about": {
+    component: "About",
+    search: "?foo=bar",
+  },
+};
+
+// ---cut---
 type tests = [
-  Expect<Equal<(typeof routes)["/"]["component"], "Home">>, // red squiggly line under Equal<>
-  Expect<Equal<(typeof routes)["/about"]["component"], "About">>, // red squiggly line under Equal<>
+  Expect<Equal<(typeof routes)["/"]["component"], "Home">>,
+  Expect<Equal<(typeof routes)["/about"]["component"], "About">>,
 ];
 ```
 
@@ -748,12 +789,14 @@ Your task is to update the `routes` object typing so that all errors are resolve
 
 The error we encountered in this challenge was that the `EventTarget | null` type was incompatible with the required parameter of type `HTMLFormElement`. The problem stems from the fact that these types don't match, and `null` is not permitted:
 
-```typescript
-const data = new FormData(e.target); // red squiggly line under e.target
-
-// hovering over e.target shows:
-Argument of type 'EventTarget | null' is not assignable to parameter of type 'HTMLFormElement | undefined'.
-Type 'null' is not assignable to type 'HTMLFormElement | undefined'.
+```ts twoslash
+// @errors: 2345
+const handleFormData = (e: SubmitEvent) => {
+  e.preventDefault();
+  const data = new FormData(e.target);
+  const value = Object.fromEntries(data.entries());
+  return value;
+};
 ```
 
 First and foremost, it's necessary to ensure `e.target` is not null.
@@ -764,15 +807,14 @@ We can use the `as` keyword to recast `e.target` to a specific type.
 
 However, if we recast it as `EventTarget`, an error will continue to occur:
 
-```typescript
-const data = new FormData(e.target as EventTarget); // red squiggly line under `e.target as EventTarget`
-```
-
-The error message states that the argument of type `EventTarget` is not assignable to the parameter of type `HTMLFormElement`:
-
-```typescript
-// hovering over e.target shows:
-Argument of type 'EventTarget' is not assignable to parameter of type 'HTMLFormElement'.
+```ts twoslash
+// @errors: 2345
+const handleFormData = (e: SubmitEvent) => {
+  e.preventDefault();
+  const data = new FormData(e.target as EventTarget);
+  const value = Object.fromEntries(data.entries());
+  return value;
+};
 ```
 
 Since we know that the code works at runtime and has tests covering it, we can force `e.target` to be of type `HTMLFormElement`:
@@ -826,21 +868,41 @@ However, this time we will solve it differently.
 
 Currently, `searchParams.name` is typed as `string | undefined`. We want to tell TypeScript that we know more than it does, and that we know that `searchParams.name` will never be `undefined` inside the `filter` callback.
 
-```typescript
-// inside findUsersByName function
-
-if (searchParams.name) {
-  return users.filter((user) => user.name.includes(searchParams.name)); // red squiggly line under searchParams.name
-}
+```ts twoslash
+// @errors: 2345
+const findUsersByName = (
+  searchParams: { name?: string },
+  users: {
+    id: string;
+    name: string;
+  }[],
+) => {
+  if (searchParams.name) {
+    return users.filter((user) => user.name.includes(searchParams.name));
+  }
+  return users;
+};
 ```
 
 #### Adding `as string`
 
 One way to solve this is to add `as string` to `searchParams.name`:
 
-```typescript
-// inside findUsersByName function
-return users.filter((user) => user.name.includes(searchParams.name as string));
+```ts twoslash
+const findUsersByName = (
+  searchParams: { name?: string },
+  users: {
+    id: string;
+    name: string;
+  }[],
+) => {
+  if (searchParams.name) {
+    return users.filter((user) =>
+      user.name.includes(searchParams.name as string),
+    );
+  }
+  return users;
+};
 ```
 
 This removes `undefined` and it's now just a `string`.
@@ -849,9 +911,19 @@ This removes `undefined` and it's now just a `string`.
 
 Another way to solve this is to add a non-null assertion to `searchParams.name`. This is done by adding a `!` postfix operator to the property we are trying to access:
 
-```typescript
-// inside findUsersByName function
-return users.filter((user) => user.name.includes(searchParams.name!));
+```ts twoslash
+const findUsersByName = (
+  searchParams: { name?: string },
+  users: {
+    id: string;
+    name: string;
+  }[],
+) => {
+  if (searchParams.name) {
+    return users.filter((user) => user.name.includes(searchParams.name!));
+  }
+  return users;
+};
 ```
 
 The `!` operater tells TypeScript to remove any `null` or `undefined` types from the variable. This would leave us with just `string`.
@@ -879,15 +951,40 @@ const configurations: Record<
 
 This change makes the `@ts-expect-error` directive work as expected, but we now have an error related to the `Environment` type not being inferred correctly:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+const configurations: Record<
+  string,
+  {
+    apiBaseUrl: string;
+    timeout: number;
+  }
+> = {
+  development: {
+    apiBaseUrl: "http://localhost:8080",
+    timeout: 5000,
+  },
+  production: {
+    apiBaseUrl: "https://api.example.com",
+    timeout: 10000,
+  },
+  staging: {
+    apiBaseUrl: "https://staging.example.com",
+    timeout: 8000,
+    // @ts-expect-error
+    notAllowed: true,
+  },
+};
+
+// ---cut---
 type Environment = keyof typeof configurations;
+//   ^?
 
-// hovering over Environment shows:
-// type Environment = string
-
-// The test now fails:
 type test = Expect<
-  Equal<Environment, "development" | "production" | "staging"> // red squiggly line under Equal<>
+  Equal<Environment, "development" | "production" | "staging">
+>;
 ```
 
 We need to make sure that `configurations` is still being inferred as its type, while also type checking the thing being passed to it.
@@ -931,13 +1028,11 @@ Let's work through the solutions for `satisfies`, `as`, and variable annotations
 
 For the first scenario that uses a `Record`, the `satisfies` keyword won't work because we can't add dynamic members to an empty object.
 
-```typescript
+```ts twoslash
+// @errors: 2339
 const obj = {} satisfies Record<string, number>;
 
-obj.a = 1; // red squiggly line under `a`
-
-// Hovering over `a` shows:
-Property 'a' does not exist on type '{}'.
+obj.a = 1;
 ```
 
 In the second scenario with the `menuConfig` object, we started with errors about `menuConfig.home` and `menuConfig.services` not existing on both members.
@@ -983,23 +1078,18 @@ With this use of `satisfies`, the tests pass as expected.
 
 Just to check the third scenario, `satisfies` doesn't work with `document.getElementById("app")` because it's inferred as `HTMLElement | null`:
 
-```typescript
-const element = document.getElementById("app") satisfies HTMLElement; // red squiggly line under `satisfies`
-
-Type 'HTMLElement | null' does not satisfy the expected type 'HTMLElement'.
-  Type 'null' is not assignable to type 'HTMLElement'.
+```ts twoslash
+// @errors: 1360
+const element = document.getElementById("app") satisfies HTMLElement;
 ```
 
 #### When to Use `as`
 
 If we try to use variable annotation in the third example, we get the same error as with `satisfies`:
 
-```typescript
-const element: HTMLElement = document.getElementById("app"); // red squiggly line under element
-
-// Hovering over element shows:
-Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
-  Type 'null' is not assignable to type 'HTMLElement'.
+```ts twoslash
+// @errors: 2322
+const element: HTMLElement = document.getElementById("app");
 ```
 
 By process of elimination, `as` is the correct choice for this scenario:
@@ -1064,8 +1154,16 @@ To address this, we need to apply `as const` to the `routes` object. This will m
 
 If we try adding `as const` after the `satisfies`, we'll get the following error:
 
-```typescript
-A 'const' assertion can only be applied to references to enum members, or string, number, boolean, array, or object literals.
+```ts twoslash
+// @errors: 1355
+const routes = {
+  // ...contents
+} satisfies Record<
+  string,
+  {
+    component: string;
+  }
+> as const;
 ```
 
 In other words, `as const` can only be applied to a value and not a type.

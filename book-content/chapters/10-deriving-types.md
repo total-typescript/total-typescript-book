@@ -100,8 +100,30 @@ function getAlbumDetails(album: Album, key: AlbumKeys) {
 
 If the key passed to `getAlbumDetails` is not a valid key of `Album`, TypeScript will show an error:
 
-```typescript
-getAlbumDetails(album, "producer"); // red squiggly line under "producer"
+```ts twoslash
+// @errors: 2345
+function getAlbumDetails(album: Album, key: AlbumKeys) {
+  return album[key];
+}
+
+interface Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+  genre: string; // added 'genre'
+}
+
+type AlbumKeys = keyof Album; // "title" | "artist" | "releaseYear" | "genre"
+
+const album: Album = {
+  title: "Kind of Blue",
+  artist: "Miles Davis",
+  releaseYear: 1959,
+  genre: "Jazz",
+};
+
+// ---cut---
+getAlbumDetails(album, "producer");
 ```
 
 `keyof` is an important building block when creating new types from existing types. We'll see later how we can use it with `as const` to build our own type-safe enums.
@@ -122,15 +144,16 @@ const albumSales = {
 
 We can use `typeof` to extract the type of `albumSales`, which will turn it into a type with the original keys as strings and their inferred types as values:
 
-```typescript
-type AlbumSalesType = typeof albumSales;
-
-// hovering over AlbumSalesType shows:
-type AlbumSalesType = {
-  "Kind of Blue": number;
-  "A Love Supreme": number;
-  "Mingus Ah Um": number;
+```ts twoslash
+const albumSales = {
+  "Kind of Blue": 5000000,
+  "A Love Supreme": 1000000,
+  "Mingus Ah Um": 3000000,
 };
+
+// ---cut---
+type AlbumSalesType = typeof albumSales;
+//   ^?
 ```
 
 Now that we have the `AlbumSalesType` type, we can create _another_ derived type from it. For example, we can use `keyof` to extract the keys from the `albumSales` object:
@@ -155,12 +178,20 @@ function getSales(title: AlbumTitles) {
 
 It's worth noting that `typeof` is not the same as the `typeof` operator used at runtime. TypeScript can tell the difference based on whether it's used in a type context or a value context:
 
-```typescript
+```ts twoslash
+const albumSales = {
+  "Kind of Blue": 5000000,
+  "A Love Supreme": 1000000,
+  "Mingus Ah Um": 3000000,
+};
+
+// ---cut---
 // Runtime typeof
 const albumSalesType = typeof albumSales; // "object"
 
 // Type typeof
-type AlbumSalesType = typeof albumSales; // { "Kind of Blue": number; "A Love Supreme": number; "Mingus Ah Um": number; }
+type AlbumSalesType = typeof albumSales;
+//   ^?
 ```
 
 Use the `typeof` keyword whenever you need to extract types based on runtime values, including objects, functions, classes, and more. It's a powerful tool for deriving types from values, and it's a key building block for other patterns that we'll explore later.
@@ -171,15 +202,14 @@ We've seen that `typeof` can create types from runtime values, but it's importan
 
 In other words, there is no `valueof` operator:
 
-```typescript
+```ts
 type Album = {
   title: string;
   artist: string;
   releaseYear: number;
 };
 
-// This will not work!
-const album = valueof Album; // red squiggly line under valueof
+const album = valueof Album; // Does not work!
 ```
 
 TypeScript's types disappear at runtime, so there's no built-in way to create a value from a type. In other words, you can move from the 'value world' to the 'type world', but not the other way around.
@@ -200,20 +230,30 @@ interface Album {
 
 If we try to use dot notation to access the `title` property from the `Album` type, TypeScript will throw an error:
 
-```typescript
-type AlbumTitle = Album.title; // red squiggly line under Album.title
+```ts twoslash
+// @errors: 2713
+interface Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+}
 
-// hovering over Album.title shows:
-// Cannot access 'Album.title' because 'Album' is a type, but not a namespace. Did you mean to retrieve the type of the property 'title' in 'Album' with 'Album["title"]'?
+// ---cut---
+type AlbumTitle = Album.title;
 ```
 
 In this case, the error message has a helpful suggestion: use `Album["title"]` to access the type of the `title` property in the `Album` type:
 
-```typescript
-type AlbumTitle = Album["title"];
+```ts twoslash
+interface Album {
+  title: string;
+  artist: string;
+  releaseYear: number;
+}
 
-// hovering over AlbumTitle shows:
-type AlbumTitle = string;
+// ---cut---
+type AlbumTitle = Album["title"];
+//   ^?
 ```
 
 Using this indexed access syntax, the `AlbumTitle` type is equivalent to `string`, because that's the type of the `title` property in the `Album` interface.
@@ -265,8 +305,15 @@ type AlbumPropertyTypes =
 
 This will work, but you can do one better - you can pass a union type to an indexed access type directly:
 
-```typescript
-type AlbumPropertyTypes = Album["title" | "isSingle" | "releaseYear"]; // string | boolean | number
+```ts twoslash
+type Album = {
+  title: string;
+  isSingle: boolean;
+  releaseYear: number;
+};
+// ---cut---
+type AlbumPropertyTypes = Album["title" | "isSingle" | "releaseYear"];
+//   ^?
 ```
 
 This is a more concise way to achieve the same result.
@@ -275,8 +322,15 @@ This is a more concise way to achieve the same result.
 
 In fact, you may have noticed that we have another opportunity to reduce repetition here. We can use `keyof` to extract the keys from the `Album` type and use them as the union type:
 
-```typescript
-type AlbumPropertyTypes = Album[keyof Album]; // string | boolean | number
+```ts twoslash
+type Album = {
+  title: string;
+  isSingle: boolean;
+  releaseYear: number;
+};
+// ---cut---
+type AlbumPropertyTypes = Album[keyof Album];
+//   ^?
 ```
 
 This is a great pattern to use when you want to extract all of the values from an object type. `keyof Obj` will give you a union of all the _keys_ in `Obj`, and `Obj[keyof Obj]` will give you a union of all the _values_ in `Obj`.
@@ -325,10 +379,24 @@ Let's now compare this to the `enum` approach.
 
 Our `getAlbumType` function behaves differently than if it accepted an `enum`. Because `AlbumType` is just a union of strings, we can pass a raw string to `getAlbumType`. But if we pass the incorrect string, TypeScript will show an error:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+function getAlbumType(type: AlbumType) {
+  // ...
+}
+
+const albumTypes = {
+  CD: "cd",
+  VINYL: "vinyl",
+  DIGITAL: "digital",
+} as const;
+
+type AlbumType = (typeof albumTypes)[keyof typeof albumTypes]; // "cd" | "vinyl" | "digital"
+
+// ---cut---
 getAlbumType(albumTypes.CD); // no error
 getAlbumType("vinyl"); // no error
-getAlbumType("cassette"); // red squiggly line under "cassette"
+getAlbumType("cassette");
 ```
 
 This is a tradeoff. With `enum`, you have to pass the enum value, which is more explicit. With our `as const` approach, you can pass a raw string. This can make refactoring a little harder.
@@ -357,7 +425,13 @@ One of the biggest differences between `enum` and our `as const` approach is tha
 
 This means that with `enum`, the type is based on the name of the enum. This means that enums with the same values that come from different enums are not compatible:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+function getAlbumType(type: AlbumType) {
+  // ...
+}
+
+// ---cut---
 enum AlbumType {
   CD = "cd",
   VINYL = "vinyl",
@@ -370,8 +444,8 @@ enum MediaType {
   DIGITAL = "digital",
 }
 
-getAlbumType(AlbumType.CD); // no error
-getAlbumType(MediaType.CD); // red squiggly line under MediaType.CD
+getAlbumType(AlbumType.CD);
+getAlbumType(MediaType.CD);
 ```
 
 If you're used to enums from other languages, this is probably what you expect. But for developers used to JavaScript, this can be surprising.
@@ -500,10 +574,13 @@ type ProgramModeMap = typeof programModeEnumMap;
 
 The goal is to have a `Group` type that is always in sync with the `ProgramModeEnumMap`'s `group` value. Currently it is typed as `unknown`:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+// ---cut---
 type Group = unknown;
 
-type test = Expect<Equal<Group, "group">>; // red squiggly line under Equal<>
+type test = Expect<Equal<Group, "group">>;
 ```
 
 Your task is to find the proper way to type `Group` so the test passes as expected.
@@ -512,7 +589,10 @@ Your task is to find the proper way to type `Group` so the test passes as expect
 
 This exercise starts with the same `programModeEnumMap` and `ProgramModeMap` as the previous exercise:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+// ---cut---
 export const programModeEnumMap = {
   GROUP: "group",
   ANNOUNCEMENT: "announcement",
@@ -528,7 +608,7 @@ type PlannedPrograms = unknown;
 
 type test = Expect<
   Equal<PlannedPrograms, "planned1on1" | "plannedSelfDirected">
->; // red squiggly line under Equal<>
+>;
 ```
 
 This time, your challenge is to update the `PlannedPrograms` type to use an indexed access type to extract a union of the `ProgramModeMap` values that included "`planned`".
@@ -553,6 +633,8 @@ type ProgramModeMap = typeof programModeEnumMap;
 This time we're interested in extracting all of the values from the `programModeEnumMap` object:
 
 ```typescript
+import { Equal, Expect } from "@total-typescript/helpers";
+// ---cut---
 type AllPrograms = unknown;
 
 type test = Expect<
@@ -565,7 +647,7 @@ type test = Expect<
     | "planned1on1"
     | "plannedSelfDirected"
   >
->; // red squiggly line under Equal<>
+>;
 ```
 
 Using what you've learned so far, your task is to update the `AllPrograms` type to use an indexed access type to create a union of all the values from the `programModeEnumMap` object.
@@ -588,6 +670,10 @@ export const programModes = [
 A test has been written to check if an `AllPrograms` type is a union of all the values in the `programModes` array:
 
 ```typescript
+import { Equal, Expect } from "@total-typescript/helpers";
+type AllPrograms = unknown;
+// ---cut---
+
 type test = Expect<
   Equal<
     AllPrograms,
@@ -598,7 +684,7 @@ type test = Expect<
     | "planned1on1"
     | "plannedSelfDirected"
   >
->; // red squiggly line under Equal<>
+>;
 ```
 
 Your task is to determine how to create the `AllPrograms` type in order for the test to pass as expected.
@@ -634,39 +720,48 @@ type Environment = keyof typeof configurations;
 
 Or you could first create a type from the `configurations` object and then update `Environment` to use `keyof` to extract the names of the keys:
 
-```typescript
-type Configurations = typeof configurations;
-type Environment = keyof Configurations;
-
-// hovering over Configurations shows:
-type Configurations = {
+```ts twoslash
+const configurations = {
   development: {
-    apiBaseUrl: string;
-    timeout: number;
-  };
+    apiBaseUrl: "http://localhost:8080",
+    timeout: 5000,
+  },
   production: {
-    apiBaseUrl: string;
-    timeout: number;
-  };
+    apiBaseUrl: "https://api.example.com",
+    timeout: 10000,
+  },
   staging: {
-    apiBaseUrl: string;
-    timeout: number;
-  };
+    apiBaseUrl: "https://staging.example.com",
+    timeout: 8000,
+  },
 };
+// ---cut---
+type Configurations = typeof configurations;
+//   ^?
 
-// hovering over Environment shows:
-type Environment = "development" | "production" | "staging";
+type Environment = keyof Configurations;
+//   ^?
 ```
 
 ### Solution 3: Accessing Specific Values
 
 Using an indexed access type, we can access the `GROUP` property from the `ProgramModeMap` type:
 
-```typescript
-type Group = ProgramModeMap["GROUP"];
+```ts twoslash
+export const programModeEnumMap = {
+  GROUP: "group",
+  ANNOUNCEMENT: "announcement",
+  ONE_ON_ONE: "1on1",
+  SELF_DIRECTED: "selfDirected",
+  PLANNED_ONE_ON_ONE: "planned1on1",
+  PLANNED_SELF_DIRECTED: "plannedSelfDirected",
+} as const;
 
-// hovering over Group shows:
-type Group = "group";
+type ProgramModeMap = typeof programModeEnumMap;
+
+// ---cut---
+type Group = ProgramModeMap["GROUP"];
+//   ^?
 ```
 
 With this change, the `Group` type will be in sync with the `ProgramModeEnumMap`'s `group` value. This means our test will pass as expected.
@@ -694,43 +789,41 @@ type AllPrograms = (typeof programModeEnumMap)[keyof typeof programModeEnumMap];
 
 Using an intermediate type, you could first use `typeof programModeEnumMap` to create a type from the `programModeEnumMap` object, then use `keyof` to extract the keys:
 
-```typescript
+```ts twoslash
+export const programModeEnumMap = {
+  GROUP: "group",
+  ANNOUNCEMENT: "announcement",
+  ONE_ON_ONE: "1on1",
+  SELF_DIRECTED: "selfDirected",
+  PLANNED_ONE_ON_ONE: "planned1on1",
+  PLANNED_SELF_DIRECTED: "plannedSelfDirected",
+} as const;
+
+// ---cut---
 type ProgramModeMap = typeof programModeEnumMap;
 type AllPrograms = ProgramModeMap[keyof ProgramModeMap];
+//   ^?
 ```
 
 Either solution results in a union of all values from the `programModeEnumMap` object, which means our test will pass as expected.
-
-```typescript
-// hovering over AllPrograms shows:
-type AllPrograms =
-  | "group"
-  | "announcement"
-  | "1on1"
-  | "selfDirected"
-  | "planned1on1"
-  | "plannedSelfDirected";
-```
 
 ### Solution 6: Create a Union from an `as const` Array
 
 When using `typeof` and `keyof` with indexed access type, we can extract all of the values, but we also get some unexpected values like a `6` and an `IterableIterator` function:
 
-```typescript
-type AllPrograms = (typeof programModes)[keyof typeof programModes];
+```ts twoslash
+export const programModes = [
+  "group",
+  "announcement",
+  "1on1",
+  "selfDirected",
+  "planned1on1",
+  "plannedSelfDirected",
+] as const;
 
-// hovering over AllPrograms shows:
-type AllPrograms =
-  | "group"
-  | "announcement"
-  | "1on1"
-  | "selfDirected"
-  | "planned1on1"
-  | "plannedSelfDirected"
-  | 6
-  | (() => IterableIterator<"group" | "announcement" | "1on1" | "selfDirected" | "planned1on1" | "plannedSelfDirected">)
-  | ... 23 more ...
-  | ((index: number) => "group" | ... 5 more ... | undefined);
+// ---cut---
+type AllPrograms = (typeof programModes)[keyof typeof programModes];
+//   ^?
 ```
 
 The additional stuff being extracted causes the test to fail because it is only expecting the original values instead of numbers and functions.
@@ -769,17 +862,35 @@ function sellAlbum(album: Album, price: number, quantity: number) {
 
 Using the `Parameters` utility type, we can extract the parameters from the `sellAlbum` function and assign them to a new type:
 
-```typescript
-type SellAlbumParams = Parameters<typeof sellAlbum>;
+```ts twoslash
+type Album = {
+  title: string;
+  artist: string;
+  releaseYear: number;
+};
 
-// hovering over SellAlbumParams shows:
-type SellAlbumParams = [Album, number, number];
+function sellAlbum(album: Album, price: number, quantity: number) {
+  return price * quantity;
+}
+// ---cut---
+type SellAlbumParams = Parameters<typeof sellAlbum>;
+//   ^?
 ```
 
 Note that we need to use `typeof` to create a type from the `sellAlbum` function. Passing `sellAlbum` directly to `Parameters` won't work on its own because `sellAlbum` is a value instead of a type:
 
-```typescript
-type SellAlbumParams = Parameters<sellAlbum>; // red squiggly line under sellAlbum
+```ts twoslash
+// @errors: 2749
+type Album = {
+  title: string;
+  artist: string;
+  releaseYear: number;
+};
+function sellAlbum(album: Album, price: number, quantity: number) {
+  return price * quantity;
+}
+// ---cut---
+type SellAlbumParams = Parameters<sellAlbum>;
 ```
 
 This `SellAlbumParams` type is a tuple type that holds the `Album`, `price`, and `quantity` parameters from the `sellAlbum` function.
@@ -794,11 +905,18 @@ type Price = SellAlbumParams[1]; // number
 
 The `ReturnType` utility type extracts the return type from a given function:
 
-```typescript
+```ts twoslash
+type Album = {
+  title: string;
+  artist: string;
+  releaseYear: number;
+};
+function sellAlbum(album: Album, price: number, quantity: number) {
+  return price * quantity;
+}
+// ---cut---
 type SellAlbumReturn = ReturnType<typeof sellAlbum>;
-
-// hovering over SellAlbumReturn shows:
-type SellAlbumReturn = number;
+//   ^?
 ```
 
 In this case, the `SellAlbumReturn` type is a number, which derived from the `sellAlbum` function.
@@ -941,12 +1059,14 @@ For the sake of this exercise, assume we don't know the implementation of the fu
 
 The goal is to create a `User` type that represents the return type of the `createUser` function. A test has been written to check if the `User` type is a match:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+// ---cut---
 type User = unknown;
 
 type test = Expect<
   Equal<
-    // red squiggly line under Equal<>
     User,
     {
       id: string;
@@ -954,7 +1074,7 @@ type test = Expect<
       email: string;
     }
   >
->; // red squiggly line under Equal<>
+>;
 ```
 
 Your task is to update the `User` type so the test passes as expected.
@@ -963,7 +1083,10 @@ Your task is to update the `User` type so the test passes as expected.
 
 This time the `createUser` function from the third-party library is asynchronous:
 
-```typescript
+```ts twoslash
+// @errors: 2344 2304
+import { Equal, Expect } from "@total-typescript/helpers";
+// ---cut---
 const fetchUser = async (id: string) => {
   return {
     id,
@@ -974,7 +1097,6 @@ const fetchUser = async (id: string) => {
 
 type test = Expect<
   Equal<
-    // red squiggly line under Equal<>
     User,
     {
       id: string;
@@ -982,7 +1104,7 @@ type test = Expect<
       email: string;
     }
   >
->; // red squiggly line under Equal<>
+>;
 ```
 
 Like before, assume that you do not have access to the implementation of the `fetchUser` function.
@@ -995,33 +1117,38 @@ The `Parameters` utility type is key to this solution, but there is an additiona
 
 Passing `makeQuery` directly to `Parameters` won't work on its own because `makeQuery` is a value instead of a type:
 
-```typescript
-type MakeQueryParameters = Parameters<makeQuery>; // red squiggly line under makeQuery
-
-// hovering over makeQuery shows:
-'makeQuery' refers to a value, but is being used as a type here. Did you mean 'typeof makeQuery'?
+```ts twoslash
+// @errors: 2749
+const makeQuery = (
+  url: string,
+  opts?: {
+    method?: string;
+    headers?: {
+      [key: string]: string;
+    };
+    body?: string;
+  },
+) => {};
+// ---cut---
+type MakeQueryParameters = Parameters<makeQuery>;
 ```
 
 As the error message suggests, we need to use `typeof` to create a type from the `makeQuery` function, then pass that type to `Parameters`:
 
-```typescript
-type MakeQueryParameters = Parameters<typeof makeQuery>;
-
-// hovering over MakeQueryParameters shows:
-type MakeQueryParameters = [
+```ts twoslash
+const makeQuery = (
   url: string,
-  opts?:
-    | {
-        method?: string | undefined;
-        headers?:
-          | {
-              [key: string]: string;
-            }
-          | undefined;
-        body?: string | undefined;
-      }
-    | undefined,
-];
+  opts?: {
+    method?: string;
+    headers?: {
+      [key: string]: string;
+    };
+    body?: string;
+  },
+) => {};
+// ---cut---
+type MakeQueryParameters = Parameters<typeof makeQuery>;
+//   ^?
 ```
 
 We now have `MakeQueryParameters` representing a tuple where the first member is a `url` string, and the second is the optional `opts` object.
@@ -1036,15 +1163,18 @@ type Opts = MakeQueryParameters[1];
 
 Using the `ReturnType` utility type, we can extract the return type from the `createUser` function and assign it to a new type. Remember that since `createUser` is a value, we need to use `typeof` to create a type from it:
 
-```typescript
-type User = ReturnType<typeof createUser>;
-
-// hovering over User shows:
-type User = {
-  id: string;
-  name: string;
-  email: string;
+```ts twoslash
+const createUser = (id: string) => {
+  return {
+    id,
+    name: "John Doe",
+    email: "example@email.com",
+  };
 };
+
+// ---cut---
+type User = ReturnType<typeof createUser>;
+//   ^?
 ```
 
 This `User` type is a match for the expected type, which means our test will pass as expected.
@@ -1053,15 +1183,18 @@ This `User` type is a match for the expected type, which means our test will pas
 
 When using the `ReturnType` utility type with an async function, the resulting type will be wrapped in a `Promise`:
 
-```typescript
-type User = ReturnType<typeof fetchUser>;
+```ts twoslash
+const fetchUser = async (id: string) => {
+  return {
+    id,
+    name: "John Doe",
+    email: "example@email.com",
+  };
+};
 
-// hovering over User shows:
-type User = Promise<{
-  id: string;
-  name: string;
-  email: string;
-}>;
+// ---cut---
+type User = ReturnType<typeof fetchUser>;
+//   ^?
 ```
 
 In order to unwrap the `Promise` type and provide the type of the resolved value, we can use the `Awaited` utility type:
@@ -1100,10 +1233,12 @@ type AlbumState =
 
 We want to create a type that represents the states that are not "released". We can use the `Exclude` utility type to achieve this:
 
-```typescript
-type UnreleasedState = Exclude<AlbumState, { type: "released" }>;
-// hovering over UnreleasedState shows:
-type UnreleasedState =
+```ts twoslash
+type AlbumState =
+  | {
+      type: "released";
+      releaseDate: string;
+    }
   | {
       type: "recording";
       studio: string;
@@ -1112,6 +1247,10 @@ type UnreleasedState =
       type: "mixing";
       engineer: string;
     };
+
+// ---cut---
+type UnreleasedState = Exclude<AlbumState, { type: "released" }>;
+//   ^?
 ```
 
 In this case, the `UnreleasedState` type is a union of the `recording` and `mixing` states, which are the states that are not "released". `Exclude` filters out any member of the union with a `type` of `released`.
@@ -1126,19 +1265,18 @@ This is because `Exclude` works by pattern matching. It will remove any type fro
 
 This means we can use it to remove all strings from a union:
 
-```typescript
+```ts twoslash
 type Example = "a" | "b" | 1 | 2;
 
 type Numbers = Exclude<Example, string>;
-// hovering over Numbers shows:
-type Numbers = 1 | 2;
+//   ^?
 ```
 
 ### `NonNullable`
 
 `NonNullable` is used to remove `null` and `undefined` from a type. This can be useful when extracting a type from a partial object:
 
-```typescript
+```ts twoslash
 type Album = {
   artist?: {
     name: string;
@@ -1146,10 +1284,7 @@ type Album = {
 };
 
 type Artist = NonNullable<Album["artist"]>;
-// hovering over Artist shows:
-type Artist = {
-  name: string;
-};
+//   ^?
 ```
 
 This operates similarly to `Exclude`:
@@ -1164,13 +1299,24 @@ But `NonNullable` is more explicit and easier to read.
 
 `Extract` is the opposite of `Exclude`. It's used to extract types from a union. For example, we can use `Extract` to extract the `recording` state from the `AlbumState` type:
 
-```typescript
+```ts twoslash
+type AlbumState =
+  | {
+      type: "released";
+      releaseDate: string;
+    }
+  | {
+      type: "recording";
+      studio: string;
+    }
+  | {
+      type: "mixing";
+      engineer: string;
+    };
+
+// ---cut---
 type RecordingState = Extract<AlbumState, { type: "recording" }>;
-// hovering over RecordingState shows:
-type RecordingState = {
-  type: "recording";
-  studio: string;
-};
+//   ^?
 ```
 
 This is useful when you want to extract a specific type from a union you don't control.
@@ -1183,8 +1329,7 @@ This means that, to reverse our `Extract` example earlier, we can use it to extr
 type Example = "a" | "b" | 1 | 2 | true | false;
 
 type Strings = Extract<Example, string>;
-// hovering over Strings shows:
-type Strings = "a" | "b";
+//   ^?
 ```
 
 It's worth noting the similarities between `Exclude`/`Extract` and `Omit/Pick`. A common mistake is to think that you can `Pick` from a union, or use `Exclude` on an object. Here's a little table to help you remember:
