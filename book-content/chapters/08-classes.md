@@ -12,22 +12,16 @@ To create a class, you use the `class` keyword followed by the name of the class
 
 We'll start creating the `Album` class in a similar way to how a type or interface is created:
 
-```typescript
+```ts twoslash
+// @errors: 2564
 class Album {
-  title: string; // red squiggly line under title
-  artist: string; // red squiggly line under artist
-  releaseYear: number; // red squiggly line under releaseYear
+  title: string;
+  artist: string;
+  releaseYear: number;
 }
 ```
 
-At this point, even though it looks like a type or interface, TypeScript gives an error for each property in the class:
-
-```typescript
-// hovering over title shows:
-
-// Property 'title' has no initializer and is not definitely assigned in the constructor.
-```
-
+At this point, even though it looks like a type or interface, TypeScript gives an error for each property in the class.
 How do we fix this?
 
 ### Adding a Constructor
@@ -232,11 +226,15 @@ class Album {
 
 Now if we try to access the `rating` property from outside of the class, TypeScript will give us an error:
 
-```typescript
-console.log(loopFindingJazzRecords.rating); // red squiggly line under rating
+```ts twoslash
+// @errors: 2341
+class Album {
+  private rating = 0;
+}
 
-// hovering over rating shows:
-// Property 'rating' is private and only accessible within class 'Album'.
+const loopFindingJazzRecords = new Album();
+// ---cut---
+console.log(loopFindingJazzRecords.rating);
 ```
 
 However, this doesn't actually prevent it from being accessed at runtime - `private` is just a compile-time annotation. You could suppress the error using a `@ts-ignore` (which we'll look at later) and still access the property:
@@ -260,13 +258,28 @@ The `#` syntax behaves the same as `private`, but it's a newer feature that's pa
 
 Attempting to access a `#`-prefixed property from outside of the class will result in a syntax error:
 
-```typescript
+```ts twoslash
+// @errors: 18013
+class Album {
+  #rating = 0;
+}
+
+const loopFindingJazzRecords = new Album();
+// ---cut---
 console.log(loopFindingJazzRecords.#rating); // SyntaxError
 ```
 
-Attempting to cheat by accessing it with a dynamic string will return `undefined`:
+Attempting to cheat by accessing it with a dynamic string will return `undefined` - and still give a TypeScript error.
 
-```typescript
+```ts twoslash
+// @errors: 7053
+class Album {
+  #rating = 0;
+}
+
+const loopFindingJazzRecords = new Album();
+
+// ---cut---
 console.log(loopFindingJazzRecords["#rating"]); // Output: undefined
 ```
 
@@ -519,9 +532,17 @@ Note that the `I` prefix is used to indicate an interface, while a `T` indicates
 
 With the interface created, we can use the `implements` keyword to associate it with the `Album` class.
 
-```typescript
+```ts twoslash
+// @errors: 2420
+interface IAlbum {
+  title: string;
+  artist: string;
+  releaseYear: number;
+  trackList: string[];
+}
+
+// ---cut---
 class Album implements IAlbum {
-  // red squiggly line under Album
   title: string;
   artist: string;
   releaseYear: number;
@@ -592,12 +613,31 @@ abstract class AlbumBase {
 
 But if you try to create an instance of the `AlbumBase` class, TypeScript will give you an error:
 
-```typescript
+```ts twoslash
+// @errors: 2511
+abstract class AlbumBase {
+  title: string;
+  artist: string;
+  releaseYear: number;
+  trackList: string[] = [];
+
+  constructor(opts: { title: string; artist: string; releaseYear: number }) {
+    this.title = opts.title;
+    this.artist = opts.artist;
+    this.releaseYear = opts.releaseYear;
+  }
+
+  addTrack(track: string) {
+    this.trackList.push(track);
+  }
+}
+
+// ---cut---
 const albumBase = new AlbumBase({
   title: "Unknown Album",
   artist: "Unknown Artist",
   releaseYear: 0,
-}); // red squiggly line under AlbumBase
+});
 ```
 
 Instead, you'd need to create a class that extends the `AlbumBase` class:
@@ -658,12 +698,18 @@ Inside of a test case, we instantiate the class by calling `new CanvasNode()`.
 
 However, have some errors since we expect it to house two properties, specifically `x` and `y`, each with a default value of `0`:
 
-```typescript
+```ts twoslash
+// @errors: 2339
+import { it, expect } from "vitest";
+
+class CanvasNode {}
+
+// ---cut---
 it("Should store some basic properties", () => {
   const canvasNode = new CanvasNode();
 
-  expect(canvasNode.x).toEqual(0); // red squiggly line under x
-  expect(canvasNode.y).toEqual(0); // red squiggly line under y
+  expect(canvasNode.x).toEqual(0);
+  expect(canvasNode.y).toEqual(0);
 
   // @ts-expect-error Property is readonly
   canvasNode.x = 10;
@@ -690,14 +736,21 @@ class CanvasNode {
 
 There is a test case for being able to move the `CanvasNode` object to a new location:
 
-```typescript
+```ts twoslash
+// @errors: 2339
+import { it, expect } from "vitest";
+class CanvasNode {
+  x = 0;
+  y = 0;
+}
+// ---cut---
 it("Should be able to move to a new location", () => {
   const canvasNode = new CanvasNode();
 
   expect(canvasNode.x).toEqual(0);
   expect(canvasNode.y).toEqual(0);
 
-  canvasNode.move(10, 20); // red squiggly line under move
+  canvasNode.move(10, 20);
 
   expect(canvasNode.x).toEqual(10);
   expect(canvasNode.y).toEqual(20);
@@ -731,15 +784,34 @@ class CanvasNode {
 
 In these test cases, there are errors accessing the `position` property since it is not currently a property of the `CanvasNode` class:
 
-```typescript
+```ts twoslash
+// @errors: 2339
+import { it, expect } from "vitest";
+
+class CanvasNode {
+  x: number;
+  y: number;
+
+  constructor(position?: { x: number; y: number }) {
+    this.x = position?.x ?? 0;
+    this.y = position?.y ?? 0;
+  }
+
+  move(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+// ---cut---
 it("Should be able to move", () => {
   const canvasNode = new CanvasNode();
 
-  expect(canvasNode.position).toEqual({ x: 0, y: 0 }); // red squiggly line under position
+  expect(canvasNode.position).toEqual({ x: 0, y: 0 });
 
   canvasNode.move(10, 20);
 
-  expect(canvasNode.position).toEqual({ x: 10, y: 20 }); // red squiggly line under position
+  expect(canvasNode.position).toEqual({ x: 10, y: 20 });
 });
 
 it("Should be able to receive an initial position", () => {
@@ -748,7 +820,7 @@ it("Should be able to receive an initial position", () => {
     y: 20,
   });
 
-  expect(canvasNode.position).toEqual({ x: 10, y: 20 }); // red squiggly line under position
+  expect(canvasNode.position).toEqual({ x: 10, y: 20 });
 });
 ```
 
@@ -776,11 +848,14 @@ class CanvasNode {
 
 The `#` in front of the `x` and `y` properties means they are `readonly` and can't be modified directly outside of the class. In addition, when a getter is present without a setter, its property will also be treated as `readonly`, as seen in this test case:
 
-```typescript
-canvasNode.position = { x: 10, y: 20 }; // red squiggly line under position
+```ts twoslash
+// @errors: 2540
+declare const canvasNode: {
+  readonly position: { x: number; y: number };
+};
 
-// hovering over position shows:
-// Cannot assign to 'position' because it is a read-only property.
+// ---cut---
+canvasNode.position = { x: 10, y: 20 };
 ```
 
 Your task is to write a setter for the `position` property that will allow for the test case to pass.
