@@ -212,11 +212,20 @@ You can use as many type parameters as you need in a generic type. But just like
 
 What happens if we don't pass a type argument to a generic type? Let's try it with the `ResourceStatus` type:
 
-```tsx
-type Example = ResourceStatus; // red squiggly line under ResourceStatus
-
-// hovering over ResourceStatus shows:
-// Generic type 'ResourceStatus' requires 2 type argument(s).
+```ts twoslash
+// @errors: 2314
+type ResourceStatus<TContent, TMetadata> =
+  | {
+      status: "available";
+      content: TContent;
+      metadata: TMetadata;
+    }
+  | {
+      status: "unavailable";
+      reason: string;
+    };
+// ---cut---
+type Example = ResourceStatus;
 ```
 
 TypeScript shows an error that tells us that `ResourceStatus` requires two type arguments. This is because by default, all generic types _require_ their type arguments to be passed in, just like runtime functions.
@@ -308,22 +317,35 @@ With these changes in place, it is now required that the `TContent` type paramet
 
 When we try to create a type with `ResourceStatus` that doesn't have an `id` property, TypeScript will raise an error that tells us exactly what's wrong:
 
-```tsx
+```ts twoslash
+// @errors: 2344
+type HasId = {
+  id: number;
+};
+
+type ResourceStatus<TContent extends HasId, TMetadata extends object = {}> =
+  | {
+      status: "available";
+      content: TContent;
+      metadata: TMetadata;
+    }
+  | {
+      status: "unavailable";
+      reason: string;
+    };
+
+// ---cut---
 type StreamingPlaylist = ResourceStatus<
   {
     name: string;
     tracks: string[];
-  }, // red squiggly line under the object
+  },
   {
     creator: string;
     artwork: string;
     dateUpdated: Date;
   }
 >;
-
-// hovering over the error shows:
-// Type '{ name: string; tracks: string[]; }' does not satisfy the constraint 'HasId'.
-//   Property 'id' is missing in type '{ name: string; tracks: string[]; }' but required in type 'HasId'.
 ```
 
 Once the `id` property is added to the `TContent` type parameter, the error will go away.
@@ -364,8 +386,12 @@ let myImage: PngFile = "my-image.png"; // OK
 
 When a string does not match the pattern defined in the `PngFile` type, TypeScript will raise an error:
 
-```tsx
-let myImage: PngFile = "my-image.jpg"; // Type '"my-image.jpg"' is not assignable to type 'PngFile'.
+```ts twoslash
+// @errors: 2322
+type PngFile = `${string}.png`;
+
+// ---cut---
+let myImage: PngFile = "my-image.jpg";
 ```
 
 Enforce specific string formats with template literal types can be useful in your applications.
@@ -402,21 +428,25 @@ If you have any kind of string pattern you want to enforce in your application, 
 
 TypeScript even has several built-in utility types for transforming string types. For example, `Uppercase` and `Lowercase` can be used to convert a string to uppercase or lowercase:
 
-```tsx
-type UppercaseHello = Uppercase<"hello">; // "HELLO"
-type LowercaseHELLO = Lowercase<"HELLO">; // "hello"
+```ts twoslash
+type UppercaseHello = Uppercase<"hello">;
+//   ^?
+type LowercaseHELLO = Lowercase<"HELLO">;
+//   ^?
 ```
 
 The `Capitalize` type can be used to capitalize the first letter of a string:
 
-```tsx
-type CapitalizeMatt = Capitalize<"matt">; // "Matt"
+```ts twoslash
+type CapitalizeMatt = Capitalize<"matt">;
+//   ^?
 ```
 
 The `Uncapitalize` type can be used to lowercase the first letter of a string:
 
-```tsx
-type UncapitalizePHD = Uncapitalize<"PHD">; // "pHD"
+```ts twoslash
+type UncapitalizePHD = Uncapitalize<"PHD">;
+//   ^?
 ```
 
 These utility types are occasionally useful for transforming string types in your applications, and prove how flexible TypeScript's type system can be.
@@ -433,9 +463,14 @@ type ToArray<T> = T[];
 
 This is fine, except when we pass in a type that's already an array. If we do, we'll get an array of arrays:
 
-```tsx
-type Example = ToArray<string>; // string[]
-type Example2 = ToArray<string[]>; // string[][]
+```ts twoslash
+type ToArray<T> = T[];
+// ---cut---
+type Example = ToArray<string>;
+//   ^?
+
+type Example2 = ToArray<string[]>;
+//   ^?
 ```
 
 We actually want `Example2` to end up as `string[]` too. So, we'll need to check if `T` is already an array, and if it is, we'll return `T` instead of `T[]`.
@@ -474,9 +509,15 @@ const toArray = (t: any[]) => {
 
 What could be passed to this function? Only arrays:
 
-```tsx
+```ts twoslash
+// @errors: 2345
+const toArray = (t: any[]) => {
+  // implementation
+};
+
+// ---cut---
 toArray([1, 2, 3]); // OK
-toArray("hello"); // Error
+toArray("hello");
 ```
 
 `T extends any[]` checks if `T` could be passed to a function expecting `any[]`. If we wanted to check if `T` was a string, we'd use `T extends string`.
@@ -495,9 +536,16 @@ In this case, if `T` is an array, it resolves to `T`. If it's not, it resolves t
 
 This means that our examples above now work as expected:
 
-```tsx
-type Example = ToArray<string>; // string[]
-type Example2 = ToArray<string[]>; // string[]
+```ts twoslash
+type ToArray<T> = T extends any[] ? T : T[];
+
+// ---cut---
+
+type Example = ToArray<string>;
+//   ^?
+
+type Example2 = ToArray<string[]>;
+//   ^?
 ```
 
 Conditional types turn TypeScript's type system into a full programming language. They're incredibly powerful, but they can also be incredibly complex. You'll rarely need them in application code, but they can perform wonders in library code.
@@ -612,13 +660,18 @@ In the previous example, we didn't need to change the key of the object we were 
 
 Let's say we want to create a new type that has the same properties as `Album`, but with the key names uppercased. We could try using `Uppercase` on `keyof Album`:
 
-```typescript
-type AlbumWithUppercaseKeys = {
-  [K in Uppercase<keyof Album>]: Album[K]; // Red squiggly line under Album[K]
-};
+```ts twoslash
+// @errors: 2536
+interface Album {
+  name: string;
+  artist: string;
+  songs: string[];
+}
 
-// Hovering over the error shows:
-// Type 'K' cannot be used to index type 'Album'.
+// ---cut---
+type AlbumWithUppercaseKeys = {
+  [K in Uppercase<keyof Album>]: Album[K];
+};
 ```
 
 But this doesn't work. We can't use `K` to index `Album` because `K` has already been transformed to its uppercase version. Instead, we need to find a way to keep `K` the same as before, while using the uppercase version of `K` for the key.
@@ -715,12 +768,17 @@ type PromiseFunc = (input: any) => Promise<any>;
 
 Provided here are two example tests that use the `PromiseFunc` type with different inputs that currently have errors:
 
-```tsx
-type Example1 = PromiseFunc<string, string>; // red squiggly line under PromiseFunc<>
+```ts twoslash
+// @errors: 2315
+import { Equal, Expect } from "@total-typescript/helpers";
+type PromiseFunc = (input: any) => Promise<any>;
+
+// ---cut---
+type Example1 = PromiseFunc<string, string>;
 
 type test1 = Expect<Equal<Example1, (input: string) => Promise<string>>>;
 
-type Example2 = PromiseFunc<boolean, number>; // red squiggly line under PromiseFunc<>
+type Example2 = PromiseFunc<boolean, number>;
 
 type test2 = Expect<Equal<Example2, (input: boolean) => Promise<number>>>;
 ```
@@ -747,9 +805,19 @@ type Result<TResult, TError> =
 
 We also have the `createRandomNumber` function that returns a `Result` type:
 
-```tsx
+```ts twoslash
+// @errors: 2314
+type Result<TResult, TError> =
+  | {
+      success: true;
+      data: TResult;
+    }
+  | {
+      success: false;
+      error: TError;
+    };
+// ---cut---
 const createRandomNumber = (): Result<number> => {
-  // red squiggly line under number
   const num = Math.random();
 
   if (num > 0.5) {
@@ -766,15 +834,7 @@ const createRandomNumber = (): Result<number> => {
 };
 ```
 
-Because there's only a `number` being sent as a type argument, we have an error message:
-
-```tsx
-// hovering over `Result<number>` shows:
-
-Generic type 'Result' requires 2 type argument(s)
-```
-
-We're only specifying the number because it can be a bit of a hassle to always specify both the `success` and `error` types whenever we use the `Result` type.
+Because there's only a `number` being sent as a type argument, we have an error message. We're only specifying the number because it can be a bit of a hassle to always specify both the `success` and `error` types whenever we use the `Result` type.
 
 It would be easier if we could designate `Error` type as the default type for `Result`'s `TError`, since that's what most errors will be typed as.
 
@@ -786,7 +846,20 @@ After updating the `Result` type to have a default type for `TError`, it would b
 
 Here are some examples of using the `Result` type:
 
-```tsx
+```ts twoslash
+// @errors: 2578
+type Result<TResult, TError = Error> =
+  | {
+      success: true;
+      data: TResult;
+    }
+  | {
+      success: false;
+      error: TError;
+    };
+
+// ---cut---
+
 type BadExample = Result<
   { id: string },
   // @ts-expect-error Should be an object with a message property
@@ -821,18 +894,22 @@ Instead, we want to implement a `StrictOmit` type that only accepts keys that ex
 
 Here's the start of `StrictOmit`, which currently has an error under `K`:
 
-```tsx
-type StrictOmit<T, K> = Omit<T, K>; // red squiggly line under K
-
-// hovering over K shows:
-Type 'K' does not satisfy the constraint 'string | number | symbol'.
+```ts twoslash
+// @errors: 2344
+type StrictOmit<T, K> = Omit<T, K>;
 ```
 
 Currently, the `StrictOmit` type behaves the same as a regular `Omit` as evidenced by this failing `@ts-expect-error` directive:
 
-```tsx
-type ShouldFail = StrictOmit<{ a: string }>;
-// @ts-expect-error // red squiggly line under @ts-expect-error
+```ts twoslash
+// @errors: 2344 2578
+type StrictOmit<T, K> = Omit<T, K>;
+// ---cut---
+type ShouldFail = StrictOmit<
+  { a: string },
+  // @ts-expect-error
+  "b"
+>;
 ```
 
 Your task is to update `StrictOmit` so that it only accepts keys that exist in the provided type `T`. If a non-valid key `K` is passed, TypeScript should return an error.
@@ -873,9 +950,16 @@ goToRoute("/contact");
 
 However, if we attempt passing a string that doesn't start with a forward slash there currently is not an error:
 
-```tsx
+```ts twoslash
+// @errors: 2578
+type AbsoluteRoute = string;
+
+const goToRoute = (route: AbsoluteRoute) => {
+  // ...
+};
+// ---cut---
 goToRoute(
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   "somewhere",
 );
 ```
@@ -941,11 +1025,21 @@ type AttributeGetters = unknown;
 
 As seen in the tests, we expect `AttributeGetters` to be an object composed of functions. When invoked, each of these functions should return a value matching the key from the `Attributes` interface:
 
-```tsx
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+interface Attributes {
+  firstName: string;
+  lastName: string;
+  age: number;
+}
+
+type AttributeGetters = unknown;
+// ---cut---
 type tests = [
   Expect<
     Equal<
-      // red squiggly line under Equal<>
       AttributeGetters,
       {
         firstName: () => string;
@@ -1082,14 +1176,20 @@ type Result<TResult, TError extends { message: string } = Error> =
 
 Now if we remove the `@ts-expect-error` directive from `BadExample`, we will get an error under `string`:
 
-```tsx
-type BadExample = Result<
-  { id: string },
-  string // red squiggly line under string
->;
+```ts twoslash
+// @errors: 2344
+type Result<TResult, TError extends { message: string } = Error> =
+  | {
+      success: true;
+      data: TResult;
+    }
+  | {
+      success: false;
+      error: TError;
+    };
 
-// hovering over `string` shows:
-// Type 'string' does not satisfy the constraint '{ message: string }'.
+// ---cut---
+type BadExample = Result<{ id: string }, string>;
 ```
 
 The behavior of constraining type parameters and adding defaults is similar to runtime parameters. However, unlike runtime arguments, you can add additional properties and still satisfy the constraint:
@@ -1104,12 +1204,13 @@ A runtime argument constraint would be limited only containing a `message` strin
 
 Here's the starting point of the `StrictOmit` type and the `ShouldFail` example that we need to fix:
 
-```tsx
+```ts twoslash
+// @errors: 2344 2578
 type StrictOmit<T, K> = Omit<T, K>;
 
 type ShouldFail = StrictOmit<
   { a: string },
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   "b"
 >;
 ```
@@ -1124,14 +1225,11 @@ type StrictOmit<T, K extends "a"> = Omit<T, K>;
 
 Removing the `@ts-expect-error` directive from `ShouldFail` will now show an error under `"b"`:
 
-```tsx
-type ShouldFail = StrictOmit<
-  { a: string },
-  "b" // red squiggly line under "b"
->;
-
-// hovering over "b" shows:
-Type '"b"' does not satisfy the constraint '"a"'.
+```ts twoslash
+// @errors: 2344
+type StrictOmit<T, K extends "a"> = Omit<T, K>;
+// ---cut---
+type ShouldFail = StrictOmit<{ a: string }, "b">;
 ```
 
 This shows us that the `ShouldFail` type is failing as expected.
@@ -1287,13 +1385,19 @@ type NewAttributeKeys = `get${Capitalize<keyof Attributes>}`;
 
 Since we have formatted keys, we can now use `NewAttributeKeys` in the map type:
 
-```tsx
-type AttributeGetters = {
-  [K in NewAttributeKeys]: () => Attributes[K]; // red squiggly line under Attributes[K]
-};
+```ts twoslash
+// @errors: 2536
+interface Attributes {
+  firstName: string;
+  lastName: string;
+  age: number;
+}
+type NewAttributeKeys = `get${Capitalize<keyof Attributes>}`;
 
-// hovering over Attributes[K] shows:
-Type 'K' cannot be used to index type 'Attributes'.
+// ---cut---
+type AttributeGetters = {
+  [K in NewAttributeKeys]: () => Attributes[K];
+};
 ```
 
 However, we have a problem. We can't use `K` to index `Attributes` because each `K` has changed and no longer exists on `Attributes`.

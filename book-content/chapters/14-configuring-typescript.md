@@ -157,7 +157,9 @@ Sometimes you'll be using other tools than `tsc` to turn your TypeScript into Ja
 
 Consider this example of an `AlbumFormat` enum that has been created with `declare const`:
 
-```tsx
+```ts twoslash
+// @errors: 2748
+// @isolatedModules: true
 declare const enum AlbumFormat {
   CD,
   Vinyl,
@@ -171,17 +173,7 @@ Recall that the `declare` keyword will place `const enum` in an ambient context,
 
 When `isolatedModules` is disabled, this code will compile without any errors.
 
-However, when `isolatedModules` is enabled, the `AlbumFormat` enum will not be erased and TypeScript will raise an error:
-
-```tsx
-// hovering over AlbumFormat.Vinyl shows:
-Cannot access ambient const enums when 'isolatedModules' is enabled.
-
-// index.js after transpilation
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const largestPhysicalSize = AlbumFormat.Vinyl;
-```
+However, when `isolatedModules` is enabled, the `AlbumFormat` enum will not be erased and TypeScript will raise an error.
 
 This is because only `tsc` has enough context to understand what value `AlbumFormat.Vinyl` should have. TypeScript checks your entire project at once, and stores the values for `AlbumFormat` in memory.
 
@@ -256,22 +248,48 @@ TypeError: Cannot read property 'toUpperCase' of undefined
 
 By setting `noUncheckedIndexedAccess` to `true`, TypeScript will infer the type of every indexed access to be `T | undefined` instead of just `T`. In this case, every entry in `egoMirror.tracks` would be of type `string | undefined`:
 
-```tsx
+```ts twoslash
+// @noUncheckedIndexedAccess: true
+interface VinylSingle {
+  title: string;
+  artist: string;
+  tracks: string[];
+}
+
+const egoMirror: VinylSingle = {
+  title: "Ego / Mirror",
+  artist: "Burial / Four Tet / Thom Yorke",
+  tracks: ["Ego", "Mirror"],
+};
+
+// ---cut---
+
 const ego = egoMirror.tracks[0];
+//    ^?
 const mirror = egoMirror.tracks[1];
 const nonExistentTrack = egoMirror.tracks[3];
-
-// hovering over ego shows:
-// const ego: string | undefined
 ```
 
 However, because the types of each of the tracks are now `string | undefined`, we have errors when attempting to call `toUpperCase` even for the valid tracks:
 
-```typescript
-console.log(ego.toUpperCase()); // red squiggly line under ego
+```ts twoslash
+// @errors: 18048
+// @noUncheckedIndexedAccess: true
+interface VinylSingle {
+  title: string;
+  artist: string;
+  tracks: string[];
+}
 
-// hovering over ego shows
-'ego' is possibly 'undefined'
+const egoMirror: VinylSingle = {
+  title: "Ego / Mirror",
+  artist: "Burial / Four Tet / Thom Yorke",
+  tracks: ["Ego", "Mirror"],
+};
+
+const ego = egoMirror.tracks[0];
+// ---cut---
+console.log(ego.toUpperCase()); // red squiggly line under ego
 ```
 
 This means that we have to handle the possibility of `undefined` values when accessing array or object indices.
@@ -524,21 +542,22 @@ If we keep `album.ts` the same, TypeScript will look up the directories for the 
 
 For example, consider this file `hello.cts` that uses the `export default` syntax:
 
-```tsx
+```ts twoslash
+// @errors: 1286
+// @verbatimModuleSyntax: true
+// @module: NodeNext
+// @moduleResolution: NodeNext
+// @filename hello.cts
+
 // hello.cts
 const hello = () => {
   console.log("Hello!");
 };
 
-export { hello }; // red squiggly line under export { hello }
+export { hello };
 ```
 
-When `verbatimModuleSyntax` is enabled, TypeScript will show an error under the `export default` line that tells us we're mixing the syntaxes together:
-
-```tsx
-// hovering over export { hello } shows:
-ESM syntax is not allowed in a CommonJS module when 'verbatimModuleSyntax' is enabled.
-```
+When `verbatimModuleSyntax` is enabled, TypeScript will show an error under the `export default` line that tells us we're mixing the syntaxes together.
 
 In order to fix the issue, we need to use the `export =` syntax instead:
 
@@ -555,11 +574,14 @@ This will compile down to `module.exports = { hello }` in the emitted JavaScript
 
 The warnings will show when trying to use an ESM import as well:
 
-```tsx
-import { z } from "zod"; // rsl under import statement
+```ts twoslash
+// @errors: 1286
+// @verbatimModuleSyntax: true
+// @module: NodeNext
+// @moduleResolution: NodeNext
+// @filename hello.cts
 
-// hovering over the import shows:
-// ESM syntax is not allowed in a CommonJS module when 'verbatimModuleSyntax' is enabled.
+import { z } from "zod";
 ```
 
 Here, the fix is to use `require` instead of `import`:
@@ -822,9 +844,10 @@ declare const ONLY_ON_SERVER: string;
 
 Trying to use `ONLY_ON_SERVER` in a file that's part of the `client` configuration will result in an error:
 
-```tsx
+```ts twoslash
+// @errors: 2304
 // inside client/index.ts
-console.log(ONLY_ON_SERVER); // red squiggly line under ONLY_ON_SERVER
+console.log(ONLY_ON_SERVER);
 ```
 
 This feature is useful when dealing with environment-specific variables or globals that come from testing tools like Jest or Cypress, and avoids polluting the global scope.
