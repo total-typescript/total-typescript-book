@@ -71,7 +71,7 @@ What type do you think `StringAndNumber` is? It's actually `never`. This is beca
 
 This also happens when you intersect two object types with an incompatible property:
 
-```typescript
+```ts twoslash
 type User1 = {
   age: number;
 };
@@ -81,11 +81,7 @@ type User2 = {
 };
 
 type User = User1 & User2;
-
-// hovering over User shows:
-type User = {
-  age: never;
-};
+//   ^?
 ```
 
 In this case, the `age` property resolves to `never` because it's impossible for a single property to be both a `number` and a `string`.
@@ -192,22 +188,15 @@ type User = User1 & User2;
 
 When using `interface extends`, TypeScript will raise an error when you try to extend an interface with an incompatible property:
 
-```typescript
+```ts twoslash
+// @errors: 2430
 interface User1 {
   age: number;
 }
 
-// Red line under User
 interface User extends User1 {
   age: string;
 }
-```
-
-Hovering over `User` will show an error message:
-
-```
-Interface 'User' incorrectly extends interface 'User1'.
-  Types of property 'age' are incompatible.
 ```
 
 This is very different because it actually sources an error. With intersections, TypeScript will only raise an error when you try to access the `age` property, not when you define it.
@@ -285,9 +274,8 @@ interface Album {
 
 This is very different from `type`, which would give you an error if you tried to declare the same type twice:
 
-```typescript
-// Red line under both Album's
-// Duplicate identifier 'Album'
+```ts twoslash
+// @errors: 2300
 type Album = {
   title: string;
   artist: string;
@@ -462,16 +450,14 @@ albumAwards.Billboard = true;
 
 However, when we try to add keys dynamically to an object in TypeScript, we'll get errors:
 
-```typescript
+```ts twoslash
+// @errors: 2339
 // TypeScript Example
 const albumAwards = {};
 
-albumAwards.Grammy = true; // red squiggly line under Grammy
-albumAwards.MercuryPrize = false; // red squiggly line under MercuryPrize
-albumAwards.Billboard = true; // red squiggly line under Billboard
-
-// hovering over Grammy shows:
-// Property 'Grammy' does not exist on type '{}'.
+albumAwards.Grammy = true;
+albumAwards.MercuryPrize = false;
+albumAwards.Billboard = true;
 ```
 
 This can feel unhelpful. You might think that TypeScript, based on its ability to narrow our code, should be able to figure out that we're adding keys to an object.
@@ -484,10 +470,11 @@ We need to tell TypeScript that we want to be able to dynamically add keys. Let'
 
 Let's take another look at the code above.
 
-```typescript
+```ts twoslash
+// @errors: 2339
 const albumAwards = {};
 
-albumAwards.Grammy = true; // red squiggly line under Grammy
+albumAwards.Grammy = true;
 ```
 
 The technical term for what we're doing here is 'indexing'. We're indexing into `albumAwards` with a string key, `Grammy`, and assigning it a value.
@@ -549,17 +536,15 @@ The first type argument is the key, and the second type argument is the value. T
 
 `Record` can also support a union type as keys, but an index signature can't:
 
-```typescript
-const albumAwards: Record<"Grammy" | "MercuryPrize" | "Billboard", boolean> = {
+```ts twoslash
+// @errors: 1337
+const albumAwards1: Record<"Grammy" | "MercuryPrize" | "Billboard", boolean> = {
   Grammy: true,
   MercuryPrize: false,
   Billboard: true,
 };
 
-const albumAwards: {
-  // red line under index
-  // An index signature parameter type cannot be a literal type or generic type.
-  // Consider using a mapped object type instead.
+const albumAwards2: {
   [index: "Grammy" | "MercuryPrize" | "Billboard"]: boolean;
 } = {
   Grammy: true,
@@ -654,10 +639,14 @@ acceptAllNonPrimitives(() => {});
 
 But error on primitives:
 
-```typescript
-acceptAllNonPrimitives(1); // red squiggly line under 1
-acceptAllNonPrimitives("hello"); // red squiggly line under "hello"
-acceptAllNonPrimitives(true); // red squiggly line under true
+```ts twoslash
+// @errors: 2345
+function acceptAllNonPrimitives(obj: object) {}
+
+// ---cut---
+acceptAllNonPrimitives(1);
+acceptAllNonPrimitives("hello");
+acceptAllNonPrimitives(true);
 ```
 
 This means that the `object` type is rarely useful by itself. Using `Record` is usually a better choice. For instance, if you want to accept any object type, you can use `Record<string, unknown>`.
@@ -668,12 +657,13 @@ This means that the `object` type is rarely useful by itself. Using `Record` is 
 
 Here we have an object called `scores`, and we are trying to assign several different properties to it:
 
-```typescript
+```ts twoslash
+// @errors: 2339
 const scores = {};
 
-scores.math = 95; // red squiggly line under math
-scores.english = 90; // red squiggly line under english
-scores.science = 85; // red squiggly line under science
+scores.math = 95;
+scores.english = 90;
+scores.science = 85;
 ```
 
 Your task is to give `scores` a type annotation to support the dynamic subject keys. There are three ways: an inline index signature, a type, an interface, or a `Record`.
@@ -684,18 +674,19 @@ Here, we're trying to model a situation where we want some required keys - `math
 
 But we also want to add dynamic properties. In this case, `athletics`, `french`, and `spanish`:
 
-```typescript
+```ts twoslash
+// @errors: 2578 2339
 interface Scores {}
 
-// @ts-expect-error science should be provided // red squiggly line under @ts-expect-error
+// @ts-expect-error science should be provided
 const scores: Scores = {
   math: 95,
   english: 90,
 };
 
-scores.athletics = 100; // red line under athletics
-scores.french = 75; // red line under french
-scores.spanish = 70; // red line under spanish
+scores.athletics = 100;
+scores.french = 75;
+scores.spanish = 70;
 ```
 
 The definition of scores should be erroring, because `science` is missing - but it's not, because our definition of `Scores` is currently an empty object.
@@ -710,7 +701,8 @@ The object holds keys for `development`, `production`, and `staging`, and each r
 
 There is also a `notAllowed` key, which is decorated with a `@ts-expect-error` comment. But currently, this is not erroring in TypeScript as expected.
 
-```typescript
+```ts twoslash
+// @errors: 2578
 type Environment = "development" | "production" | "staging";
 
 type Configurations = unknown;
@@ -728,7 +720,7 @@ const configurations: Configurations = {
     apiBaseUrl: "https://staging.example.com",
     timeout: 8000,
   },
-  // @ts-expect-error   // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   notAllowed: {
     apiBaseUrl: "https://staging.example.com",
     timeout: 8000,
@@ -765,20 +757,36 @@ it("Should work on string keys", () => {
 
 A test case that checks for numeric keys does have issues because the function is expecting a string key:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+import { it, expect } from "vitest";
+
+const hasKey = (obj: object, key: string) => {
+  return obj.hasOwnProperty(key);
+};
+
+// ---cut---
 it("Should work on number keys", () => {
   const obj = {
     1: "bar",
   };
 
-  expect(hasKey(obj, 1)).toBe(true); // red squiggly line under 1
-  expect(hasKey(obj, 2)).toBe(false); // red squiggly line under 2
+  expect(hasKey(obj, 1)).toBe(true);
+  expect(hasKey(obj, 2)).toBe(false);
 });
 ```
 
 Because an object can also have a symbol as a key, there is also a test for that case. It currently has type errors for `fooSymbol` and `barSymbol` when calling `hasKey`:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+import { it, expect } from "vitest";
+
+const hasKey = (obj: object, key: string) => {
+  return obj.hasOwnProperty(key);
+};
+
+// ---cut---
 it("Should work on symbol keys", () => {
   const fooSymbol = Symbol("foo");
   const barSymbol = Symbol("bar");
@@ -787,8 +795,8 @@ it("Should work on symbol keys", () => {
     [fooSymbol]: "bar",
   };
 
-  expect(hasKey(obj, fooSymbol)).toBe(true); // red squiggly line under fooSymbol
-  expect(hasKey(obj, barSymbol)).toBe(false); // red squiggly line under barSymbol
+  expect(hasKey(obj, fooSymbol)).toBe(true);
+  expect(hasKey(obj, barSymbol)).toBe(false);
 });
 ```
 
@@ -999,7 +1007,7 @@ const doubleCup: RequiredAlbum = {
 
 An important thing to note is that both `Required` and `Partial` only work one level deep. For example, if the `Album`'s `genre` contained nested properties, `Required<Album>` would not make the children required:
 
-```typescript
+```ts twoslash
 type Album = {
   title: string;
   artist: string;
@@ -1011,16 +1019,7 @@ type Album = {
 };
 
 type RequiredAlbum = Required<Album>;
-// hovering over RequiredAlbum shows:
-type RequiredAlbum = {
-  title: string;
-  artist: string;
-  releaseYear: number;
-  genre: {
-    parentGenre?: string;
-    subGenre?: string;
-  };
-};
+//   ^?
 ```
 
 If you find yourself in a situation where you need a deeply Required type, check out the type-fest library by Sindre Sorhus.
@@ -1079,11 +1078,20 @@ type AlbumWithoutProducer = Omit<Album, "producer">;
 
 If we tried to create an `AlbumWithOnlyProducer` type using Pick, we would get an error because `producer` doesn't exist on `Album`:
 
-```typescript
-type AlbumWithOnlyProducer = Pick<Album, "producer">; // red squiggly line under "producer"
+```ts twoslash
+// @errors: 2344
+type Album = {
+  id: string;
+  title: string;
+  artist: string;
+  releaseYear: number;
+  genre: string;
+};
 
-// hovering over producer shows:
-Type '"producer"' does not satisfy the constraint 'keyof Album'.
+type AlbumWithoutProducer = Omit<Album, "producer">;
+
+// ---cut---
+type AlbumWithOnlyProducer = Pick<Album, "producer">;
 ```
 
 Why do these two utility types behave differently?
@@ -1221,7 +1229,11 @@ type DistributivePick<T, K extends PropertyKey> = T extends any
 
 In this exercise, we have a `fetchUser` function that uses `fetch` to access an endpoint named `APIUser` and it return a `Promise<User>`:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Expect, Equal } from "@total-typescript/helpers";
+
+// ---cut---
 interface User {
   id: string;
   name: string;
@@ -1238,7 +1250,7 @@ const fetchUser = async (): Promise<User> => {
 const example = async () => {
   const user = await fetchUser();
 
-  type test = Expect<Equal<typeof user, { name: string; email: string }>>; // red squiggly line under Equal<>
+  type test = Expect<Equal<typeof user, { name: string; email: string }>>;
 };
 ```
 
@@ -1262,7 +1274,7 @@ interface Product {
   description: string;
 }
 
-const updateProduct = (id: number, productInfo: unknown) => {
+const updateProduct = (id: number, productInfo: Product) => {
   // Do something with the productInfo
 };
 ```
@@ -1271,32 +1283,26 @@ The twist here is that during a product update, we might not want to modify all 
 
 This means we have several different test scenarios. For example, update just the name, just the price, or just the description. Combinations like updating the name and the price or the name and the description are also tested.
 
-```typescript
+```ts twoslash
+// @errors: 2345
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+}
+
+const updateProduct = (id: number, productInfo: Product) => {
+  // Do something with the productInfo
+};
+
+// ---cut---
 updateProduct(1, {
-  // red squiggly line under the entire object
   name: "Book",
 });
 
 updateProduct(1, {
-  // red squiggly line under the entire object
   price: 12.99,
-});
-
-updateProduct(1, {
-  // red squiggly line under the entire object
-  description: "A book about Dragons",
-});
-
-updateProduct(1, {
-  // red squiggly line under the entire object
-  name: "Book",
-  price: 12.99,
-});
-
-updateProduct(1, {
-  // red squiggly line under the entire object
-  name: "Book",
-  description: "A book about Dragons",
 });
 ```
 

@@ -639,12 +639,19 @@ By adding this error condition, we can be sure that we will never reach any subs
 
 If we hover over `appElement` after the `if` statement, we can see that TypeScript now knows that `appElement` is an `HTMLElement` - it's no longer `null`. This means our test also now passes:
 
-```tsx
+```ts twoslash
+import { Equal, Expect } from "@total-typescript/helpers";
+
+const appElement = document.getElementById("app");
+
+if (!appElement) {
+  throw new Error("Could not find app element");
+}
+
+// ---cut---
+
 console.log(appElement);
-
-// hovering over `appElement` shows:
-
-const appElement: HTMLElement;
+//          ^?
 
 type Test = Expect<Equal<typeof appElement, HTMLElement>>; // passes
 ```
@@ -1310,7 +1317,21 @@ type State =
 
 Now, if we hover over `state.error` in the `renderUI` function, we can see that TypeScript knows that `state.error` is a `string`:
 
-```typescript
+```ts twoslash
+type State =
+  | {
+      status: "loading";
+    }
+  | {
+      status: "error";
+      error: string;
+    }
+  | {
+      status: "success";
+      data: string;
+    };
+
+// ---cut---
 const renderUI = (state: State) => {
   if (state.status === "loading") {
     return "Loading...";
@@ -1318,6 +1339,7 @@ const renderUI = (state: State) => {
 
   if (state.status === "error") {
     return `Error: ${state.error.toUpperCase()}`;
+    //                     ^?
   }
 
   if (state.status === "success") {
@@ -1724,7 +1746,6 @@ Even though the `status` and `value` variables are separate, TypeScript keeps tr
 
 ```typescript
 // hovering over `status` shows
-
 const status: "error" | "success";
 ```
 
