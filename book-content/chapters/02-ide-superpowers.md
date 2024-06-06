@@ -101,19 +101,14 @@ Sometimes TypeScript will warn you about things that will definitely fail at run
 
 For example, consider the following code:
 
-```typescript
+```ts twoslash
+// @errors: 18047
 const a = null;
 
-a.toString(); // red squiggly line under `a`
+a.toString();
 ```
 
-TypeScript tells us that there is a problem with `a`. Hovering over it shows the following error message:
-
-```
-'a' is possibly 'null'.
-```
-
-This tells us where the problem is, but it doesn't necessarily tell us what the problem is. In this case, we need to stop and think about why we can't call `toString()` on `null`. If we do, it will throw an error at runtime.
+TypeScript tells us that there is a problem with `a`. This tells us where the problem is, but it doesn't necessarily tell us what the problem is. In this case, we need to stop and think about why we can't call `toString()` on `null`. If we do, it will throw an error at runtime.
 
 ```
 Uncaught TypeError: Cannot read properties of null (reading 'toString').
@@ -127,10 +122,11 @@ Not everything TypeScript warns us about will actually fail at runtime.
 
 Take a look at this example where we're assigning a property to an empty object:
 
-```typescript
+```ts twoslash
+// @errors: 2339
 const obj = {};
 
-const result = obj.foo; // red squiggly line under `foo`
+const result = obj.foo;
 ```
 
 TypeScript draws a red squiggly line below `foo`. But if we think about it, this code won't actually cause an error at runtime. We're trying to assign a property that doesn't exist in this object: `foo`. This won't error, it will just mean that result is undefined.
@@ -141,13 +137,12 @@ It's best to think of TypeScript's rules as opinionated. They are a collection o
 
 ### Warnings Close to the Source of the Problem
 
-<!-- TODO Consider moving this and the next section to later, perhaps the weird parts -->
-
 TypeScript will try to give you warnings as close to the source of the problem as possible.
 
 Let's take a look at an example.
 
-```typescript
+```ts twoslash
+// @errors: 2561
 type Album = {
   artist: string;
   title: string;
@@ -155,7 +150,7 @@ type Album = {
 };
 
 const album: Album = {
-  artsist: "Television", // red squiggly line under `artsist`
+  artsist: "Television",
   title: "Marquee Moon",
   year: 1977,
 };
@@ -163,15 +158,7 @@ const album: Album = {
 
 We define an 'Album' type - an object with three properties. Then, we say that const album needs to be of that type via `const album: Album`. Don't worry if you don't understand all the syntax yet - we'll cover it all later.
 
-Can you see the problem? There's a typo of the `artist` property when creating an album. Hovering over `artsist` shows the following error message:
-
-```
-Type '{ artsist: string; title: string; year: number; }' is not assignable to type 'Album'.
-
-Object literal may only specify known properties, but 'artsist' does not exist in type 'Album'. Did you mean to write 'artist'?
-```
-
-That's because we've said that the `album` variable needs to be of type `Album`, but we've misspelled `artist` as `artsist`. TypeScript is telling us that we've made a mistake, and even suggests the correct spelling.
+Can you see the problem? There's a typo of the `artist` property when creating an album. That's because we've said that the `album` variable needs to be of type `Album`, but we've misspelled `artist` as `artsist`. TypeScript is telling us that we've made a mistake, and even suggests the correct spelling.
 
 ### Dealing With Multi-Line Errors
 
@@ -193,25 +180,27 @@ Don't worry about the syntax for now - we'll cover it later. The important thing
 
 Now, let's call `logUserJobTitle` with a user object where the `job.title` is a number, not a string.
 
-```typescript
+```ts twoslash
+// @errors: 2345
+const logUserJobTitle = (user: {
+  job: {
+    title: string;
+  };
+}) => {
+  console.log(user.job.title);
+};
+
+// ---cut---
 const exampleUser = {
   job: {
     title: 123,
   },
 };
 
-logUserJobTitle(exampleUser); // red squiggly line under `exampleUser`
+logUserJobTitle(exampleUser);
 ```
 
 It might seem like TypeScript should give us an error on `title` in the `exampleUser` object. But instead, it gives us an error on the `exampleUser` variable itself.
-
-Hovering over `exampleUser` shows the following error message:
-
-```
-Argument of type '{ job: { title: number; }; }' is not assignable to parameter of type '{ job: { title: string; }; }'.
-  The types of 'job.title' are incompatible between these types.
-    Type 'number' is not assignable to type 'string'.
-```
 
 It's multiple lines long, which can feel pretty scary. A good rule of thumb with multi-line errors is to start at the bottom:
 
@@ -239,12 +228,9 @@ You can hover over more than just error messages. Any time you hover over a vari
 
 In this example, we could hover over `thing` and see that it's of type `number`:
 
-```typescript
+```ts twoslash
 let thing = 123;
-
-// hovering over `thing` shows:
-
-let thing: number;
+//  ^?
 ```
 
 Hovering works for more involved examples as well. Here `otherObject` spreads in the properties of `otherThing` as well as adding `thing`:
@@ -256,7 +242,7 @@ let otherThing = {
 
 const otherObject = {
   ...otherThing,
-  thing,
+  thing: "abc",
 };
 
 otherObject.thing;
@@ -264,20 +250,22 @@ otherObject.thing;
 
 Hovering over `otherObject` will give us a computed readout of all of its properties:
 
-```typescript
-// hovering over `otherObject` shows:
-
-const otherObject: {
-  thing: number;
-  name: string;
+```ts twoslash
+let otherThing = {
+  name: "Alice",
 };
+
+const otherObject = {
+  ...otherThing,
+  thing: "abc",
+};
+
+// ---cut---
+console.log(otherObject);
+//          ^?
 ```
 
-Depending on what you hover over, VS Code will show you different information. For example, hovering over `.thing` in `otherObject.thing` will show you the type of `thing`:
-
-```
-(property) thing: number
-```
+Depending on what you hover over, VS Code will show you different information. For example, hovering over `otherObject` will show you all of its properties, while hovering over `thing` will show you its type.
 
 Get used to the ability to float around your codebase introspecting variables and declarations, because it's a great way to understand what the code is doing.
 
@@ -287,8 +275,9 @@ Get used to the ability to float around your codebase introspecting variables an
 
 In this code snippet we're trying to grab an element using `document.getElementById` with an ID of `12`. However, TypeScript is complaining.
 
-```javascript
-let element = document.getElementById(12); // red squiggly line under 12
+```ts twoslash
+// @errors: 2345
+let element = document.getElementById(12);
 ```
 
 How can hovering help to determine what argument `document.getElementById` actually requires? And for a bonus point, what type is `element`?
@@ -311,17 +300,12 @@ In the case of `getElementById`, we can see that it requires a string as an argu
 
 This tells us that we can fix the error by changing the argument to a string:
 
-```typescript
+```ts twoslash
 let element = document.getElementById("12");
+//  ^?
 ```
 
-We also know that `element`'s type will be what `document.getElementById` returns, which we can confirm by hovering over `element`:
-
-```typescript
-// hovering over element shows:
-
-const element: HTMLElement | null;
-```
+We also know that `element`'s type will be what `document.getElementById` returns, which we can confirm by hovering over `element`.
 
 So, hovering in different places reveals different information. When I'm working in TypeScript, I hover constantly to get a better sense of what my code is doing.
 
@@ -432,8 +416,6 @@ A TypeScript-enabled feature called 'Rename Symbol' allows you to do that with a
 
 Let's take a look at an example.
 
-<!-- We could convert this to an exercise? -->
-
 ```typescript
 const filterUsersById = (id: string) => {
   return users.filter((user) => user.id === id);
@@ -466,8 +448,9 @@ VS Code also offers a "Quick Fix" feature that can be used to run quick refactor
 
 To open the Quick Fix menu, hit `Command + .`. If you do this on a line of code which references a value that hasn't been imported yet, a popup will show.
 
-```typescript
-const triangle = new Triangle(); // red squiggly line under `Triangle`
+```ts twoslash
+// @errors: 2552
+const triangle = new Triangle();
 ```
 
 One of the options in the Quick Fix menu will be 'Add All Missing Imports'. Selecting this option will add all the missing imports to the top of the file.
