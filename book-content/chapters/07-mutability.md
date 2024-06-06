@@ -122,7 +122,12 @@ type AlbumAttributes = {
 
 Say we had an `updateStatus` function that takes an `AlbumAttributes` object:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+type AlbumAttributes = {
+  status: "new-release" | "on-sale" | "staff-pick";
+};
+// ---cut---
 const updateStatus = (attributes: AlbumAttributes) => {
   // ...
 };
@@ -131,16 +136,10 @@ const albumAttributes = {
   status: "on-sale",
 };
 
-updateStatus(albumAttributes); // red squiggly line under albumAttributes
+updateStatus(albumAttributes);
 ```
 
-TypeScript gives us an error below `albumAttributes` inside of the `updateStatus` function call, with messages similar to what we saw before:
-
-```
-Argument of type '{ status: string; }' is not assignable to parameter of type 'AlbumAttributes'.
-Types of property 'status' are incompatible.
-Type 'string' is not assignable to type '"new-release" | "on-sale" | "staff-pick"'.
-```
+TypeScript gives us an error below `albumAttributes` inside of the `updateStatus` function call, with messages similar to what we saw before.
 
 This is happening because TypeScript has inferred the `status` property as a `string` rather than the specific literal type `"on-sale"`. Similar to with `let`, TypeScript understands that the property could later be reassigned:
 
@@ -223,9 +222,23 @@ const readOnlyWhiteAlbum: Readonly<Album> = {
 
 Because the `readOnlyWhiteAlbum` object was created using the `Readonly` type helper, none of the properties can be modified:
 
-```typescript
-readOnlyWhiteAlbum.genre = ["rock", "pop", "unclassifiable"]; // red squiggly line under genre
-// Cannot assign to 'genre' because it is a read-only property
+```ts twoslash
+// @errors: 2540
+type Album = {
+  title: string;
+  artist: string;
+  status?: "new-release" | "on-sale" | "staff-pick";
+  genre?: string[];
+};
+
+const readOnlyWhiteAlbum: Readonly<Album> = {
+  title: "The Beatles (White Album)",
+  artist: "The Beatles",
+  status: "staff-pick",
+};
+// ---cut---
+
+readOnlyWhiteAlbum.genre = ["rock", "pop", "unclassifiable"];
 ```
 
 Note that like many of TypeScript's type helpers, the immutability enforced by `Readonly` only operates on the first level. It won't make properties read-only recursively.
@@ -255,20 +268,24 @@ const readOnlyGenres: readonly string[];
 
 Readonly arrays disallow the use of array methods that cause mutations, such as `push` and `pop`:
 
-```typescript
-readOnlyGenres.push("experimental"); // red squiggly line under push
-// Property 'push' does not exist on type 'readonly string[]'
+```ts twoslash
+// @errors: 2339
+const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
+
+// ---cut---
+readOnlyGenres.push("experimental");
 ```
 
 However, methods like `map` and `reduce` will still work, as they create a copy of the array and do not mutate the original.
 
-```typescript
+```ts twoslash
+// @errors: 2339
+const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
+
+// ---cut---
 const uppercaseGenres = readOnlyGenres.map((genre) => genre.toUpperCase()); // No error
 
-readOnlyGenres.push("experimental"); // red squiggly line under push
-
-// hovering over push shows:
-Property 'push' does not exist on type 'readonly string[]'
+readOnlyGenres.push("experimental");
 ```
 
 Note that, just like the `readonly` for object properties, this doesn't affect the runtime behavior of the array. It's just a way to help catch potential errors.
@@ -304,14 +321,21 @@ However, the reverse is not true.
 
 If we declare a read-only array, we can only pass it to `printGenresReadOnly`. Attempting to pass it to `printGenresMutable` will yield an error:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+function printGenresReadOnly(genres: readonly string[]) {
+  // ...
+}
+
+function printGenresMutable(genres: string[]) {
+  // ...
+}
+
+// ---cut---
 const readOnlyGenres: readonly string[] = ["rock", "pop", "unclassifiable"];
 
 printGenresReadOnly(readOnlyGenres);
-printGenresMutable(readOnlyGenres); // red squiggly line under readOnlyGenres
-
-// hovering over readOnlyGenres shows:
-// Error: Argument of type 'readonly ["rock", "pop", "unclassifiable"]' is not assignable to parameter of type 'string[]'
+printGenresMutable(readOnlyGenres);
 ```
 
 This is because we might be mutating the array inside of `printGenresMutable`. If we passed a read-only array.
@@ -328,7 +352,8 @@ Here we have a `modifyButtons` function that takes in an array of objects with `
 
 When attempting to call `modifyButtons` with an array of objects that seem to meet the contract, TypeScript gives us an error:
 
-```typescript
+```ts twoslash
+// @errors: 2345
 type ButtonAttributes = {
   type: "button" | "submit" | "reset";
 };
@@ -344,7 +369,7 @@ const buttonsToChange = [
   },
 ];
 
-modifyButtons(buttonsToChange); // red squiggly line under buttonsToChange
+modifyButtons(buttonsToChange);
 ```
 
 Your task is to determine why this error shows up, then resolve it.
@@ -353,16 +378,17 @@ Your task is to determine why this error shows up, then resolve it.
 
 This `printNames` function accepts an array of `name` strings and logs them to the console. However, there are also non-working `@ts-expect-error` comments that should not allow for names to be added or changed:
 
-```typescript
+```ts twoslash
+// @errors: 2578
 function printNames(names: string[]) {
   for (const name of names) {
     console.log(name);
   }
 
-  // @ts-expect-error // red squiggly line
+  // @ts-expect-error
   names.push("John");
 
-  // @ts-expect-error // red squiggly line
+  // @ts-expect-error
   names[0] = "Billy";
 }
 ```
@@ -393,9 +419,19 @@ Given that `pop` removes the last element from an array, calling `dangerousFunct
 
 Currently, TypeScript does not alert us to this potential issue, as seen by the error line under `@ts-expect-error`:
 
-```typescript
+```ts twoslash
+// @errors: 2578
+type Coordinate = [number, number];
+const myHouse: Coordinate = [0, 0];
+
+const dangerousFunction = (arrayOfNumbers: number[]) => {
+  arrayOfNumbers.pop();
+  arrayOfNumbers.pop();
+};
+
+// ---cut---
 dangerousFunction(
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   myHouse,
 );
 ```
@@ -504,20 +540,18 @@ type Coordinate = readonly [number, number];
 
 Now, `dangerousFunction` throws a TypeScript error when we try to pass `myHouse` to it:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+type Coordinate = readonly [number, number];
+const myHouse: Coordinate = [0, 0];
+
+// ---cut---
 const dangerousFunction = (arrayOfNumbers: number[]) => {
   arrayOfNumbers.pop();
   arrayOfNumbers.pop();
 };
 
-dangerousFunction(
-  // @ts-expect-error
-  myHouse, // red squiggly line under myHouse
-);
-
-// hovering over myHouse shows:
-// Argument of type 'Coordinate' is not assignable to parameter of type 'number[]'.
-//   The type 'Coordinate' is 'readonly' and cannot be assigned to the mutable type 'number[]'.
+dangerousFunction(myHouse);
 ```
 
 We get an error because the function's signature expects a modifiable array of numbers, but `myHouse` is a read-only tuple. TypeScript is protecting us against unwanted changes.
@@ -562,8 +596,14 @@ The `as const` assertion has made the entire object deeply read-only, including 
 
 Attempting to change the `status` property will result in an error:
 
-```typescript
-albumAttributes.status = "new-release"; // red squiggly line under status
+```ts twoslash
+// @errors: 2540
+const albumAttributes = {
+  status: "on-sale",
+} as const;
+
+// ---cut---
+albumAttributes.status = "new-release";
 ```
 
 This makes `as const` ideal for large config objects that you don't expect to change.
@@ -631,13 +671,26 @@ const shelfLocations: Readonly<{
 }>;
 ```
 
-Recall that the `Readonly` modifier only works on the _first level_ of an object. If we try to add a new `backWall` property to the `shelfLocations` object, TypeScript will throw an error:
+Recall that the `Readonly` modifier only works on the _first level_ of an object. If we try to modify the `frontCounter` property, TypeScript will throw an error:
 
-```typescript
-shelfLocations.backWall = { status: "on-sale" }; // red squiggly line under backWall
+```ts twoslash
+// @errors: 2540
+const shelfLocations = Object.freeze({
+  entrance: {
+    status: "on-sale",
+  },
+  frontCounter: {
+    status: "staff-pick",
+  },
+  endCap: {
+    status: "new-release",
+  },
+});
 
-// hovering over backWall shows:
-// Property 'backWall' does not exist on type 'Readonly<{ entrance: { status: string; }; frontCounter: { status: string; }; endCap: { status: string; }; }>'
+// ---cut---
+shelfLocations.frontCounter = {
+  status: "new-release",
+};
 ```
 
 However, we are able to change the nested `status` property of a specific location:
@@ -650,7 +703,7 @@ This is in line with how `Object.freeze` works in JavaScript. It only makes the 
 
 Using `as const` makes the entire object deeply read-only, including all nested properties:
 
-```typescript
+```ts twoslash
 const shelfLocations = {
   entrance: {
     status: "on-sale",
@@ -663,18 +716,8 @@ const shelfLocations = {
   },
 } as const;
 
-// hovering over shelfLocations shows:
-const shelfLocations: {
-  readonly entrance: {
-    readonly status: "on-sale";
-  };
-  readonly frontCounter: {
-    readonly status: "staff-pick";
-  };
-  readonly endCap: {
-    readonly status: "new-release";
-  };
-};
+console.log(shelfLocations);
+//          ^?
 ```
 
 Of course, this is just a type-level annotation. `Object.freeze` gives you runtime immutability, while `as const` gives you type-level immutability. I actually prefer the latter - doing less work at runtime is always a good thing.
@@ -707,12 +750,27 @@ const fetchData = async () => {
 
 Here's an async `example` function that uses `fetchData` and includes a couple of test cases:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+const fetchData = async () => {
+  const result = await fetch("/");
+
+  if (!result.ok) {
+    return [new Error("Could not fetch data.")];
+  }
+
+  const data = await result.json();
+
+  return [undefined, data];
+};
+// ---cut---
 const example = async () => {
   const [error, data] = await fetchData();
 
   type Tests = [
-    Expect<Equal<typeof error, Error | undefined>>, // red squiggly line under Equal<>
+    Expect<Equal<typeof error, Error | undefined>>,
     Expect<Equal<typeof data, any>>,
   ];
 };
@@ -740,7 +798,8 @@ Let's revisit a previous exercise and evolve our solution.
 
 The `modifyButtons` function accepts an array of objects with a `type` property:
 
-```typescript
+```ts twoslash
+// @errors: 2345
 type ButtonAttributes = {
   type: "button" | "submit" | "reset";
 };
@@ -756,7 +815,7 @@ const buttonsToChange = [
   },
 ];
 
-modifyButtons(buttonsToChange); // red squiggly line under buttonsToChange
+modifyButtons(buttonsToChange);
 ```
 
 Previously, the error was solved by updating `buttonsToChange` to be specified as an array of `ButtonAttributes`:
