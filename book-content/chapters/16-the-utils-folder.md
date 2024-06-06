@@ -26,10 +26,9 @@ const set = new Set<number>([1, 2, 3]);
 
 We pass the type in the angle brackets, and the value in the parentheses. This is because `new Set()` is a generic function. A function that can't receive types is a regular function, like `JSON.parse`:
 
-```typescript
+```ts twoslash
+// @errors: 2558
 const obj = JSON.parse<{ hello: string }>('{"hello": "world"}');
-// Red squiggly line under { hello: string }
-// Expected 0 type arguments, but got 1.
 ```
 
 Here, TypeScript is telling us that `JSON.parse` doesn't accept type arguments, because it's not generic.
@@ -87,13 +86,11 @@ It's all about the position of the type parameter. If it's attached to the type'
 
 When we looked at generic types, we saw that TypeScript _requires_ you to pass in all type arguments when you use a generic type:
 
-```typescript
+```ts twoslash
+// @errors: 2314
 type StringArray = Array<string>;
 
-type AnyArray = Array; // Red squiggly line under Array
-
-// Hovering over Array shows:
-// Generic type 'Array<T>' requires 1 type argument(s).
+type AnyArray = Array;
 ```
 
 This is not true of generic functions. If you don't pass a type argument to a generic function, TypeScript won't complain:
@@ -112,19 +109,30 @@ Our `identity` function above simply takes in an argument and returns it. We've 
 
 So, `result` will be typed as `42`:
 
-```typescript
+```ts twoslash
+function identity<T>(arg: T): T {
+  return arg;
+}
+// ---cut---
 const result = identity(42);
-
-// Hovering over result shows:
-// const result: 42
+//    ^?
 ```
 
 This means that every time the function is called, it can potentially return a different type:
 
-```typescript
-const result1 = identity("hello"); // result1: 'hello'
-const result2 = identity({ hello: "world" }); // result2: { hello: 'world' }
-const result3 = identity([1, 2, 3]); // result3: number[]
+```ts twoslash
+function identity<T>(arg: T): T {
+  return arg;
+}
+// ---cut---
+const result1 = identity("hello");
+//    ^?
+
+const result2 = identity({ hello: "world" });
+//    ^?
+
+const result3 = identity([1, 2, 3]);
+//    ^?
 ```
 
 This ability means that your functions can understand what types they're working with, and alter their suggestions and errors accordingly. It's TypeScript at its most powerful and flexible.
@@ -135,11 +143,13 @@ Let's go back to specifying type arguments instead of inferring them. What happe
 
 Let's try it with our `identity` function:
 
-```typescript
-const result = identity<string>(42); // Red squiggly line under 42
-
-// Hovering over 42 shows:
-// Argument of type '42' is not assignable to parameter of type 'string'.
+```ts twoslash
+// @errors: 2345
+function identity<T>(arg: T): T {
+  return arg;
+}
+// ---cut---
+const result = identity<string>(42);
 ```
 
 Here, TypeScript is telling us that `42` is not a `string`. This is because we've explicitly told TypeScript that `T` should be a `string`, which conflicts with the runtime argument.
@@ -184,11 +194,14 @@ const getFirstElement = (arr: any[]) => {
 
 This function is dangerous. Because it takes an array of `any`, it means that the thing we get back from `getFirstElement` is also `any`:
 
-```typescript
-const first = getFirstElement([1, 2, 3]);
+```ts twoslash
+const getFirstElement = (arr: any[]) => {
+  return arr[0];
+};
 
-// Hovering over first shows:
-const first: any;
+// ---cut---
+const first = getFirstElement([1, 2, 3]);
+//    ^?
 ```
 
 As we've seen, `any` can cause havoc in your code. Anyone who uses this function will be unwittingly opting out of TypeScript's type safety. So, how can we fix this?
@@ -207,15 +220,15 @@ Just like generic functions, it's common to prefix your type parameters with `T`
 
 Now when we call `getFirstElement`, TypeScript will infer the type of `` based on the argument we pass in:
 
-```typescript
+```ts twoslash
+const getFirstElement = <TMember>(arr: TMember[]) => {
+  return arr[0];
+};
+// ---cut---
 const firstNumber = getFirstElement([1, 2, 3]);
+//    ^?
 const firstString = getFirstElement(["a", "b", "c"]);
-
-// hovering over firstNumber shows:
-const firstNumber: number | undefined;
-
-// hovering over firstString shows:
-const firstString: string | undefined;
+//    ^?
 ```
 
 Now, we've made `getFirstElement` type-safe. The type of the array we pass in is the type of the thing we get back.
@@ -226,11 +239,13 @@ When you're working with generic functions, it can be hard to know what type Typ
 
 When we call the `getFirstElement` function, we can hover over the function name to see what TypeScript has inferred:
 
-```typescript
+```ts twoslash
+const getFirstElement = <TMember>(arr: TMember[]) => {
+  return arr[0];
+};
+// ---cut---
 const first = getFirstElement([1, 2, 3]);
-
-// Hovering over getFirstElement shows:
-// const getFirstElement: <number>(arr: number[]) => number
+//            ^?
 ```
 
 We can see that within the angle brackets, TypeScript has inferred that `TMember` is `number`, because we passed in an array of numbers.
@@ -249,24 +264,36 @@ const createSet = <T = string>(arr?: T[]) => {
 
 Here, we set the default type of `T` to `string`. This means that if we don't pass in a type argument, TypeScript will assume `T` is `string`:
 
-```typescript
-const defaultSet = createSet(); // Set<string>
+```ts twoslash
+const createSet = <T = string>(arr?: T[]) => {
+  return new Set(arr);
+};
+// ---cut---
+const defaultSet = createSet();
+//    ^?
 ```
 
 The default doesn't impose a constraint on the type of `T`. This means we can still pass in any type we want:
 
-```typescript
-const numberSet = createSet<number>([1, 2, 3]); // Set<number>
+```ts twoslash
+const createSet = <T = string>(arr?: T[]) => {
+  return new Set(arr);
+};
+// ---cut---
+
+const numberSet = createSet<number>([1, 2, 3]);
+//    ^?
 ```
 
 If we don't specify a default, and TypeScript can't infer the type from the runtime arguments, it will default to `unknown`:
 
-```typescript
+```ts twoslash
 const createSet = <T>(arr?: T[]) => {
   return new Set(arr);
 };
 
-const unknownSet = createSet(); // Set<unknown>
+const unknownSet = createSet();
+//    ^?
 ```
 
 Here, we've removed the default type of `T`, and TypeScript has defaulted to `unknown`.
@@ -277,14 +304,12 @@ You can also add constraints to type parameters in generic functions. This can b
 
 Let's imagine a `removeId` function that takes an object and removes the `id` property:
 
-```typescript
+```ts twoslash
+// @errors: 2339
 const removeId = <TObj>(obj: TObj) => {
-  const { id, ...rest } = obj; // red squiggly line under id
+  const { id, ...rest } = obj;
   return rest;
 };
-
-// hovering over id shows:
-// Property 'id' does not exist on type 'unknown'.
 ```
 
 Our `TObj` type parameter, when used without a constraint, is treated as `unknown`. This means that TypeScript doesn't know if `id` exists on `obj`.
@@ -300,26 +325,26 @@ const removeId = <TObj extends { id: unknown }>(obj: TObj) => {
 
 Now, when we use `removeId`, TypeScript will error if we don't pass in an object with an `id` property:
 
-```typescript
-const result = removeId({ name: "Alice" }); // red squiggly line under name
-
-// hovering over name shows:
-// Object literal may only specify known properties, and 'name' does not exist in type '{ id: unknown; }'
+```ts twoslash
+// @errors: 2353
+const removeId = <TObj extends { id: unknown }>(obj: TObj) => {
+  const { id, ...rest } = obj;
+  return rest;
+};
+// ---cut---
+const result = removeId({ name: "Alice" });
 ```
 
 But if we pass in an object with an `id` property, TypeScript will know that `id` has been removed:
 
-```typescript
+```ts twoslash
+const removeId = <TObj extends { id: unknown }>(obj: TObj) => {
+  const { id, ...rest } = obj;
+  return rest;
+};
+// ---cut---
 const result = removeId({ id: 1, name: "Alice" });
-
-// hovering over result shows:
-const result: Omit<
-  {
-    id: number;
-    name: string;
-  },
-  "id"
->;
+//    ^?
 ```
 
 Note how clever TypeScript is being here. Even though we didn't specify a return type for `removeId`, TypeScript has inferred that `result` is an object with all the properties of the input object, except `id`.
@@ -360,17 +385,27 @@ function isAlbum(
 
 This is technically correct: a big intersection between an `object` and a bunch of `Record`s. But it's not very helpful.
 
-When we try to use `isAlbum` to narrow the type of a value, TypeScript will infer lots of the values as `unknown`:
+When we try to use `isAlbum` to narrow the type of a value, TypeScript won't infer it correctly:
 
-```typescript
+```ts twoslash
+// @errors: 18046
+function isAlbum(input: unknown) {
+  return (
+    typeof input === "object" &&
+    input !== null &&
+    "id" in input &&
+    "title" in input &&
+    "artist" in input &&
+    "year" in input
+  );
+}
+
+// ---cut---
 const run = (maybeAlbum: unknown) => {
   if (isAlbum(maybeAlbum)) {
-    maybeAlbum.name.toUpperCase(); // red squiggly line under name
+    maybeAlbum.name.toUpperCase();
   }
 };
-
-// hovering over name shows:
-// Object is of type 'unknown'.
 ```
 
 To fix this, we'd need to add even more checks to `isAlbum` to ensure we're checking the types of all the properties:
@@ -456,14 +491,35 @@ The `assertIsAlbum` function takes in a `input` of type `unknown` and asserts th
 
 This means that the narrowing is more aggressive. Instead of checking within an `if` statement, the function call itself is enough to assert that the `input` is an `Album`.
 
-```typescript
+```ts twoslash
+type Album = {
+  id: number;
+  title: string;
+  artist: string;
+  year: number;
+};
+
+function assertIsAlbum(input: unknown): asserts input is Album {
+  if (
+    typeof input === "object" &&
+    input !== null &&
+    "id" in input &&
+    "title" in input &&
+    "artist" in input &&
+    "year" in input
+  ) {
+    throw new Error("Not an Album!");
+  }
+}
+// ---cut---
 function getAlbumTitle(item: unknown) {
-  // 'item' is unknown here
+  console.log(item);
+  //          ^?
 
   assertIsAlbum(item);
 
-  // After the assertion, 'item' is narrowed to 'Album'
   console.log(item.title);
+  //          ^?
 }
 ```
 
@@ -486,9 +542,8 @@ let item = null;
 
 assertIsAlbum(item);
 
-// 'item' is now narrowed to 'Album', even though it's
-// null at runtime
 item.title;
+// ^?
 ```
 
 In this case, the `assertIsAlbum` function doesn't check for the required properties of an `Album` - it just checks if `typeof input` is `"object"`. This means we've left ourselves open to a stray `null`. The famous JavaScript quirk where `typeof null === 'object'` will cause a runtime error when we try to access the `title` property.
@@ -507,17 +562,14 @@ For the `searchMusic` example, we want to allow users to search by providing an 
 
 Here's how we could define these function overload signatures. The first signature takes in three separate arguments, while the second signature takes in a single object with the properties:
 
-```typescript
+```ts twoslash
+// @errors: 2391
 function searchMusic(artist: string, genre: string, year: number): void;
 function searchMusic(criteria: {
-  // red squiggly line under searchMusic
   artist: string;
   genre: string;
   year: number;
 }): void;
-
-// Hovering over searchMusic shows:
-// Function implementation is missing or not immediately following the declaration.
 ```
 
 But we're getting an error. We've declared some ways this function should be declared, but we haven't provided the implementation yet.
@@ -567,9 +619,21 @@ searchMusic({
 
 However, TypeScript will warn us if we attempt to pass in an argument that doesn't match any of the defined overloads:
 
-```typescript
+```ts twoslash
+// @errors: 2575
+function searchMusic(artist: string, genre: string, year: number): void;
+function searchMusic(criteria: {
+  artist: string;
+  genre: string;
+  year: number;
+}): void;
+function searchMusic(
+  artistOrCriteria: string | { artist: string; genre: string; year: number },
+  genre?: string,
+  year?: number,
+): void {}
+// ---cut---
 searchMusic(
-  // red squiggly line under searchMusic
   {
     artist: "Tame Impala",
     genre: "Psychedelic Rock",
@@ -577,9 +641,6 @@ searchMusic(
   },
   "Psychedelic Rock",
 );
-
-// Hovering over searchMusic shows:
-// No overload expects 2 arguments, but overloads do exist that expect either 1 or 3 arguments.
 ```
 
 This error shows us that we're trying to call `searchMusic` with two arguments, but the overloads only expect one or three arguments.
@@ -622,37 +683,48 @@ As it currently stands, we get back a `Map<any, any>`. However, the goal is to m
 
 For example, if we pass in `number` as the type argument, the function should return a `Map` with values of type `number`:
 
-```typescript
-const numberMap = createStringMap<number>(); // red squiggly line under number
+```ts twoslash
+// @errors: 2558 2578
+const createStringMap = () => {
+  return new Map();
+};
+// ---cut---
+const numberMap = createStringMap<number>();
 
 numberMap.set("foo", 123);
-numberMap.set(
-  "bar",
-  // @ts-expect-error
-  true,
-);
 ```
 
 Likewise, if we pass in an object type, the function should return a `Map` with values of that type:
 
-```typescript
-const objMap = createStringMap<{ a: number }>(); // red squiggly line under { a: number }
+```ts twoslash
+// @errors: 2558 2578
+const createStringMap = () => {
+  return new Map();
+};
+// ---cut---
+const objMap = createStringMap<{ a: number }>();
 
 objMap.set("foo", { a: 123 });
 
 objMap.set(
   "bar",
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   { b: 123 },
 );
 ```
 
 The function should also default to `unknown` if no type is provided:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+const createStringMap = () => {
+  return new Map();
+};
+// ---cut---
 const unknownMap = createStringMap();
 
-type test = Expect<Equal<typeof unknownMap, Map<string, unknown>>>; // red squiggly line under Equal<>
+type test = Expect<Equal<typeof unknownMap, Map<string, unknown>>>;
 ```
 
 Your task is to transform `createStringMap` into a generic function capable of accepting a type argument to describe the values of Map. Make sure it functions as expected for the provided test cases.
@@ -684,11 +756,18 @@ The function accepts an array as an argument, then converts it to a `Set`, then 
 
 While this function operates effectively at runtime, it lacks type safety. It transforms any array passed in into `any[]`.
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+import { it, expect } from "vitest";
+const uniqueArray = (arr: any[]) => {
+  return Array.from(new Set(arr));
+};
+// ---cut---
 it("returns an array of unique values", () => {
   const result = uniqueArray([1, 1, 2, 3, 4, 4, 5]);
 
-  type test = Expect<Equal<typeof result, number[]>>; // red squiggly line under Equal<>
+  type test = Expect<Equal<typeof result, number[]>>;
 
   expect(result).toEqual([1, 2, 3, 4, 5]);
 });
@@ -696,7 +775,7 @@ it("returns an array of unique values", () => {
 it("should work on strings", () => {
   const result = uniqueArray(["a", "b", "b", "c", "c", "c"]);
 
-  type test = Expect<Equal<typeof result, string[]>>; // red squiggly line under Equal<>
+  type test = Expect<Equal<typeof result, string[]>>;
 
   expect(result).toEqual(["a", "b", "c"]);
 });
@@ -712,29 +791,40 @@ Adjust the function and insert the necessary type annotations to ensure that the
 
 Consider this function `addCodeToError`, which accepts a type parameter `TError` and returns an object with a `code` property:
 
-```typescript
+```ts twoslash
+// @errors: 2339
 const UNKNOWN_CODE = 8000;
 
 const addCodeToError = <TError>(error: TError) => {
   return {
     ...error,
-    code: error.code ?? UNKNOWN_CODE, // red squiggly line under code
+    code: error.code ?? UNKNOWN_CODE,
   };
 };
-
-// hovering over code shows
-// Property 'code' does not exist on type 'TError'.
 ```
 
 If the incoming error doesn't include a `code`, the function assigns a default `UNKNOWN_CODE`. Currently there is an error under the `code` property.
 
 Currently, there are no constraints on `TError`, which can be of any type. This leads to errors in our tests:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+import { it, expect } from "vitest";
+
+const UNKNOWN_CODE = 8000;
+
+const addCodeToError = <TError>(error: TError) => {
+  return {
+    ...error,
+    code: (error as any).code ?? UNKNOWN_CODE,
+  };
+};
+// ---cut---
 it("Should accept a standard error", () => {
   const errorWithCode = addCodeToError(new Error("Oh dear!"));
 
-  type test1 = Expect<Equal<typeof errorWithCode, Error & { code: number }>>; // red squiggly line under Equal<>
+  type test1 = Expect<Equal<typeof errorWithCode, Error & { code: number }>>;
 
   console.log(errorWithCode.message);
 
@@ -759,7 +849,7 @@ it("Should accept a custom error", () => {
         code: number;
       }
     >
-  >; // red squiggly line under Equal<>
+  >;
 
   type test4 = Expect<Equal<typeof customErrorWithCode.message, string>>;
 });
@@ -795,7 +885,26 @@ The `PromiseFunc` type is currently set to always return `Promise<any>`. This me
 
 There are several tests that are failing due to these issues:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+import { it, expect } from "vitest";
+
+type PromiseFunc = () => Promise<any>;
+
+const safeFunction = (func: PromiseFunc) => async () => {
+  try {
+    const result = await func();
+    return result;
+  } catch (e) {
+    if (e instanceof Error) {
+      return e;
+    }
+    throw e;
+  }
+};
+
+// ---cut---
 it("should return an error if the function throws", async () => {
   const func = safeFunction(async () => {
     if (Math.random() > 0.5) {
@@ -833,25 +942,48 @@ Your task is to update `safeFunction` to have a generic type parameter, and upda
 After making the `safeFunction` generic in Exercise 5, it's been updated to allow for passing arguments:
 
 ```typescript
-// inside of safeFunction
-async (...args: any[]) => {
-  try {
-    const result = await func(...args);
-    return result;
-  } catch (e) {
-    if (e instanceof Error) {
-      return e;
+const safeFunction =
+  <TResult>(func: PromiseFunc<TResult>) =>
+  async (...args: any[]) => {
+    //   ^^^^^^^^^^^^^^ Now can receive args!
+    try {
+      const result = await func(...args);
+      return result;
+    } catch (e) {
+      if (e instanceof Error) {
+        return e;
+      }
+      throw e;
     }
-    throw e;
-  }
-};
+  };
 ```
 
 Now that the function being passed into `safeFunction` can receive arguments, the function we get back should _also_ contain those arguments and require you to pass them in.
 
 However, as seen in the tests, this isn't working:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+import { it, expect } from "vitest";
+
+type PromiseFunc<T> = (...args: any[]) => Promise<T>;
+
+const safeFunction =
+  <TResult>(func: PromiseFunc<TResult>) =>
+  async (...args: any[]) => {
+    //   ^^^^^^^^^^^^^^ Now can receive args!
+    try {
+      const result = await func(...args);
+      return result;
+    } catch (e) {
+      if (e instanceof Error) {
+        return e;
+      }
+      throw e;
+    }
+  };
+// ---cut---
 it("should return the result if the function succeeds", async () => {
   const func = safeFunction((name: string) => {
     return Promise.resolve(`hello ${name}`);
@@ -859,7 +991,8 @@ it("should return the result if the function succeeds", async () => {
 
   type test1 = Expect<
     Equal<typeof func, (name: string) => Promise<Error | string>>
-  >; // red squiggly line under Equal<>
+  >;
+});
 ```
 
 For example, in the above test the `name` isn't being inferred as a parameter of the function returned by `safeFunction`. Instead, it's actually saying that we can pass in as many arguments as we want to into the function, which isn't correct.
@@ -873,7 +1006,27 @@ Your task is to add a second type parameter to `PromiseFunc` and `safeFunction` 
 
 As seen in the tests, there are cases where no parameters are necessary, and others where a single parameter is needed:
 
-```typescript
+```ts twoslash
+// @errors: 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+import { it, expect } from "vitest";
+
+type PromiseFunc<T> = (...args: any[]) => Promise<T>;
+
+const safeFunction =
+  <TResult>(func: PromiseFunc<TResult>) =>
+  async (...args: any[]) => {
+    try {
+      const result = await func(...args);
+      return result;
+    } catch (e) {
+      if (e instanceof Error) {
+        return e;
+      }
+      throw e;
+    }
+  };
+// ---cut---
 it("should return an error if the function throws", async () => {
   const func = safeFunction(async () => {
     if (Math.random() > 0.5) {
@@ -882,7 +1035,7 @@ it("should return an error if the function throws", async () => {
     return 123;
   });
 
-  type test1 = Expect<Equal<typeof func, () => Promise<Error | number>>>; // red squiggly line under Equal<>
+  type test1 = Expect<Equal<typeof func, () => Promise<Error | number>>>;
 
   const result = await func();
 
@@ -896,7 +1049,7 @@ it("should return the result if the function succeeds", async () => {
 
   type test1 = Expect<
     Equal<typeof func, (name: string) => Promise<Error | string>>
-  >; // red squiggly line under Equal<>
+  >;
 
   const result = await func("world");
 
@@ -939,24 +1092,38 @@ In the `handleRequest` function, we call `assertIsAdminUser` and expect the type
 
 But as seen in this test case, it doesn't work as expected:
 
-```typescript
+```ts twoslash
+// @errors: 2344 2339
+import { Equal, Expect } from "@total-typescript/helpers";
+
+interface User {
+  id: string;
+  name: string;
+}
+
+interface AdminUser extends User {
+  roles: string[];
+}
+
+function assertIsAdminUser(user: User | AdminUser) {
+  if (!("roles" in user)) {
+    throw new Error("User is not an admin");
+  }
+}
+
+// ---cut---
 const handleRequest = (user: User | AdminUser) => {
   type test1 = Expect<Equal<typeof user, User | AdminUser>>;
 
   assertIsAdminUser(user);
 
-  type test2 = Expect<Equal<typeof user, AdminUser>>; // red squiggly line under Equal<>
+  type test2 = Expect<Equal<typeof user, AdminUser>>;
 
-  user.roles; // red squiggly line under roles
+  user.roles;
 };
 ```
 
 The `user` type is `User | AdminUser` before `assertIsAdminUser` is called, but it doesn't get narrowed down to just `AdminUser` after the function is called. This means we can't access the `roles` property.
-
-```typescript
-// hovering over .roles shows:
-Property 'roles' does not exist on type 'User | AdminUser'.
-```
 
 Your task is to update the `assertIsAdminUser` function with the proper type assertion so that the `user` is identified as an `AdminUser` after the function is called.
 
@@ -1027,11 +1194,16 @@ const stringMap: Map<string, string>;
 
 If we attempt to assign a number as a value, TypeScript gives us an error because it expects a string:
 
-```typescript
-stringMap.set(
-  "bar",
-  123, // red squiggly line under 123
-);
+```ts twoslash
+// @errors: 2345
+const createStringMap = <T = string>() => {
+  return new Map<string, T>();
+};
+
+const stringMap = createStringMap();
+
+// ---cut---
+stringMap.set("bar", 123);
 ```
 
 However, we can still override the default type by providing a type argument when calling the function:
@@ -1063,11 +1235,14 @@ const uniqueArray = <T>(arr: any[]) => {
 
 Now when we hover over a call to `uniqueArray`, we can see that it is inferring the type as `unknown`:
 
-```typescript
-const result = uniqueArray([1, 1, 2, 3, 4, 4, 5]);
+```ts twoslash
+const uniqueArray = <T>(arr: any[]) => {
+  return Array.from(new Set(arr));
+};
 
-// hovering over uniqueArray shows:
-const uniqueArray: <unknown>(arr: any[]) => any[];
+// ---cut---
+const result = uniqueArray([1, 1, 2, 3, 4, 4, 5]);
+//             ^?
 ```
 
 This is because we haven't passed any type arguments to it. If there's no type argument and no default, it defaults to unknown.
@@ -1078,27 +1253,33 @@ So what we'll do is add a return type of `T[]` to the function:
 
 ```typescript
 const uniqueArray = <T>(arr: any[]): T[] => {
-  ...
+  return Array.from(new Set(arr));
+};
 ```
 
 Now the result of `uniqueArray` is inferred as an `unknown` array:
 
-```typescript
-const result = uniqueArray([1, 1, 2, 3, 4, 4, 5]);
+```ts twoslash
+const uniqueArray = <T>(arr: any[]): T[] => {
+  return Array.from(new Set(arr));
+};
 
-// hovering over uniqueArray shows:
-const uniqueArray: <unknown>(arr: any[]) => unknown[];
+// ---cut---
+const result = uniqueArray([1, 1, 2, 3, 4, 4, 5]);
+//    ^?
 ```
 
 Again, the reason for this is that we haven't passed any type arguments to it. If there's no type argument and no default, it defaults to unknown.
 
 If we add a `<number>` type argument to the call, the `result` will now be inferred as a number array:
 
-```typescript
+```ts twoslash
+const uniqueArray = <T>(arr: any[]): T[] => {
+  return Array.from(new Set(arr));
+};
+// ---cut---
 const result = uniqueArray<number>([1, 1, 2, 3, 4, 4, 5]);
-
-// hovering over uniqueArray shows:
-const uniqueArray: <number>(arr: any[]) => number[];
+//       ^?
 ```
 
 However, at this point there's no relationship between the things we're passing in and the thing we're getting out. Adding a type argument to the call returns an array of that type, but the `arr` parameter in the function itself is still typed as `any[]`.
@@ -1185,7 +1366,16 @@ With this update, we now need to update the `PromiseFunc` in the `safeFunction` 
 const safeFunction =
   <TResult>(func: PromiseFunc<TResult>) =>
   async () => {
-    ...
+    try {
+      const result = await func();
+      return result;
+    } catch (e) {
+      if (e instanceof Error) {
+        return e;
+      }
+      throw e;
+    }
+  };
 ```
 
 With these changes in place, when we hover over the `safeFunction` call in the first test, we can see that the type argument is inferred as `number` as expected:
@@ -1257,23 +1447,27 @@ The solution is to add a type annotation onto the return type of `assertIsAdminU
 
 If it was a type predicate, we would say `user is AdminUser`:
 
-```typescript
+```ts twoslash
+// @errors: 2355
+type User = {
+  id: string;
+  name: string;
+};
+type AdminUser = {
+  id: string;
+  name: string;
+  roles: string[];
+};
+
+// ---cut---
 function assertIsAdminUser(user: User): user is AdminUser {
-  // red squiggly line under user is AdminUser
   if (!("roles" in user)) {
     throw new Error("User is not an admin");
   }
 }
 ```
 
-However, this leads to an error under `user is AdminUser`:
-
-```typescript
-// hovering over user is AdminUser shows:
-A function whose declared type is neither 'undefined', 'void', nor 'any' must return a value.
-```
-
-We get this error because `assertIsAdminUser` is returning `void`, which is different from a type predicate that requires you to return a Boolean.
+However, this leads to an error. We get this error because `assertIsAdminUser` is returning `void`, which is different from a type predicate that requires you to return a Boolean.
 
 Instead, we need to add the `asserts` keyword to the return type:
 
