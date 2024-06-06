@@ -8,11 +8,9 @@ While most of the time we want to have our types remain static, it is possible t
 
 To start, use `let` to declare the variable without a type, and TypeScript will infer it as `any`:
 
-```tsx
+```ts twoslash
 let myVar;
-
-// hovering over myVar shows:
-let myVar: any;
+//  ^?
 ```
 
 Now the `myVar` variable will take on the inferred type of whatever is assigned to it.
@@ -35,13 +33,21 @@ This is like an advanced form of narrowing, where the type of the variable is na
 
 This technique of using the evolving `any` also works with arrays. When you declare an array without a specific type, you can push various types of elements to it:
 
-```tsx
-const evolvingArray = []; // any[]
+```ts twoslash
+const evolvingArray = [];
+//    ^?
 
-evolvingArray.push("abc");  // string[];
-evolvingArray.push(123);    // (string | number)[];
-evolvingArray.push("do re mi"); // (string | number)[];
-evolvingArray.push({easy: true}; // (string | number | { easy: boolean })[];
+evolvingArray.push("abc");
+//    ^?
+
+evolvingArray.push(123);
+//    ^?
+
+evolvingArray.push("do re mi");
+//    ^?
+
+evolvingArray.push({ easy: true });
+//    ^?
 ```
 
 Even without specifying types, TypeScript is incredibly smart about picking up on your actions and the behavior you're pushing to evolving `any` types.
@@ -81,7 +87,15 @@ This seems strange! We would expect TypeScript to show an error for the excess `
 
 Even more strangely, when we pass the object _inline_, we do get an error:
 
-```tsx
+```ts twoslash
+// @errors: 2353
+type Album = {
+  title: string;
+  releaseYear: number;
+};
+const processAlbum = (album: Album) => console.log(album);
+
+// ---cut---
 processAlbum({
   title: "Rubber Soul",
   releaseYear: 1965,
@@ -117,7 +131,8 @@ fetch(options); // No error!
 
 In this case, TypeScript won't show an error, and you won't get the runtime behavior you expect. The only way to source the error would be to provide a type annotation for the `options` object:
 
-```tsx
+```ts twoslash
+// @errors: 2561
 const options: { timeout?: number } = {
   timeOut: 1000, // red squiggly line under timeOut
 };
@@ -162,13 +177,30 @@ Now, our `newAlbums` array will have an excess `strangeProperty` property on eac
 
 The way we'd get this 'working' is to add a return type annotation to our inline function:
 
-```tsx
+```ts twoslash
+// @errors: 2353
+type Album = {
+  title: string;
+  releaseYear: number;
+};
+
+const remapAlbums = (albums: Album[], remap: (album: Album) => Album) => {
+  return albums.map(remap);
+};
+
+const albums: Album[] = [
+  { title: "Rubber Soul", releaseYear: 1965 },
+  { title: "Revolver", releaseYear: 1966 },
+  { title: "Sgt. Pepper's Lonely Hearts Club Band", releaseYear: 1967 },
+];
+
+// ---cut---
 const newAlbums = remapAlbums(
   albums,
   (album): Album => ({
     ...album,
     releaseYear: album.releaseYear + 1,
-    strangeProperty: "This is strange", // red squiggly line under strangeProperty
+    strangeProperty: "This is strange",
   }),
 );
 ```
@@ -221,25 +253,32 @@ A consequence of TypeScript having open object types is that iterating over the 
 
 In JavaScript, calling `Object.keys` with an object will return an array of strings representing the keys.
 
-```tsx
+```ts twoslash
 const yetiSeason = {
   title: "Yeti Season",
   artist: "El Michels Affair",
   releaseYear: 2021,
 };
 
-const keys = Object.keys(yetiSeason); // string[]
+const keys = Object.keys(yetiSeason);
+//    ^?
 ```
 
 In theory, you can then use those keys to access the values of the object:
 
-```tsx
+```ts twoslash
+// @errors: 7053
+const yetiSeason = {
+  title: "Yeti Season",
+  artist: "El Michels Affair",
+  releaseYear: 2021,
+};
+
+const keys = Object.keys(yetiSeason);
+// ---cut---
 keys.forEach((key) => {
   console.log(yetiSeason[key]); // Red squiggly line under key
 });
-
-// hovering over key shows:
-// Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ title: string; artist: string; releaseYear: number; }'.
 ```
 
 But we're getting an error. TypeScript is telling us that we can't use `string` to access the properties of `yetiSeason`.
@@ -248,15 +287,27 @@ The only way this would work would be if `key` was typed as `'title' | 'artist' 
 
 The reason for this comes back to `Object.keys` - it returns `string[]`, not `(keyof typeof obj)[]`.
 
-```tsx
-const keys = Object.keys(yetiSeason); // string[]
+```ts twoslash
+// @errors: 2304
+const keys = Object.keys(yetiSeason);
+//     ^?
 ```
 
 By the way, the same behavior happens with `for ... in` loops:
 
-```tsx
+```ts twoslash
+// @errors: 7053
+const yetiSeason = {
+  title: "Yeti Season",
+  artist: "El Michels Affair",
+  releaseYear: 2021,
+};
+
+const keys = Object.keys(yetiSeason);
+
+// ---cut---
 for (const key in yetiSeason) {
-  console.log(yetiSeason[key]); // Red squiggly line under key
+  console.log(yetiSeason[key]);
 }
 ```
 
@@ -290,11 +341,11 @@ submit("Oh Yeah");
 
 However, trying to call `submit` with `null` or `undefined` will result in a TypeScript error:
 
-```tsx
-submit(null); // red squiggly line under null
-
-// hovering over null shows:
-Argument of type 'undefined' is not assignable to parameter of type '{}'.
+```ts twoslash
+// @errors: 2345
+const submit = (homework: {}) => console.log(homework);
+// ---cut---
+submit(null);
 ```
 
 This might feel a bit strange. But it makes sense when you remember that TypeScript's objects are _open_. Imagine our success function actually took an object containing `message`. TypeScript would be happy if we passed it an excess property:
@@ -335,25 +386,28 @@ if (typeof key === "string" && (key as keyof typeof obj)) {
 
 But TypeScript treats this boundary very strictly. For instance, you can't use a type in the value world:
 
-```tsx
+```ts twoslash
+// @errors: 2693
+const processAlbum = (album: Album) => console.log(album);
+// ---cut---
 type Album = {
   title: string;
   artist: string;
 };
 
-processAlbum(Album); // red squiggly line under Album
-// Hovering over Album shows:
-// Cannot find name 'Album'.
+processAlbum(Album);
 ```
 
 As you can see, `Album` doesn't even exist in the value world, so TypeScript shows an error when we try to use it as one.
 
 Another common example is trying to pass a value directly to a type:
 
-```tsx
-type Album = ReturnType<processAlbum>; // red squiggly line under processAlbum
-// Hovering over processAlbum shows:
-// 'processAlbum' refers to a value, but is being used as a type here. Did you mean 'typeof processAlbum'?
+```ts twoslash
+// @errors: 2749
+const processAlbum = (album: Album) => console.log(album);
+
+// ---cut---
+type Album = ReturnType<processAlbum>;
 ```
 
 In this case, TypeScript suggests using `typeof processAlbum` instead of `processAlbum` to fix the error.
@@ -385,13 +439,27 @@ const playSong = (song: Song) =>
 
 This type refers to an _instance_ of the `Song` class, not the class itself:
 
-```tsx
+```ts twoslash
+// @errors: 2345
+class Song {
+  title: string;
+  artist: string;
+
+  constructor(title: string, artist: string) {
+    this.title = title;
+    this.artist = artist;
+  }
+}
+
+const playSong = (song: Song) =>
+  console.log(`Playing ${song.title} by ${song.artist}`);
+
+// ---cut---
 const song1 = new Song("Song 1", "Artist 1");
 
 playSong(song1);
 
-playSong(Song); // red squiggly line under Song
-// Argument of type 'typeof Song' is not assignable to parameter of type 'Song'.
+playSong(Song);
 ```
 
 In this case, TypeScript shows an error when we try to pass the `Song` class itself to the `playSong` function. This is because `Song` is a class, and not an instance of the class.
@@ -631,10 +699,19 @@ const album = {
 
 The type checking works in an odd way here - instead of checking `this` immediately, it checks it when the function is called:
 
-```tsx
-album.sellAlbum(); // Red squiggly line under album
-// Hovering over album shows:
-// The 'this' context of type '{ sellAlbum: (this: { title: string; sales: number; }) => void; }' is not assignable to method's 'this' of type '{ title: string; sales: number; }'.
+```ts twoslash
+// @errors: 2684
+function sellAlbum(this: { title: string; sales: number }) {
+  this.sales++;
+  console.log(`${this.title} has sold ${this.sales} copies.`);
+}
+
+const album = {
+  sellAlbum,
+};
+
+// ---cut---
+album.sellAlbum();
 ```
 
 We can fix this by adding the `title` and `sales` properties to the `album` object:
@@ -653,14 +730,11 @@ Now when we call the `sellAlbum` function, TypeScript will know that `this` refe
 
 Arrow functions, unlike, `function` keyword functions, can't be annotated with a `this` parameter:
 
-```typescript
+```ts twoslash
+// @errors: 2730
 const sellAlbum = (this: { title: string; sales: number }) => {
-  this.sales++;
-  console.log(`${this.title} has sold ${this.sales} copies.`);
+  // implementation
 };
-
-// red squiggly line under 'this' parameter
-// An arrow function cannot have a 'this' parameter.
 ```
 
 This is because arrow functions can't inherit `this` from the scope where they're called. Instead, they inherit `this` from the scope where they're _defined_. This means they can only access `this` when defined inside classes.
@@ -699,29 +773,37 @@ It might be tempting to type `CallbackType` as a union of the three different fu
 
 ```tsx
 type CallbackType =
-  | (filename: string) => void
-  | (filename: string, volume: number) => void
-  | (filename: string, volume: number, bassBoost: boolean) => void;
+  | ((filename: string) => void)
+  | ((filename: string, volume: number) => void)
+  | ((filename: string, volume: number, bassBoost: boolean) => void);
 
 const handlePlayer = (callback: CallbackType) => {
   // implementation
-}
+};
 ```
 
 However, this would result in an implicit `any` error when calling `handlePlayer` with both the single and double parameter callbacks:
 
-```tsx
-handlePlayer((filename) => console.log(`Playing ${filename}`)); // red squiggly line under filename
+```ts twoslash
+// @errors: 7006
+type CallbackType =
+  | ((filename: string) => void)
+  | ((filename: string, volume: number) => void)
+  | ((filename: string, volume: number, bassBoost: boolean) => void);
 
-handlePlayer((filename, volume) => console.log(`Playing ${filename} at volume ${volume}`)); // red squiggly line under filename and volume
+const handlePlayer = (callback: CallbackType) => {
+  // implementation
+};
+// ---cut---
+handlePlayer((filename) => console.log(`Playing ${filename}`));
+
+handlePlayer((filename, volume) =>
+  console.log(`Playing ${filename} at volume ${volume}`),
+);
 
 handlePlayer((filename, volume, bassBoost) => {
   console.log(`Playing ${filename} at volume ${volume} with bass boost on!`);
 }); // no errors
-
-
-// hovering over filename shows:
-Parameter 'filename' implicitly has an 'any' type.
 ```
 
 This union of functions obviously isn't working. There's a simpler solution.
@@ -752,13 +834,22 @@ Let's break it down. The callback passed to `handlePlayer` will be called with t
 
 If the callback accepts more arguments than are passed, TypeScript would show an error:
 
-```tsx
+```ts twoslash
+// @errors: 2345 7006
+type CallbackType = (
+  filename: string,
+  volume: number,
+  bassBoost: boolean,
+) => void;
+
+const handlePlayer = (callback: CallbackType) => {
+  // implementation
+};
+
+// ---cut---
 handlePlayer((filename, volume, bassBoost, extra) => {
   console.log(`Playing ${filename} at volume ${volume} with bass boost on!`);
-}); // red squiggly line under filename, volume, bassBoost, extra
-
-// hovering over filename shows:
-// Target signature provides too few arguments. Expected 4 or more, but got 3.
+});
 ```
 
 Since `extra` will never be passed to the callback, TypeScript shows an error.
@@ -818,18 +909,23 @@ const functionToCall:
 
 Surely, this means we should call it with a union of the three different types of `album` objects, right?
 
-```tsx
+```ts twoslash
+// @errors: 2345
+const formatterFunctions = {
+  title: (album: { title: string }) => `Title: ${album.title}`,
+  artist: (album: { artist: string }) => `Artist: ${album.artist}`,
+  releaseYear: (album: { releaseYear: number }) =>
+    `Release Year: ${album.releaseYear}`,
+};
+// ---cut---
 const getAlbumInfo = (
   album: { title: string } | { artist: string } | { releaseYear: number },
   key: keyof typeof formatterFunctions,
 ) => {
   const functionToCall = formatterFunctions[key];
 
-  return functionToCall(album); // red squiggly line under album
+  return functionToCall(album);
 };
-
-// hovering over album shows:
-// Argument of type '{ title: string; } | { artist: string; } | { releaseYear: number; }' is not assignable to parameter of type '{ title: string; } & { artist: string; } & { releaseYear: number; }'.
 ```
 
 We can see where we've gone wrong from the error. Instead of needing to be called with a union of the three different types of `album` objects, `functionToCall` actually needs to be called with an _intersection_ of them.
@@ -883,8 +979,9 @@ This situation is relatively easy to resolve because each parameter is compatibl
 
 Here we have a function `acceptAnythingExceptNullOrUndefined` that hasn't been assigned a type annotation yet:
 
-```typescript
-const acceptAnythingExceptNullOrUndefined = (input) => {}; // red squiggly line under input
+```ts twoslash
+// @errors: 7006
+const acceptAnythingExceptNullOrUndefined = (input) => {};
 ```
 
 This function can be called with a variety of inputs: strings, numbers, boolean expressions, symbols, objects, arrays, functions, regex, and an `Error` class instance:
@@ -905,13 +1002,16 @@ None of these inputs should throw an error.
 
 However, as the name of the function suggests, if we pass `null` or `undefined` to the function, we want it to throw an error.
 
-```typescript
+```ts twoslash
+// @errors: 2578
+const acceptAnythingExceptNullOrUndefined = (input: any) => {};
+// ---cut---
 acceptAnythingExceptNullOrUndefined(
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   null,
 );
 acceptAnythingExceptNullOrUndefined(
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   undefined,
 );
 ```
@@ -922,7 +1022,8 @@ Your task is to add a type annotation to the `acceptAnythingExceptNullOrUndefine
 
 In this exercise, we're dealing with an `options` object along `FetchOptions` interface which specifies `url`, `method`, `headers`, and `body`:
 
-```typescript
+```ts twoslash
+// @errors: 2578
 interface FetchOptions {
   url: string;
   method?: string;
@@ -936,7 +1037,7 @@ const options = {
   headers: {
     "Content-Type": "application/json",
   },
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   search: new URLSearchParams({
     limit: "10",
   }),
@@ -979,11 +1080,27 @@ const users = [
 
 A `usersWithIds` variable is typed as an array of `User`s. A `map()` function is used to spread the user into a newly created object, with an `id` and an `age` of 30:
 
-```typescript
+```ts twoslash
+// @errors: 2578
+interface User {
+  id: number;
+  name: string;
+}
+
+const users = [
+  {
+    name: "Waqas",
+  },
+  {
+    name: "Zain",
+  },
+];
+
+// ---cut---
 const usersWithIds: User[] = users.map((user, index) => ({
   ...user,
   id: index,
-  // @ts-expect-error // red squiggly line under @ts-expect-error
+  // @ts-expect-error
   age: 30,
 }));
 ```
@@ -1049,36 +1166,65 @@ listenToEvent(() => {});
 
 Alternatively, we could pass a function that expects a single parameter, `event`:
 
-```typescript
+```ts twoslash
+// @errors: 7006 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+type Event = "click" | "hover" | "scroll";
+
+type CallbackType = unknown;
+
+const listenToEvent = (callback: CallbackType) => {};
+
+// ---cut---
 listenToEvent((event) => {
-  // red squiggly line under event
-  type tests = [Expect<Equal<typeof event, Event>>]; // red squiggly line under Equal<>
+  type tests = [Expect<Equal<typeof event, Event>>];
 });
 ```
 
 Stepping up in complexity, we could call it with an `event`, `x`, and `y`:
 
-```typescript
+```ts twoslash
+// @errors: 7006 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+type Event = "click" | "hover" | "scroll";
+
+type CallbackType = unknown;
+
+const listenToEvent = (callback: CallbackType) => {};
+
+// ---cut---
 listenToEvent((event, x, y) => {
   // red squiggly line under event, x, and y
   type tests = [
-    Expect<Equal<typeof event, Event>>, // red squiggly line under Equal<>
-    Expect<Equal<typeof x, number>>, // red squiggly line under Equal<>
-    Expect<Equal<typeof y, number>>, // red squiggly line under Equal<>
+    Expect<Equal<typeof event, Event>>,
+    Expect<Equal<typeof x, number>>,
+    Expect<Equal<typeof y, number>>,
   ];
 });
 ```
 
 Finally, the function could take parameters `event`, `x`, `y`, and `screenID`:
 
-```typescript
+```ts twoslash
+// @errors: 7006 2344
+import { Equal, Expect } from "@total-typescript/helpers";
+
+type Event = "click" | "hover" | "scroll";
+
+type CallbackType = unknown;
+
+const listenToEvent = (callback: CallbackType) => {};
+
+// ---cut---
 listenToEvent((event, x, y, screenId) => {
   // red squiggly line under event, x, y, and screenId
   type tests = [
-    Expect<Equal<typeof event, Event>>, // red squiggly line under Equal<>
-    Expect<Equal<typeof x, number>>, // red squiggly line under Equal<>
-    Expect<Equal<typeof y, number>>, // red squiggly line under Equal<>
-    Expect<Equal<typeof screenId, number>>, // red squiggly line under Equal<>
+    Expect<Equal<typeof event, Event>>,
+    Expect<Equal<typeof x, number>>,
+    Expect<Equal<typeof y, number>>,
+    Expect<Equal<typeof screenId, number>>,
   ];
 });
 ```
@@ -1107,7 +1253,19 @@ const loggers = [logId, logName];
 
 Inside a `logAll` function, a currently untyped object is passed as a parameter. Each logger function from the `loggers` array is then invoked with this object:
 
-```typescript
+```ts twoslash
+// @errors: 7006
+const logId = (obj: { id: string }) => {
+  console.log(obj.id);
+};
+
+const logName = (obj: { name: string }) => {
+  console.log(obj.name);
+};
+
+const loggers = [logId, logName];
+
+// ---cut---
 const logAll = (obj) => {
   // red squiggly line under obj
   loggers.forEach((func) => func(obj));
@@ -1132,14 +1290,23 @@ A `format` function accepts an input that can either be a `string`, `number`, or
 
 Here's how it looks:
 
-```typescript
+```ts twoslash
+// @errors: 2345
+const objOfFunctions = {
+  string: (input: string) => input.toUpperCase(),
+  number: (input: number) => input.toFixed(2),
+  boolean: (input: boolean) => (input ? "true" : "false"),
+};
+
+// ---cut---
 const format = (input: string | number | boolean) => {
   // 'typeof' isn't smart enough to know that
-  // it can only be 'string', 'number', or 'boolean'
+  // it can only be 'string', 'number', or 'boolean',
+  // so we need to use 'as'
   const inputType = typeof input as "string" | "number" | "boolean";
   const formatter = objOfFunctions[inputType];
 
-  return formatter(input); // red squiggly line under input
+  return formatter(input);
 };
 ```
 
@@ -1153,14 +1320,7 @@ const formatter:
   | ((input: boolean) => "true" | "false");
 ```
 
-Currently there's an error on `input` in the return statement of the `format` function:
-
-```tsx
-// hovering over input shows:
-Argument of type 'string | number | boolean' is not assignable to parameter of type 'never'.
-```
-
-Your challenge is to resolve this error on the type level, even though the code works at runtime. Try to use an assertion for one solution, and a type guard for another.
+Currently there's an error on `input` in the return statement of the `format` function. Your challenge is to resolve this error on the type level, even though the code works at runtime. Try to use an assertion for one solution, and a type guard for another.
 
 A useful tidbit - `any` is not assignable to `never`.
 
@@ -1295,20 +1455,21 @@ Let's look at both looping approaches for the `printUser` function.
 
 The first approach is to use `Object.keys().forEach()` to iterate over the object keys. Inside the `forEach` callback, we'll access the value of the key by using the `key` variable:
 
-```tsx
+```ts twoslash
+// @errors: 7053
+type User = {
+  id: number;
+  name: string;
+};
+// ---cut---
 function printUser(user: User) {
   Object.keys(user).forEach((key) => {
-    console.log(user[key]); // red squiggly line under user[key]
+    console.log(user[key]);
   });
 }
 ```
 
-This change will have the test case passing, but TypeScript raises a type error on `user[key]`:
-
-```tsx
-// Hovering over user[key] shows:
-Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'User'.
-```
+This change will have the test case passing, but TypeScript raises a type error on `user[key]`.
 
 The issue is that the `User` interface doesn't have an index signature. In order to get around the type error without modifying the `User` interface, we can use a type assertion on `key` to tell TypeScript that it is of type `keyof User`:
 
@@ -1385,8 +1546,8 @@ By typing `CallbackType` with each of the possible parameters, the test cases wi
 
 Hovering over the `loggers.forEach()`, we can see that `func` is a union between two different types of functions:
 
-```tsx
-const logAll = (obj) => { // red squiggly line under obj
+```ts
+const logAll = (obj) => {
   loggers.forEach((func) => func(obj));
 };
 
@@ -1452,10 +1613,21 @@ This is a little unsafe, but we know from the runtime behavior that `input` will
 
 Funnily enough, `as any` won't work here because `any` is not assignable to `never`:
 
-```tsx
-// inside the format function
-return formatter(input as any); // red squiggly line under input
-// Argument of type 'any' is not assignable to parameter of type 'never'.
+```ts twoslash
+// @errors: 2345
+const objOfFunctions = {
+  string: (input: string) => input.toUpperCase(),
+  number: (input: number) => input.toFixed(2),
+  boolean: (input: boolean) => (input ? "true" : "false"),
+};
+
+// ---cut---
+const format = (input: string | number | boolean) => {
+  const inputType = typeof input as "string" | "number" | "boolean";
+  const formatter = objOfFunctions[inputType];
+
+  return formatter(input as any);
+};
 ```
 
 Another way to solve this issue is to give up on our union of functions by narrowing down the type of `input` before calling `formatter`:
