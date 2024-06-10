@@ -1,5 +1,3 @@
-# 02. IDE Superpowers
-
 TypeScript works the same no matter what IDE you use, but for this book we'll assume you're using Visual Studio Code (VS Code).
 
 When you open VS Code, the TypeScript server starts in the background. It will be active as long as you have a TypeScript file open.
@@ -70,6 +68,8 @@ acceptsObj({
 ```
 
 Practice using the autocomplete shortcut to fill in the object when calling `acceptsObj`.
+
+<Exercise title="Exercise 1: Autocomplete" filePath="/src/016.5-ide-superpowers/044-manually-triggering-autocomplete.problem.ts" />
 
 #### Solution 1: Autocomplete
 
@@ -282,6 +282,8 @@ let element = document.getElementById(12);
 
 How can hovering help to determine what argument `document.getElementById` actually requires? And for a bonus point, what type is `element`?
 
+<Exercise title="Exercise 1: Hovering a Function Call" filePath="/src/016.5-ide-superpowers/041-hovering-a-function-call.problem.ts" />
+
 #### Solution 1: Hovering a Function Call
 
 First of all, we can hover over the red squiggly error itself. In this case, hovering over `12`, we get the following error message:
@@ -360,6 +362,8 @@ const myFunction = (a: number, b: number) => {
 In order to understand what this function does, you'd have to read the code.
 
 Add some documentation to the function so that when you hover over it, you can read a description of what it does.
+
+<Exercise title="Exercise 1: Adding Documentation For Hovers" filePath="/src/016.5-ide-superpowers/042-adding-tsdoc-comments-for-hovers.problem.ts" />
 
 #### Solution 1: Adding Documentation for Hovers
 
@@ -507,6 +511,8 @@ The goal here is to refactor the logic that generates the random percentage into
 Highlight a variable, line, or entire code block then hit `Command + .` to open the Quick Fix menu. There will be several options for modifying the code, depending on where your cursor is when you open the menu.
 
 Experiment with different options to see how they affect the example function.
+
+<Exercise title="Exercise 1: Quick Fix Refactoring" filePath="/src/016.5-ide-superpowers/050-refactor.problem.ts" />
 
 ### Solution 1: Quick Fix Refactoring
 
