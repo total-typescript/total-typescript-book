@@ -4,3 +4,4 @@ tsconfig.temp.json
 *.prompt.*
 dist
 *.tsbuildinfo
+.twoslash-lint
