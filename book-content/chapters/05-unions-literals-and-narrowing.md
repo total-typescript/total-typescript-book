@@ -179,6 +179,11 @@ Normally we wouldn't explicitly call the `getUsername` function with `null`, but
 
 Currently, the `username` parameter only accepts a `string` type, and the check for `null` isn't doing anything. Update the function parameter's type so the errors are resolved and the function can handle `null` .
 
+<Exercise
+  title="Exercise 1: `string` or `null`"
+  filePath="/src/018-unions-and-narrowing/053-introduction-to-unions.problem.ts"
+/>
+
 #### Exercise 2: Restricting Function Parameters
 
 Here we have a `move` function that takes in a `direction` of type string, and a `distance` of type number:
@@ -226,6 +231,11 @@ move(
 ```
 
 Your challenge is to update the `move` function so that it only accepts the strings `"up"`, `"down"`, `"left"`, and `"right"`. This way, TypeScript will throw an error when we try to pass in any other string.
+
+<Exercise
+  title="Exercise 2: Restricting Function Parameters"
+  filePath="/src/018-unions-and-narrowing/054-literal-types.problem.ts"
+/>
 
 #### Solution 1: `string` or `null`
 
@@ -441,6 +451,11 @@ it("Should return false for null", () => {
 
 Your task is to rewrite the `validateUsername` function to add narrowing so that the `null` case is handled and the tests all pass.
 
+<Exercise
+  title="Exercise 1: Narrowing with `if` Statements"
+  filePath="/src/018-unions-and-narrowing/059-narrowing-with-if-statements.problem.ts"
+/>
+
 #### Exercise 2: Throwing Errors to Narrow
 
 Here we have a line of code that uses `document.getElementById` to fetch an HTML element, which can return either an `HTMLElement` or `null`:
@@ -462,6 +477,11 @@ type Test = Expect<Equal<typeof appElement, HTMLElement>>;
 ```
 
 Your task is to use `throw` to narrow down the type of `appElement` before it's checked by the test.
+
+<Exercise
+  title="Exercise 2: Throwing Errors to Narrow"
+  filePath="/src/018-unions-and-narrowing/062-throwing-errors-to-narrow.problem.ts"
+/>
 
 #### Exercise 3: Using `in` to Narrow
 
@@ -524,6 +544,11 @@ Property data does not exist on type 'APIResponse'.
 Your challenge is to find the correct syntax for narrowing down the types within the `handleResponse` function's `if` condition.
 
 The changes should happen inside of the function without modifying any other parts of the code.
+
+<Exercise
+  title="Exercise 3: Using `in` to Narrow"
+  filePath="/src/018-unions-and-narrowing/064-narrowing-with-in-statements.problem.ts"
+/>
 
 #### Solution 1: Narrowing with `if` Statements
 
@@ -921,6 +946,11 @@ console.log(error.message);
 
 Your task is to update the `if` statement to have the proper condition to check if the `error` has a message attribute before logging it. Check the title of the exercise to get a hint... And remember, `Error` is a class.
 
+<Exercise
+  title="Exercise 1: Narrowing Errors with `instanceof`"
+  filePath="/src/018-unions-and-narrowing/065.5-narrowing-with-instanceof-statements.problem.ts"
+/>
+
 #### Exercise 2: Narrowing `unknown` to a Value
 
 Here we have a `parseValue` function that takes in a `value` of type `unknown`:
@@ -961,6 +991,11 @@ it("Should error when anything else is passed in", () => {
 ```
 
 Your challenge is to modify the `parseValue` function so that the tests pass and the errors go away. I want you to challenge yourself to do this _only_ by narrowing the type of `value` inside of the function. No changes to the types. This will require a very large `if` statement!
+
+<Exercise
+  title="Exercise 2: Narrowing `unknown` to a Value"
+  filePath="/src/018-unions-and-narrowing/066-narrowing-unknown-to-a-value.problem.ts"
+/>
 
 #### Exercise 3: Reusable Type Guards
 
@@ -1009,6 +1044,11 @@ const parseValueAgain = (value: unknown) => {
 Both functions have the same conditional check. This is a great opportunity to create a reusable type guard.
 
 All the tests are currently passing. Your job is to try to refactor the two functions to use a reusable type guard, and remove the duplicated code. As it turns out, TypeScript makes this a lot easier than you expect.
+
+<Exercise
+  title="Exercise 3: Reusable Type Guards"
+  filePath="/src/018-unions-and-narrowing/066.5-reusable-type-guards.problem.ts"
+/>
 
 #### Solution 1: Narrowing Errors with `instanceof`
 

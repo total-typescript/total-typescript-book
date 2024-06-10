@@ -1,5 +1,3 @@
-# 04. Essential Types and Annotations
-
 Now we've covered most of the why of TypeScript, it's time to start with the how. We'll cover key concepts like type annotations and type inference, as well as how to start writing type-safe functions.
 
 It's important to build a solid foundation, as everything you'll learn later builds upon what you'll learn in this chapter.
