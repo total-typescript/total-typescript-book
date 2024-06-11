@@ -756,10 +756,7 @@ Looking at these types, they both share a consistent pattern. Both `UserDataShap
 
 Your task is to create a generic `DataShape` type to reduce duplication in the `UserDataShape` and `PostDataShape` types.
 
-<Exercise
-  title="Exercise 1: Create a `DataShape` Type Helper"
-  filePath="/src/083-designing-your-types/204-intro-to-generic-types.problem.ts"
-/>
+<Exercise title="Exercise 1: Create a `DataShape` Type Helper" filePath="/src/083-designing-your-types/204-intro-to-generic-types.problem.ts"></Exercise>
 
 ### Exercise 2: Typing `PromiseFunc`
 
@@ -790,10 +787,7 @@ The error messages inform us that the `PromiseFunc` type is not generic. We're a
 
 Your task is to update `PromiseFunc` so that both of the tests pass without errors.
 
-<Exercise
-  title="Exercise 2: Typing `PromiseFunc`"
-  filePath="/src/083-designing-your-types/205-multiple-type-parameters.problem.ts"
-/>
+<Exercise title="Exercise 2: Typing `PromiseFunc`" filePath="/src/083-designing-your-types/205-multiple-type-parameters.problem.ts"></Exercise>
 
 ### Exercise 3: Working with the `Result` Type
 
@@ -848,10 +842,7 @@ It would be easier if we could designate `Error` type as the default type for `R
 
 Your task is to adjust the `Result` type so that `TError` defaults to type `Error`.
 
-<Exercise
-  title="Exercise 3: Working with the `Result` Type"
-  filePath="/src/083-designing-your-types/207-default-type-parameters.problem.ts"
-/>
+<Exercise title="Exercise 3: Working with the `Result` Type" filePath="/src/083-designing-your-types/207-default-type-parameters.problem.ts"></Exercise>
 
 ### Exercise 4: Constraining the `Result` Type
 
@@ -889,10 +880,7 @@ The `GoodExample`s should pass without errors, but the `BadExample` should raise
 
 Your task is to add a constraint to the `Result` type that ensures the `BadExample` test raises an error, while the `GoodExample`s pass without errors.
 
-<Exercise
-  title="Exercise 4: Constraining the `Result` Type"
-  filePath="/src/083-designing-your-types/208-type-parameter-constraints.problem.ts"
-/>
+<Exercise title="Exercise 4: Constraining the `Result` Type" filePath="/src/083-designing-your-types/208-type-parameter-constraints.problem.ts"></Exercise>
 
 ### Exercise 5: A Stricter `Omit` Type
 
@@ -946,10 +934,7 @@ type tests = [
 
 You'll need to remember `keyof` and how to constraint type parameters to complete this exercise.
 
-<Exercise
-  title="Exercise 5: A Stricter `Omit` Type"
-  filePath="/src/083-designing-your-types/209-tighter-version-of-omit.problem.ts"
-/>
+<Exercise title="Exercise 5: A Stricter `Omit` Type" filePath="/src/083-designing-your-types/209-tighter-version-of-omit.problem.ts"></Exercise>
 
 ### Exercise 6: Route Matching
 
@@ -991,10 +976,7 @@ Because `AbsoluteRoute` is currently typed as `string`, TypeScript fails to flag
 
 Your task is to refine the `AbsoluteRoute` type to accurately expect that strings begin with a forward slash.
 
-<Exercise
-  title="Exercise 6: Route Matching"
-  filePath="/src/083-designing-your-types/210-template-literal-types.problem.ts"
-/>
+<Exercise title="Exercise 6: Route Matching" filePath="/src/083-designing-your-types/210-template-literal-types.problem.ts"></Exercise>
 
 ### Exercise 7: Sandwich Permutations
 
@@ -1033,10 +1015,7 @@ type tests = [
 
 Your task is to use a template literal type to define the `Sandwich` type. This can be done in just one line of code!
 
-<Exercise
-  title="Exercise 7: Sandwich Permutations"
-  filePath="/src/083-designing-your-types/211-passing-unions-to-template-literal-types.problem.ts"
-/>
+<Exercise title="Exercise 7: Sandwich Permutations" filePath="/src/083-designing-your-types/211-passing-unions-to-template-literal-types.problem.ts"></Exercise>
 
 ### Exercise 8: Attribute Getters
 
@@ -1086,10 +1065,7 @@ type tests = [
 
 Your task is to define the `AttributeGetters` type so that it matches the expected output. To do this, you'll need to iterate over each key in `Attributes` and produce a function as a value which then returns the value of that key.
 
-<Exercise
-  title="Exercise 8: Attribute Getters"
-  filePath="/src/083-designing-your-types/212-mapped-types.problem.ts"
-/>
+<Exercise title="Exercise 8: Attribute Getters" filePath="/src/083-designing-your-types/212-mapped-types.problem.ts"></Exercise>
 
 ### Exercise 9: Renaming Keys in a Mapped Type
 
@@ -1114,10 +1090,7 @@ type tests = [
 
 Your challenge is to adjust the `AttributeGetters` type to remap the keys as specified. You'll need to use the `as` keyword, template literals, as well as TypeScript's built-in `Capitalize<string>` type helper.
 
-<Exercise
-  title="Exercise 9: Renaming Keys in a Mapped Type"
-  filePath="/src/083-designing-your-types/213-as-in-mapped-types.problem.ts"
-/>
+<Exercise title="Exercise 9: Renaming Keys in a Mapped Type" filePath="/src/083-designing-your-types/213-as-in-mapped-types.problem.ts"></Exercise>
 
 ### Solution 1: Create a `DataShape` Type Helper
 

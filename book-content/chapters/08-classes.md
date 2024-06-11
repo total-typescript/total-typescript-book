@@ -721,10 +721,7 @@ As seen from the `@ts-expect-error` directives, we also expect these properties 
 
 Your challenge is to implement the `CanvasNode` class to satisfy these requirements. For extra practice, solve the challenge with and without the use of a constructor.
 
-<Exercise
-  title="Exercise 1: Creating a Class"
-  filePath="/src/030-classes/108-understand-classes.problem.ts"
-/>
+<Exercise title="Exercise 1: Creating a Class" filePath="/src/030-classes/108-understand-classes.problem.ts"></Exercise>
 
 ### Exercise 2: Implementing Class Methods
 
@@ -764,10 +761,7 @@ Currently, there is an error under the `move` method call because the `CanvasNod
 
 Your task is to add a `move` method to the `CanvasNode` class that will update the `x` and `y` properties to the new location.
 
-<Exercise
-  title="Exercise 2: Implementing Class Methods"
-  filePath="/src/030-classes/109-class-methods.problem.ts"
-/>
+<Exercise title="Exercise 2: Implementing Class Methods" filePath="/src/030-classes/109-class-methods.problem.ts"></Exercise>
 
 ### Exercise 3: Implement a Getter
 
@@ -834,10 +828,7 @@ it("Should be able to receive an initial position", () => {
 
 Your task is to update the `CanvasNode` class to include a `position` getter that will allow for the test cases to pass.
 
-<Exercise
-  title="Exercise 3: Implement a Getter"
-  filePath="/src/030-classes/111-getters.problem.ts"
-/>
+<Exercise title="Exercise 3: Implement a Getter" filePath="/src/030-classes/111-getters.problem.ts"></Exercise>
 
 ### Exercise 4: Implement a Setter
 
@@ -873,10 +864,7 @@ canvasNode.position = { x: 10, y: 20 };
 
 Your task is to write a setter for the `position` property that will allow for the test case to pass.
 
-<Exercise
-  title="Exercise 4: Implement a Setter"
-  filePath="/src/030-classes/113-setters.problem.ts"
-/>
+<Exercise title="Exercise 4: Implement a Setter" filePath="/src/030-classes/113-setters.problem.ts"></Exercise>
 
 ### Exercise 5: Extending a Class
 
@@ -907,10 +895,7 @@ Your task is to refactor the `CanvasNode` class to split the `x` and `y` propert
 
 If you like, you can use an `abstract` class to define `Shape`.
 
-<Exercise
-  title="Exercise 5: Extending a Class"
-  filePath="/src/030-classes/114-extending-other-classes.problem.ts"
-/>
+<Exercise title="Exercise 5: Extending a Class" filePath="/src/030-classes/114-extending-other-classes.problem.ts"></Exercise>
 
 ### Solution 1: Creating a Class
 

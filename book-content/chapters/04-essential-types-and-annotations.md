@@ -283,10 +283,7 @@ Finally, we can see that our `test` result has an error because the `result` is 
 
 Your challenge is to consider how we can change the types to make the errors go away, and to ensure that `result` is a `number`. You can hover over `result` to check it.
 
-<Exercise
-  title="Exercise 1: Basic Types with Function Parameters"
-  filePath="/src/015-essential-types-and-annotations/020-basic-types-with-function-parameters.problem.ts"
-/>
+<Exercise title="Exercise 1: Basic Types with Function Parameters" filePath="/src/015-essential-types-and-annotations/020-basic-types-with-function-parameters.problem.ts"></Exercise>
 
 #### Exercise 2: Annotating Empty Parameters
 
@@ -320,10 +317,7 @@ type test = Expect<Equal<typeof result, string>>;
 
 Your job is to add some function paramater annotations to the `concatTwoStrings` function to make the errors go away.
 
-<Exercise
-  title="Exercise 2: Annotating Empty Parameters"
-  filePath="/src/015-essential-types-and-annotations/021-annotating-empty-parameters.problem.ts"
-/>
+<Exercise title="Exercise 2: Annotating Empty Parameters" filePath="/src/015-essential-types-and-annotations/021-annotating-empty-parameters.problem.ts"></Exercise>
 
 #### Exercise 3: The Basic Types
 
@@ -360,10 +354,7 @@ Type 'boolean' is not assignable to type 'string'.
 
 Change the types of the annotations on each variable to make the errors go away.
 
-<Exercise
-  title="Exercise 3: The Basic Types"
-  filePath="/src/015-essential-types-and-annotations/022-all-types.problem.ts"
-/>
+<Exercise title="Exercise 3: The Basic Types" filePath="/src/015-essential-types-and-annotations/022-all-types.problem.ts"></Exercise>
 
 #### Exercise 4: The `any` Type
 
@@ -388,7 +379,7 @@ it("Should handle a form submit", () => {
   const form = document.createElement("form");
 
   form.innerHTML = `
-<input name="name" value="John Doe" />
+<input name="name" value="John Doe"></Exercise>
 `;
 
   form.onsubmit = (e) => {
@@ -423,10 +414,7 @@ Why is this error happening? Why isn't TypeScript giving us an error here?
 
 I'll give you a clue. I've hidden a nasty typo in there. Can you fix it?
 
-<Exercise
-  title="Exercise 4: The `any` Type"
-  filePath="/src/015-essential-types-and-annotations/032.5-any.problem.ts"
-/>
+<Exercise title="Exercise 4: The `any` Type" filePath="/src/015-essential-types-and-annotations/032.5-any.problem.ts"></Exercise>
 
 #### Solution 1: Basic Types with Function Parameters
 
@@ -616,10 +604,7 @@ We can tell from the `concatName` function body that it expects `user.first` and
 
 How could we type the `user` parameter to ensure that it has these properties and that they are of the correct type?
 
-<Exercise
-  title="Exercise 1: Object Literal Types"
-  filePath="/src/015-essential-types-and-annotations/025-object-literal-types.problem.ts"
-/>
+<Exercise title="Exercise 1: Object Literal Types" filePath="/src/015-essential-types-and-annotations/025-object-literal-types.problem.ts"></Exercise>
 
 #### Exercise 2: Optional Property Types
 
@@ -668,10 +653,7 @@ The error tells us that we are missing a property, but the error is incorrect. W
 
 How would you update this function to fix the errors?
 
-<Exercise
-  title="Exercise 2: Optional Property Types"
-  filePath="/src/015-essential-types-and-annotations/026-optional-property-types.problem.ts"
-/>
+<Exercise title="Exercise 2: Optional Property Types" filePath="/src/015-essential-types-and-annotations/026-optional-property-types.problem.ts"></Exercise>
 
 #### Solution 1: Object Literal Types
 
@@ -857,10 +839,7 @@ Even though everything is working as expected, there's an opportunity for refact
 
 How could you use the `type` keyword to make this code more readable?
 
-<Exercise
-  title="Exercise 1: The `type` Keyword"
-  filePath="/src/015-essential-types-and-annotations/027-type-keyword.problem.ts"
-/>
+<Exercise title="Exercise 1: The `type` Keyword" filePath="/src/015-essential-types-and-annotations/027-type-keyword.problem.ts"></Exercise>
 
 #### Solution 1: The `type` Keyword
 
@@ -1072,10 +1051,7 @@ As the error message points out, there is not currently a property called `items
 
 How would you fix this error?
 
-<Exercise
-  title="Exercise 1: Array Type"
-  filePath="/src/015-essential-types-and-annotations/028-arrays.problem.ts"
-/>
+<Exercise title="Exercise 1: Array Type" filePath="/src/015-essential-types-and-annotations/028-arrays.problem.ts"></Exercise>
 
 #### Exercise 2: Arrays of Objects
 
@@ -1112,10 +1088,7 @@ Object literal may only specify known properties, and 'ingredients' does not exi
 
 By combining what you've seen with typing object properties and working with arrays, how would you specify ingredients for the `Recipe` type?
 
-<Exercise
-  title="Exercise 2: Arrays of Objects"
-  filePath="/src/015-essential-types-and-annotations/029-arrays-of-objects.problem.ts"
-/>
+<Exercise title="Exercise 2: Arrays of Objects" filePath="/src/015-essential-types-and-annotations/029-arrays-of-objects.problem.ts"></Exercise>
 
 #### Exercise 3: Tuples
 
@@ -1170,10 +1143,7 @@ setRange([0, 10, 20]);
 
 The code for the `setRange` function needs an updated type annotation to specify that it only accepts a tuple of two numbers.
 
-<Exercise
-  title="Exercise 3: Tuples"
-  filePath="/src/015-essential-types-and-annotations/031-tuples.problem.ts"
-/>
+<Exercise title="Exercise 3: Tuples" filePath="/src/015-essential-types-and-annotations/031-tuples.problem.ts"></Exercise>
 
 #### Exercise 4: Optional Members of Tuples
 
@@ -1201,10 +1171,7 @@ const goToLocation = (coordinates: Array<number>) => {
 
 Your challenge is to update the type annotation for the `coordinates` parameter to specify that it should be a tuple of three numbers, where the third number is optional.
 
-<Exercise
-  title="Exercise 4: Optional Members of Tuples"
-  filePath="/src/015-essential-types-and-annotations/032-optional-members-of-tuples.problem.ts"
-/>
+<Exercise title="Exercise 4: Optional Members of Tuples" filePath="/src/015-essential-types-and-annotations/032-optional-members-of-tuples.problem.ts"></Exercise>
 
 #### Solution 1: Array Type
 
@@ -1486,10 +1453,7 @@ new () => Map<any, any> (+3 overloads)
 
 How would we type the `userMap` so the key must be a number and the value is an object with `name` and `age` properties?
 
-<Exercise
-  title="Exercise 1: Passing Types to Map"
-  filePath="/src/015-essential-types-and-annotations/036-pass-types-to-map.problem.ts"
-/>
+<Exercise title="Exercise 1: Passing Types to Map" filePath="/src/015-essential-types-and-annotations/036-pass-types-to-map.problem.ts"></Exercise>
 
 #### Exercise 2: `JSON.parse()` Can't Receive Type Arguments
 
@@ -1543,10 +1507,7 @@ The test errors tell us that the type of `parsed` is not what we expect. The pro
 
 Why this is happening? What would be an different way to correct these type errors?
 
-<Exercise
-  title="Exercise 2: `JSON.parse()` Can't Receive Type Arguments"
-  filePath="/src/015-essential-types-and-annotations/037-json-parse-cant-receive-type-arguments.problem.ts"
-/>
+<Exercise title="Exercise 2: `JSON.parse()` Can't Receive Type Arguments" filePath="/src/015-essential-types-and-annotations/037-json-parse-cant-receive-type-arguments.problem.ts"></Exercise>
 
 #### Solution 1: Passing Types to Map
 
@@ -1911,10 +1872,7 @@ const result2 = concatName("John");
 
 Try to use an optional parameter annotation to fix the error.
 
-<Exercise
-  title="Exercise 1: Optional Function Parameters"
-  filePath="/src/015-essential-types-and-annotations/023-optional-function-parameters.problem.ts"
-/>
+<Exercise title="Exercise 1: Optional Function Parameters" filePath="/src/015-essential-types-and-annotations/023-optional-function-parameters.problem.ts"></Exercise>
 
 #### Exercise 2: Default Function Parameters
 
@@ -1972,10 +1930,7 @@ expect(result).toEqual("John Pocock");
 
 Update the `concatName` function to use `Pocock` as the default last name if one is not provided.
 
-<Exercise
-  title="Exercise 2: Default Function Parameters"
-  filePath="/src/015-essential-types-and-annotations/024-default-function-parameters.problem.ts"
-/>
+<Exercise title="Exercise 2: Default Function Parameters" filePath="/src/015-essential-types-and-annotations/024-default-function-parameters.problem.ts"></Exercise>
 
 #### Exercise 3: Rest Parameters
 
@@ -2004,10 +1959,7 @@ The test passes, but there's an error on the `...strings` rest parameter.
 
 How would you update the rest parameter to specify that it should be an array of strings?
 
-<Exercise
-  title="Exercise 3: Rest Parameters"
-  filePath="/src/015-essential-types-and-annotations/030-rest-parameters.problem.ts"
-/>
+<Exercise title="Exercise 3: Rest Parameters" filePath="/src/015-essential-types-and-annotations/030-rest-parameters.problem.ts"></Exercise>
 
 #### Exercise 4: Function Types
 
@@ -2081,10 +2033,7 @@ modifyUser(
 
 How would you type `makeChange` as a function takes in a `User` and returns a `User`?
 
-<Exercise
-  title="Exercise 4: Function Types"
-  filePath="/src/015-essential-types-and-annotations/033-function-types.problem.ts"
-/>
+<Exercise title="Exercise 4: Function Types" filePath="/src/015-essential-types-and-annotations/033-function-types.problem.ts"></Exercise>
 
 #### Exercise 5: Functions Returning `void`
 
@@ -2125,10 +2074,7 @@ This is triggering our `@ts-expect-error` directive.
 
 How should `addClickEventListener` be typed so that each error is resolved?
 
-<Exercise
-  title="Exercise 5: Functions Returning `void`"
-  filePath="/src/015-essential-types-and-annotations/034-functions-returning-void.problem.ts"
-/>
+<Exercise title="Exercise 5: Functions Returning `void`" filePath="/src/015-essential-types-and-annotations/034-functions-returning-void.problem.ts"></Exercise>
 
 #### Exercise 6: `void` vs `undefined`
 
@@ -2158,10 +2104,7 @@ acceptsCallback(returnString);
 
 Why is this happening? Can we alter the type of `acceptsCallback` to fix this error?
 
-<Exercise
-  title="Exercise 6: `void` vs `undefined`"
-  filePath="/src/015-essential-types-and-annotations/034.5-void-vs-undefined.problem.ts"
-/>
+<Exercise title="Exercise 6: `void` vs `undefined`" filePath="/src/015-essential-types-and-annotations/034.5-void-vs-undefined.problem.ts"></Exercise>
 
 #### Exercise 7: Typing Async Functions
 
@@ -2232,10 +2175,7 @@ How can we type `data` as a number without changing the calls to `fetch` or `res
 
 There are two possible solutions here.
 
-<Exercise
-  title="Exercise 7: Typing Async Functions"
-  filePath="/src/015-essential-types-and-annotations/038-type-async-functions.problem.ts"
-/>
+<Exercise title="Exercise 7: Typing Async Functions" filePath="/src/015-essential-types-and-annotations/038-type-async-functions.problem.ts"></Exercise>
 
 #### Solution 1: Optional Function Parameters
 
@@ -2441,7 +2381,7 @@ This works because `data` was `any` before, and `await response.json()` returns 
 
 However, the best way to solve this problem is to add a return type to the function. In this case, it should be a `number`:
 
-```ts
+```ts twoslash
 // @errors: 1064
 async function fetchData(): number {
   // function body

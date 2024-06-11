@@ -727,10 +727,7 @@ type test = Expect<Equal<typeof unknownMap, Map<string, unknown>>>;
 
 Your task is to transform `createStringMap` into a generic function capable of accepting a type argument to describe the values of Map. Make sure it functions as expected for the provided test cases.
 
-<Exercise
-  title="Exercise 1: Make a Function Generic"
-  filePath="/src/085-the-utils-folder/215-generic-functions-without-inference.problem.ts"
-/>
+<Exercise title="Exercise 1: Make a Function Generic" filePath="/src/085-the-utils-folder/215-generic-functions-without-inference.problem.ts"></Exercise>
 
 ### Exercise 2: Default Type Arguments
 
@@ -745,10 +742,7 @@ const stringMap: Map<string, unknown>;
 
 Your goal is to add a default type argument to the `createStringMap` function so that it defaults to `string` if no type argument is provided. Note that you will still be able to override the default type by providing a type argument when calling the function.
 
-<Exercise
-  title="Exercise 2: Default Type Arguments"
-  filePath="/src/085-the-utils-folder/216-type-parameter-defaults-in-generic-functions.problem.ts"
-/>
+<Exercise title="Exercise 2: Default Type Arguments" filePath="/src/085-the-utils-folder/216-type-parameter-defaults-in-generic-functions.problem.ts"></Exercise>
 
 ### Exercise 3: Inference in Generic Functions
 
@@ -795,10 +789,7 @@ Note that in the tests, we do not explicitly provide type arguments when invokin
 
 Adjust the function and insert the necessary type annotations to ensure that the `result` type in both tests is inferred as `number[]` and `string[]`, respectively.
 
-<Exercise
-  title="Exercise 3: Inference in Generic Functions"
-  filePath="/src/085-the-utils-folder/217-generic-functions-with-inference.problem.ts"
-/>
+<Exercise title="Exercise 3: Inference in Generic Functions" filePath="/src/085-the-utils-folder/217-generic-functions-with-inference.problem.ts"></Exercise>
 
 ### Exercise 4: Type Parameter Constraints
 
@@ -870,10 +861,7 @@ it("Should accept a custom error", () => {
 
 Your task is to update the `addCodeToError` type signature to enforce the required constraints so that `TError` is required to have a `message` property and can optionally have a `code` property.
 
-<Exercise
-  title="Exercise 4: Type Parameter Constraints"
-  filePath="/src/085-the-utils-folder/216-type-parameter-defaults-in-generic-functions.problem.ts"
-/>
+<Exercise title="Exercise 4: Type Parameter Constraints" filePath="/src/085-the-utils-folder/216-type-parameter-defaults-in-generic-functions.problem.ts"></Exercise>
 
 ### Exercise 5: Combining Generic Types and Functions
 
@@ -955,10 +943,7 @@ it("should return the result if the function succeeds", async () => {
 
 Your task is to update `safeFunction` to have a generic type parameter, and update `PromiseFunc` to not return `Promise<Any>`. This will require you to combine generic types and functions to ensure that the tests pass successfully.
 
-<Exercise
-  title="Exercise 5: Combining Generic Types and Functions"
-  filePath="/src/085-the-utils-folder/219-combining-generic-types-with-generic-functions.problem.ts"
-/>
+<Exercise title="Exercise 5: Combining Generic Types and Functions" filePath="/src/085-the-utils-folder/219-combining-generic-types-with-generic-functions.problem.ts"></Exercise>
 
 ### Exercise 6: Multiple Type Arguments in a Generic Function
 
@@ -1084,10 +1069,7 @@ it("should return the result if the function succeeds", async () => {
 
 Update the types of the function and the generic type, and make these tests pass successfully.
 
-<Exercise
-  title="Exercise 6: Multiple Type Arguments in a Generic Function"
-  filePath="/src/085-the-utils-folder/220-multiple-type-arguments-in-generic-functions.problem.ts"
-/>
+<Exercise title="Exercise 6: Multiple Type Arguments in a Generic Function" filePath="/src/085-the-utils-folder/220-multiple-type-arguments-in-generic-functions.problem.ts"></Exercise>
 
 ### Exercise 8: Assertion Functions
 
@@ -1155,10 +1137,7 @@ The `user` type is `User | AdminUser` before `assertIsAdminUser` is called, but 
 
 Your task is to update the `assertIsAdminUser` function with the proper type assertion so that the `user` is identified as an `AdminUser` after the function is called.
 
-<Exercise
-  title="Exercise 8: Assertion Functions"
-  filePath="/src/085-the-utils-folder/222-assertion-functions.problem.ts"
-/>
+<Exercise title="Exercise 8: Assertion Functions" filePath="/src/085-the-utils-folder/222-assertion-functions.problem.ts"></Exercise>
 
 ### Solution 1: Make a Function Generic
 

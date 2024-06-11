@@ -177,10 +177,7 @@ Normally we wouldn't explicitly call the `getUsername` function with `null`, but
 
 Currently, the `username` parameter only accepts a `string` type, and the check for `null` isn't doing anything. Update the function parameter's type so the errors are resolved and the function can handle `null` .
 
-<Exercise
-  title="Exercise 1: `string` or `null`"
-  filePath="/src/018-unions-and-narrowing/053-introduction-to-unions.problem.ts"
-/>
+<Exercise title="Exercise 1: `string` or `null`" filePath="/src/018-unions-and-narrowing/053-introduction-to-unions.problem.ts"></Exercise>
 
 #### Exercise 2: Restricting Function Parameters
 
@@ -230,10 +227,7 @@ move(
 
 Your challenge is to update the `move` function so that it only accepts the strings `"up"`, `"down"`, `"left"`, and `"right"`. This way, TypeScript will throw an error when we try to pass in any other string.
 
-<Exercise
-  title="Exercise 2: Restricting Function Parameters"
-  filePath="/src/018-unions-and-narrowing/054-literal-types.problem.ts"
-/>
+<Exercise title="Exercise 2: Restricting Function Parameters" filePath="/src/018-unions-and-narrowing/054-literal-types.problem.ts"></Exercise>
 
 #### Solution 1: `string` or `null`
 
@@ -449,10 +443,7 @@ it("Should return false for null", () => {
 
 Your task is to rewrite the `validateUsername` function to add narrowing so that the `null` case is handled and the tests all pass.
 
-<Exercise
-  title="Exercise 1: Narrowing with `if` Statements"
-  filePath="/src/018-unions-and-narrowing/059-narrowing-with-if-statements.problem.ts"
-/>
+<Exercise title="Exercise 1: Narrowing with `if` Statements" filePath="/src/018-unions-and-narrowing/059-narrowing-with-if-statements.problem.ts"></Exercise>
 
 #### Exercise 2: Throwing Errors to Narrow
 
@@ -476,10 +467,7 @@ type Test = Expect<Equal<typeof appElement, HTMLElement>>;
 
 Your task is to use `throw` to narrow down the type of `appElement` before it's checked by the test.
 
-<Exercise
-  title="Exercise 2: Throwing Errors to Narrow"
-  filePath="/src/018-unions-and-narrowing/062-throwing-errors-to-narrow.problem.ts"
-/>
+<Exercise title="Exercise 2: Throwing Errors to Narrow" filePath="/src/018-unions-and-narrowing/062-throwing-errors-to-narrow.problem.ts"></Exercise>
 
 #### Exercise 3: Using `in` to Narrow
 
@@ -543,10 +531,7 @@ Your challenge is to find the correct syntax for narrowing down the types within
 
 The changes should happen inside of the function without modifying any other parts of the code.
 
-<Exercise
-  title="Exercise 3: Using `in` to Narrow"
-  filePath="/src/018-unions-and-narrowing/064-narrowing-with-in-statements.problem.ts"
-/>
+<Exercise title="Exercise 3: Using `in` to Narrow" filePath="/src/018-unions-and-narrowing/064-narrowing-with-in-statements.problem.ts"></Exercise>
 
 #### Solution 1: Narrowing with `if` Statements
 
@@ -944,10 +929,7 @@ console.log(error.message);
 
 Your task is to update the `if` statement to have the proper condition to check if the `error` has a message attribute before logging it. Check the title of the exercise to get a hint... And remember, `Error` is a class.
 
-<Exercise
-  title="Exercise 1: Narrowing Errors with `instanceof`"
-  filePath="/src/018-unions-and-narrowing/065.5-narrowing-with-instanceof-statements.problem.ts"
-/>
+<Exercise title="Exercise 1: Narrowing Errors with `instanceof`" filePath="/src/018-unions-and-narrowing/065.5-narrowing-with-instanceof-statements.problem.ts"></Exercise>
 
 #### Exercise 2: Narrowing `unknown` to a Value
 
@@ -990,10 +972,7 @@ it("Should error when anything else is passed in", () => {
 
 Your challenge is to modify the `parseValue` function so that the tests pass and the errors go away. I want you to challenge yourself to do this _only_ by narrowing the type of `value` inside of the function. No changes to the types. This will require a very large `if` statement!
 
-<Exercise
-  title="Exercise 2: Narrowing `unknown` to a Value"
-  filePath="/src/018-unions-and-narrowing/066-narrowing-unknown-to-a-value.problem.ts"
-/>
+<Exercise title="Exercise 2: Narrowing `unknown` to a Value" filePath="/src/018-unions-and-narrowing/066-narrowing-unknown-to-a-value.problem.ts"></Exercise>
 
 #### Exercise 3: Reusable Type Guards
 
@@ -1043,10 +1022,7 @@ Both functions have the same conditional check. This is a great opportunity to c
 
 All the tests are currently passing. Your job is to try to refactor the two functions to use a reusable type guard, and remove the duplicated code. As it turns out, TypeScript makes this a lot easier than you expect.
 
-<Exercise
-  title="Exercise 3: Reusable Type Guards"
-  filePath="/src/018-unions-and-narrowing/066.5-reusable-type-guards.problem.ts"
-/>
+<Exercise title="Exercise 3: Reusable Type Guards" filePath="/src/018-unions-and-narrowing/066.5-reusable-type-guards.problem.ts"></Exercise>
 
 #### Solution 1: Narrowing Errors with `instanceof`
 
@@ -1460,10 +1436,7 @@ However, TypeScript is showing us errors below `'radius'` and `'sideLength'`.
 
 Your task is to update the implementation of the `calculateArea` function so that destructuring properties from the passed in `Shape` works without errors. Hint: the examples I showed in the chapter _didn't_ use destructuring, but some destructuring is possible.
 
-<Exercise
-  title="Exercise 1: Destructuring a Discriminated Union"
-  filePath="/src/018-unions-and-narrowing/075-destructuring-a-discriminated-union.problem.ts"
-/>
+<Exercise title="Exercise 1: Destructuring a Discriminated Union" filePath="/src/018-unions-and-narrowing/075-destructuring-a-discriminated-union.problem.ts"></Exercise>
 
 #### Exercise 2: Narrowing a Discriminated Union with a Switch Statement
 
@@ -1481,10 +1454,7 @@ function calculateArea(shape: Shape) {
 
 Your challenge is to refactor this function to use a `switch` statement instead of the `if/else` statement. The `switch` statement should be used to narrow the type of `shape` and calculate the area accordingly.
 
-<Exercise
-  title="Exercise 2: Narrowing a Discriminated Union with a Switch Statement"
-  filePath="/src/018-unions-and-narrowing/076-narrowing-a-discriminated-union-with-a-switch-statement.problem.ts"
-/>
+<Exercise title="Exercise 2: Narrowing a Discriminated Union with a Switch Statement" filePath="/src/018-unions-and-narrowing/076-narrowing-a-discriminated-union-with-a-switch-statement.problem.ts"></Exercise>
 
 #### Exercise 3: Discriminated Tuples
 
@@ -1578,10 +1548,7 @@ If the first element is `"success"`, then the second element should be an array 
 
 Your challenge is to redefine the `APIResponse` type to be a discriminated tuple that only allows for the specific combinations for the `success` and `error` states defined above.
 
-<Exercise
-  title="Exercise 3: Discriminated Tuples"
-  filePath="/src/018-unions-and-narrowing/078-destructuring-a-discriminated-tuple.problem.ts"
-/>
+<Exercise title="Exercise 3: Discriminated Tuples" filePath="/src/018-unions-and-narrowing/078-destructuring-a-discriminated-tuple.problem.ts"></Exercise>
 
 #### Exercise 4: Handling Defaults with a Discriminated Union
 
@@ -1647,10 +1614,7 @@ Your challenge is to:
 1. Make updates to the `Shape` discriminated union that will allow for us to omit `kind`.
 2. Make adjustments to the `calculateArea` function to ensure that TypeScript's type narrowing works properly within the function.
 
-<Exercise
-  title="Exercise 4: Handling Defaults with a Discriminated Union"
-  filePath="/src/018-unions-and-narrowing/080-adding-defaults-to-discriminated-union.problem.ts"
-/>
+<Exercise title="Exercise 4: Handling Defaults with a Discriminated Union" filePath="/src/018-unions-and-narrowing/080-adding-defaults-to-discriminated-union.problem.ts"></Exercise>
 
 #### Solution 1: Destructuring a Discriminated Union
 

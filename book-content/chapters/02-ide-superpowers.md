@@ -69,7 +69,7 @@ acceptsObj({
 
 Practice using the autocomplete shortcut to fill in the object when calling `acceptsObj`.
 
-<Exercise title="Exercise 1: Autocomplete" filePath="/src/016.5-ide-superpowers/044-manually-triggering-autocomplete.problem.ts" />
+<Exercise title="Exercise 1: Autocomplete" filePath="/src/016.5-ide-superpowers/044-manually-triggering-autocomplete.problem.ts"></Exercise>
 
 #### Solution 1: Autocomplete
 
@@ -282,7 +282,7 @@ let element = document.getElementById(12);
 
 How can hovering help to determine what argument `document.getElementById` actually requires? And for a bonus point, what type is `element`?
 
-<Exercise title="Exercise 1: Hovering a Function Call" filePath="/src/016.5-ide-superpowers/041-hovering-a-function-call.problem.ts" />
+<Exercise title="Exercise 1: Hovering a Function Call" filePath="/src/016.5-ide-superpowers/041-hovering-a-function-call.problem.ts"></Exercise>
 
 #### Solution 1: Hovering a Function Call
 
@@ -363,7 +363,7 @@ In order to understand what this function does, you'd have to read the code.
 
 Add some documentation to the function so that when you hover over it, you can read a description of what it does.
 
-<Exercise title="Exercise 1: Adding Documentation For Hovers" filePath="/src/016.5-ide-superpowers/042-adding-tsdoc-comments-for-hovers.problem.ts" />
+<Exercise title="Exercise 1: Adding Documentation For Hovers" filePath="/src/016.5-ide-superpowers/042-adding-tsdoc-comments-for-hovers.problem.ts"></Exercise>
 
 #### Solution 1: Adding Documentation for Hovers
 
@@ -512,7 +512,7 @@ Highlight a variable, line, or entire code block then hit `Command + .` to open 
 
 Experiment with different options to see how they affect the example function.
 
-<Exercise title="Exercise 1: Quick Fix Refactoring" filePath="/src/016.5-ide-superpowers/050-refactor.problem.ts" />
+<Exercise title="Exercise 1: Quick Fix Refactoring" filePath="/src/016.5-ide-superpowers/050-refactor.problem.ts"></Exercise>
 
 ### Solution 1: Quick Fix Refactoring
 
