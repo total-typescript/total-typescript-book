@@ -1018,6 +1018,11 @@ acceptAnythingExceptNullOrUndefined(
 
 Your task is to add a type annotation to the `acceptAnythingExceptNullOrUndefined` function that will allow it to accept any value except `null` or `undefined`.
 
+<Exercise
+  title="Exercise 1: Accept Anything Except `null` and `undefined`"
+  filePath="/src/050-the-weird-parts/150-empty-object-type.problem.ts"
+/>
+
 ### Exercise 2: Detecting Excess Properties in an Object
 
 In this exercise, we're dealing with an `options` object along `FetchOptions` interface which specifies `url`, `method`, `headers`, and `body`:
@@ -1055,6 +1060,11 @@ myFetch(options);
 ```
 
 Your challenge is to determine why the `@ts-expect-error` directive isn't working, and restructure the code so that it does. Try to solve it multiple ways!
+
+<Exercise
+  title="Exercise 2: Detecting Excess Properties in an Object"
+  filePath="/src/050-the-weird-parts/152-excess-properties-warnings.problem.ts"
+/>
 
 ### Exercise 3: Detecting Excess Properties in a Function
 
@@ -1109,6 +1119,11 @@ Despite TypeScript not expecting an `age` on `User`, it doesn't show an error, a
 
 Your task is to determine why TypeScript isn't raising an error in this case, and find two different solutions to make it error appropriately when an unexpected property is added.
 
+<Exercise
+  title="Exercise 3: Detecting Excess Properties in a Function"
+  filePath="/src/050-the-weird-parts/153-excess-properties-warnings-in-functions.problem.ts"
+/>
+
 ### Exercise 4: Iterating over Objects
 
 Consider an interface `User` with properties `id` and `name`, and a `printUser` function that accepts a `User` as its argument:
@@ -1145,6 +1160,11 @@ Obviously, you could manually log the properties inside of the `printUser` funct
 Try to solve this exercise with a `for` loop for one solution, and `Object.keys().forEach()` for another. For extra credit, try widening the type of the function parameter beyond `User` for a third solution.
 
 Remember, `Object.keys()` is typed to always return an array of strings.
+
+<Exercise
+  title="Exercise 4: Iterating over Objects"
+  filePath="/src/050-the-weird-parts/154.6-iterating-over-objects.problem.ts"
+/>
 
 ### Exercise 5: Function Parameter Comparisons
 
@@ -1233,6 +1253,11 @@ In almost every case, TypeScript is giving us errors.
 
 Your task is to update the `CallbackType` to ensure that it can handle all of these cases.
 
+<Exercise
+  title="Exercise 5: Function Parameter Comparisons"
+  filePath="/src/050-the-weird-parts/155-function-parameter-comparisons.problem.ts"
+/>
+
 ### Exercise 6: Unions of Functions with Object Params
 
 Here we are working with two functions: `logId` and `logName`. The `logId` function logs an `id` from an object to the console, while `logName` does the same with a `name`:
@@ -1273,6 +1298,11 @@ const logAll = (obj) => {
 ```
 
 Your task is to determine how to type the `obj` parameter to the `logAll` function. Look closely at the type signatures for the individual logger functions to understand what type this object should be.
+
+<Exercise
+  title="Exercise 6: Unions of Functions with Object Params"
+  filePath="/src/050-the-weird-parts/156-unions-of-functions-with-object-params.problem.ts"
+/>
 
 ### Exercise 7: Union of Functions With Incompatible Parameters
 
@@ -1323,6 +1353,11 @@ const formatter:
 Currently there's an error on `input` in the return statement of the `format` function. Your challenge is to resolve this error on the type level, even though the code works at runtime. Try to use an assertion for one solution, and a type guard for another.
 
 A useful tidbit - `any` is not assignable to `never`.
+
+<Exercise
+  title="Exercise 7: Union of Functions With Incompatible Parameters"
+  filePath="/src/050-the-weird-parts/157-unions-of-functions.problem.ts"
+/>
 
 ### Solution 1: Accept Anything Except `null` and `undefined`
 

@@ -797,6 +797,11 @@ Could not find a declaration file for module './example'.
 
 Your task is to create a declaration file for the `example.js` file.
 
+<Exercise
+  title="Exercise 1: Typing a JavaScript Module"
+  filePath="/src/060-modules-scripts-and-declaration-files/164-declaration-files-can-be-used-to-type-js-files.problem"
+/>
+
 ### Exercise 2: Ambient Context
 
 Consider a variable called `state` that is returned from a global `DEBUG.getState()` function:
@@ -820,6 +825,11 @@ const state: any;
 
 Your task is to specify that `DEBUG` is available in this module (and this module only) without needing to provide its implementation. This will help TypeScript understand the type of `state` and provide the expected type checking.
 
+<Exercise
+  title="Exercise 2: Ambient Context"
+  filePath="/src/060-modules-scripts-and-declaration-files/166-ambient-context-and-declare-const.problem"
+/>
+
 ### Exercise 3: Modifying `window`
 
 Let's imagine now that we want our `DEBUG` object to only be accessible through the `window` object:
@@ -840,6 +850,11 @@ We expect `state` to be an object with an `id` string property, but it is curren
 There's also an error on `DEBUG` that tells us TypeScript doesn't see the `DEBUG` type.
 
 Your task is to specify that `DEBUG` is available on the `window` object. This will help TypeScript understand the type of `state` and provide the expected type checking.
+
+<Exercise
+  title="Exercise 3: Modifying `window`"
+  filePath="/src/065-types-you-dont-control/174.5-modifying-window.problem"
+/>
 
 ### Exercise 4: Modifying `process.env`
 
@@ -870,6 +885,11 @@ Your task is to determine how to specify the `MY_ENV_VAR` environment variable a
 Here are a couple of hints to help you out:
 
 Inside of `@types/node` from DefinitelyTyped, the `ProcessEnv` interface is responsible for environment variables. It can be found inside of the `NodeJS` namespace. You might need to revisit previous chapters to refresh your memory on declaration merging of types and namespaces in order to solve this exercise.
+
+<Exercise
+  title="Exercise 4: Modifying `process.env`"
+  filePath="/src/065-types-you-dont-control/175.5-modifying-process-env.problem"
+/>
 
 ### Solution 1: Typing a JavaScript Module
 

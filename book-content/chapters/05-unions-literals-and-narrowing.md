@@ -1462,6 +1462,11 @@ However, TypeScript is showing us errors below `'radius'` and `'sideLength'`.
 
 Your task is to update the implementation of the `calculateArea` function so that destructuring properties from the passed in `Shape` works without errors. Hint: the examples I showed in the chapter _didn't_ use destructuring, but some destructuring is possible.
 
+<Exercise
+  title="Exercise 1: Destructuring a Discriminated Union"
+  filePath="/src/018-unions-and-narrowing/075-destructuring-a-discriminated-union.problem.ts"
+/>
+
 #### Exercise 2: Narrowing a Discriminated Union with a Switch Statement
 
 Here we have our `calculateArea` function from the previous exercise, but without any destructuring.
@@ -1477,6 +1482,11 @@ function calculateArea(shape: Shape) {
 ```
 
 Your challenge is to refactor this function to use a `switch` statement instead of the `if/else` statement. The `switch` statement should be used to narrow the type of `shape` and calculate the area accordingly.
+
+<Exercise
+  title="Exercise 2: Narrowing a Discriminated Union with a Switch Statement"
+  filePath="/src/018-unions-and-narrowing/076-narrowing-a-discriminated-union-with-a-switch-statement.problem.ts"
+/>
 
 #### Exercise 3: Discriminated Tuples
 
@@ -1570,6 +1580,11 @@ If the first element is `"success"`, then the second element should be an array 
 
 Your challenge is to redefine the `APIResponse` type to be a discriminated tuple that only allows for the specific combinations for the `success` and `error` states defined above.
 
+<Exercise
+  title="Exercise 3: Discriminated Tuples"
+  filePath="/src/018-unions-and-narrowing/078-destructuring-a-discriminated-tuple.problem.ts"
+/>
+
 #### Exercise 4: Handling Defaults with a Discriminated Union
 
 We're back with our `calculateArea` function:
@@ -1633,6 +1648,11 @@ Your challenge is to:
 
 1. Make updates to the `Shape` discriminated union that will allow for us to omit `kind`.
 2. Make adjustments to the `calculateArea` function to ensure that TypeScript's type narrowing works properly within the function.
+
+<Exercise
+  title="Exercise 4: Handling Defaults with a Discriminated Union"
+  filePath="/src/018-unions-and-narrowing/080-adding-defaults-to-discriminated-union.problem.ts"
+/>
 
 #### Solution 1: Destructuring a Discriminated Union
 

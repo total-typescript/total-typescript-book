@@ -522,6 +522,12 @@ Notice there is a lot of duplication here. Both the `FormValues` interface and `
 
 Your task is to modify the `inputs` Record so its keys are derived from the `FormValues` interface.
 
+
+<Exercise
+  title="Exercise 1: Reduce Key Repetition"
+  filePath="/src/040-deriving-types-from-values/125-keyof.problem.ts"
+/>
+
 ### Exercise 2: Derive a Type from a Value
 
 Here, we have an object named `configurations` that comprises a set of deployment environments for `development`, `production`, and `staging`.
@@ -555,6 +561,12 @@ We want to use the `Environment` type across our application. However, the `conf
 
 Your task is to update the `Environment` type so that it is derived from the `configurations` object.
 
+
+<Exercise
+  title="Exercise 2: Derive a Type from a Value"
+  filePath="/src/040-deriving-types-from-values/126-typeof-keyword.problem.ts"
+/>
+
 ### Exercise 3: Accessing Specific Values
 
 Here were have an `programModeEnumMap` object that keeps different groupings in sync. There is also a `ProgramModeMap` type that uses `typeof` to represent the entire enum mapping:
@@ -585,6 +597,12 @@ type test = Expect<Equal<Group, "group">>;
 
 Your task is to find the proper way to type `Group` so the test passes as expected.
 
+
+<Exercise
+  title="Exercise 3: Accessing Specific Values"
+  filePath="/src/040-deriving-types-from-values/135-indexed-access-types.problem.ts"
+/>
+
 ### Exercise 4: Unions with Indexed Access Types
 
 This exercise starts with the same `programModeEnumMap` and `ProgramModeMap` as the previous exercise:
@@ -612,6 +630,12 @@ type test = Expect<
 ```
 
 This time, your challenge is to update the `PlannedPrograms` type to use an indexed access type to extract a union of the `ProgramModeMap` values that included "`planned`".
+
+
+<Exercise
+  title="Exercise 4: Unions with Indexed Access Types"
+  filePath="/src/040-deriving-types-from-values/136-pass-unions-to-indexed-access-types.problem.ts"
+/>
 
 ### Exercise 5: Extract a Union of All Values
 
@@ -652,6 +676,11 @@ type test = Expect<
 
 Using what you've learned so far, your task is to update the `AllPrograms` type to use an indexed access type to create a union of all the values from the `programModeEnumMap` object.
 
+<Exercise
+  title="Exercise 5: Extract a Union of All Values"
+  filePath="/src/040-deriving-types-from-values/137-pass-keyof-into-an-indexed-access-type.problem.ts"
+/>
+
 ### Exercise 6: Create a Union from an `as const` Array
 
 Here's an array of `programModes` wrapped in an `as const`:
@@ -690,6 +719,11 @@ type test = Expect<
 Your task is to determine how to create the `AllPrograms` type in order for the test to pass as expected.
 
 Note that just using `keyof` and `typeof` in an approach similar to the previous exercise's solution won't quite work to solve this one! This is tricky to find - but as a hint: you can pass primitive types to indexed access types.
+
+<Exercise
+  title="Exercise 6: Create a Union from an `as const` Array"
+  filePath="/src/040-deriving-types-from-values/138-create-a-union-from-an-as-const-array.problem.ts"
+/>
 
 ### Solution 1: Reduce Key Repetition
 
@@ -1041,6 +1075,11 @@ In addition to being a bit annoying to write and read, the other problem with th
 
 Your task is to use a utility type to fix this problem.
 
+<Exercise
+  title="Exercise 7: A Single Source of Truth"
+  filePath="/src/040-deriving-types-from-values/132-parameters-type-helper.problem.ts"
+/>
+
 ### Exercise 8: Typing Based on Return Value
 
 Say we're working with a `createUser` function from a third-party library:
@@ -1079,6 +1118,11 @@ type test = Expect<
 
 Your task is to update the `User` type so the test passes as expected.
 
+<Exercise
+  title="Exercise 8: Typing Based on Return Value"
+  filePath="/src/040-deriving-types-from-values/133-return-type.problem.ts"
+/>
+
 ### Exercise 9: Unwrapping a Promise
 
 This time the `createUser` function from the third-party library is asynchronous:
@@ -1110,6 +1154,11 @@ type test = Expect<
 Like before, assume that you do not have access to the implementation of the `fetchUser` function.
 
 Your task is to update the `User` type so the test passes as expected.
+
+<Exercise
+  title="Exercise 9: Unwrapping a Promise"
+  filePath="/src/040-deriving-types-from-values/134-awaited-type-helper.problem.ts"
+/>
 
 ### Solution 7: A Single Source of Truth
 
