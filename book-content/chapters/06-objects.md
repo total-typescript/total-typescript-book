@@ -1,5 +1,3 @@
-# 06. Objects
-
 So far, we've looked at object types only in the context of 'object literals', defined using `{}` with type aliases.
 
 But TypeScript has many tools available that let you be more expressive with object types. You can model inheritance, create new object types from existing ones, and use dynamic keys.

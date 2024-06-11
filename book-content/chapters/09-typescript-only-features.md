@@ -1,5 +1,3 @@
-# 09. TypeScript-only Features
-
 Based on what I've told you so far, you might be thinking of TypeScript as just "JavaScript with types". JavaScript handles the runtime code, and TypeScript describes it with types.
 
 But TypeScript actually has a few runtime features that don't exist in JavaScript. These features are compiled into JavaScript, but they are not part of the JavaScript language itself.

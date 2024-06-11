@@ -1,5 +1,3 @@
-# The Weird Parts
-
 We've now got a good understanding of most of TypeScript's features. Let's take it to the next level. By exploring some of the more unusual and lesser-known parts of TypeScript, we'll gain a deeper understanding of how it works.
 
 ## The Evolving `any` Type

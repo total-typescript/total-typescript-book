@@ -1,5 +1,3 @@
-# 07. Mutability
-
 In our chapter on unions and narrowing, we explored how TypeScript can infer types from the logical flow of our code. In this chapter, we'll see how mutability - whether a value can be changed or not - can affect type inference.
 
 ## Mutability and Inference

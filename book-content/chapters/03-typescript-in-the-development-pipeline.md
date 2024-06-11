@@ -1,5 +1,3 @@
-# 03. TypeScript In The Development Pipeline
-
 We've explored the relationship between JavaScript and TypeScript, and also how TypeScript improves your life as a developer. But let's go a bit deeper. In this chapter we'll get the TypeScript CLI up and running, and see how it fits into the development pipeline.
 
 As an example, we'll be looking at using TypeScript to build a web application. But TypeScript can also be used anywhere JavaScript can - in a Node, Electron, React Native or any other app.

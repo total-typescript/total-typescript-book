@@ -1,5 +1,3 @@
-# 08. Classes
-
 Classes are a JavaScript feature that help you encapsulate data and behavior into a single unit. They are a fundamental part of object-oriented programming and are used to create objects that have properties and methods.
 
 You can use the `class` keyword to define a class, and then create instances of that class using the `new` keyword. TypeScript adds a layer of static type checking to classes, which can help you catch errors and enforce structure in your code.

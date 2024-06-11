@@ -1,5 +1,3 @@
-# Deriving Types
-
 One of the most common pieces of advice for writing maintainable code is to "Keep code DRY", or more explicitly, "Don't Repeat Yourself".
 
 One way to do this in JavaScript is to take repeating code and capture it in functions or variables. These variables and functions can be reused, composed and combined in different ways to create new functionality.
@@ -522,7 +520,6 @@ Notice there is a lot of duplication here. Both the `FormValues` interface and `
 
 Your task is to modify the `inputs` Record so its keys are derived from the `FormValues` interface.
 
-
 <Exercise
   title="Exercise 1: Reduce Key Repetition"
   filePath="/src/040-deriving-types-from-values/125-keyof.problem.ts"
@@ -561,7 +558,6 @@ We want to use the `Environment` type across our application. However, the `conf
 
 Your task is to update the `Environment` type so that it is derived from the `configurations` object.
 
-
 <Exercise
   title="Exercise 2: Derive a Type from a Value"
   filePath="/src/040-deriving-types-from-values/126-typeof-keyword.problem.ts"
@@ -597,7 +593,6 @@ type test = Expect<Equal<Group, "group">>;
 
 Your task is to find the proper way to type `Group` so the test passes as expected.
 
-
 <Exercise
   title="Exercise 3: Accessing Specific Values"
   filePath="/src/040-deriving-types-from-values/135-indexed-access-types.problem.ts"
@@ -630,7 +625,6 @@ type test = Expect<
 ```
 
 This time, your challenge is to update the `PlannedPrograms` type to use an indexed access type to extract a union of the `ProgramModeMap` values that included "`planned`".
-
 
 <Exercise
   title="Exercise 4: Unions with Indexed Access Types"

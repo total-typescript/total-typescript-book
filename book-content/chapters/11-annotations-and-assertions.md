@@ -1,5 +1,3 @@
-# Annotations and Assertions
-
 Throughout this book, we've been using relatively simple type annotations. We've had a look at variable annotations, which help TypeScript know what type a variable should be:
 
 ```typescript

@@ -1,5 +1,3 @@
-# 15. Configuring TypeScript
-
 We've dipped into TypeScript's `tsconfig.json` configuration file a few times in this book. Let's take a deeper look. We won't cover every option in `tsconfig.json` - many of them are old and rarely used - but we'll cover the most important ones.
 
 ## Recommended Configuration

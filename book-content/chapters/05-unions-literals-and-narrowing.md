@@ -1,5 +1,3 @@
-# 05. Unions, Literals and Narrowing
-
 In this section, we're going to see how TypeScript can help when a value is one of many possible types. We'll first look at declaring those types using union types, then we'll see how TypeScript can narrow down the type of a value based on your runtime code.
 
 ## Unions and Literals

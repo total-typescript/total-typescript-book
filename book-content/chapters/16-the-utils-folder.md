@@ -1,5 +1,3 @@
-# 16. The `/utils` Folder
-
 It's commonly thought that there are two levels of TypeScript complexity.
 
 On one end, you have library development. Here, you take advantage of many of TypeScript's most arcane and powerful features. You'll need conditional types, mapped types, generics, and much more to create a library that's flexible enough to be used in a variety of scenarios.

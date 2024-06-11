@@ -1,5 +1,3 @@
-# Modules, Scripts, and Declaration Files
-
 In this chapter, we'll be diving deeper into modules. First, we'll look at how TypeScript understands global scope by looking at the distinction between 'modules' and 'scripts'. Second, we'll look at declaration files - `.d.ts files` - and introduce the `declare` keyword.
 
 ## Understanding Modules and Scripts

@@ -1,5 +1,3 @@
-# 01. Kickstart Your TypeScript Setup
-
 Before diving into TypeScript, let's take a moment to talk about its foundation — JavaScript.
 
 JavaScript is the language that makes web pages interactive. Any modern website will utilize some amount of it. And the more complex the site, the more complex the JavaScript.
