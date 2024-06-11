@@ -16,9 +16,10 @@ const DEFAULT_VOLUME = 90;
 
 Without being imported, the `DEFAULT_VOLUME` constant is not accessible from other files:
 
-```typescript
+```ts twoslash
+// @errors: 2304
 // inside of index.ts
-console.log(DEFAULT_VOLUME); // red squiggly line under DEFAULT_VOLUME
+console.log(DEFAULT_VOLUME);
 ```
 
 In order to use the `DEFAULT_VOLUME` constant in the `index.ts` file, it must be imported from the `constants.ts` module:
@@ -45,10 +46,13 @@ const DEFAULT_VOLUME = 90;
 
 Now, we no longer need to import the `DEFAULT_VOLUME` constant in the `index.ts` file:
 
-```typescript
+```ts twoslash
+declare const DEFAULT_VOLUME: 90;
+// ---cut---
 // inside of index.ts
 
-console.log(DEFAULT_VOLUME); // 90
+console.log(DEFAULT_VOLUME);
+//          ^?
 ```
 
 This behavior might be surprising to you - let's figure out why TypeScript does this.
@@ -77,11 +81,10 @@ But these days, 99% of the code you'll be writing will be in modules. So this au
 
 Let's imagine you create a new TypeScript file, `utils.ts`, and add a `name` constant:
 
-```typescript
-const name = "Alice"; // red squiggly line under name
-
-// Hovering over the error shows:
-// Cannot redeclare block-scoped variable 'name'.
+```ts twoslash
+// @errors: 2451
+// @moduleDetection: auto
+const name = "Alice";
 ```
 
 You'll be greeted with a surprising error. This error is telling you that you can't declare `name`, because it's already been declared.
@@ -228,9 +231,7 @@ Now, the `Album` type is available globally and can be used in any TypeScript fi
 
 What would happen if we tried to write normal TypeScript inside our `.d.ts` file?
 
-```tsx
-// musicPlayer.d.ts
-
+```ts
 export function playTrack(track: {
   title: string;
   artist: string;
@@ -442,9 +443,9 @@ declare module "express" {
 
 Now, we've completely overridden the `express` module. This means that the `express` module no longer has any exports except for `MyType`:
 
-```typescript
+```ts
 // anywhere.ts
-import { express } from "express"; // red squiggly line under "express"
+import { Express } from "express"; // red squiggly line under "Express"
 ```
 
 Just like module augmentation, we can get the same behavior by changing `express.d.ts` to `express.ts` (if `moduleDetection` is set to `auto`).
@@ -498,8 +499,6 @@ Doing a 'go to definition' on `.replaceAll` will take you to a file called `lib.
 Looking at the code in `node_modules/typescript/lib`, you'll see dozens of declaration files that describe the JavaScript environment.
 
 Understanding how to navigate these declaration files can be very useful for fixing type errors. Take a few minutes to explore what's in `lib.es5.d.ts` by using 'go to definition' to navigate around.
-
-<!-- TODO - add a section on the most common global types -->
 
 #### Choosing Your JavaScript Version With `lib`
 
@@ -615,9 +614,9 @@ const differences = Diff.diffChars(message1, message2);
 
 TypeScript reports an error underneath the `import` statement because it can't find type definitions, even though the library is installed over 40 million times a week from NPM:
 
-```tsx
-// hovering over "diff" shows:
-// Could not find a declaration file for module 'diff'. Try `npm install --save-dev @types/diff` if it exists or add a new declaration (.d.ts) file containing `declare module 'diff';`
+```txt
+hovering over "diff" shows:
+Could not find a declaration file for module 'diff'. Try `npm install --save-dev @types/diff` if it exists or add a new declaration (.d.ts) file containing `declare module 'diff';`
 ```
 
 Since we're using `pnpm` instead of `npm`, our installation command looks like this:
