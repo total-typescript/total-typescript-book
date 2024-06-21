@@ -577,3 +577,17 @@ function getRandomPercentage() {
 ```
 
 These are just some of the options provided by the Quick Fix menu. There's so much you can achieve with them, and we're only scratching the surface. Keep exploring and experimenting to discover their full potential!
+
+## Summary
+
+TypeScript's benefits are most strongly felt as you write your code. It gives your IDE superpowers. In this chapter, we learned about:
+
+- Autocomplete, which can be manually triggered with `Ctrl + Space`.
+- Error checking, which catches runtime errors and makes sure the code you write is doing what you think it's doing.
+- Handling multi-line errors by reading them from the bottom up.
+- Introspecting variables and declarations, by hovering over them to see their types.
+- Navigating your codebase with "Go to Definition" and "Go to References".
+- Renaming symbols across your codebase.
+- Automatic imports, which add import statements to the top of your file as you type.
+- Quick Fixes, which provide a range of options for refactoring your code.
+- JSDoc comments, which let you add documentation to your code that's revealed on hover.
