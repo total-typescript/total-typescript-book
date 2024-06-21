@@ -2405,3 +2405,20 @@ async function fetchData(): Promise<number> {
 ```
 
 By wrapping the `number` inside of `Promise<>`, we make sure that the `data` is awaited before the type is figured out.
+
+## Summary
+
+You should now have a solid grounding of TypeScript's fundamentals. You've learned about:
+
+- Annotating function parameters, including using optional parameters and defaults, to make sure the correct types are passed in.
+- Annotating variables to ensure they contain the correct types.
+- The basic types, like `string`, `number` and `boolean`.
+- You don't need to provide a type annotation for everything - TypeScript can infer types automatically from your code.
+- How `any` disables type checking, and how to avoid it.
+- How to declare object types, including with optional properties.
+- The two ways to handle array types: `string[]` and `Array<string>`.
+- How to declare tuples, an array with a fixed number of elements.
+- How to reuse types using type aliases.
+- How to pass types to functions, like `Set` and `Map`.
+- Typing async functions using `Promise`, and enforcing the correct return type of a function.
+- How to type callbacks, including `void` - and the difference between `void` and `undefined`.
