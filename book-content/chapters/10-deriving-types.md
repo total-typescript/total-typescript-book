@@ -681,7 +681,6 @@ A test has been written to check if an `AllPrograms` type is a union of all the 
 import { Equal, Expect } from "@total-typescript/helpers";
 type AllPrograms = unknown;
 // ---cut---
-
 type test = Expect<
   Equal<
     AllPrograms,

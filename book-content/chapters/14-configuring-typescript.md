@@ -261,7 +261,6 @@ const egoMirror: VinylSingle = {
 };
 
 // ---cut---
-
 const ego = egoMirror.tracks[0];
 //    ^?
 const mirror = egoMirror.tracks[1];

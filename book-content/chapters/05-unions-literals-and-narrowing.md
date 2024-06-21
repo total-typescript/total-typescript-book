@@ -125,7 +125,6 @@ This way, we can ensure that each function only handles the cases it's supposed 
 // @errors: 2345
 type PhysicalFormat = "LP" | "CD" | "Cassette";
 // ---cut---
-
 const getAlbumFormats = (format: PhysicalFormat) => {
   // function body
 };
@@ -211,7 +210,6 @@ function move(direction: string, distance: number) {
   // Move the specified distance in the given direction
 }
 // ---cut---
-
 move(
   // @ts-expect-error - "up-right" is not a valid direction
   "up-right",
@@ -657,7 +655,6 @@ if (!appElement) {
 }
 
 // ---cut---
-
 console.log(appElement);
 //          ^?
 

@@ -538,7 +538,6 @@ This means that our examples above now work as expected:
 type ToArray<T> = T extends any[] ? T : T[];
 
 // ---cut---
-
 type Example = ToArray<string>;
 //   ^?
 
@@ -863,7 +862,6 @@ type Result<TResult, TError = Error> =
     };
 
 // ---cut---
-
 type BadExample = Result<
   { id: string },
   // @ts-expect-error Should be an object with a message property

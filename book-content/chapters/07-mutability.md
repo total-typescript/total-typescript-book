@@ -23,7 +23,6 @@ Using `let`, we can declare a variable `albumGenre` and assign it the value `"ro
 type AlbumGenre = "rock" | "country" | "electronic";
 
 // ---cut---
-
 let albumGenre = "rock";
 
 const handleGenre = (genre: AlbumGenre) => {
@@ -39,7 +38,6 @@ Because `let` was used when declaring the variable, TypeScript understands that 
 let albumGenre = "rock";
 
 // ---cut---
-
 albumGenre = "country";
 ```
 
@@ -52,7 +50,6 @@ We can fix the error above by assigning a specific type to the `let`:
 type AlbumGenre = "rock" | "country" | "electronic";
 
 // ---cut---
-
 let albumGenre: AlbumGenre = "rock";
 
 const handleGenre = (genre: AlbumGenre) => {
@@ -95,7 +92,6 @@ type AlbumGenre = "rock" | "country" | "electronic";
 const albumGenre = "rock";
 
 // ---cut---
-
 albumGenre = "country";
 ```
 
@@ -234,7 +230,6 @@ const readOnlyWhiteAlbum: Readonly<Album> = {
   status: "staff-pick",
 };
 // ---cut---
-
 readOnlyWhiteAlbum.genre = ["rock", "pop", "unclassifiable"];
 ```
 

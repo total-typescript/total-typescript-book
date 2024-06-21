@@ -904,7 +904,6 @@ Now that we've typed `DEBUG`, the error message has moved to be under `getState(
 import { Equal, Expect } from "@total-typescript/helpers";
 declare const DEBUG: {};
 // ---cut---
-
 const state = DEBUG.getState();
 
 type test = Expect<Equal<typeof state, { id: string }>>;

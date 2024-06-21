@@ -278,7 +278,6 @@ const createSet = <T = string>(arr?: T[]) => {
   return new Set(arr);
 };
 // ---cut---
-
 const numberSet = createSet<number>([1, 2, 3]);
 //    ^?
 ```

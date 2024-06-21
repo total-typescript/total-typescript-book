@@ -731,7 +731,6 @@ In the third scenario, we're trying to use `satisfies` with `document.getElement
 // @errors: 1360 2344
 import { Equal, Expect } from "@total-typescript/helpers";
 // ---cut---
-
 // Third Scenario
 const element = document.getElementById("app") satisfies HTMLElement;
 
