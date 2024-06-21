@@ -622,9 +622,6 @@ Like before, TypeScript gives us an error when testing that the function returns
 
 ```ts twoslash
 // @errors: 2345
-import { it, expect } from "vitest";
-import { Expect, Equal } from "@total-typescript/helpers";
-
 const concatName = (user: { first: string; last: string }) => {
   if (!user.last) {
     return user.first;
@@ -634,18 +631,10 @@ const concatName = (user: { first: string; last: string }) => {
 };
 
 // ---cut---
-it("should only return the first name if last name not provided", () => {
-  const result = concatName({
-    first: "John",
-  });
-
-  type test = Expect<Equal<typeof result, string>>;
-
-  expect(result).toEqual("John");
+const result = concatName({
+  first: "John",
 });
 ```
-
-This time the entire `{first: "John"}` object is underlined in red.
 
 The error tells us that we are missing a property, but the error is incorrect. We _do_ want to support objects that only include a `first` property. In other words, `last` needs to be optional.
 
