@@ -9,7 +9,6 @@ A union type is TypeScript's way of saying that a value can be "either this type
 This situation comes up in JavaScript all the time. Imagine you have a value that is a `string` on Tuesdays, but `null` the rest of the time:
 
 ```ts twoslash
-const message = Date.now() % 2 === 0 ? "Hello Tuesdays!" : null;
 const message = (new Date()).getDay() === 2 ? 'Hello Tuesdays!' : null;
 //    ^?
 ```
