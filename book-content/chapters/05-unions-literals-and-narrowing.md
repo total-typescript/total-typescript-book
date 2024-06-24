@@ -10,6 +10,7 @@ This situation comes up in JavaScript all the time. Imagine you have a value tha
 
 ```ts twoslash
 const message = Date.now() % 2 === 0 ? "Hello Tuesdays!" : null;
+const message = (new Date()).getDay() === 2 ? 'Hello Tuesdays!' : null;
 //    ^?
 ```
 
