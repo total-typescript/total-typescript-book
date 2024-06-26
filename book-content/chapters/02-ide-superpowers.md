@@ -222,6 +222,8 @@ Already, we understand the issue without needing to see the top line, which is u
 
 Reading errors bottom-to-top can be a helpful strategy when dealing with multi-line TypeScript errors.
 
+I feel like a brief explanation as to WHY the error was in an unhelpful spot might be useful here. 
+
 ## Introspecting Variables and Declarations
 
 You can hover over more than just error messages. Any time you hover over a variable or declaration, VS Code will show you information about it.
@@ -346,6 +348,8 @@ The `@param` tag is used to describe the parameters of the function. The `@examp
 There are many, many more tags available for use in JSDoc comments. You can find a full list of them in the [JSDoc documentation](https://jsdoc.app/).
 
 Adding JSDoc comments is a useful way to communicate the purpose and usage of your code, whether you're working on a library, a team, or your own personal projects.
+
+Recommend adding an image / screenshot of what shows up when you hover over a call to logValues in your code, to help demonstrate what the jsdoc string is doing. You sort of show that with the exercise, but the book might do well to stand-along, without the (I assume online-only) exercises. 
 
 ### Exercises
 
