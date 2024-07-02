@@ -166,12 +166,13 @@ isReleased = "yes";
 And also giving us autocomplete on the variable:
 
 ```ts
-albumTitle.toUpper; // shows `toUpperCase` in autocomplete
+albumTitle.toUpper // shows `toUpperCase` in autocomplete
+// get rid of the semicolor above - since the semicolon would terminate the auto-complete list, which I think is your point here
 ```
 
 This is an extremely powerful part of TypeScript. It means that you can mostly _not_ annotate variables and still have your IDE know what type things are.
 
-#### Function Parameters Always Need Annotations
+#### Function Parameters Always Need Annotations (unless the function expression itself is typed, as I'm sure you cover later)
 
 But type inference can't work everywhere. Let's see what happens if we remove the type annotations from the `logAlbumInfo` function's parameters:
 
@@ -205,7 +206,7 @@ function add(a, b) {
 
 `a` and `b` could be strings, booleans, or anything else. TypeScript can't know from the function body what type they're supposed to be.
 
-So, when you're declaring a named function, their parameters always need annotations in TypeScript.
+So, when you're declaring a function declaration, their parameters always need annotations in TypeScript. (function expressions have inferred names, per the ecma 2015 spec - also, your original example in this section was a function expression)
 
 ### The `any` Type
 
@@ -456,7 +457,7 @@ So TypeScript can not only infer variables, but also the return types of functio
 
 #### Solution 2: Annotating Empty Parameters
 
-As we know, function parameters always need annotations in TypeScript.
+As we know, function parameters always need annotations in TypeScript (again only for function declarations or non-typed function expressions).
 
 So, let's update the function declaration parameters so that `a` and `b` are both specified as `string`:
 
