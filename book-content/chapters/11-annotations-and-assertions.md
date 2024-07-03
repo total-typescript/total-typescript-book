@@ -572,6 +572,7 @@ This `handleFormData` function accepts an argument `e` typed as `SubmitEvent`, w
 Within the function we use the method `e.preventDefault()`, available on `SubmitEvent`, to stop the form from its default submission action. Then we attempt to create a new `FormData` object, `data`, with `e.target`:
 
 ```ts twoslash
+// @lib: dom,es2023,dom.iterable
 // @errors: 2345
 const handleFormData = (e: SubmitEvent) => {
   e.preventDefault();
@@ -797,6 +798,7 @@ Your task is to update the `routes` object typing so that all errors are resolve
 The error we encountered in this challenge was that the `EventTarget | null` type was incompatible with the required parameter of type `HTMLFormElement`. The problem stems from the fact that these types don't match, and `null` is not permitted:
 
 ```ts twoslash
+// @lib: dom,es2023,dom.iterable
 // @errors: 2345
 const handleFormData = (e: SubmitEvent) => {
   e.preventDefault();
@@ -815,6 +817,7 @@ We can use the `as` keyword to recast `e.target` to a specific type.
 However, if we recast it as `EventTarget`, an error will continue to occur:
 
 ```ts twoslash
+// @lib: dom,es2023,dom.iterable
 // @errors: 2345
 const handleFormData = (e: SubmitEvent) => {
   e.preventDefault();

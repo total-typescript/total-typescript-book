@@ -12,7 +12,7 @@
     "nodemon": "^3.0.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.8.7",
-    "typescript": "^5.4.5",
+    "typescript": "^5.5.2",
     "vite-tsconfig-paths": "^4.0.7",
     "vitest": "^1.6.0"
   },
@@ -590,7 +590,11 @@
     "e-202.7": "tt-cli run 202.7",
     "s-202.7": "tt-cli run 202.7 --solution",
     "e-072.5": "tt-cli run 072.5",
-    "s-072.5": "tt-cli run 072.5 --solution"
+    "s-072.5": "tt-cli run 072.5 --solution",
+    "e-034.5": "tt-cli run 034.5",
+    "s-034.5": "tt-cli run 034.5 --solution",
+    "e-066.5": "tt-cli run 066.5",
+    "s-066.5": "tt-cli run 066.5 --solution"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.29.12",

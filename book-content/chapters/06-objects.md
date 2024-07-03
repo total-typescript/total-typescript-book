@@ -767,45 +767,33 @@ A test case that checks for numeric keys does have issues because the function i
 
 ```ts twoslash
 // @errors: 2345
-import { it, expect } from "vitest";
 
 const hasKey = (obj: object, key: string) => {
   return obj.hasOwnProperty(key);
 };
 
 // ---cut---
-it("Should work on number keys", () => {
-  const obj = {
-    1: "bar",
-  };
-
-  expect(hasKey(obj, 1)).toBe(true);
-  expect(hasKey(obj, 2)).toBe(false);
-});
+const obj = {
+  1: "bar",
+};
 ```
 
 Because an object can also have a symbol as a key, there is also a test for that case. It currently has type errors for `fooSymbol` and `barSymbol` when calling `hasKey`:
 
 ```ts twoslash
+// @lib: dom,es2023,dom.iterable
 // @errors: 2345
-import { it, expect } from "vitest";
-
 const hasKey = (obj: object, key: string) => {
   return obj.hasOwnProperty(key);
 };
 
 // ---cut---
-it("Should work on symbol keys", () => {
-  const fooSymbol = Symbol("foo");
-  const barSymbol = Symbol("bar");
+const fooSymbol = Symbol("foo");
+const barSymbol = Symbol("bar");
 
-  const obj = {
-    [fooSymbol]: "bar",
-  };
-
-  expect(hasKey(obj, fooSymbol)).toBe(true);
-  expect(hasKey(obj, barSymbol)).toBe(false);
-});
+const obj = {
+  [fooSymbol]: "bar",
+};
 ```
 
 Your task is to update the `hasKey` function so that all of these tests pass. Try to be as concise as possible!

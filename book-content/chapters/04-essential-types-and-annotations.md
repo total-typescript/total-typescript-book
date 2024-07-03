@@ -1459,14 +1459,10 @@ There is currently an error under the type argument for `JSON.parse`.
 A test that checks the type of `parsedData` is currently failing, since it is typed as `any` instead of the expected type:
 
 ```ts twoslash
-// @errors: 2558 2344
-import { it, expect } from "vitest";
+// @errors: 2344
 import { Expect, Equal } from "@total-typescript/helpers";
 
-const parsedData = JSON.parse<{
-  name: string;
-  age: number;
-}>('{"name": "Alice", "age": 30}');
+declare const parsedData: any;
 
 // ---cut---
 type test = Expect<
@@ -1478,13 +1474,6 @@ type test = Expect<
     }
   >
 >;
-
-it("Should be the correct shape", () => {
-  expect(parsedData).toEqual({
-    name: "Alice",
-    age: 30,
-  });
-});
 ```
 
 We've tried to pass a type argument to the `JSON.parse` function. But it doesn't appear to be working in this case.
@@ -1923,21 +1912,9 @@ Here we have a `concatenate` function that takes in a variable number of strings
 
 ```ts twoslash
 // @errors: 7019
-import { Expect, Equal } from "@total-typescript/helpers";
-import { it, expect } from "vitest";
-
-// ---cut---
 export function concatenate(...strings) {
   return strings.join("");
 }
-
-it("should concatenate strings", () => {
-  const result = concatenate("Hello", " ", "World");
-
-  expect(result).toEqual("Hello World");
-
-  type test = Expect<Equal<typeof result, string>>;
-});
 ```
 
 The test passes, but there's an error on the `...strings` rest parameter.
