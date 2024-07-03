@@ -1,72 +1,48 @@
 import { Equal, Expect } from "@total-typescript/helpers";
 import { describe, expect, it } from "vitest";
 
-const parseValue = (value: unknown) => {
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "data" in value &&
-    typeof value.data === "object" &&
-    value.data !== null &&
-    "id" in value.data &&
-    typeof value.data.id === "string"
-  ) {
-    return value.data.id;
+const joinNames = (value: unknown) => {
+  if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+    return value.join(" ");
   }
 
   throw new Error("Parsing error!");
 };
 
-const parseValueAgain = (value: unknown) => {
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "data" in value &&
-    typeof value.data === "object" &&
-    value.data !== null &&
-    "id" in value.data &&
-    typeof value.data.id === "string"
-  ) {
-    return value.data.id;
+const createSections = (value: unknown) => {
+  if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+    return value.map((item) => `Section: ${item}`);
   }
 
   throw new Error("Parsing error!");
 };
 
-describe("parseValue", () => {
-  it("Should handle a { data: { id: string } }", () => {
-    const result = parseValue({
-      data: {
-        id: "123",
-      },
-    });
+describe("joinNames", () => {
+  it("Should handle an array of strings", () => {
+    const result = joinNames(["John", "Doe"]);
 
     type test = Expect<Equal<typeof result, string>>;
 
-    expect(result).toBe("123");
+    expect(result).toBe("John Doe");
   });
 
   it("Should error when anything else is passed in", () => {
-    expect(() => parseValue("123")).toThrow("Parsing error!");
-    expect(() => parseValue(123)).toThrow("Parsing error!");
+    expect(() => joinNames("John")).toThrow("Parsing error!");
+    expect(() => joinNames(123)).toThrow("Parsing error!");
   });
 });
 
-describe("parseValueAgain", () => {
-  it("Should handle a { data: { id: string } }", () => {
-    const result = parseValueAgain({
-      data: {
-        id: "123",
-      },
-    });
+describe("createSections", () => {
+  it("Should handle an array of strings", () => {
+    const result = createSections(["John", "Doe"]);
 
-    type test = Expect<Equal<typeof result, string>>;
+    type test = Expect<Equal<typeof result, string[]>>;
 
-    expect(result).toBe("123");
+    expect(result).toEqual(["Section: John", "Section: Doe"]);
   });
 
   it("Should error when anything else is passed in", () => {
-    expect(() => parseValueAgain("123")).toThrow("Parsing error!");
-    expect(() => parseValueAgain(123)).toThrow("Parsing error!");
+    expect(() => createSections("John")).toThrow("Parsing error!");
+    expect(() => createSections(123)).toThrow("Parsing error!");
   });
 });

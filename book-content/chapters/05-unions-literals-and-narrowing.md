@@ -973,53 +973,43 @@ Your challenge is to modify the `parseValue` function so that the tests pass and
 
 #### Exercise 3: Reusable Type Guards
 
-Let's imagine that we have two very similar functions, each with a long conditional check to narrow down the type of a value.
+Let's imagine that we have two functions which both take in a `value` of type `unknown`, and attempt to parse that value to an array of strings.
 
-Here's the first function:
+Here's the first function, which joins an array of names together into a single string:
 
 ```typescript
-const parseValue = (value: unknown) => {
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "data" in value &&
-    typeof value.data === "object" &&
-    value.data !== null &&
-    "id" in value.data &&
-    typeof value.data.id === "string"
-  ) {
-    return value.data.id;
+const joinNames = (value: unknown) => {
+  if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+    return value.join(" ");
   }
 
   throw new Error("Parsing error!");
 };
 ```
 
-And here's the second function:
+And here's the second function, which maps over the array of names and adds a prefix to each one:
 
 ```typescript
-const parseValueAgain = (value: unknown) => {
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "data" in value &&
-    typeof value.data === "object" &&
-    value.data !== null &&
-    "id" in value.data &&
-    typeof value.data.id === "string"
-  ) {
-    return value.data.id;
+const createSections = (value: unknown) => {
+  if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+    return value.map((item) => `Section: ${item}`);
   }
 
   throw new Error("Parsing error!");
 };
 ```
 
-Both functions have the same conditional check. This is a great opportunity to create a reusable type guard.
+Both functions have the same conditional check:
+
+```ts
+if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+```
+
+This is a great opportunity to create a reusable type guard.
 
 All the tests are currently passing. Your job is to try to refactor the two functions to use a reusable type guard, and remove the duplicated code. As it turns out, TypeScript makes this a lot easier than you expect.
 
-<Exercise title="Exercise 3: Reusable Type Guards" filePath="/src/018-unions-and-narrowing/066.5-reusable-type-guards.problem.ts"></Exercise>
+<Exercise title="Exercise 3: Reusable Type Guards" filePath="/src/018-unions-and-narrowing/072.5-reusable-type-guards.problem.ts"></Exercise>
 
 #### Solution 1: Narrowing Errors with `instanceof`
 
@@ -1168,18 +1158,12 @@ This is usually _not_ how you'd want to write your code. It's a bit of a mess. Y
 
 #### Solution 3: Reusable Type Guards
 
-The first step is to create a function called `hasDataId` that captures the conditional check:
+The first step is to create a function called `isArrayOfStrings` that captures the conditional check:
 
 ```typescript
-const hasDataId = (value) => {
+const isArrayOfStrings = (value) => {
   return (
-    typeof value === "object" &&
-    value !== null &&
-    "data" in value &&
-    typeof value.data === "object" &&
-    value.data !== null &&
-    "id" in value.data &&
-    typeof value.data.id === "string"
+    Array.isArray(value) && value.every((item) => typeof item === "string")
   );
 };
 ```
@@ -1189,33 +1173,33 @@ We haven't given `value` a type here - `unknown` makes sense, because it could b
 Now we can refactor the two functions to use this type guard:
 
 ```typescript
-const parseValue = (value: unknown) => {
-  if (hasDataId(value)) {
-    return value.data.id;
+const joinNames = (value: unknown) => {
+  if (isArrayOfStrings(value)) {
+    return value.join(" ");
   }
 
   throw new Error("Parsing error!");
 };
 
-const parseValueAgain = (value: unknown) => {
-  if (hasDataId(value)) {
-    return value.data.id;
+const createSections = (value: unknown) => {
+  if (isArrayOfStrings(value)) {
+    return value.map((item) => `Section: ${item}`);
   }
 
   throw new Error("Parsing error!");
 };
 ```
 
-Incredibly, this is all TypeScript needs to be able to narrow the type of `value` inside of the `if` statement. It's smart enough to understand that `hasDataId` being called on `value` ensures that `value` has a `data` property with an `id` property.
+Incredibly, this is all TypeScript needs to be able to narrow the type of `value` inside of the `if` statement. It's smart enough to understand that `isArrayOfStrings` being called on `value` ensures that `value` is an array of strings.
 
-We can observe this by hovering over `hasDataId`:
+We can observe this by hovering over `isArrayOfStrings`:
 
 ```typescript
-// hovering over `hasDataId` shows:
-const hasDataId: (value: unknown) => value is { data: { id: string } };
+// hovering over `isArrayOfStrings` shows:
+const isArrayOfStrings: (value: unknown) => value is string[];
 ```
 
-This return type we're seeing is a type predicate. It's a way of saying "if this function returns `true`, then the type of the value is `{ data: { id: string } }`".
+This return type we're seeing is a type predicate. It's a way of saying "if this function returns `true`, then the type of the value is `string[]`".
 
 We'll look at authoring our own type predicates in one of the later chapters in the book - but it's very useful that TypeScript infers its own.
 
