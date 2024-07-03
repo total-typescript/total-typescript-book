@@ -33,18 +33,15 @@ This technique of using the evolving `any` also works with arrays. When you decl
 
 ```ts twoslash
 const evolvingArray = [];
-//    ^?
 
 evolvingArray.push("abc");
+
+const elem = evolvingArray[0];
 //    ^?
 
 evolvingArray.push(123);
-//    ^?
 
-evolvingArray.push("do re mi");
-//    ^?
-
-evolvingArray.push({ easy: true });
+const elem2 = evolvingArray[1];
 //    ^?
 ```
 
@@ -97,7 +94,7 @@ const processAlbum = (album: Album) => console.log(album);
 processAlbum({
   title: "Rubber Soul",
   releaseYear: 1965,
-  label: "Parlophone", // red squiggly line under label
+  label: "Parlophone",
 });
 ```
 
@@ -132,7 +129,7 @@ In this case, TypeScript won't show an error, and you won't get the runtime beha
 ```ts twoslash
 // @errors: 2561
 const options: { timeout?: number } = {
-  timeOut: 1000, // red squiggly line under timeOut
+  timeOut: 1000,
 };
 ```
 
@@ -1016,7 +1013,7 @@ acceptAnythingExceptNullOrUndefined(
 
 Your task is to add a type annotation to the `acceptAnythingExceptNullOrUndefined` function that will allow it to accept any value except `null` or `undefined`.
 
-<Exercise title="Exercise 1: Accept Anything Except `null` and `undefined`" filePath="/src/050-the-weird-parts/150-empty-object-type.problem.ts"></Exercise>
+<Exercise title="Exercise 1: Accept Anything Except `null` and `undefined`" filePath="/src/050-the-weird-parts/150-empty-object-type.problem.ts" resourceId="NMpTvrI4rUCyVa4GW2ViSR"></Exercise>
 
 ### Exercise 2: Detecting Excess Properties in an Object
 
@@ -1056,7 +1053,7 @@ myFetch(options);
 
 Your challenge is to determine why the `@ts-expect-error` directive isn't working, and restructure the code so that it does. Try to solve it multiple ways!
 
-<Exercise title="Exercise 2: Detecting Excess Properties in an Object" filePath="/src/050-the-weird-parts/152-excess-properties-warnings.problem.ts"></Exercise>
+<Exercise title="Exercise 2: Detecting Excess Properties in an Object" filePath="/src/050-the-weird-parts/152-excess-properties-warnings.problem.ts" resourceId="PUZfccUL9g0ocvr45qbRoQ"></Exercise>
 
 ### Exercise 3: Detecting Excess Properties in a Function
 
@@ -1111,7 +1108,7 @@ Despite TypeScript not expecting an `age` on `User`, it doesn't show an error, a
 
 Your task is to determine why TypeScript isn't raising an error in this case, and find two different solutions to make it error appropriately when an unexpected property is added.
 
-<Exercise title="Exercise 3: Detecting Excess Properties in a Function" filePath="/src/050-the-weird-parts/153-excess-properties-warnings-in-functions.problem.ts"></Exercise>
+<Exercise title="Exercise 3: Detecting Excess Properties in a Function" filePath="/src/050-the-weird-parts/153-excess-properties-warnings-in-functions.problem.ts" resourceId="PUZfccUL9g0ocvr45qbS8Y"></Exercise>
 
 ### Exercise 4: Iterating over Objects
 
@@ -1150,7 +1147,7 @@ Try to solve this exercise with a `for` loop for one solution, and `Object.keys(
 
 Remember, `Object.keys()` is typed to always return an array of strings.
 
-<Exercise title="Exercise 4: Iterating over Objects" filePath="/src/050-the-weird-parts/154.6-iterating-over-objects.problem.ts"></Exercise>
+<Exercise title="Exercise 4: Iterating over Objects" filePath="/src/050-the-weird-parts/154.6-iterating-over-objects.problem.ts" resourceId="PUZfccUL9g0ocvr45qbSW2"></Exercise>
 
 ### Exercise 5: Function Parameter Comparisons
 
@@ -1202,7 +1199,6 @@ const listenToEvent = (callback: CallbackType) => {};
 
 // ---cut---
 listenToEvent((event, x, y) => {
-  // red squiggly line under event, x, and y
   type tests = [
     Expect<Equal<typeof event, Event>>,
     Expect<Equal<typeof x, number>>,
@@ -1225,7 +1221,6 @@ const listenToEvent = (callback: CallbackType) => {};
 
 // ---cut---
 listenToEvent((event, x, y, screenId) => {
-  // red squiggly line under event, x, y, and screenId
   type tests = [
     Expect<Equal<typeof event, Event>>,
     Expect<Equal<typeof x, number>>,
@@ -1239,7 +1234,7 @@ In almost every case, TypeScript is giving us errors.
 
 Your task is to update the `CallbackType` to ensure that it can handle all of these cases.
 
-<Exercise title="Exercise 5: Function Parameter Comparisons" filePath="/src/050-the-weird-parts/155-function-parameter-comparisons.problem.ts"></Exercise>
+<Exercise title="Exercise 5: Function Parameter Comparisons" filePath="/src/050-the-weird-parts/155-function-parameter-comparisons.problem.ts" resourceId="jUJqrXCHRph0Z4Fs6VxI9r"></Exercise>
 
 ### Exercise 6: Unions of Functions with Object Params
 
@@ -1275,14 +1270,13 @@ const loggers = [logId, logName];
 
 // ---cut---
 const logAll = (obj) => {
-  // red squiggly line under obj
   loggers.forEach((func) => func(obj));
 };
 ```
 
 Your task is to determine how to type the `obj` parameter to the `logAll` function. Look closely at the type signatures for the individual logger functions to understand what type this object should be.
 
-<Exercise title="Exercise 6: Unions of Functions with Object Params" filePath="/src/050-the-weird-parts/156-unions-of-functions-with-object-params.problem.ts"></Exercise>
+<Exercise title="Exercise 6: Unions of Functions with Object Params" filePath="/src/050-the-weird-parts/156-unions-of-functions-with-object-params.problem.ts" resourceId="NMpTvrI4rUCyVa4GW2ViZX"></Exercise>
 
 ### Exercise 7: Union of Functions With Incompatible Parameters
 
@@ -1334,7 +1328,7 @@ Currently there's an error on `input` in the return statement of the `format` fu
 
 A useful tidbit - `any` is not assignable to `never`.
 
-<Exercise title="Exercise 7: Union of Functions With Incompatible Parameters" filePath="/src/050-the-weird-parts/157-unions-of-functions.problem.ts"></Exercise>
+<Exercise title="Exercise 7: Union of Functions With Incompatible Parameters" filePath="/src/050-the-weird-parts/157-unions-of-functions.problem.ts" resourceId="Mcr8ILwjCSlKdfKEBg8upM"></Exercise>
 
 ### Solution 1: Accept Anything Except `null` and `undefined`
 
