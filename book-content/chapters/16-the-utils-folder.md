@@ -424,7 +424,20 @@ function isAlbum(input: unknown) {
 }
 ```
 
-This can feel far too verbose. We can make it more readable by adding our own type predicate.
+But at this point, something frustrating happens - TypeScript _stops_ inferring the return value of the function. We can see this by hovering over `isAlbum`:
+
+```typescript
+// hovering over isAlbum shows:
+function isAlbum(input: unknown): boolean;
+```
+
+This is because TypeScript's type predicate inference has limits - it can only process a certain level of complexity.
+
+Not only that, but our code is now _extremely_ defensive. We're checking the existence _and_ type of every property. This is a lot of boilerplate, and might not be necessary. In fact, code like this should probably be encapsulated in a library like [Zod](https://zod.dev/).
+
+### Writing Your Own Type Predicates
+
+To solve this, we can manually annotate our `isAlbum` function with a type predicate:
 
 ```typescript
 function isAlbum(input: unknown): input is Album {
@@ -439,7 +452,9 @@ function isAlbum(input: unknown): input is Album {
 }
 ```
 
-Now, when we use `isAlbum`, TypeScript will know that the type of the value has been narrowed to `Album`:
+This annotation tells TypeScript that when `isAlbum` returns `true`, the type of the value has been narrowed to `Album`.
+
+Now, when we use `isAlbum`, TypeScript will infer it correctly:
 
 ```typescript
 const run = (maybeAlbum: unknown) => {
@@ -449,19 +464,21 @@ const run = (maybeAlbum: unknown) => {
 };
 ```
 
-For complex type guards, this can be much more readable.
+This can ensure that you get the same type behavior from complex type guards.
 
 ### Type Predicates Can be Unsafe
 
-Authoring your own type predicates can be a little dangerous. If the type predicate doesn't accurately reflect the type being checked, TypeScript won't catch that discrepancy:
+Authoring your own type predicates can be a little dangerous. TypeScript doesn't track if the type predicate's runtime behavior matches the type predicate's type signature.
 
 ```typescript
-function isAlbum(input): input is Album {
-  return typeof input === "object";
+function isNumber(input: unknown): input is number {
+  return typeof input === "string";
 }
 ```
 
-In this case, any object passed to `isAlbum` will be considered an `Album`, even if it doesn't have the required properties. This is a common pitfall when working with type predicates - it's important to consider them about as unsafe as `as` and `!`.
+In this case, TypeScript _thinks_ that `isNumber` checks if something is a number. But in fact, it checks if something is a string! There are no guarantees that the runtime behavior of the function matches the type signature.
+
+This is a common pitfall when working with type predicates - it's important to consider them about as unsafe as `as` and `!`.
 
 ## Assertion Functions
 
