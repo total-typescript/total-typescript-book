@@ -5,3 +5,4 @@ tsconfig.temp.json
 dist
 *.tsbuildinfo
 .twoslash-lint
+out
