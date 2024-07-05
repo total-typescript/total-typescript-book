@@ -16,4 +16,5 @@ jobs:
       - run: git config --global user.name "Total TypeScript Bot"
       - run: npx @total-typescript/exercise-cli@latest create-section-repos
     env:
+      GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
