@@ -4,7 +4,7 @@ In this section, we're going to see how TypeScript can help when a value is one 
 
 ### Union Types
 
-A union type is TypeScript's way of saying that a value can be "either this type or that type".
+A union type is TypeScript's way of saying that a value can be "either this type or that type" (or both).
 
 This situation comes up in JavaScript all the time. Imagine you have a value that is a `string` on Tuesdays, but `null` the rest of the time:
 
@@ -621,11 +621,23 @@ function validateUsername(username: string | null): boolean {
 }
 ```
 
+What about a regular old check for null???
+
+```typescript
+if (username === null) {
+  return false;
+}
+
+return username.length > 5;
+```
+
 TypeScript is smart enough to understand that the value of `isUsernameOK` corresponds to whether `username` is a string or not. Very smart.
 
 All of the above options use `if` statements to perform checks by narrowing types by using `typeof`.
 
 No matter which option you go with, remember that you can always use an `if` statement to narrow your type and add code to the case that the condition passes.
+
+Most of the time I'm finding these exercises a bit intrusive, which interrupt the flow of the book. With these, though, it's a bit worse, since you've burried new content into the solutions. I'd much rather these various narrowing techniques be spelled out in book content, with maybe some supplemental exercises at the end of the chapter (or just in the course)
 
 #### Solution 2: Throwing Errors to Narrow
 
@@ -1854,3 +1866,5 @@ if (shape.kind === "square") {
 By inspecting `square` first, all shape cases that aren't squares default to circles. The circle is treated as optional, which preserves our discriminated union and keeps the function flexible.
 
 Sometimes, just flipping the runtime logic makes TypeScript happy!
+
+Same feedback again - the exercises to me really break the flow of the book, but I'm guessing the book exists as a companion to the course, so it's by design? 
