@@ -2,6 +2,7 @@
   "name": "total-typescript-book",
   "version": "1.0.0",
   "main": "index.js",
+  "packageManager": "pnpm@8.15.6",
   "author": "Matt Pocock <mattpocockvoice@gmail.com>",
   "license": "GPL",
   "devDependencies": {
