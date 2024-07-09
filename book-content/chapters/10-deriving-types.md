@@ -196,7 +196,7 @@ Use the `typeof` keyword whenever you need to extract types based on runtime val
 
 ### You Can't Create Runtime Types from Values
 
-We've seen that `typeof` can create types from runtime values, but it's important to note that there is no way to to create a value from a type.
+We've seen that `typeof` can create types from runtime values, but it's important to note that there is no way to create a value from a type.
 
 In other words, there is no `valueof` operator:
 
@@ -559,7 +559,7 @@ Your task is to update the `Environment` type so that it is derived from the `co
 
 ### Exercise 3: Accessing Specific Values
 
-Here were have an `programModeEnumMap` object that keeps different groupings in sync. There is also a `ProgramModeMap` type that uses `typeof` to represent the entire enum mapping:
+Here we have an `programModeEnumMap` object that keeps different groupings in sync. There is also a `ProgramModeMap` type that uses `typeof` to represent the entire enum mapping:
 
 ```typescript
 export const programModeEnumMap = {
