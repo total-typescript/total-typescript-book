@@ -197,6 +197,12 @@ interface User extends User1 {
 }
 ```
 
+Wouldn't the more equivalent version be 
+
+```ts
+interface Use extends User1, User2 {}
+```
+
 This is very different because it actually sources an error. With intersections, TypeScript will only raise an error when you try to access the `age` property, not when you define it.
 
 So, `interface extends` is better for catching errors when building out your types.
