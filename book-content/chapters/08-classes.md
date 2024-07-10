@@ -98,7 +98,7 @@ constructor(opts: { title: string; artist: string; releaseYear: number }) {
 
 The `this` keyword refers to the instance of the class, and it's used to access the properties and methods of the class.
 
-Now, when we create a new instance of the `Album` class, we can pass an object with the properties we want to set. If we don't provide any values, the default values will be used:
+Now, when we create a new instance of the `Album` class, we can pass an object with the properties we want to set.
 
 ```typescript
 const loopFindingJazzRecords = new Album({
@@ -108,10 +108,6 @@ const loopFindingJazzRecords = new Album({
 });
 
 console.log(loopFindingJazzRecords.title); // Output: Loop Finding Jazz Records
-
-const unknownAlbum = new Album();
-
-console.log(unknownAlbum.title); // Output: Unknown Album
 ```
 
 ### Using a Class as a Type

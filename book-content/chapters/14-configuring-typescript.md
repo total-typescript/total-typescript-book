@@ -141,7 +141,7 @@ This code will error in your target environment, because `target` won't transfor
 
 If you're not sure what to specify for `target`, keep it up to date with the version you have specified in `lib`.
 
-### `esModuleInterop`
+### `esModuleInterop`
 
 `esModuleInterop` is an old flag, released in 2018. It helps with interoperability between CommonJS and ES modules. At the time, TypeScript had deviated slightly from commonly-used tools like Babel in how it handled wildcard imports and default exports. `esModuleInterop` brought TypeScript in line with these tools.
 
@@ -164,7 +164,7 @@ declare const enum AlbumFormat {
   Digital,
 }
 
-const largestPhysicalSize = AlbumFormat.Vinyl; // red squiggly line under AlbumFormat when isolatedModules is enabled
+const largestPhysicalSize = AlbumFormat.Vinyl;
 ```
 
 Recall that the `declare` keyword will place `const enum` in an ambient context, which means that it would be erased at runtime.
@@ -241,7 +241,7 @@ const nonExistentTrack = egoMirror.tracks[3];
 console.log(nonExistentTrack.toUpperCase()); // no error in VS Code
 
 // However, running the code results in a runtime error:
-TypeError: Cannot read property 'toUpperCase' of undefined
+// TypeError: Cannot read property 'toUpperCase' of undefined
 ```
 
 By setting `noUncheckedIndexedAccess` to `true`, TypeScript will infer the type of every indexed access to be `T | undefined` instead of just `T`. In this case, every entry in `egoMirror.tracks` would be of type `string | undefined`:
@@ -286,7 +286,7 @@ const egoMirror: VinylSingle = {
 
 const ego = egoMirror.tracks[0];
 // ---cut---
-console.log(ego.toUpperCase()); // red squiggly line under ego
+console.log(ego.toUpperCase());
 ```
 
 This means that we have to handle the possibility of `undefined` values when accessing array or object indices.

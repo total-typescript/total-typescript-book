@@ -51,7 +51,7 @@ const identity = <T>(arg: T): T => arg;
 We can even declare a generic function as a type:
 
 ```typescript
-type Identity = <T>(arg: T) => void;
+type Identity = <T>(arg: T) => T;
 
 const identity: Identity = (arg) => arg;
 ```
@@ -68,12 +68,12 @@ It's very important not to confuse the syntax for a generic type with the syntax
 
 ```typescript
 // Type alias for a generic function
-type Identity = <T>(arg: T) => void;
+type Identity = <T>(arg: T) => T;
 //              ^^^
 //              Type parameter belongs to the function
 
 // Generic type
-type Identity<T> = (arg: T) => void;
+type Identity<T> = (arg: T) => T;
 //           ^^^
 //           Type parameter belongs to the type
 ```
