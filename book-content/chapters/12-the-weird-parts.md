@@ -459,7 +459,7 @@ playSong(Song);
 
 In this case, TypeScript shows an error when we try to pass the `Song` class itself to the `playSong` function. This is because `Song` is a class, and not an instance of the class.
 
-So, classes exists in both the type and value worlds, and represents an instance of the class when used as a type.
+So, classes exist in both the type and value worlds, and represent an instance of the class when used as a type.
 
 ### Enums
 
