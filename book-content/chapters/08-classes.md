@@ -186,6 +186,8 @@ class Album {
   readonly artist: string;
   readonly releaseYear: number;
 }
+// should mention here that these readonly properties CAN be assigned in the constructor, and in fact MUST BE assigned in the 
+// constructor if you don't give them default values, as in this very example - this would be an error wouldn't it?
 ```
 
 ### Optional Class Properties
@@ -249,8 +251,10 @@ class Album {
 ```
 
 The `#` syntax behaves the same as `private`, but it's a newer feature that's part of the ECMAScript standard. This means that it can be used in JavaScript as well as TypeScript.
+I don't love the second sentence. `#` is a JavaScript feature, period. Which TS is smart enough to support. 
 
 Attempting to access a `#`-prefixed property from outside of the class will result in a syntax error:
+I'd clarify that SyntaxError is a runtime JavaScript error, not a TypeScript error. 
 
 ```ts twoslash
 // @errors: 18013
@@ -346,7 +350,7 @@ myObj.arrow(); // { location: 'Class' }
 myObj.method(); // { location: 'Object' }
 ```
 
-In the `arrow` method, `this` is bound to the instance of the class where it was defined. In the `method` method, `this` is bound to the object where it was called.
+In the `arrow` method, `this` is bound to the instance of the class where it was defined. In the `method` method, `this` is bound to the object where it was called, which in this case is `myObj`.
 
 This can be a bit of a gotcha when working with classes, whether in JavaScript or TypeScript.
 
