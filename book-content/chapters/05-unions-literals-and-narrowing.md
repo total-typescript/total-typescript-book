@@ -111,7 +111,7 @@ type DigitalFormat = "MP3" | "FLAC";
 type PhysicalFormat = "LP" | "CD" | "Cassette";
 ```
 
-We could then specify `AlbumFormat` as a union of `DigitalFormat` and `PhysicalFormat:
+We could then specify `AlbumFormat` as a union of `DigitalFormat` and `PhysicalFormat`:
 
 ```tsx
 type AlbumFormat = DigitalFormat | PhysicalFormat;
