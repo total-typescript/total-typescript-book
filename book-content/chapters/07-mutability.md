@@ -138,6 +138,8 @@ This is happening because TypeScript has inferred the `status` property as a `st
 
 ```typescript
 albumAttributes.status = "new-release";
+// you should assign it to something that's NOT a valid status, to really drive home the point, ie 
+albumAttributes.status = "junk";
 ```
 
 This is true even though the `albumAttributes` object was declared with `const`. We get the error when calling `updateStatus` because `status: string` can't be passed to a function that expects `status: "new-release" | "on-sale" | "staff-pick"`. TypeScript is trying to protect us from potential runtime errors.
