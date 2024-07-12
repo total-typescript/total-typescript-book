@@ -909,7 +909,7 @@ The common settings can be moved to `tsconfig.base.json`:
 }
 ```
 
-Then, the `client/tsconfig.json` would extend the base configuration wit the `extends` option that points to the `tsconfig.base.json` file:
+Then, the `client/tsconfig.json` would extend the base configuration with the `extends` option that points to the `tsconfig.base.json` file:
 
 ```tsx
 // client/tsconfig.json
