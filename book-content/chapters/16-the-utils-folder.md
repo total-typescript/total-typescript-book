@@ -957,7 +957,7 @@ it("should return the result if the function succeeds", async () => {
 });
 ```
 
-Your task is to update `safeFunction` to have a generic type parameter, and update `PromiseFunc` to not return `Promise<Any>`. This will require you to combine generic types and functions to ensure that the tests pass successfully.
+Your task is to update `safeFunction` to have a generic type parameter, and update `PromiseFunc` to not return `Promise<any>`. This will require you to combine generic types and functions to ensure that the tests pass successfully.
 
 <Exercise title="Exercise 5: Combining Generic Types and Functions" filePath="/src/085-the-utils-folder/219-combining-generic-types-with-generic-functions.problem.ts"></Exercise>
 
@@ -1197,7 +1197,7 @@ const objMap = createStringMap();
 const objMap: Map<string, unknown>;
 ```
 
-Through these steps, we've successfully transformed `createStringMap` from a regular function into a generic function capable of receiving type arguments .
+Through these steps, we've successfully transformed `createStringMap` from a regular function into a generic function capable of receiving type arguments.
 
 ### Solution 2: Default Type Arguments
 
