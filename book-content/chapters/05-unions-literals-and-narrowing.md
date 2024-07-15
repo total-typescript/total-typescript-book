@@ -577,7 +577,7 @@ In this case, if `username` is not a string, we know it's `null` and could retur
 
 ```typescript
 function validateUsername(username: string | null | undefined): boolean {
-  if (typeof name !== "string") {
+  if (typeof username !== "string") {
     return false;
   }
 
