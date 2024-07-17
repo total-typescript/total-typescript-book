@@ -113,15 +113,16 @@ This can make you _think_ that TypeScript cares about excess properties - but it
 This behavior can be frustrating when you misspell the names of an optional parameter. Imagine you misspell `timeout` as `timeOut`:
 
 ```typescript
-const fetch = (options: { timeout?: number }) => {
+const myFetch = (options: { url: string; timeout?: number }) => {
   // Implementation
 };
 
 const options = {
+  url: "/",
   timeOut: 1000,
 };
 
-fetch(options); // No error!
+myFetch(options); // No error!
 ```
 
 In this case, TypeScript won't show an error, and you won't get the runtime behavior you expect. The only way to source the error would be to provide a type annotation for the `options` object:
