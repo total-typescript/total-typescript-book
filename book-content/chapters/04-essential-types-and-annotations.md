@@ -166,7 +166,7 @@ isReleased = "yes";
 And also giving us autocomplete on the variable:
 
 ```ts
-albumTitle.toUpper; // shows `toUpperCase` in autocomplete
+albumTitle.toUpper // shows `toUpperCase` in autocomplete
 ```
 
 This is an extremely powerful part of TypeScript. It means that you can mostly _not_ annotate variables and still have your IDE know what type things are.
