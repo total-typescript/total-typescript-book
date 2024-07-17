@@ -205,7 +205,7 @@ function add(a, b) {
 
 `a` and `b` could be strings, booleans, or anything else. TypeScript can't know from the function body what type they're supposed to be.
 
-So, when you're declaring a named function, their parameters always need annotations in TypeScript.
+So, when you're declaring a function, their parameters always need annotations in TypeScript.
 
 ### The `any` Type
 
