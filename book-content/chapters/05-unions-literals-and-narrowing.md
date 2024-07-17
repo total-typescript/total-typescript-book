@@ -111,7 +111,7 @@ type DigitalFormat = "MP3" | "FLAC";
 type PhysicalFormat = "LP" | "CD" | "Cassette";
 ```
 
-We could then specify `AlbumFormat` as a union of `DigitalFormat` and `PhysicalFormat:
+We could then specify `AlbumFormat` as a union of `DigitalFormat` and `PhysicalFormat`:
 
 ```tsx
 type AlbumFormat = DigitalFormat | PhysicalFormat;
@@ -577,7 +577,7 @@ In this case, if `username` is not a string, we know it's `null` and could retur
 
 ```typescript
 function validateUsername(username: string | null | undefined): boolean {
-  if (typeof name !== "string") {
+  if (typeof username !== "string") {
     return false;
   }
 
