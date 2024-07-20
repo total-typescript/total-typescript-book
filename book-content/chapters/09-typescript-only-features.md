@@ -1,3 +1,15 @@
+No way to create issues in this repo so here's a PR :) 
+
+My feedback for this chapter is entirely opinion based, so feel free to just ignore.
+
+But imo this chapter is much, much TOO even-handed. imo (and and Effective TS author seems to agree, after having just finished his second edition) these TS features should be considered legacy and avoided if at all possible. You do seem to suggest as much, but I'd love to see the warning more up front, while stating explicitly that this chapter exists to teach you how to look at legacy code. Namespaces are a pre-es module relic and should be avoided. 
+
+enums should be avoided in favor of unions of strings if at all possible.
+
+Again you kind of lean that direction but I'd love to see it a bit more emphatic (again imo)
+
+--------
+
 Based on what I've told you so far, you might be thinking of TypeScript as just "JavaScript with types". JavaScript handles the runtime code, and TypeScript describes it with types.
 
 But TypeScript actually has a few runtime features that don't exist in JavaScript. These features are compiled into JavaScript, but they are not part of the JavaScript language itself.
