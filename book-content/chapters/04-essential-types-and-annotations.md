@@ -166,6 +166,7 @@ isReleased = "yes";
 And also giving us autocomplete on the variable:
 
 ```ts
+// prettier-ignore
 albumTitle.toUpper // shows `toUpperCase` in autocomplete
 ```
 

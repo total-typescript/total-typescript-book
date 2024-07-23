@@ -603,7 +603,21 @@ function validateUsername(username: string | null): boolean {
 }
 ```
 
-##### Option 5: Extract the check into its own variable
+##### Option 5: Check for `null` directly
+
+Another option is to check for `null` directly:
+
+```typescript
+function validateUsername(username: string | null): boolean {
+  if (username === null) {
+    return false;
+  }
+
+  return username.length > 5;
+}
+```
+
+##### Option 6: Extract the check into its own variable
 
 Finally, for readability and reusability purposes you could store the check in its own variable `isUsernameOK`.
 
