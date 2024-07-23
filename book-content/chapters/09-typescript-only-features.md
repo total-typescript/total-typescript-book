@@ -495,7 +495,7 @@ Imagine ES modules, with `import` and `export`, never existed. In this world, ev
 
 This is the world that TypeScript was born into. Module systems like CommonJS (`require`) and ES Modules (`import`, `export`) weren't popular yet. So, namespaces were a crucial way to avoid naming conflicts and organize your code.
 
-But now that ES modules are widely supported, you should use them over namespaces. Namespaces have very little relevance in modern TypeScript code, with some exceptions which we'll explore in our chapter on global scopes.
+But now that ES modules are widely supported, you should not use namespaces. Namespaces have very little relevance in modern TypeScript code, with some exceptions which we'll explore in our chapter on global scopes.
 
 ## When to Prefer ES vs. TS
 
