@@ -388,7 +388,7 @@ Like before, we are not including any implementation code in the `.d.ts` file â€
 Once the `duration-utils.d.ts` file is created, the module can be imported and used as usual:
 
 ```typescript
-import { formatDuration, parseTrackData } from "duration-utils";
+import { formatDuration } from "duration-utils";
 
 const formattedTime = formatDuration(309);
 ```
