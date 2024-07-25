@@ -4,17 +4,19 @@ interface WithId {
   id: string;
 }
 
+interface WithName {
+  name: string;
+}
+
 interface WithCreatedAt {
   createdAt: Date;
 }
 
-interface User extends WithId, WithCreatedAt {
-  name: string;
+interface User extends WithId, WithName, WithCreatedAt {
   email: string;
 }
 
-interface Product extends WithId, WithCreatedAt {
-  name: string;
+interface Product extends WithId, WithName, WithCreatedAt {
   price: number;
 }
 

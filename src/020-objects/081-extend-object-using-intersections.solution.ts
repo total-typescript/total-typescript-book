@@ -3,15 +3,14 @@ import { Extends, Expect } from "@total-typescript/helpers";
 type BaseEntity = {
   id: string;
   createdAt: Date;
+  name: string;
 };
 
 type User = {
-  name: string;
   email: string;
 } & BaseEntity;
 
 type Product = {
-  name: string;
   price: number;
 } & BaseEntity;
 
