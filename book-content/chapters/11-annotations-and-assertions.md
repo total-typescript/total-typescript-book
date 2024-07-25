@@ -1034,7 +1034,7 @@ This allows us to specify that the values we pass to our configuration object mu
 
 Let's work through the solutions for `satisfies`, `as`, and variable annotations.
 
-#### When to Use `satifies`
+#### When to Use `satisfies`
 
 For the first scenario that uses a `Record`, the `satisfies` keyword won't work because we can't add dynamic members to an empty object.
 
@@ -1193,4 +1193,4 @@ const routes = {
 
 Now our tests pass expected.
 
-This setup of combining `as const` and `satisfies` is ideal when you need a particular shape for a configuration object and want while enforcing immutability.
+This setup of combining `as const` and `satisfies` is ideal when you need a particular shape for a configuration object while enforcing immutability.

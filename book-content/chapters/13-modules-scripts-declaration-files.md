@@ -383,12 +383,12 @@ declare module "duration-utils" {
 
 We use `export` to define what is being exported from the module.
 
-Like before, we are not including any implementation code in the `.d.ts` file– it's just the types that are being declared.
+Like before, we are not including any implementation code in the `.d.ts` file – it's just the types that are being declared.
 
 Once the `duration-utils.d.ts` file is created, the module can be imported and used as usual:
 
 ```typescript
-import { formatDuration, parseTrackData } from "music-utils";
+import { formatDuration, parseTrackData } from "duration-utils";
 
 const formattedTime = formatDuration(309);
 ```
@@ -468,7 +468,7 @@ const numbers = [1, 2, 3];
 numbers.map((n) => n * 2);
 ```
 
-Let's step back for a minute. How does TypeScript know that `.map` exists on an array? How does it know that `.map` exists, but `.transform` doesn't? Where is this defined
+Let's step back for a minute. How does TypeScript know that `.map` exists on an array? How does it know that `.map` exists, but `.transform` doesn't? Where is this defined?
 
 As it turns out, TypeScript ships with a bunch of declaration files that describe the JavaScript environment. We can do a 'go to definition' on `.map` to see where that is:
 

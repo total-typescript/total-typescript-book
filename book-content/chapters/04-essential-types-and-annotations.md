@@ -1186,7 +1186,7 @@ type ShoppingCart = {
 
 There are a few different ways to express an array of objects.
 
-One approach would be to to create a new `Ingredient` type that we can use to represent the objects in the array:
+One approach would be to create a new `Ingredient` type that we can use to represent the objects in the array:
 
 ```ts twoslash
 type Ingredient = {

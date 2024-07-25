@@ -1008,6 +1008,6 @@ const buttonsToChange: (
 )[];
 ```
 
-But again, this is still typed strongly enough to to satisfy `modifyButtons`.
+But again, this is still typed strongly enough to satisfy `modifyButtons`.
 
 When using `as const` like this acts like a hint to TypeScript that it should infer a literal type where it wouldn't otherwise. This can be occasionally useful for when you want to allow mutation, but still want to infer a literal type.
