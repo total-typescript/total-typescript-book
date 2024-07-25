@@ -232,7 +232,7 @@ TypeScript shows an error that tells us that `ResourceStatus` requires two type 
 
 In some cases, you may want to provide default types for generic type parameters. Like with functions, you can use the `=` to assign a default value.
 
-By setting `TMetadata`'s default value to an empty, we can essentially make `TMetadata` optional:
+By setting `TMetadata`'s default value to an empty object, we can essentially make `TMetadata` optional:
 
 ```tsx
 type ResourceStatus<TContent, TMetadata = {}> =
@@ -549,7 +549,7 @@ Conditional types turn TypeScript's type system into a full programming language
 
 ## Mapped Types
 
-Mapped types in TypeScript allow you to create a new object type based on an existing type by iterating over its keys and values. This can be let you be extremely expressive when creating new object types.
+Mapped types in TypeScript allow you to create a new object type based on an existing type by iterating over its keys and values. This can let you be extremely expressive when creating new object types.
 
 Consider this `Album` interface:
 
