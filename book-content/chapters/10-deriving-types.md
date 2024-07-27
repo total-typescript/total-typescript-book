@@ -1418,6 +1418,8 @@ What can make decoupling a difficult decision is that deriving can make you feel
 
 Deriving makes most sense when the code you're coupling shares a common concern. The examples in this chapter are good examples of this. Our `as const` object, for instance:
 
+I think this discussion is missing a crucial component: sometimes you WANT coupling. If the AvatarImageProps from above doesn't just happen to contain some common properties from the User type, but is in fact, conceptually and in practice, a true subset of the User type, then you WANT tight coupling. If the imageUrl prop on the User type changes from a string to, say, a union of a string (url) or an object containing some inline preview for the image, then you want that change automatically propagated to the dervied type. Coupling is good and desirable sometimes. When it is, you should derive. When you just happen to have a type that shares some structure with another type, duplicate, don't derive. 
+
 ```typescript
 const albumTypes = {
   CD: "cd",
