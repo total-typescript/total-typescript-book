@@ -850,6 +850,7 @@ Instead, we can use the `number` type as the argument to the indexed access type
 
 ```typescript
 type AllPrograms = (typeof programModes)[number];
+// that's a new one from me - I did't know you could index tuple types with number. I'd urge you to cover that in the main content of the chapter, and, as I've said before, re-think whether you need these exercises in the book
 ```
 
 Now new items can be added to the `programModes` array without needing to update the `AllPrograms` type manually. This solution makes the test pass as expected, and is a great pattern to apply in your own projects.
