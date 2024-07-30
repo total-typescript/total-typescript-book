@@ -880,7 +880,7 @@ it("Should accept a custom error", () => {
 
 Your task is to update the `addCodeToError` type signature to enforce the required constraints so that `TError` is required to have a `message` property and can optionally have a `code` property.
 
-<Exercise title="Exercise 4: Type Parameter Constraints" filePath="/src/085-the-utils-folder/216-type-parameter-defaults-in-generic-functions.problem.ts"></Exercise>
+<Exercise title="Exercise 4: Type Parameter Constraints" filePath="/src/085-the-utils-folder/218-type-parameter-constraints-with-generic-functions.problem"></Exercise>
 
 ### Exercise 5: Combining Generic Types and Functions
 
