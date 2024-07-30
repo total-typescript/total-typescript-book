@@ -496,8 +496,9 @@ function assertIsAlbum(input: unknown): asserts input is Album {
     "artist" in input &&
     "year" in input
   ) {
-    throw new Error("Not an Album!");
+    return;
   }
+  throw new Error("Not an Album!");
 }
 ```
 
@@ -522,8 +523,9 @@ function assertIsAlbum(input: unknown): asserts input is Album {
     "artist" in input &&
     "year" in input
   ) {
-    throw new Error("Not an Album!");
+    return;
   }
+  throw new Error("Not an Album!");
 }
 // ---cut---
 function getAlbumTitle(item: unknown) {
@@ -548,11 +550,12 @@ For example, if the `assertIsAlbum` function doesn't check for all the required 
 ```typescript
 function assertIsAlbum(input: unknown): asserts input is Album {
   if (typeof input === "object") {
-    throw new Error("Not an Album!");
+    return;
   }
+  throw new Error("Not an Album!");
 }
 
-let item = null;
+let item: unknown = null;
 
 assertIsAlbum(item);
 
