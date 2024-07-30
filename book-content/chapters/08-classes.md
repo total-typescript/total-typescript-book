@@ -248,7 +248,7 @@ class Album {
 }
 ```
 
-The `#` syntax behaves the same as `private`, but it's a newer feature that's part of the ECMAScript standard. This means that it can be used in JavaScript as well as TypeScript.
+The `#` syntax behaves the same as `private`, but it actually comes from JavaScript, not TypeScript.
 
 Attempting to access a `#`-prefixed property from outside of the class will result in a syntax error:
 
@@ -263,7 +263,9 @@ const loopFindingJazzRecords = new Album();
 console.log(loopFindingJazzRecords.#rating); // SyntaxError
 ```
 
-Attempting to cheat by accessing it with a dynamic string will return `undefined` - and still give a TypeScript error.
+This would also fail at runtime, too! But TypeScript helps us catch this at compile time.
+
+Attempting to cheat by accessing it with a dynamic string won't fail at runtime. But it will return `undefined` - and still give a TypeScript error.
 
 ```ts twoslash
 // @errors: 7053
@@ -277,7 +279,7 @@ const loopFindingJazzRecords = new Album();
 console.log(loopFindingJazzRecords["#rating"]); // Output: undefined
 ```
 
-So, if you want to ensure that a property is truly private, you should use the `#` syntax.
+So, if you want to ensure that a property is private at runtime _and_ compile time, you should use the `#` syntax.
 
 ## Class Methods
 
@@ -346,7 +348,7 @@ myObj.arrow(); // { location: 'Class' }
 myObj.method(); // { location: 'Object' }
 ```
 
-In the `arrow` method, `this` is bound to the instance of the class where it was defined. In the `method` method, `this` is bound to the object where it was called.
+In the `arrow` method, `this` is bound to the instance of the class where it was defined. In the `method` method, `this` is bound to the object where it was called - which is the `myObj` object.
 
 This can be a bit of a gotcha when working with classes, whether in JavaScript or TypeScript.
 

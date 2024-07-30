@@ -137,7 +137,7 @@ TypeScript gives us an error below `albumAttributes` inside of the `updateStatus
 This is happening because TypeScript has inferred the `status` property as a `string` rather than the specific literal type `"on-sale"`. Similar to with `let`, TypeScript understands that the property could later be reassigned:
 
 ```typescript
-albumAttributes.status = "new-release";
+albumAttributes.status = "not-valid";
 ```
 
 This is true even though the `albumAttributes` object was declared with `const`. We get the error when calling `updateStatus` because `status: string` can't be passed to a function that expects `status: "new-release" | "on-sale" | "staff-pick"`. TypeScript is trying to protect us from potential runtime errors.

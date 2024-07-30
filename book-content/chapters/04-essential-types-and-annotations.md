@@ -166,7 +166,8 @@ isReleased = "yes";
 And also giving us autocomplete on the variable:
 
 ```ts
-albumTitle.toUpper; // shows `toUpperCase` in autocomplete
+// prettier-ignore
+albumTitle.toUpper // shows `toUpperCase` in autocomplete
 ```
 
 This is an extremely powerful part of TypeScript. It means that you can mostly _not_ annotate variables and still have your IDE know what type things are.
@@ -205,7 +206,7 @@ function add(a, b) {
 
 `a` and `b` could be strings, booleans, or anything else. TypeScript can't know from the function body what type they're supposed to be.
 
-So, when you're declaring a named function, their parameters always need annotations in TypeScript.
+So, when you're declaring a function, their parameters always need annotations in TypeScript.
 
 ### The `any` Type
 
