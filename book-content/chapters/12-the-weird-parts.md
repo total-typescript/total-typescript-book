@@ -426,6 +426,8 @@ class Song {
 }
 ```
 
+Stress here that song is a **runtime construct** that actually executes in JavaScript, and could, with different functions, be passed around. And is ALSO a type, as you show below
+
 We can use the `Song` class as a type, for instance to type a function's parameter:
 
 ```tsx
@@ -655,7 +657,7 @@ When we call the `sellAlbum` function, it will increment the `sales` property an
 album.sellAlbum(); // logs "Solid Air has sold 40001 copies."
 ```
 
-This works because when declaring a function with the `function` keyword, `this` will always refer to the object that the function is a part of. Even when the function implementation is written outside of the object, `this` will still refer to the object when the function is called:
+This works because when declaring a function with the `function` keyword (or method syntax, ie `sellAlbum() { }`), `this` will always refer to the object that the function is a part of. Even when the function implementation is written outside of the object, `this` will still refer to the object when the function is called (assuming it's called as `object.function()`):
 
 ```tsx
 function sellAlbum() {
