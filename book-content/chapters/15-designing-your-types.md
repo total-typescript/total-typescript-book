@@ -81,25 +81,9 @@ type Example = ResourceStatus<{
 
 Just like with `Pick` and `Omit`, the type argument is passed in as an argument to the generic type.
 
-But what type will `Example` be?
+We set the result of `ResourceStatus` to be `unknown` above, so let's actually implement out type. 
 
-```tsx
-// hovering over Example shows
-type Example = unknown;
-```
-
-We set the result of `ResourceStatus` to be `unknown`. Why is this happening? We can get a clue by hovering over the `TContent` parameter in the `ResourceStatus` type:
-
-```tsx
-type ResourceStatus<TContent> = unknown;
-
-// hovering over TContent shows:
-// Type 'TContent' is declared but its value is never read.
-```
-
-We're not _using_ the `TContent` parameter. We're just returning `unknown`, no matter what is passed in. So, the `Example` type is also `unknown`.
-
-So, let's use it. Let's update the `ResourceStatus` type to match the structure of the `StreamingPlaylist` and `StreamingAlbum` types, with the bit we want to be dynamic replaced with the `TContent` type parameter:
+Let's update the `ResourceStatus` type to match the structure of the `StreamingPlaylist` and `StreamingAlbum` types, with the bit we want to be dynamic replaced with the `TContent` type parameter:
 
 ```tsx
 type ResourceStatus<TContent> =
