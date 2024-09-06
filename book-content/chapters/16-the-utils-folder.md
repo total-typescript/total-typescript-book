@@ -216,7 +216,7 @@ const getFirstElement = <TMember>(arr: TMember[]) => {
 
 Just like generic functions, it's common to prefix your type parameters with `T` to differentiate them from normal types.
 
-Now when we call `getFirstElement`, TypeScript will infer the type of `` based on the argument we pass in:
+Now when we call `getFirstElement`, TypeScript will infer the type of `TMember` based on the argument we pass in:
 
 ```ts twoslash
 const getFirstElement = <TMember>(arr: TMember[]) => {
