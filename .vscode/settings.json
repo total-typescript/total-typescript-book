@@ -3,14 +3,6 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "github.copilot.enable": {
     "*": false,
-    "plaintext": false,
-    "markdown": true,
-    "scminput": false
   },
-  "markdownlint.config": {
-    "default": false,
-    "MD001": true,
-    "MD022": true,
-    "MD038": true
-  }
+  "explorer.sortOrder": "mixed",
 }
