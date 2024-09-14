@@ -338,6 +338,7 @@ To solve this challenge, we'll create a new `BaseEntity` type with the common pr
 ```typescript
 type BaseEntity = {
   id: string;
+  name: string;
   createdAt: Date;
 };
 ```
@@ -348,14 +349,12 @@ Once the `BaseEntity` type is created, we can intersect it with the `User` and `
 type User = {
   id: string;
   createdAt: Date;
-  name: string;
   email: string;
 } & BaseEntity;
 
 type Product = {
   id: string;
   createdAt: Date;
-  name: string;
   price: number;
 } & BaseEntity;
 ```
@@ -364,12 +363,10 @@ Then, we can remove the common properties from `User` and `Product`:
 
 ```typescript
 type User = {
-  name: string;
   email: string;
 } & BaseEntity;
 
 type Product = {
-  name: string;
   price: number;
 } & BaseEntity;
 ```
@@ -411,24 +408,26 @@ interface Product extends BaseEntity {
 }
 ```
 
-For the extra credit, we can take this further by creating `WithId` and `WithCreatedAt` interfaces that represent objects with an `id` and `createdAt` property. Then, we can have `User` and `Product` extend from these interfaces by adding commas:
+For the extra credit, we can take this further by creating `WithId`, `WithName` and `WithCreatedAt` interfaces that represent objects with an `id` and `createdAt` property. Then, we can have `User` and `Product` extend from these interfaces by adding commas:
 
 ```typescript
 interface WithId {
   id: string;
 }
 
+interface WithName {
+  name: string;
+}
+
 interface WithCreatedAt {
   createdAt: Date;
 }
 
-interface User extends WithId, WithCreatedAt {
-  name: string;
+interface User extends WithId, WithName, WithCreatedAt {
   email: string;
 }
 
-interface Product extends WithId, WithCreatedAt {
-  name: string;
+interface Product extends WithId, WithName, WithCreatedAt {
   price: number;
 }
 ```
