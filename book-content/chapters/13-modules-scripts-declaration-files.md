@@ -280,13 +280,13 @@ type Album = {
   releaseDate: string;
 };
 
-declare const ALBUM_API: {
+declare const MUSIC_API: {
   getAlbumInfo(upc: string): Promise<Album>;
   searchAlbums(query: string): Promise<Album[]>;
 };
 ```
 
-Because we haven't included any imports or exports, this file is treated as a script. This means that the `ALBUM_API` variable is now available globally in our project.
+Because we haven't included any imports or exports, this file is treated as a script. This means that the `MUSIC_API` variable is now available globally in our project.
 
 #### Scoping Global Variables To One File
 
@@ -301,17 +301,17 @@ type Album = {
   releaseDate: string;
 };
 
-declare const ALBUM_API: {
+declare const MUSIC_API: {
   getAlbumInfo(upc: string): Promise<Album>;
   searchAlbums(query: string): Promise<Album[]>;
 };
 
 export function getAlbumTitle(upc: string) {
-  return ALBUM_API.getAlbumInfo(upc).then((album) => album.title);
+  return MUSIC_API.getAlbumInfo(upc).then((album) => album.title);
 }
 ```
 
-Now, `ALBUM_API` is only available in the `musicUtils.ts` file. `declare` defines the value within the scope it's currently in. So, because we're now inside a module (due to the `export` statement), `ALBUM_API` is scoped to this module.
+Now, `MUSIC_API` is only available in the `musicUtils.ts` file. `declare` defines the value within the scope it's currently in. So, because we're now inside a module (due to the `export` statement), `MUSIC_API` is scoped to this module.
 
 #### `declare const`, `declare var`, `declare let`, `declare function`
 
@@ -343,7 +343,7 @@ type Album = {
 // ---cut---
 // inside musicUtils.ts
 declare global {
-  declare const ALBUM_API: {
+  declare const MUSIC_API: {
     getAlbumInfo(upc: string): Promise<Album>;
     searchAlbums(query: string): Promise<Album[]>;
   };
@@ -356,14 +356,14 @@ This almost works, except for the error. We can't use `declare` inside an ambien
 // inside musicUtils.ts
 
 declare global {
-  const ALBUM_API: {
+  const MUSIC_API: {
     getAlbumInfo(upc: string): Promise<Album>;
     searchAlbums(query: string): Promise<Album[]>;
   };
 }
 ```
 
-Now the `ALBUM_API` variable has been put into the global scope.
+Now the `MUSIC_API` variable has been put into the global scope.
 
 ### `declare module`
 
