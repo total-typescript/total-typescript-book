@@ -380,7 +380,7 @@ This lets us call `toUpperCase` on `year` when it's a `string`, and `toFixed` on
 
 However, anywhere outside of the conditional block the type of `year` is still the union `string | number`. This is because narrowing only applies within the block's scope.
 
-For the sale of illustration, if we add a `boolean` to the `year` union, the first `if` block will still end up with a type of `string`, but the `else` block will end up with a type of `number | boolean`:
+For the sake of illustration, if we add a `boolean` to the `year` union, the first `if` block will still end up with a type of `string`, but the `else` block will end up with a type of `number | boolean`:
 
 ```typescript
 const getAlbumYear = (year: string | number | boolean) => {
