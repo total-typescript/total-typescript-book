@@ -127,6 +127,8 @@ So it seems we're at an impasse. We both want to infer the type of the value, bu
 
 The `satisfies` operator is a way to tell TypeScript that a value must satisfy certain criteria, but still allow TypeScript to infer the type.
 
+Maybe mention also that `satisfies` prevents widening? 
+
 Let's use it to make sure our `config` object has the right shape:
 
 ```typescript
@@ -270,6 +272,7 @@ As an alternative to `as`, you can prefix the value with the type wrapped in ang
 
 ```typescript
 const id = <string>searchParams.get("id");
+// this doesn't work in tsx / react files, right? Might be worth mentioning if so 
 ```
 
 This is less common than `as`, but behaves exactly the same way. `as` is more common, so it's better to use that.
