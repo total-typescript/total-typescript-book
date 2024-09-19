@@ -421,7 +421,7 @@ A TypeScript-enabled feature called 'Rename Symbol' allows you to do that with a
 Let's take a look at an example.
 
 ```typescript
-const filterUsersById = (id: string) => {
+const findUsersById = (id: string) => {
   return users.filter((user) => user.id === id);
 };
 ```
