@@ -1854,3 +1854,15 @@ if (shape.kind === "square") {
 By inspecting `square` first, all shape cases that aren't squares default to circles. The circle is treated as optional, which preserves our discriminated union and keeps the function flexible.
 
 Sometimes, just flipping the runtime logic makes TypeScript happy!
+
+## Summary
+
+You should now have a solid understanding of how TypeScript uses unions to express different possibilities for a value. Let's summarize:
+
+- A union type is a type formed by combining two or more types using the `|` operator.
+- Literal types can be used to express specific strings, numbers or booleans, like `"loading"`, `42`, or `true`.
+- Types can be wider or narrower versions of other types. For instance, `string` is a wider version of `"hello"`, and `number` is a wider version of `42`.
+- TypeScript can narrow down unions to specific values in your code. You can use `typeof`, `in`, and `instanceof` checks to help TypeScript narrow down the type of a value.
+- `unknown` is a type that represents any value. You can use type assertions or type guards to narrow down the type of an `unknown` value.
+- The `never` type represents something that can never happen. You can use it to represent functions that always error, so never return.
+- Discriminated unions are an extremely useful pattern in TypeScript. They are a set of objects, each with a literal type property that acts as a discriminant. They help solve the 'bag of optionals' problem.

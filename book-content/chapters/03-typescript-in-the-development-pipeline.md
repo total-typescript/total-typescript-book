@@ -242,3 +242,13 @@ Inside the `tsconfig.json` file, there's an option called `noEmit` that tells `t
 By setting `noEmit` to `true`, no JavaScript files will be created when you run `tsc`. This makes TypeScript act more like a linter than a transpiler. This makes a `tsc` step a great addition to a CI/CD system, since it can prevent merging a pull request with TypeScript errors.
 
 Later in the book, we'll look closer at more advanced TypeScript configurations for application development.
+
+## Summary
+
+You should now have a feel for how to integrate TypeScript into your development pipeline. We've covered:
+
+- TypeScript can't run in the browser - it needs to be transpiled to JavaScript first.
+- The TypeScript CLI `tsc` can transpile TypeScript files to JavaScript, and check for errors.
+- The `tsc --watch` command will automatically recompile TypeScript files on save.
+- TypeScript can be used as a linter by setting `noEmit` to `true` in the `tsconfig.json` file.
+- Using TypeScript as a linter is most common when working with frontend frameworks like Vite.
