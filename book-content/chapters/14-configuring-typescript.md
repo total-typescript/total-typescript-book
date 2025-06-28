@@ -17,6 +17,7 @@ To start, here's a recommended base `tsconfig.json` configuration with options a
     "isolatedModules": true,
     "strict": true,
     "noUncheckedIndexedAccess": true
+  }
 }
 ```
 
