@@ -117,7 +117,7 @@ We could then specify `AlbumFormat` as a union of `DigitalFormat` and `PhysicalF
 type AlbumFormat = DigitalFormat | PhysicalFormat;
 ```
 
-Now, we can use the `DigitalFormat` type for functions that handle digital formats, and the `AnalogFormat` type for functions that handle analog formats. The `AlbumFormat` type can be used for functions that handle all cases.
+Now, we can use the `DigitalFormat` type for functions that handle digital formats, and the `PhysicalFormat` type for functions that handle physical formats. The `AlbumFormat` type can be used for functions that handle all cases.
 
 This way, we can ensure that each function only handles the cases it's supposed to handle, and TypeScript will throw an error if we try to pass an incorrect format to a function.
 

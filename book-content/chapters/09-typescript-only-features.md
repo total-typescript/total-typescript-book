@@ -371,18 +371,18 @@ namespace RecordStoreUtils {
 }
 ```
 
-In this example, `AlbumCollection` is the main namespace, with `Sales` as a nested namespace. This structure helps in organizing the code by functionality and makes it clear which part of the application each function pertains to.
+In this example, `RecordStoreUtils` is the main namespace, with `Sales` as a nested namespace. This structure helps in organizing the code by functionality and makes it clear which part of the application each function pertains to.
 
-The stuff inside of the `AlbumCollection` can be used as values or types:
+The stuff inside of the `RecordStoreUtils` can be used as values or types:
 
 ```typescript
-const odelay: AlbumCollection.Album.Album = {
+const odelay: RecordStoreUtils.Album.Album = {
   title: "Odelay!",
   artist: "Beck",
   year: 1996,
 };
 
-AlbumCollection.Sales.recordSale("Odelay!", 1, 10.99);
+RecordStoreUtils.Sales.recordSale("Odelay!", 1, 10.99);
 ```
 
 ### How Namespaces Compile
