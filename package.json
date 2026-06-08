@@ -15,7 +15,7 @@
     "prettier": "^2.8.7",
     "typescript": "^5.5.2",
     "vite-tsconfig-paths": "^4.0.7",
-    "vitest": "^1.6.0"
+    "vitest": "^3.2.6"
   },
   "scripts": {
     "format-book": "tsx book-content/formatter/format.ts",
